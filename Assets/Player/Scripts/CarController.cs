@@ -10,7 +10,7 @@ namespace Player.Scripts
         private Rigidbody rb;
 
         [Header("Car Settings")] public float acceleration = 15f;
-        public float turnSpeed = 50f;
+        public float turnSpeed = 20f;
 
         private void Awake()
         {
@@ -32,20 +32,36 @@ namespace Player.Scripts
 
         private void FixedUpdate()
         {
-            // Forward/back movement
-            float forward = moveInput.y * acceleration;
-            Vector3 force = transform.forward * forward;
-            rb.AddForce(force, ForceMode.Force);
+            Move();
+            Turn();
+        }
 
-            // Turning (only while moving forward/backward a bit)
-            if (rb.linearVelocity.magnitude > 0.1f)
+        private void Turn()
+        {
+            if (moveInput.x > 0)
             {
-                float turn = moveInput.x * turnSpeed * Time.fixedDeltaTime;
-                Quaternion turnRotation = Quaternion.Euler(0f, turn, 0f);
-                rb.MoveRotation(rb.rotation * turnRotation);
+                rb.AddTorque(UnityEngine.Vector3.up * turnSpeed);
             }
-            
-            
+            else if (moveInput.x < 0)
+            {
+                rb.AddTorque(-UnityEngine.Vector3.up * turnSpeed);
+            }
+        }
+
+        private void Move()
+        {
+            if (moveInput.y > 0)
+            {
+                rb.AddRelativeForce(UnityEngine.Vector3.forward * acceleration);
+            }
+            else if (moveInput.y < 0)
+            {
+                rb.AddRelativeForce(-UnityEngine.Vector3.forward * acceleration);
+            }
+
+            Vector3 localVelocity = transform.InverseTransformDirection(rb.linearVelocity);
+            localVelocity.x = 0;
+            rb.linearVelocity = transform.TransformDirection(localVelocity);
         }
     }
 } 

@@ -7,12 +7,12 @@ namespace UI.Scripts
     {
         public void OnSingleplayerButtonClick()
         {
-            SceneManager.LoadScene("Singleplayer");
+            SceneManager.LoadScene("Prototype Map");
         }
 
         public void OnMultiplayerButtonClick()
         {
-            SceneManager.LoadScene("Multiplayer");
+            SceneManager.LoadScene("Prototype Map");
         }
 
         public void OnQuitButtonClick()
