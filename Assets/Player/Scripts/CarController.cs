@@ -1,32 +1,51 @@
 using UnityEngine;
 
-public class CarController : MonoBehaviour
+namespace Player.Scripts
 {
-    private PlayerControls controls;
-    private Vector2 moveInput;
-
-    public float speed = 10f;
-
-    private void Awake()
+    public class CarController : MonoBehaviour
     {
-        controls = new PlayerControls();
-    }
+        private PlayerControls controls;
+        private Vector2 moveInput;
 
-    private void OnEnable()
-    {
-        controls.Gameplay.Enable();
-        controls.Gameplay.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-        controls.Gameplay.Move.canceled += ctx => moveInput = Vector2.zero;
-    }
+        private Rigidbody rb;
 
-    private void OnDisable()
-    {
-        controls.Gameplay.Disable();
-    }
+        [Header("Car Settings")] public float acceleration = 15f;
+        public float turnSpeed = 50f;
 
-    void Update()
-    {
-        Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
-        transform.Translate(move * speed * Time.deltaTime);
+        private void Awake()
+        {
+            controls = new PlayerControls();
+            rb = GetComponent<Rigidbody>();
+        }
+
+        private void OnEnable()
+        {
+            controls.Gameplay.Enable();
+            controls.Gameplay.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
+            controls.Gameplay.Move.canceled += ctx => moveInput = Vector2.zero;
+        }
+
+        private void OnDisable()
+        {
+            controls.Gameplay.Disable();
+        }
+
+        private void FixedUpdate()
+        {
+            // Forward/back movement
+            float forward = moveInput.y * acceleration;
+            Vector3 force = transform.forward * forward;
+            rb.AddForce(force, ForceMode.Force);
+
+            // Turning (only while moving forward/backward a bit)
+            if (rb.linearVelocity.magnitude > 0.1f)
+            {
+                float turn = moveInput.x * turnSpeed * Time.fixedDeltaTime;
+                Quaternion turnRotation = Quaternion.Euler(0f, turn, 0f);
+                rb.MoveRotation(rb.rotation * turnRotation);
+            }
+            
+            
+        }
     }
-}
+} 

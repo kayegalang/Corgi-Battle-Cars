@@ -5,20 +5,20 @@ namespace UI.Scripts
 {
     public class StartScreenText : MonoBehaviour
     {
-        private TextMeshProUGUI _startText;
+        private TextMeshProUGUI startText;
         [SerializeField] private float blinkSpeed;
         void Start()
         {
-            _startText = GetComponent<TextMeshProUGUI>();
+            startText = GetComponent<TextMeshProUGUI>();
         }
 
         void Update()
         {
             float alpha = Mathf.Abs(Mathf.Sin(Time.time * blinkSpeed));
-                _startText.color = new Color(
-                _startText.color.r,
-                _startText.color.g,
-                _startText.color.b,
+                startText.color = new Color(
+                startText.color.r,
+                startText.color.g,
+                startText.color.b,
                 alpha
             );
         }
