@@ -38,14 +38,29 @@ namespace Player.Scripts
 
         private void Turn()
         {
-            if (moveInput.x > 0)
+            if (IsMovingForward())
             {
-                rb.AddTorque(UnityEngine.Vector3.up * turnSpeed);
+                if (moveInput.x > 0)
+                {
+                    rb.AddTorque(UnityEngine.Vector3.up * turnSpeed);
+                }
+                else if (moveInput.x < 0)
+                {
+                    rb.AddTorque(-UnityEngine.Vector3.up * turnSpeed);
+                }
             }
-            else if (moveInput.x < 0)
+            else if (!IsMovingForward())
             {
-                rb.AddTorque(-UnityEngine.Vector3.up * turnSpeed);
+                if (moveInput.x > 0)
+                {
+                    rb.AddTorque(-UnityEngine.Vector3.up * turnSpeed);
+                }
+                else if (moveInput.x < 0)
+                {
+                    rb.AddTorque(UnityEngine.Vector3.up * turnSpeed);
+                }
             }
+
         }
 
         private void Move()
@@ -62,6 +77,11 @@ namespace Player.Scripts
             Vector3 localVelocity = transform.InverseTransformDirection(rb.linearVelocity);
             localVelocity.x = 0;
             rb.linearVelocity = transform.TransformDirection(localVelocity);
+        }
+
+        private bool IsMovingForward()
+        {
+            return moveInput.y > 0;
         }
     }
 } 
