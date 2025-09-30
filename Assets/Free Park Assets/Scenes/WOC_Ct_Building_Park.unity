@@ -1973,7 +1973,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8643484264083018701, guid: 0d9430f7d80814b37ad9df0a3390f608, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1481675138}
   m_SourcePrefab: {fileID: 100100000, guid: 0d9430f7d80814b37ad9df0a3390f608, type: 3}
 --- !u!1 &1140910324 stripped
 GameObject:
@@ -2386,11 +2389,32 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 01aa8be9c71d5e7438d6409d0ea7ef13, type: 3}
   m_PrefabInstance: {fileID: 1464680894}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1481675131 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8643484264083018701, guid: 0d9430f7d80814b37ad9df0a3390f608, type: 3}
+  m_PrefabInstance: {fileID: 1132834539}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1481675137 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4671277926881292058, guid: 0d9430f7d80814b37ad9df0a3390f608, type: 3}
   m_PrefabInstance: {fileID: 1132834539}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1481675138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1481675131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5a3a327d9b4b4e158631acde3ef07f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Player.Scripts.CarShooter
+  projectilePrefab: {fileID: 5940751187897929002, guid: a1cbf08f72ec94c2ca82033c3604a0d1, type: 3}
+  firePoint: {fileID: 1481675137}
+  fireForce: 30
+  fireRate: 0.25
 --- !u!1001 &1553659603
 PrefabInstance:
   m_ObjectHideFlags: 0
