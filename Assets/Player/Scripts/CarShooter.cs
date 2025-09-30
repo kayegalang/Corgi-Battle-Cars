@@ -1,4 +1,3 @@
-using Gameplay.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -51,6 +50,12 @@ namespace Player.Scripts
 
             GameObject bullet = Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(shootDirection));
 
+            Projectile proj = bullet.GetComponent<Projectile>();
+            if (proj != null)
+            {
+                proj.SetShooter(gameObject); // "gameObject" = the car that fired
+            }
+            
             Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
             if (bulletRb != null)
             {
@@ -59,12 +64,6 @@ namespace Player.Scripts
             }
 
             bullet.GetComponent<Rigidbody>().AddForce(shootDirection * fireForce, ForceMode.Impulse);
-                
-            Projectile proj = bullet.GetComponent<Projectile>();
-            if (proj != null)
-            {
-                proj.SetShooter(gameObject); // "gameObject" = the car that fired
-            }
         }
 
         private Vector3 GetDirection()

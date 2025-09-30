@@ -22,6 +22,7 @@ public class CarHealth : MonoBehaviour
 
     private void Die()
     {
+        Debug.Log("Car Died!");
         // TODO: Explode car, respawn
     }
     

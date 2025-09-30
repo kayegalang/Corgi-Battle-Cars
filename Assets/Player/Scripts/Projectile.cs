@@ -4,7 +4,7 @@ using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace Gameplay.Scripts
+namespace Player.Scripts
 {
     public class Projectile : MonoBehaviour
     {
@@ -28,11 +28,23 @@ namespace Gameplay.Scripts
 
             if (!other.CompareTag(shooter.tag))
             {
+                DamageEnemy(other);
+                
                 Destroy(gameObject);
             }
         }
-        
-        
+
+        private static void DamageEnemy(Collider other)
+        {
+            CarHealth health = other.gameObject.GetComponent<CarHealth>();
+
+            if (health != null)
+            {
+                health.TakeDamage(10);
+            }
+        }
+
+
         public void SetShooter(GameObject shooterObject)
         {
             shooter = shooterObject;
