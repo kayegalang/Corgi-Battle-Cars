@@ -5,13 +5,23 @@ namespace Player.Scripts
 {
     public class HealthBar : MonoBehaviour
     {
-        private CarHealth health;
-        private Image fillImage;
+        [SerializeField] private CarHealth health;
+        [SerializeField] private Camera carCamera;
+        private Slider healthBarSlider;
 
+        void Start()
+        {
+            healthBarSlider = GetComponent<Slider>();
+            healthBarSlider.value = 1;
+        }
         void Update()
         {
-            fillImage.fillAmount = health.GetHealthPercent();
-            transform.LookAt(gameObject.GetComponent<Camera>().transform); 
+            transform.LookAt(carCamera.transform);
+        }
+
+        public void UpdateHealthBar()
+        {
+            healthBarSlider.value = health.GetHealthPercent(); 
         }
     }
 }

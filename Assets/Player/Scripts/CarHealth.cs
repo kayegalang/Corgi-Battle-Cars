@@ -1,11 +1,18 @@
+using System.Collections;
+using Gameplay.Scripts;
+using Player.Scripts;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class CarHealth : MonoBehaviour
 {
+    [SerializeField] private SpawnManager spawnManager;
+    [SerializeField] HealthBar healthBar;
     private int maxHealth = 100;
     private int currentHealth;
 
     void Start()
+        
     {
         currentHealth = maxHealth;
     }
@@ -13,6 +20,7 @@ public class CarHealth : MonoBehaviour
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;
+        healthBar.UpdateHealthBar();
         
         if (currentHealth <= 0)
         {
@@ -22,13 +30,12 @@ public class CarHealth : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("Car Died!");
-        // TODO: Explode car, respawn
+        spawnManager.Respawn(gameObject.tag);
+        Destroy(gameObject);
     }
-    
+
     public float GetHealthPercent()
     {
         return (float)currentHealth / maxHealth;
     }
-    
 }
