@@ -7,6 +7,7 @@ namespace UI.Scripts
     {
         private TextMeshProUGUI startText;
         [SerializeField] private float blinkSpeed;
+        
         void Start()
         {
             startText = GetComponent<TextMeshProUGUI>();
