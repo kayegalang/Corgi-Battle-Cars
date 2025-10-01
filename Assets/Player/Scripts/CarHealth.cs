@@ -15,6 +15,7 @@ public class CarHealth : MonoBehaviour
         
     {
         currentHealth = maxHealth;
+        spawnManager = FindFirstObjectByType<SpawnManager>();
     }
 
     public void TakeDamage(int amount)

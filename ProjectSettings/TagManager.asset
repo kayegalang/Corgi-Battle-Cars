@@ -6,6 +6,9 @@ TagManager:
   tags:
   - PlayerOne
   - PlayerTwo
+  - PlayerThree
+  - PlayerFour
+  - Bot
   layers:
   - Default
   - TransparentFX
