@@ -1,3 +1,4 @@
+using Gameplay.Scripts;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -44,26 +45,12 @@ namespace UI.Scripts
             
             selectedButton = btn;
             selectedButton.GetComponent<Image>().color = highlightedColor;
-            startGameButton.interactable = true;
-        }
-
-        public void OnStartGameClicked()
-        {
-            LoadMap();
-        }
-
-        private void LoadMap()
-        {
-            if (selectedButton.name == "Coming Soon")
-            {
-                SceneManager.LoadScene("Prototype Map");
-            }
-            else
-            {
-                SceneManager.LoadScene(selectedButton.name);
-            }
             
-            
+            if (btn.name != "Coming Soon")
+            {
+                GameplayManager.instance.SetMap(btn.name);
+                startGameButton.interactable = true;
+            }
         }
     }
 }

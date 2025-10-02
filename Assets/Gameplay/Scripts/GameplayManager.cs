@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using UI.Scripts;
 
 namespace Gameplay.Scripts
 {
@@ -8,8 +9,8 @@ namespace Gameplay.Scripts
     {
         public static GameplayManager instance;
 
-        public GameMode CurrentGameMode { get; private set; }
-
+        private GameMode CurrentGameMode;
+        private string mapChosen;
         private SpawnManager spawnManager;
         private List<string> mapNames;
 
@@ -41,6 +42,16 @@ namespace Gameplay.Scripts
         public void SetGameMode(GameMode mode)
         {
             CurrentGameMode = mode;
+        }
+
+        public void SetMap(string mapName)
+        {
+            mapChosen = mapName;
+        }
+
+        public void OnStartGameButtonClicked()
+        {
+            LoadingManager.instance.LoadScene(mapChosen);
         }
 
         private void StartSingleplayerGame()
