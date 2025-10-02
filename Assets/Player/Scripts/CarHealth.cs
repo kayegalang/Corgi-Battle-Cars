@@ -31,7 +31,7 @@ public class CarHealth : MonoBehaviour
 
     private void Die()
     {
-        spawnManager.Respawn(gameObject.tag);
+        spawnManager.Spawn(gameObject.tag);
         Destroy(gameObject);
     }
 

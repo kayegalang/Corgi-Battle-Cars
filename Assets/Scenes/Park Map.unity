@@ -649,7 +649,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 177394184}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UI.Scripts.PauseController, Assembly-CSharp
         m_MethodName: OnQuitButtonClick
         m_Mode: 1
@@ -710,7 +710,6 @@ GameObject:
   - component: {fileID: 177394187}
   - component: {fileID: 177394186}
   - component: {fileID: 177394185}
-  - component: {fileID: 177394184}
   m_Layer: 5
   m_Name: PauseScreen
   m_TagString: Untagged
@@ -718,18 +717,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &177394184
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 177394183}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a15eb2ba080c4318aeb97b04f58191f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI.Scripts.PauseController
 --- !u!114 &177394185
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2722,7 +2709,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 177394184}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UI.Scripts.PauseController, Assembly-CSharp
         m_MethodName: OnResumeButtonClick
         m_Mode: 1
@@ -3210,6 +3197,52 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.30000037, y: 2.6092699, z: 0.10613969}
   m_Center: {x: 0.00000047683716, y: 1.3046349, z: 0.0000009536743}
+--- !u!1 &1214577215
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1214577217}
+  - component: {fileID: 1214577216}
+  m_Layer: 0
+  m_Name: PauseController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1214577216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214577215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84e24f6669614429a8fdf2076dc622eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI.Scripts.PauseController
+  PauseScreen: {fileID: 177394183}
+  GameplayPanel: {fileID: 1974248008}
+--- !u!4 &1214577217
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214577215}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1747.6858, y: 387.4961, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1287821491 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4315675419622072875, guid: fb2e182c3cbd13e4c9c5917e69ce97e0, type: 3}
@@ -3373,52 +3406,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1309557148693539304, guid: dcd07215e625d2b44b71b270d7e3b754, type: 3}
   m_PrefabInstance: {fileID: 1382798613}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1391232938
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1391232940}
-  - component: {fileID: 1391232939}
-  m_Layer: 0
-  m_Name: GameplayManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1391232939
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1391232938}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84e24f6669614429a8fdf2076dc622eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameplayManager
-  PauseScreen: {fileID: 177394183}
-  GameplayPanel: {fileID: 1974248008}
---- !u!4 &1391232940
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1391232938}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -24.01513, y: 0.33553, z: 24.69626}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1410712530
 GameObject:
   m_ObjectHideFlags: 0
@@ -4209,71 +4196,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1670717119}
   m_CullTransparentMesh: 1
---- !u!1001 &1684058028
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 3597240593953093956, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3597240593953093956, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3597240593953093956, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -54.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 3597240593953093956, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3597240593953093956, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3597240593953093956, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3597240593953093956, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3597240593953093956, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3597240593953093956, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3597240593953093956, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5856602954313328543, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_Name
-      value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 8191567321119586186, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8191567321119586186, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
 --- !u!1 &1745773770
 GameObject:
   m_ObjectHideFlags: 0
@@ -5072,7 +4994,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 177394184}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UI.Scripts.PauseController, Assembly-CSharp
         m_MethodName: OnMainMenuButtonClick
         m_Mode: 1
@@ -5483,6 +5405,5 @@ SceneRoots:
   - {fileID: 1120973752}
   - {fileID: 299450816}
   - {fileID: 2056084311}
-  - {fileID: 1391232940}
   - {fileID: 795591860}
-  - {fileID: 1684058028}
+  - {fileID: 1214577217}

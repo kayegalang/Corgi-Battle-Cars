@@ -1,4 +1,5 @@
 using Gameplay.Scripts;
+using UI.Scripts;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,10 +15,13 @@ namespace Player.Scripts
 
         private float health;
 
-        [Header("Car Settings")]
-        [SerializeField] private float acceleration = 20f;
+        private PauseController pauseController;
+
+        [Header("Car Settings")] [SerializeField]
+        private float acceleration = 20f;
+
         [SerializeField] private float turnSpeed = 20f;
-        
+
         [SerializeField] private Vector3 groundCheckOffset = new Vector3(0f, 0.26f, 0f);
         [SerializeField] private float groundCheckDistance = 0.26f;
         [SerializeField] private float jumpForce = 5f;
@@ -27,19 +31,22 @@ namespace Player.Scripts
             controls = new PlayerControls();
             carRb = GetComponent<Rigidbody>();
             health = 1f;
+            
+            pauseController = FindFirstObjectByType<PauseController>();
         }
+
 
         void Update()
         {
             if (controls.UI.Pause.triggered) 
             {
-                if (GameplayManager.instance.GetIsPaused())
+                if (pauseController.GetIsPaused())
                 {
-                    GameplayManager.instance.UnpauseGame();
+                    pauseController.UnpauseGame();
                 }
                 else
                 {
-                    GameplayManager.instance.PauseGame();
+                    pauseController.PauseGame();
                 }
             }
 

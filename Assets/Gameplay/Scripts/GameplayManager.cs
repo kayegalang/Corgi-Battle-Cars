@@ -1,47 +1,70 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
-public class GameplayManager : MonoBehaviour
+namespace Gameplay.Scripts
 {
-    public static GameplayManager instance;
-    public GameObject PauseScreen;
-    public GameObject GameplayPanel;
-    
-    private bool isPaused = false;
-    void Awake()
+    public class GameplayManager : MonoBehaviour
     {
-        if (instance == null)
+        public static GameplayManager instance;
+
+        public GameMode CurrentGameMode { get; private set; }
+
+        private SpawnManager spawnManager;
+        private List<string> mapNames;
+
+        private void Awake()
         {
-            instance = this;
+            if (instance == null)
+            {
+                instance = this;
+                DontDestroyOnLoad(gameObject);
+
+                SceneManager.sceneLoaded += OnSceneLoaded;
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+
+            spawnManager = null;
+            InitializeMapNames();
         }
-        else
+
+        private void InitializeMapNames()
         {
-            Destroy(gameObject);
+            mapNames = new List<string>();
+            mapNames.Add("Park Map");
+            mapNames.Add("Prototype Map");
         }
-    }
 
-    public void PauseGame()
-    {
-        GameplayPanel.SetActive(false);
-        PauseScreen.SetActive(true);
-        Time.timeScale = 0;
-        SetIsPaused(true);
-    }
-    
-    public void UnpauseGame()
-    {
-        GameplayPanel.SetActive(true);
-        PauseScreen.SetActive(false);
-        Time.timeScale = 1;
-        SetIsPaused(false);
-    }
+        public void SetGameMode(GameMode mode)
+        {
+            CurrentGameMode = mode;
+        }
 
-    public bool GetIsPaused()
-    {
-        return isPaused;
-    }
+        private void StartSingleplayerGame()
+        {
+            spawnManager = FindFirstObjectByType<SpawnManager>();
+            spawnManager.Spawn("PlayerOne");
+        }
 
-    public void SetIsPaused(bool value)
-    {
-        isPaused = value;
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (mapNames.Contains(scene.name))
+            {
+                SetupGame();
+            }
+        }
+
+        private void SetupGame()
+        {
+            if (CurrentGameMode == GameMode.Singleplayer)
+            {
+                StartSingleplayerGame();
+            }
+        }
+
     }
 }
+

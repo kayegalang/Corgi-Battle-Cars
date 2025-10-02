@@ -13,12 +13,12 @@ namespace Gameplay.Scripts
             return spawnPoints[Random.Range(0, spawnPoints.Length)];
         }
 
-        public void Respawn(string playerTag)
+        public void Spawn(string playerTag)
         {
-            StartCoroutine(WaitToRespawn(playerTag));
+            StartCoroutine(WaitToSpawn(playerTag));
         }
 
-        private IEnumerator WaitToRespawn(string playerTag)
+        private IEnumerator WaitToSpawn(string playerTag)
         {
             yield return new WaitForSeconds(3f);
             
