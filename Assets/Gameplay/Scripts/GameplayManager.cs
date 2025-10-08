@@ -1,6 +1,8 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using TMPro;
 using UI.Scripts;
 
 namespace Gameplay.Scripts
@@ -13,6 +15,8 @@ namespace Gameplay.Scripts
         private string mapChosen;
         private SpawnManager spawnManager;
         private List<string> mapNames;
+
+        private TextMeshProUGUI timerText = null;
 
         private void Awake()
         {
@@ -74,6 +78,41 @@ namespace Gameplay.Scripts
             {
                 StartSingleplayerGame();
             }
+        }
+
+        public bool IsGameSetupComplete()
+        {
+            return GameObject.FindGameObjectWithTag("PlayerOne") != null;
+        }
+
+        private IEnumerator GameTimer()
+        {
+            Time.timeScale = 0;
+            var time = 3;
+
+            while (time >= 0)
+            {
+                if (time == 0)
+                {
+                    timerText.text = "Go!";
+                }
+                else
+                {
+                    timerText.text = time.ToString();
+                }
+                
+                yield return new WaitForSecondsRealtime(1);
+                time--;
+            }
+            
+            timerText.text = "";
+            Time.timeScale = 1;
+        }
+
+        public void StartGameTimer()
+        {
+            timerText = GameObject.Find("TimerText").GetComponent<TextMeshProUGUI>();
+            StartCoroutine(GameTimer());
         }
 
     }

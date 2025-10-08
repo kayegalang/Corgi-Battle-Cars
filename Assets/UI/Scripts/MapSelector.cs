@@ -46,10 +46,14 @@ namespace UI.Scripts
             selectedButton = btn;
             selectedButton.GetComponent<Image>().color = highlightedColor;
             
-            if (btn.name != "Coming Soon")
+            if (selectedButton.name != "Coming Soon")
             {
                 GameplayManager.instance.SetMap(btn.name);
                 startGameButton.interactable = true;
+            }
+            else
+            {
+                startGameButton.interactable = false;
             }
         }
     }

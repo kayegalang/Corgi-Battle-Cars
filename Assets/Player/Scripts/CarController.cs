@@ -10,21 +10,19 @@ namespace Player.Scripts
     {
         private PlayerControls controls;
         private Vector2 moveInput;
-
         private Rigidbody carRb;
 
         private float health;
 
         private PauseController pauseController;
+        
+        [SerializeField] private CarStats carStats;
 
-        [Header("Car Settings")] [SerializeField]
-        private float acceleration = 20f;
-
-        [SerializeField] private float turnSpeed = 20f;
-
-        [SerializeField] private Vector3 groundCheckOffset = new Vector3(0f, 0.26f, 0f);
-        [SerializeField] private float groundCheckDistance = 0.26f;
-        [SerializeField] private float jumpForce = 5f;
+        private float acceleration;
+        private float turnSpeed;
+        private Vector3 groundCheckOffset;
+        private float groundCheckDistance;
+        private float jumpForce;
 
         void Awake()
         {
@@ -33,6 +31,8 @@ namespace Player.Scripts
             health = 1f;
             
             pauseController = FindFirstObjectByType<PauseController>();
+
+            InitializeCarStats();
         }
 
 
@@ -50,6 +50,15 @@ namespace Player.Scripts
                 }
             }
 
+        }
+
+        private void InitializeCarStats()
+        {
+            acceleration = carStats.acceleration;
+            turnSpeed = carStats.turnSpeed;
+            groundCheckOffset = carStats.groundCheckOffset;
+            groundCheckDistance = carStats.groundCheckDistance;
+            jumpForce = carStats.jumpForce;
         }
 
         private void OnEnable()
@@ -76,7 +85,6 @@ namespace Player.Scripts
             Move();
             Turn();
             
-            // Ensures air has more force
             if (IsGrounded())
             {
                 carRb.angularDamping = 3;
@@ -96,22 +104,22 @@ namespace Player.Scripts
             {
                 if (moveInput.x > 0)
                 {
-                    carRb.AddTorque(UnityEngine.Vector3.up * turnSpeed);
+                    carRb.AddTorque(Vector3.up * carStats.turnSpeed);
                 }
                 else if (moveInput.x < 0)
                 {
-                    carRb.AddTorque(-UnityEngine.Vector3.up * turnSpeed);
+                    carRb.AddTorque(-Vector3.up * turnSpeed);
                 }
             }
             else if (!IsMovingForward())
             {
                 if (moveInput.x > 0)
                 {
-                    carRb.AddTorque(-UnityEngine.Vector3.up * turnSpeed);
+                    carRb.AddTorque(-Vector3.up * turnSpeed);
                 }
                 else if (moveInput.x < 0)
                 {
-                    carRb.AddTorque(UnityEngine.Vector3.up * turnSpeed);
+                    carRb.AddTorque(Vector3.up * turnSpeed);
                 }
             }
 
@@ -121,11 +129,11 @@ namespace Player.Scripts
         {
             if (moveInput.y > 0)
             {
-                carRb.AddRelativeForce(UnityEngine.Vector3.forward * acceleration);
+                carRb.AddRelativeForce(Vector3.forward * acceleration);
             }
             else if (moveInput.y < 0)
             {
-                carRb.AddRelativeForce(-UnityEngine.Vector3.forward * acceleration);
+                carRb.AddRelativeForce(-Vector3.forward * acceleration);
             }
 
             Vector3 localVelocity = transform.InverseTransformDirection(carRb.linearVelocity);

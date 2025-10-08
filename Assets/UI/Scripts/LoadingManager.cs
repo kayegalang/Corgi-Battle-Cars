@@ -1,3 +1,4 @@
+using Gameplay.Scripts;
 using UnityEngine;
 
 namespace UI.Scripts
@@ -37,25 +38,33 @@ namespace UI.Scripts
             loadingScreen.SetActive(true);
 
             AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
-            op.allowSceneActivation = false; 
-
+            op.allowSceneActivation = false;
+            
             while (!op.isDone)
             {
-                float progress = Mathf.Clamp01(op.progress / 0.9f);
-                if (progressBar != null)
-                    progressBar.value = progress;
+                float targetProgress = Mathf.Clamp01(op.progress / 0.9f);
                 
-                if (op.progress >= 0.9f)
-                {
-
-                    op.allowSceneActivation = true;
- 
-                }
+                progressBar.value = Mathf.MoveTowards(progressBar.value, targetProgress, Time.deltaTime * 0.25f);
 
                 yield return null;
+
+                if (progressBar.value >= 1f)
+                {
+                    break;
+                }
             }
+            
+            op.allowSceneActivation = true;
+            
+            yield return null;
+            
+            yield return new WaitUntil(GameplayManager.instance.IsGameSetupComplete);
+            
+            yield return new WaitForSeconds(0.3f);
 
             loadingScreen.SetActive(false);
+            
+            GameplayManager.instance.StartGameTimer();
         }
     }
 
