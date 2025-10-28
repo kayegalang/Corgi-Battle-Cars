@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CarStats
   m_EditorClassIdentifier: Assembly-CSharp::Player.Scripts.CarStats
   acceleration: 20
-  turnSpeed: 20
+  turnSpeed: 30
   groundCheckOffset: {x: 0, y: 0.26, z: 0}
   groundCheckDistance: 0.26
-  jumpForce: 5
+  jumpForce: 10

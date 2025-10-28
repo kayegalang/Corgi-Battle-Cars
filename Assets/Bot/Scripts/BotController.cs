@@ -1,196 +1,134 @@
+using Gameplay.Scripts;
 using Player.Scripts;
+using UI.Scripts;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace Bot.Scripts
 {
     public class BotController : MonoBehaviour
     {
-        [SerializeField] private CarStats carStats;
+        private Vector2 moveInput; 
+        private Rigidbody carRb;
         
-        public BotStates currentState = BotStates.Patrol;
-
-        private Rigidbody rb;
-        private NavMeshPath path;
-        private Transform target;
-
-        [Header("AI Settings")]
-        [SerializeField] private float detectionRange = 25f;
-        [SerializeField] private float attackRange = 10f;
-        [SerializeField] private float patrolRadius = 20f;
-        [SerializeField] private float patrolWaitTime = 2f;
-        [SerializeField] private float pathUpdateRate = 1f;
-        [SerializeField] private float waypointThreshold = 3f;
+        [SerializeField] private CarStats carStats;
 
         private float acceleration;
         private float turnSpeed;
+        private Vector3 groundCheckOffset;
+        private float groundCheckDistance;
+        private float jumpForce;
+        private float maxSpeed;
 
-
-        private float patrolTimer;
-        private int currentCorner = 0;
-        private float nextPathUpdate;
-
-        void Start()
+        void Awake()
         {
-            rb = GetComponent<Rigidbody>();
-            path = new NavMeshPath();
-            SetRandomPatrolPoint();
+            carRb = GetComponent<Rigidbody>();
+            InitializeCarStats();
+        }
+
+        private void InitializeCarStats()
+        {
             acceleration = carStats.acceleration;
             turnSpeed = carStats.turnSpeed;
+            groundCheckOffset = carStats.groundCheckOffset;
+            groundCheckDistance = carStats.groundCheckDistance;
+            jumpForce = carStats.jumpForce;
+            maxSpeed = carStats.maxSpeed;
         }
 
-        void Update()
+        private void FixedUpdate()
         {
-            UpdateTarget();
-            HandleStateTransitions();
-        }
+            Move();
+            Turn();
 
-        void FixedUpdate()
-        {
-            switch (currentState)
+            if (IsGrounded())
             {
-                case BotStates.Patrol:
-                    Patrol();
-                    break;
-                case BotStates.Chase:
-                    ChaseTarget();
-                    break;
-                case BotStates.Attack:
-                    AttackTarget();
-                    break;
+                carRb.angularDamping = 3;
+            }
+            else
+            {
+                carRb.angularDamping = 5;
+
+                Quaternion levelRotation = Quaternion.Euler(0, carRb.rotation.eulerAngles.y, 0);
+                carRb.MoveRotation(Quaternion.Slerp(carRb.rotation, levelRotation, 2f * Time.fixedDeltaTime));
+            }
+            
+            CapJumpHeight();
+            
+            if (carRb.linearVelocity.magnitude > maxSpeed)
+            {
+                carRb.linearVelocity = carRb.linearVelocity.normalized * maxSpeed;
             }
         }
 
-        // ---------- STATE BEHAVIOR ----------
-
-        private void Patrol()
+        private void Turn()
         {
-            if (Time.time > nextPathUpdate)
+            float turnInput = moveInput.x;
+            
+            if (IsMovingForward())
             {
-                nextPathUpdate = Time.time + pathUpdateRate;
-                if (path.corners.Length == 0 || currentCorner >= path.corners.Length)
-                    SetRandomPatrolPoint();
+                carRb.AddTorque(Vector3.up * turnInput * turnSpeed);
             }
-
-            DriveAlongPath();
-        }
-
-        private void ChaseTarget()
-        {
-            if (target == null) return;
-
-            if (Time.time > nextPathUpdate)
+            else
             {
-                nextPathUpdate = Time.time + pathUpdateRate;
-                NavMesh.CalculatePath(transform.position, target.position, NavMesh.AllAreas, path);
-                currentCorner = 0;
-            }
-
-            DriveAlongPath();
-        }
-
-        private void AttackTarget()
-        {
-            if (target == null) return;
-
-            // Face target, stop moving, shoot or ram
-            Vector3 dir = (target.position - transform.position).normalized;
-            Quaternion lookRot = Quaternion.LookRotation(dir);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, lookRot, 5f * Time.deltaTime));
-
-            Debug.DrawRay(transform.position + Vector3.up, dir * 10f, Color.red);
-            // TODO: Fire projectile logic here
-        }
-
-        // ---------- MOVEMENT / PATHING ----------
-
-        private void DriveAlongPath()
-        {
-            if (path.corners.Length == 0) return;
-
-            Vector3 corner = path.corners[currentCorner];
-            Vector3 toCorner = corner - transform.position;
-            toCorner.y = 0f;
-
-            // If close to this corner, move to next one
-            if (toCorner.magnitude < waypointThreshold && currentCorner < path.corners.Length - 1)
-            {
-                currentCorner++;
-                return;
-            }
-
-            Vector3 dir = toCorner.normalized;
-            float angle = Vector3.SignedAngle(transform.forward, dir, Vector3.up);
-            float steering = Mathf.Clamp(angle / 45f, -1f, 1f);
-
-            // Turn and move forward
-            rb.AddTorque(Vector3.up * steering * turnSpeed);
-            rb.AddRelativeForce(Vector3.forward * acceleration);
-        }
-
-        private void SetRandomPatrolPoint()
-        {
-            Vector3 randomDirection = Random.insideUnitSphere * patrolRadius + transform.position;
-            if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, patrolRadius, NavMesh.AllAreas))
-            {
-                NavMesh.CalculatePath(transform.position, hit.position, NavMesh.AllAreas, path);
-                currentCorner = 0;
+                carRb.AddTorque(-Vector3.up * turnInput * turnSpeed);
             }
         }
 
-        // ---------- TARGETING / STATES ----------
-
-        private void UpdateTarget()
+        private void Move()
         {
-            var allCars = FindObjectsByType<CarHealth>(FindObjectsSortMode.None);
-            var myTransform = transform;
+            float moveValue = moveInput.y;
 
-            float minDist = Mathf.Infinity;
-            Transform nearest = null;
-
-            foreach (var car in allCars)
+            if (Mathf.Abs(moveValue) > 0.01f)
             {
-                if (car.transform == myTransform) continue;
-
-                float dist = Vector3.Distance(myTransform.position, car.transform.position);
-                if (dist < minDist && dist <= detectionRange)
-                {
-                    minDist = dist;
-                    nearest = car.transform;
-                }
+                carRb.AddRelativeForce(Vector3.forward * moveValue * acceleration);
             }
 
-            target = nearest;
+            Vector3 localVelocity = transform.InverseTransformDirection(carRb.linearVelocity);
+            localVelocity.x = 0;
+            carRb.linearVelocity = transform.TransformDirection(localVelocity);
         }
 
-        private void HandleStateTransitions()
+        private bool IsMovingForward()
         {
-            if (target == null)
+            return moveInput.y >= 0;
+        }
+
+        public bool IsGrounded()
+        {
+            RaycastHit hit;
+            Vector3 origin = transform.position + groundCheckOffset;
+
+            Debug.DrawRay(origin, -transform.up * groundCheckDistance, Color.red);
+            return Physics.Raycast(origin, -transform.up, out hit, groundCheckDistance);
+        }
+
+        public void Jump()
+        {
+            if (IsGrounded())
             {
-                currentState = BotStates.Patrol;
-                return;
+                carRb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
             }
+        }
 
-            float distance = Vector3.Distance(transform.position, target.position);
+        public void SetInputs(float turnAmount, float moveAmount)
+        {
+            moveInput.x = Mathf.Clamp(turnAmount, -1f, 1f);
+            moveInput.y = Mathf.Clamp(moveAmount, -1f, 1f);
+        }
 
-            switch (currentState)
+        public float GetSpeed()
+        {
+            return carRb.linearVelocity.magnitude;
+        }
+        
+        private void CapJumpHeight()
+        {
+            Vector3 vel = carRb.linearVelocity;
+            if (vel.y > 6f)
             {
-                case BotStates.Patrol:
-                    if (distance <= detectionRange)
-                        currentState = BotStates.Chase;
-                    break;
-
-                case BotStates.Chase:
-                    if (distance <= attackRange)
-                        currentState = BotStates.Attack;
-                    else if (distance > detectionRange)
-                        currentState = BotStates.Patrol;
-                    break;
-
-                case BotStates.Attack:
-                    if (distance > attackRange)
-                        currentState = BotStates.Chase;
-                    break;
+                vel.y = 6f;
+                carRb.linearVelocity = vel;
             }
         }
     }

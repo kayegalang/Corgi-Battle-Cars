@@ -1,4 +1,5 @@
 using Gameplay.Scripts;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace UI.Scripts
@@ -15,19 +16,13 @@ namespace UI.Scripts
         [SerializeField] private GameObject loadingScreen;
         [SerializeField] private Slider progressBar; 
 
-        private void Awake()
+        void Awake()
         {
             if (instance == null)
-            {
                 instance = this;
-                DontDestroyOnLoad(gameObject);
-            }
             else
-            {
                 Destroy(gameObject);
-            }
         }
-
         public void LoadScene(string sceneName)
         {
             StartCoroutine(LoadSceneAsync(sceneName));
@@ -36,16 +31,13 @@ namespace UI.Scripts
         private IEnumerator LoadSceneAsync(string sceneName)
         {
             loadingScreen.SetActive(true);
-
+            
             AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
             op.allowSceneActivation = false;
-            
             while (!op.isDone)
             {
                 float targetProgress = Mathf.Clamp01(op.progress / 0.9f);
-                
                 progressBar.value = Mathf.MoveTowards(progressBar.value, targetProgress, Time.deltaTime * 0.25f);
-
                 yield return null;
 
                 if (progressBar.value >= 1f)

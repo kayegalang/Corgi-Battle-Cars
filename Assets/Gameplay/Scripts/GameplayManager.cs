@@ -53,7 +53,7 @@ namespace Gameplay.Scripts
             mapChosen = mapName;
         }
 
-        public void OnStartGameButtonClicked()
+        public void StartGame()
         {
             LoadingManager.instance.LoadScene(mapChosen);
         }

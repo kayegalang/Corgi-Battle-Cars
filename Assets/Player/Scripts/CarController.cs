@@ -11,24 +11,22 @@ namespace Player.Scripts
         private PlayerControls controls;
         private Vector2 moveInput;
         private Rigidbody carRb;
-
-        private float health;
-
+        
         private PauseController pauseController;
         
         [SerializeField] private CarStats carStats;
-
+        
         private float acceleration;
         private float turnSpeed;
         private Vector3 groundCheckOffset;
         private float groundCheckDistance;
         private float jumpForce;
+        private float maxSpeed;
 
         void Awake()
         {
             controls = new PlayerControls();
             carRb = GetComponent<Rigidbody>();
-            health = 1f;
             
             pauseController = FindFirstObjectByType<PauseController>();
 
@@ -59,6 +57,7 @@ namespace Player.Scripts
             groundCheckOffset = carStats.groundCheckOffset;
             groundCheckDistance = carStats.groundCheckDistance;
             jumpForce = carStats.jumpForce;
+            maxSpeed = carStats.maxSpeed;
         }
 
         private void OnEnable()
@@ -82,6 +81,7 @@ namespace Player.Scripts
 
         private void FixedUpdate()
         {
+            CapJumpHeight();
             Move();
             Turn();
             
@@ -96,6 +96,21 @@ namespace Player.Scripts
                 Quaternion levelRotation = Quaternion.Euler(0, carRb.rotation.eulerAngles.y, 0);
                 carRb.MoveRotation(Quaternion.Slerp(carRb.rotation, levelRotation, 2f * Time.fixedDeltaTime));
             }
+
+            if (carRb.linearVelocity.magnitude > maxSpeed)
+            {
+                carRb.linearVelocity = carRb.linearVelocity.normalized * maxSpeed;
+            }
+        }
+
+        private void CapJumpHeight()
+        {
+            Vector3 vel = carRb.linearVelocity;
+            if (vel.y > 6f)
+            {
+                vel.y = 6f;
+                carRb.linearVelocity = vel;
+            }
         }
 
         private void Turn()
@@ -104,7 +119,7 @@ namespace Player.Scripts
             {
                 if (moveInput.x > 0)
                 {
-                    carRb.AddTorque(Vector3.up * carStats.turnSpeed);
+                    carRb.AddTorque(Vector3.up * turnSpeed);
                 }
                 else if (moveInput.x < 0)
                 {
@@ -122,7 +137,11 @@ namespace Player.Scripts
                     carRb.AddTorque(Vector3.up * turnSpeed);
                 }
             }
+        }
 
+        private bool IsMoving()
+        {
+            return moveInput.y != 0;
         }
 
         private void Move()

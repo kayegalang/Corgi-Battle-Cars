@@ -8,7 +8,7 @@ namespace Player.Scripts
 {
     public class Projectile : MonoBehaviour
     {
-        private GameObject shooter;
+        public GameObject shooter;
         private bool canDoDamage = false;
         void Start()
         {
@@ -49,6 +49,7 @@ namespace Player.Scripts
         {
             shooter = shooterObject;
         }
+        
     }
 }
 

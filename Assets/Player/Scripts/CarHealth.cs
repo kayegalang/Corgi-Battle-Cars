@@ -1,4 +1,5 @@
 using System.Collections;
+using BotScript;
 using Gameplay.Scripts;
 using Player.Scripts;
 using UnityEngine;
@@ -11,11 +12,14 @@ public class CarHealth : MonoBehaviour
     private int maxHealth = 100;
     private int currentHealth;
 
+    private bool isBot;
+
     void Start()
         
     {
         currentHealth = maxHealth;
         spawnManager = FindFirstObjectByType<SpawnManager>();
+        isBot = GetComponent<BotAI>() != null;
     }
 
     public void TakeDamage(int amount)

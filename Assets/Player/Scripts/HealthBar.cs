@@ -16,7 +16,8 @@ namespace Player.Scripts
         }
         void Update()
         {
-            transform.LookAt(carCamera.transform);
+            if (carCamera != null) 
+                transform.LookAt(carCamera.transform);
         }
 
         public void UpdateHealthBar()

@@ -10,7 +10,7 @@ namespace Player.Scripts
         public Vector3 groundCheckOffset = new Vector3(0f, 0.26f, 0f);
         public float groundCheckDistance = 0.26f;
         public float jumpForce = 5f;
-
+        public float maxSpeed = 35f;
     }
 }
 

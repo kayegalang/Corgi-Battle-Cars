@@ -56,5 +56,10 @@ namespace UI.Scripts
                 startGameButton.interactable = false;
             }
         }
+        
+        public void OnStartGameButtonClicked()
+        {
+            GameplayManager.instance.StartGame();
+        }
     }
 }
