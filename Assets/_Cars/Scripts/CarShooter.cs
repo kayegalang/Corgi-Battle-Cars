@@ -1,7 +1,8 @@
+using _Projectiles.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Player.Scripts
+namespace _Cars.Scripts
 {
     public class CarShooter : MonoBehaviour
     {

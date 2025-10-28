@@ -1,51 +1,40 @@
-using System.Numerics;
+using _Cars.ScriptableObjects;
+using _Projectiles.ScriptableObjects;
+using _Projectiles.Scripts;
 using Bot.Scripts;
-using Player.Scripts;
-using UnityEditor.VersionControl;
 using UnityEngine;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 
-namespace BotScript
+namespace _Bot.Scripts
 {
     public class BotAI : MonoBehaviour
     {
-        public BotStates currentState = BotStates.Chase;
-        
+                
+        [SerializeField] private AICarStats carStats;
+        [SerializeField] private ProjectileObject projectile;
         private BotController botController;
         
+        public BotStates currentState = BotStates.Chase;
+        
         public Transform target;
-        
-        [Header("Movement Settings")]
-        [SerializeField] private float reachedTargetDistance = 10f;
-        [SerializeField] private float reverseDistance = 25f;
-        [SerializeField] private float stoppingDistance = 15f;
-        [SerializeField] private float stoppingSpeed = 10f;
-        
-        [Header("Obstacle Avoidance Settings")]
-        [SerializeField] private float obstacleCheckDistance = 10f;   
-        [SerializeField] private float sideCheckDistance = 4f;       
-        [SerializeField] private float jumpableHeight = 0.6f;          
-        [SerializeField] private LayerMask obstacleMask;             
-        [SerializeField] private float avoidanceTurnStrength = 1f;
-        
-        // Shooting
-        public GameObject projectilePrefab;
-        [SerializeField] private Transform firePoint;
-        [SerializeField] private float fireForce = 30f;
-        [SerializeField] private float fireRate = 0.25f;
-        private bool isFiring = false;
-        private float nextFireTime = 0f;
         
         // Run Away
         private Transform lastAttacker;
         private float runAwayDuration = 3f;
         private float runAwayTimer;
 
+        // Shooting
+        private Transform firePoint;
+        private bool isFiring = false;
+        private float nextFireTime = 0f;
 
         void Awake()
         {
             botController = GetComponent<BotController>();
+            firePoint = GetComponent<Transform>();
+            
+            //TODO::Change to choose closest target
             target = GameObject.FindGameObjectWithTag("PlayerOne").transform;
         }
 
@@ -74,9 +63,33 @@ namespace BotScript
             if (currentState == BotStates.Attack && Time.time > nextFireTime)
             {
                 Shoot();
-                nextFireTime = Time.time + fireRate;
+                nextFireTime = Time.time + projectile.fireRate;
             }
         }
+
+        private void HandleStateTransitions()
+        {
+            // if (runAwayTimer >= runAwayDuration)
+            //     SetState(BotStates.Chase);
+
+            switch (currentState) {
+                case BotStates.Chase:
+                    if (GetDistanceFromTarget() <= carStats.reachedTargetDistance)
+                    {
+                        SetState(BotStates.Attack);
+                    }
+                    break;
+                case BotStates.Attack:
+                    if (GetDistanceFromTarget() > carStats.reachedTargetDistance)
+                    {
+                        SetState(BotStates.Chase);
+                    }
+
+                    break;
+                case BotStates.RunAway:
+                    break;
+        }
+    }
 
         private void Chase()
         {
@@ -89,7 +102,7 @@ namespace BotScript
             
                 var distanceFromTarget = GetDistanceFromTarget();
 
-                if (distanceFromTarget > reachedTargetDistance)
+                if (distanceFromTarget > carStats.reachedTargetDistance)
                 {
                     Vector3 direction = (target.position - transform.position).normalized;
                     float dotProduct = Vector3.Dot(transform.forward, direction);
@@ -98,7 +111,7 @@ namespace BotScript
                     {
                         moveAmount = 1f;
                     
-                        if (distanceFromTarget < stoppingDistance && botController.GetSpeed() > stoppingSpeed)
+                        if (distanceFromTarget < carStats.stoppingDistance && botController.GetSpeed() > carStats.stoppingSpeed)
                         {
                             moveAmount = -1f;
                         }
@@ -131,39 +144,23 @@ namespace BotScript
             return distanceFromTarget;
         }
 
-        private void HandleStateTransitions()
-        {
-            if (currentState == BotStates.Chase && GetDistanceFromTarget() <= reachedTargetDistance)
-            {
-                currentState = BotStates.Attack;
-            }
-
-            if (currentState == BotStates.Attack && GetDistanceFromTarget() > reachedTargetDistance)
-            {
-                currentState = BotStates.Chase;
-            }
-            
-            if (runAwayTimer >= runAwayDuration)
-                SetState(BotStates.Chase);
-        }
-
         private bool HandleObstacleDetection()
         {
             RaycastHit hit;
             Vector3 origin = transform.position + Vector3.up * 0.5f;
             Vector3 direction = transform.forward;
 
-            bool hitSomething = Physics.Raycast(origin, direction, out hit, obstacleCheckDistance, obstacleMask);
+            bool hitSomething = Physics.Raycast(origin, direction, out hit, carStats.obstacleCheckDistance, carStats.obstacleMask);
 
             if (hitSomething)
             {
                 float obstacleHeight = hit.point.y - transform.position.y;
 
                 // Draw ray for debugging
-                Debug.DrawRay(origin, direction * obstacleCheckDistance, Color.red);
+                Debug.DrawRay(origin, direction * carStats.obstacleCheckDistance, Color.red);
 
                 // Jump if low obstacle
-                if (obstacleHeight <= jumpableHeight && botController.IsGrounded())
+                if (obstacleHeight <= carStats.jumpableHeight && botController.IsGrounded())
                 {
                     botController.Jump();
                     return false; // we still move forward
@@ -173,22 +170,22 @@ namespace BotScript
                 else
                 {
                     // Check left and right rays
-                    bool leftClear = !Physics.Raycast(origin, -transform.right, sideCheckDistance, obstacleMask);
-                    bool rightClear = !Physics.Raycast(origin, transform.right, sideCheckDistance, obstacleMask);
+                    bool leftClear = !Physics.Raycast(origin, -transform.right, carStats.sideCheckDistance, carStats.obstacleMask);
+                    bool rightClear = !Physics.Raycast(origin, transform.right, carStats.sideCheckDistance, carStats.obstacleMask);
 
                     float turn = 0f;
                     if (leftClear && !rightClear)
-                        turn = -avoidanceTurnStrength; // steer left
+                        turn = -carStats.avoidanceTurnStrength; // steer left
                     else if (!leftClear && rightClear)
-                        turn = avoidanceTurnStrength; // steer right
+                        turn = carStats.avoidanceTurnStrength; // steer right
                     else
-                        turn = (Random.value > 0.5f) ? avoidanceTurnStrength : -avoidanceTurnStrength;
+                        turn = (Random.value > 0.5f) ? carStats.avoidanceTurnStrength : -carStats.avoidanceTurnStrength;
 
                     // Back off slightly to avoid getting stuck
                     botController.SetInputs(turn, -0.5f);
 
-                    Debug.DrawRay(origin, transform.right * sideCheckDistance, Color.green);
-                    Debug.DrawRay(origin, -transform.right * sideCheckDistance, Color.green);
+                    Debug.DrawRay(origin, transform.right * carStats.sideCheckDistance, Color.green);
+                    Debug.DrawRay(origin, -transform.right * carStats.sideCheckDistance, Color.green);
 
                     return true; // we are currently avoiding
                 }
@@ -196,7 +193,7 @@ namespace BotScript
             else
             {
                 // No obstacle detected
-                Debug.DrawRay(origin, direction * obstacleCheckDistance, Color.blue);
+                Debug.DrawRay(origin, direction * carStats.obstacleCheckDistance, Color.blue);
                 return false;
             }
         }
@@ -205,7 +202,7 @@ namespace BotScript
         {
             Vector3 shootDirection = GetDirection();
 
-            GameObject bullet = Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(shootDirection));
+            GameObject bullet = Instantiate(projectile.projectilePrefab, firePoint.position, Quaternion.LookRotation(shootDirection));
 
             Projectile proj = bullet.GetComponent<Projectile>();
             if (proj != null)
@@ -217,10 +214,10 @@ namespace BotScript
             if (bulletRb != null)
             {
                 bulletRb.linearVelocity = GetComponent<Rigidbody>().linearVelocity; // inherit car’s current movement
-                bulletRb.AddForce(shootDirection * fireForce, ForceMode.Impulse); // add firing force
+                bulletRb.AddForce(shootDirection * projectile.fireForce, ForceMode.Impulse); // add firing force
             }
 
-            bullet.GetComponent<Rigidbody>().AddForce(shootDirection * fireForce, ForceMode.Impulse);
+            bullet.GetComponent<Rigidbody>().AddForce(shootDirection * projectile.fireForce, ForceMode.Impulse);
         }
 
         private Vector3 GetDirection()

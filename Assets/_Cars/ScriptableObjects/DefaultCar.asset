@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a2469d3e375b4ecaba7e2b5ad7e34e0, type: 3}
-  m_Name: CarStats
+  m_Name: DefaultCar
   m_EditorClassIdentifier: Assembly-CSharp::Player.Scripts.CarStats
   acceleration: 20
   turnSpeed: 30
   groundCheckOffset: {x: 0, y: 0.26, z: 0}
   groundCheckDistance: 0.26
   jumpForce: 10
+  maxSpeed: 35

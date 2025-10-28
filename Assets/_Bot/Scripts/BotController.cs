@@ -4,7 +4,7 @@ using UI.Scripts;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace Bot.Scripts
+namespace _Bot.Scripts
 {
     public class BotController : MonoBehaviour
     {
@@ -13,27 +13,9 @@ namespace Bot.Scripts
         
         [SerializeField] private CarStats carStats;
 
-        private float acceleration;
-        private float turnSpeed;
-        private Vector3 groundCheckOffset;
-        private float groundCheckDistance;
-        private float jumpForce;
-        private float maxSpeed;
-
         void Awake()
         {
             carRb = GetComponent<Rigidbody>();
-            InitializeCarStats();
-        }
-
-        private void InitializeCarStats()
-        {
-            acceleration = carStats.acceleration;
-            turnSpeed = carStats.turnSpeed;
-            groundCheckOffset = carStats.groundCheckOffset;
-            groundCheckDistance = carStats.groundCheckDistance;
-            jumpForce = carStats.jumpForce;
-            maxSpeed = carStats.maxSpeed;
         }
 
         private void FixedUpdate()
@@ -55,9 +37,9 @@ namespace Bot.Scripts
             
             CapJumpHeight();
             
-            if (carRb.linearVelocity.magnitude > maxSpeed)
+            if (carRb.linearVelocity.magnitude > carStats.maxSpeed)
             {
-                carRb.linearVelocity = carRb.linearVelocity.normalized * maxSpeed;
+                carRb.linearVelocity = carRb.linearVelocity.normalized * carStats.maxSpeed;
             }
         }
 
@@ -67,11 +49,11 @@ namespace Bot.Scripts
             
             if (IsMovingForward())
             {
-                carRb.AddTorque(Vector3.up * turnInput * turnSpeed);
+                carRb.AddTorque(Vector3.up * turnInput * carStats.turnSpeed);
             }
             else
             {
-                carRb.AddTorque(-Vector3.up * turnInput * turnSpeed);
+                carRb.AddTorque(-Vector3.up * turnInput * carStats.turnSpeed);
             }
         }
 
@@ -81,7 +63,7 @@ namespace Bot.Scripts
 
             if (Mathf.Abs(moveValue) > 0.01f)
             {
-                carRb.AddRelativeForce(Vector3.forward * moveValue * acceleration);
+                carRb.AddRelativeForce(Vector3.forward * moveValue * carStats.acceleration);
             }
 
             Vector3 localVelocity = transform.InverseTransformDirection(carRb.linearVelocity);
@@ -97,17 +79,17 @@ namespace Bot.Scripts
         public bool IsGrounded()
         {
             RaycastHit hit;
-            Vector3 origin = transform.position + groundCheckOffset;
+            Vector3 origin = transform.position + carStats.groundCheckOffset;
 
-            Debug.DrawRay(origin, -transform.up * groundCheckDistance, Color.red);
-            return Physics.Raycast(origin, -transform.up, out hit, groundCheckDistance);
+            Debug.DrawRay(origin, -transform.up * carStats.groundCheckDistance, Color.red);
+            return Physics.Raycast(origin, -transform.up, out hit, carStats.groundCheckDistance);
         }
 
         public void Jump()
         {
             if (IsGrounded())
             {
-                carRb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+                carRb.AddForce(transform.up * carStats.jumpForce, ForceMode.Impulse);
             }
         }
 

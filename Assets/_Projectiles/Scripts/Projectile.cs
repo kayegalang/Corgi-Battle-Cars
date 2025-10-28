@@ -1,17 +1,15 @@
-using System;
 using System.Collections;
-using Unity.Cinemachine;
-using Unity.VisualScripting;
+using _Cars.Scripts;
 using UnityEngine;
 
-namespace Player.Scripts
+namespace _Projectiles.Scripts
 {
     public class Projectile : MonoBehaviour
     {
-        public GameObject shooter;
+        public static GameObject Shooter;
         private bool canDoDamage = false;
         void Start()
-        {
+        { ;
             Destroy(gameObject, 5f);
             StartCoroutine(DoDamage());
         }
@@ -26,7 +24,7 @@ namespace Player.Scripts
         {
             if (!canDoDamage) return;
 
-            if (!other.CompareTag(shooter.tag))
+            if (!other.CompareTag(Shooter.tag))
             {
                 DamageEnemy(other);
                 
@@ -40,14 +38,18 @@ namespace Player.Scripts
 
             if (health != null)
             {
-                health.TakeDamage(10);
+                health.TakeDamage(10, Shooter);
             }
         }
-
-
+        
         public void SetShooter(GameObject shooterObject)
         {
-            shooter = shooterObject;
+            Shooter = shooterObject;
+        }
+
+        public GameObject GetShooter()
+        {
+            return Shooter;
         }
         
     }

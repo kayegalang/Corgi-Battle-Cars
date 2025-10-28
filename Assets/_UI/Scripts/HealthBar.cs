@@ -1,7 +1,8 @@
+using _Cars.Scripts;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Player.Scripts
+namespace _UI.Scripts
 {
     public class HealthBar : MonoBehaviour
     {
