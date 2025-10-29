@@ -12,6 +12,10 @@ namespace _Gameplay.Scripts
         
         private readonly HashSet<int> usedSpawnIndices = new HashSet<int>();
 
+        void Awake()
+        {
+            usedSpawnIndices.Clear();
+        }
         private Transform GetSpawnPoint()
         {
             return spawnPoints[Random.Range(0, spawnPoints.Length)];

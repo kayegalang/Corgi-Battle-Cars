@@ -2,9 +2,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using _UI.Scripts;
 using Gameplay.Scripts;
 using TMPro;
-using UI.Scripts;
 
 namespace _Gameplay.Scripts
 {
@@ -18,9 +18,6 @@ namespace _Gameplay.Scripts
         private List<string> mapNames;
 
         private TextMeshProUGUI timerText = null;
-        
-        [SerializeField] private GameObject playerPrefab;
-        [SerializeField] private GameObject botPrefab;
         private void Awake()
         {
             if (instance == null)

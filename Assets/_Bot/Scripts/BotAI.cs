@@ -78,8 +78,8 @@ namespace _Bot.Scripts
 
         private void HandleStateTransitions()
         {
-            // if (runAwayTimer >= runAwayDuration)
-            //     SetState(BotStates.Chase);
+            if (runAwayTimer >= runAwayDuration)
+                 SetState(BotStates.Chase);
 
             switch (currentState) {
                 case BotStates.Chase:
@@ -211,22 +211,25 @@ namespace _Bot.Scripts
         {
             Vector3 shootDirection = GetDirection();
 
-            GameObject bullet = Instantiate(projectile.projectilePrefab, firePoint.position, Quaternion.LookRotation(shootDirection));
-
-            Projectile proj = bullet.GetComponent<Projectile>();
-            if (proj != null)
+            if (shootDirection != Vector3.zero)
             {
-                proj.SetShooter(gameObject); // "gameObject" = the car that fired
-            }
+                GameObject bullet = Instantiate(projectile.projectilePrefab, firePoint.position, Quaternion.LookRotation(shootDirection));
+
+                Projectile proj = bullet.GetComponent<Projectile>();
+                if (proj != null)
+                {
+                    proj.SetShooter(gameObject); // "gameObject" = the car that fired
+                }
             
-            Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
-            if (bulletRb != null)
-            {
-                bulletRb.linearVelocity = GetComponent<Rigidbody>().linearVelocity; // inherit car’s current movement
-                bulletRb.AddForce(shootDirection * projectile.fireForce, ForceMode.Impulse); // add firing force
-            }
+                Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
+                if (bulletRb != null)
+                {
+                    bulletRb.linearVelocity = GetComponent<Rigidbody>().linearVelocity; // inherit car’s current movement
+                    bulletRb.AddForce(shootDirection * projectile.fireForce, ForceMode.Impulse); // add firing force
+                }
 
-            bullet.GetComponent<Rigidbody>().AddForce(shootDirection * projectile.fireForce, ForceMode.Impulse);
+                bullet.GetComponent<Rigidbody>().AddForce(shootDirection * projectile.fireForce, ForceMode.Impulse);
+            }
         }
 
         private Vector3 GetDirection()
@@ -237,7 +240,7 @@ namespace _Bot.Scripts
                 return shootDirection;  
             }
 
-            return Vector3.zero; ;
+            return Vector3.zero;
 
         }
 

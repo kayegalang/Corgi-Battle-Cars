@@ -1,15 +1,11 @@
 using _Gameplay.Scripts;
-using Gameplay.Scripts;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using System.Collections;
 
-namespace UI.Scripts
+namespace _UI.Scripts
 {
-    using UnityEngine;
-    using UnityEngine.SceneManagement;
-    using UnityEngine.UI;
-    using System.Collections;
-
     public class LoadingManager : MonoBehaviour
     {
         public static LoadingManager instance;
@@ -20,7 +16,10 @@ namespace UI.Scripts
         void Awake()
         {
             if (instance == null)
+            {
                 instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
             else
                 Destroy(gameObject);
         }
@@ -35,6 +34,7 @@ namespace UI.Scripts
             
             AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
             op.allowSceneActivation = false;
+            
             while (!op.isDone)
             {
                 float targetProgress = Mathf.Clamp01(op.progress / 0.9f);
@@ -50,16 +50,15 @@ namespace UI.Scripts
             op.allowSceneActivation = true;
             
             yield return null;
+
+            yield return new WaitUntil(() => GameplayManager.instance.IsGameSetupComplete());
             
-            yield return new WaitUntil(GameplayManager.instance.IsGameSetupComplete);
+            loadingScreen.SetActive(false);
             
             yield return new WaitForSeconds(0.3f);
-
-            loadingScreen.SetActive(false);
             
             GameplayManager.instance.StartGameTimer();
         }
     }
-
 }
 
