@@ -2,22 +2,25 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using Gameplay.Scripts;
 using TMPro;
 using UI.Scripts;
 
-namespace Gameplay.Scripts
+namespace _Gameplay.Scripts
 {
     public class GameplayManager : MonoBehaviour
     {
         public static GameplayManager instance;
 
-        private GameMode CurrentGameMode;
+        private GameMode currentGameMode;
         private string mapChosen;
         private SpawnManager spawnManager;
         private List<string> mapNames;
 
         private TextMeshProUGUI timerText = null;
-
+        
+        [SerializeField] private GameObject playerPrefab;
+        [SerializeField] private GameObject botPrefab;
         private void Awake()
         {
             if (instance == null)
@@ -45,7 +48,7 @@ namespace Gameplay.Scripts
 
         public void SetGameMode(GameMode mode)
         {
-            CurrentGameMode = mode;
+            currentGameMode = mode;
         }
 
         public void SetMap(string mapName)
@@ -61,7 +64,7 @@ namespace Gameplay.Scripts
         private void StartSingleplayerGame()
         {
             spawnManager = FindFirstObjectByType<SpawnManager>();
-            spawnManager.Spawn("PlayerOne");
+            spawnManager.StartSingleplayerGame();
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -74,7 +77,7 @@ namespace Gameplay.Scripts
 
         private void SetupGame()
         {
-            if (CurrentGameMode == GameMode.Singleplayer)
+            if (currentGameMode == GameMode.Singleplayer)
             {
                 StartSingleplayerGame();
             }

@@ -8,7 +8,10 @@ TagManager:
   - PlayerTwo
   - PlayerThree
   - PlayerFour
-  - Bot
+  - BotOne
+  - BotTwo
+  - BotThree
+  - BotFour
   layers:
   - Default
   - TransparentFX

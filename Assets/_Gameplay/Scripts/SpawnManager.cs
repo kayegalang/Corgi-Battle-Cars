@@ -1,31 +1,84 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-namespace Gameplay.Scripts 
+namespace _Gameplay.Scripts 
 {
     public class SpawnManager : MonoBehaviour
     {
-        [SerializeField] private GameObject playerPrefab;
         [SerializeField] private Transform[] spawnPoints;
+        [SerializeField] private GameObject playerPrefab;
+        [SerializeField] private GameObject botPrefab;
+        
+        private readonly HashSet<int> usedSpawnIndices = new HashSet<int>();
 
-        public Transform GetSpawnPoint()
+        private Transform GetSpawnPoint()
         {
             return spawnPoints[Random.Range(0, spawnPoints.Length)];
         }
 
-        public void Spawn(string playerTag)
+        private Transform GetUniqueSpawnPoint()
         {
-            StartCoroutine(WaitToSpawn(playerTag));
+            if (usedSpawnIndices.Count >= spawnPoints.Length)
+            {
+                usedSpawnIndices.Clear();
+            }
+
+            int randomIndex;
+            
+            do
+            {
+                randomIndex = Random.Range(0, spawnPoints.Length);
+            } 
+            while (usedSpawnIndices.Contains(randomIndex));
+
+            usedSpawnIndices.Add(randomIndex);
+
+            return spawnPoints[randomIndex];
         }
 
-        private IEnumerator WaitToSpawn(string playerTag)
+        public void StartSingleplayerGame()
         {
+            Spawn("PlayerOne", GetUniqueSpawnPoint());
+            Spawn("BotOne",  GetUniqueSpawnPoint());
+            Spawn("BotTwo", GetUniqueSpawnPoint());
+            Spawn("BotThree", GetUniqueSpawnPoint());
+        }
+
+        public void Respawn(string playerTag)
+        {
+            GameObject prefabToSpawn = null;
+            if (playerTag.StartsWith("Bot"))
+            {
+                prefabToSpawn = botPrefab;
+            }
+            else if (playerTag.StartsWith("Player"))
+            {
+                prefabToSpawn = playerPrefab;
+            }
+            StartCoroutine(WaitToSpawn(playerTag, prefabToSpawn, GetSpawnPoint()));
+        }
+
+        public void Spawn(string playerTag, Transform spawnPoint)
+        {
+            GameObject prefabToSpawn = null;
+            if (playerTag.StartsWith("Bot"))
+            {
+                prefabToSpawn = botPrefab;
+            }
+            else if (playerTag.StartsWith("Player"))
+            {
+                prefabToSpawn = playerPrefab;
+            }
+            StartCoroutine(WaitToSpawn(playerTag, prefabToSpawn, spawnPoint));
+        }
+
+        private IEnumerator WaitToSpawn(string playerTag, GameObject playerObject, Transform spawnPoint)
+        { 
             yield return new WaitForSeconds(3f);
             
-            Transform spawnPoint = GetSpawnPoint();
-            
-           GameObject player = Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
-           player.tag = playerTag;
+            GameObject player = Instantiate(playerObject, spawnPoint.position, spawnPoint.rotation);
+            player.tag = playerTag;
         }
         
     }

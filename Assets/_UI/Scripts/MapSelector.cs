@@ -1,11 +1,8 @@
-using Gameplay.Scripts;
-using TMPro;
-using Unity.VisualScripting;
+using _Gameplay.Scripts;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace UI.Scripts
+namespace _UI.Scripts
 {
     
     public class MapSelector : MonoBehaviour

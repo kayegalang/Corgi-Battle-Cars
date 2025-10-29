@@ -1,4 +1,5 @@
 using _Bot.Scripts;
+using _Gameplay.Scripts;
 using _UI.Scripts;
 using Gameplay.Scripts;
 using UnityEngine;
@@ -41,13 +42,18 @@ namespace _Cars.Scripts
 
         private void Die()
         {
-            spawnManager.Spawn(gameObject.tag);
+            spawnManager.Respawn(gameObject.tag);
             Destroy(gameObject);
         }
 
         public float GetHealthPercent()
         {
             return (float)currentHealth / maxHealth;
+        }
+
+        public bool GetIsBot()
+        {
+            return isBot;
         }
     }
 

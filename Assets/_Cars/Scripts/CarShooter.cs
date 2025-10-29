@@ -10,7 +10,7 @@ namespace _Cars.Scripts
         private Rigidbody carRb;
 
         public GameObject projectilePrefab;
-        [SerializeField] private Transform firePoint;
+        private Transform firePoint;
         [SerializeField] private float fireForce = 30f;
         [SerializeField] private float fireRate = 0.25f;
         private bool isFiring = false;
@@ -20,6 +20,7 @@ namespace _Cars.Scripts
         {
             controls = new PlayerControls();
             carRb = GetComponent<Rigidbody>();
+            firePoint = transform.Find("FirePoint");
         }
 
         private void OnEnable()

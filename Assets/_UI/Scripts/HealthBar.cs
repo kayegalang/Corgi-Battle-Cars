@@ -17,8 +17,15 @@ namespace _UI.Scripts
         }
         void Update()
         {
-            if (carCamera != null) 
+            
+            if (carCamera != null)
+            {
                 transform.LookAt(carCamera.transform);
+            }
+            else
+            {
+                carCamera = Camera.main;
+            }
         }
 
         public void UpdateHealthBar()

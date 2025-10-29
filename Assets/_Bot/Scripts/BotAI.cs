@@ -1,4 +1,5 @@
 using _Cars.ScriptableObjects;
+using _Cars.Scripts;
 using _Projectiles.ScriptableObjects;
 using _Projectiles.Scripts;
 using Bot.Scripts;
@@ -28,19 +29,27 @@ namespace _Bot.Scripts
         private Transform firePoint;
         private bool isFiring = false;
         private float nextFireTime = 0f;
+        
+        // Target
+        private float targetCheckInterval = 2f;
+        private float targetCheckTimer = 0f;
 
         void Awake()
         {
             botController = GetComponent<BotController>();
-            firePoint = GetComponent<Transform>();
-            
-            //TODO::Change to choose closest target
-            target = GameObject.FindGameObjectWithTag("PlayerOne").transform;
+            firePoint = transform.Find("FirePoint");
         }
 
         void Update()
         {
-            SetTargetPosition(target.position);
+            targetCheckTimer += Time.deltaTime;
+            if (targetCheckTimer >= targetCheckInterval)
+            {
+                FindClosestTarget();
+                targetCheckTimer = 0f;
+            }
+
+            if (target == null) return;
             
             switch (currentState)
             {
@@ -222,8 +231,14 @@ namespace _Bot.Scripts
 
         private Vector3 GetDirection()
         {
-            Vector3 shootDirection = (target.position - firePoint.position).normalized;
-            return shootDirection;
+            if (target != null)
+            {
+                Vector3 shootDirection = (target.position - firePoint.position).normalized;
+                return shootDirection;  
+            }
+
+            return Vector3.zero; ;
+
         }
 
         private void SetTargetPosition(Vector3 targetPosition)
@@ -266,8 +281,36 @@ namespace _Bot.Scripts
             }
         }
 
+        private void FindClosestTarget()
+        {
+            float closestDistance = Mathf.Infinity;
+            Transform closestTarget = null;
 
+            // Find all cars that have CarHealth (so they can be shot)
+            var allCars = FindObjectsByType<CarHealth>(FindObjectsSortMode.None);
 
+            foreach (var car in allCars)
+            {
+                // Skip yourself
+                if (car.gameObject == this.gameObject) continue;
+
+                float distance = Vector3.Distance(transform.position, car.transform.position);
+
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestTarget = car.transform;
+                }
+            }
+
+            if (closestTarget != null)
+            {
+                target = closestTarget;
+            }
+        }
+        
+        
+        
     }
         
 }

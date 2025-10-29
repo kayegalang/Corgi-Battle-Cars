@@ -1,8 +1,8 @@
+using _Gameplay.Scripts;
 using Gameplay.Scripts;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-namespace UI.Scripts
+namespace _UI.Scripts
 {
     public class MainMenuController : MonoBehaviour
     {
