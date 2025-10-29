@@ -14,6 +14,7 @@ namespace _Cars.Scripts
         private int currentHealth;
 
         private bool isBot;
+        private bool isDead = false;
 
         void Start()
         
@@ -42,6 +43,9 @@ namespace _Cars.Scripts
 
         private void Die()
         {
+            if (isDead) return;
+            isDead = true;
+            
             spawnManager.Respawn(gameObject.tag);
             Destroy(gameObject);
         }

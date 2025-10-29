@@ -57,7 +57,7 @@ namespace _UI.Scripts
             
             yield return new WaitForSeconds(0.3f);
             
-            GameplayManager.instance.StartGameTimer();
+            GameplayManager.instance.StartMatchTimer();
         }
     }
 }

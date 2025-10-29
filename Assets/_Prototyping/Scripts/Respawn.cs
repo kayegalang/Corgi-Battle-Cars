@@ -1,13 +1,15 @@
+using _Gameplay.Scripts;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Prototyping.Scripts
+namespace _Prototyping.Scripts
 {
     public class Respawn : MonoBehaviour
     {
+        [SerializeField] SpawnManager spawnManager;
         public void OnClick()
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+           spawnManager.Respawn("PlayerOne");
         }
     }
 }

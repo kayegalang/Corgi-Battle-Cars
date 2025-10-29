@@ -63,7 +63,7 @@ namespace _Gameplay.Scripts
             StartCoroutine(WaitToSpawn(playerTag, prefabToSpawn, GetSpawnPoint()));
         }
 
-        public void Spawn(string playerTag, Transform spawnPoint)
+        private void Spawn(string playerTag, Transform spawnPoint)
         {
             GameObject prefabToSpawn = null;
             if (playerTag.StartsWith("Bot"))

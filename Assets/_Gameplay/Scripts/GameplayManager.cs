@@ -17,7 +17,10 @@ namespace _Gameplay.Scripts
         private SpawnManager spawnManager;
         private List<string> mapNames;
 
-        private TextMeshProUGUI timerText = null;
+        private TextMeshProUGUI matchTimerText = null;
+        private TextMeshProUGUI gameTimerText = null;
+        
+        private EndGameManager endGameManager;
         private void Awake()
         {
             if (instance == null)
@@ -85,7 +88,26 @@ namespace _Gameplay.Scripts
             return GameObject.FindGameObjectWithTag("PlayerOne") != null;
         }
 
-        private IEnumerator GameTimer()
+        private IEnumerator GameTimer(int time)
+        {
+            while (time > 0)
+            {
+                gameTimerText.text = time.ToString();
+                
+                yield return new WaitForSeconds(1);
+
+                time--;
+            }
+
+            if (time == 0)
+            {
+                gameTimerText.text = time.ToString();
+
+                EndGame();
+            }
+        }
+
+        private IEnumerator MatchTimer()
         {
             Time.timeScale = 0;
             var time = 3;
@@ -94,25 +116,38 @@ namespace _Gameplay.Scripts
             {
                 if (time == 0)
                 {
-                    timerText.text = "Go!";
+                    matchTimerText.text = "Go!";
                 }
                 else
                 {
-                    timerText.text = time.ToString();
+                    matchTimerText.text = time.ToString();
                 }
                 
                 yield return new WaitForSecondsRealtime(1);
                 time--;
             }
             
-            timerText.text = "";
+            matchTimerText.text = "";
             Time.timeScale = 1;
+            StartGameTimer();
         }
 
-        public void StartGameTimer()
+        public void StartMatchTimer()
         {
-            timerText = GameObject.Find("TimerText").GetComponent<TextMeshProUGUI>();
-            StartCoroutine(GameTimer());
+            matchTimerText = GameObject.Find("MatchTimerText").GetComponent<TextMeshProUGUI>();
+            StartCoroutine(MatchTimer());
+        }
+
+        private void StartGameTimer()
+        {
+            gameTimerText = GameObject.Find("GameTimerText").GetComponent<TextMeshProUGUI>();
+            StartCoroutine(GameTimer(30));
+        }
+
+        private void EndGame()
+        {
+            endGameManager = FindFirstObjectByType<EndGameManager>();
+            endGameManager.OnGameEnd();
         }
 
     }

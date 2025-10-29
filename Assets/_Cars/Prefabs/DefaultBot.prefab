@@ -307,6 +307,7 @@ GameObject:
   - component: {fileID: 1911290352435738917}
   - component: {fileID: 3883904779664031299}
   - component: {fileID: 1539554114368885456}
+  - component: {fileID: 3308493156854308235}
   m_Layer: 0
   m_Name: DefaultBot
   m_TagString: BotOne
@@ -484,6 +485,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CarHealth
   spawnManager: {fileID: 0}
   healthBar: {fileID: 6995272700948764461}
+--- !u!65 &3308493156854308235
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3398083622699686620}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.2491, y: 1.446317, z: 3.7814965}
+  m_Center: {x: -0.000000834465, y: 0.95552886, z: 0.09951556}
 --- !u!1 &6388681567137078897
 GameObject:
   m_ObjectHideFlags: 0
