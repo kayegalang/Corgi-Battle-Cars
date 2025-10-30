@@ -2,6 +2,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using System.Linq;
+using _Cars.Scripts;
 using _UI.Scripts;
 using Gameplay.Scripts;
 using TMPro;
@@ -16,6 +18,7 @@ namespace _Gameplay.Scripts
         private string mapChosen;
         private SpawnManager spawnManager;
         private List<string> mapNames;
+        private List<string> playerTags;
 
         private TextMeshProUGUI matchTimerText = null;
         private TextMeshProUGUI gameTimerText = null;
@@ -37,6 +40,7 @@ namespace _Gameplay.Scripts
 
             spawnManager = null;
             InitializeMapNames();
+            playerTags = new List<string>();
         }
 
         private void InitializeMapNames()
@@ -92,7 +96,7 @@ namespace _Gameplay.Scripts
         {
             while (time > 0)
             {
-                gameTimerText.text = time.ToString();
+                gameTimerText.text = "Time: " + time;
                 
                 yield return new WaitForSeconds(1);
 
@@ -101,7 +105,7 @@ namespace _Gameplay.Scripts
 
             if (time == 0)
             {
-                gameTimerText.text = time.ToString();
+                gameTimerText.text = "Time: " + time;
 
                 EndGame();
             }
@@ -150,6 +154,15 @@ namespace _Gameplay.Scripts
             endGameManager.OnGameEnd();
         }
 
+        public void UpdatePlayerList(string playerTag)
+        {
+            playerTags.Add(playerTag);
+        }
+
+        public List<string> GetPlayerTags()
+        {
+            return playerTags;
+        }
     }
 }
 

@@ -32,7 +32,7 @@ namespace _Cars.Scripts
         
             if (currentHealth <= 0)
             {
-                Die();
+                Die(shooter);
             }
 
             if (isBot)
@@ -41,10 +41,12 @@ namespace _Cars.Scripts
             }
         }
 
-        private void Die()
+        private void Die(GameObject shooter)
         {
             if (isDead) return;
             isDead = true;
+            
+            PointsManager.instance.AddPoint(shooter.tag);
             
             spawnManager.Respawn(gameObject.tag);
             Destroy(gameObject);

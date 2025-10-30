@@ -1,15 +1,33 @@
 using UnityEngine;
 
-public class StartScreenController : MonoBehaviour
+namespace _UI.Scripts
 {
-    [SerializeField] private GameObject[] scenePanels;
-
-    void Start()
+    public class StartScreenController : MonoBehaviour
     {
-        gameObject.SetActive(true);
-        foreach (GameObject panel in scenePanels)
+        [SerializeField] private GameObject[] scenePanels;
+        [SerializeField] private GameObject startScreen;
+        [SerializeField] private GameObject mainMenu;
+
+        private static bool hasSeenStartScreen = false;
+        void Start()
         {
-            panel.SetActive(false);
+            if (!hasSeenStartScreen)
+            {
+                startScreen.SetActive(true);
+                mainMenu.SetActive(false);
+                hasSeenStartScreen = true;
+            }
+            else
+            {
+                startScreen.SetActive(false);
+                mainMenu.SetActive(true);
+            }
+            
+            foreach (GameObject panel in scenePanels)
+            {
+                panel.SetActive(false);
+            }
         }
     }
 }
+

@@ -1,10 +1,8 @@
-using Gameplay.Scripts;
+using Player.Scripts;
 using UI.Scripts;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-namespace Player.Scripts
+namespace _Cars.Scripts
 {
     public class CarController : MonoBehaviour
     {
@@ -15,13 +13,6 @@ namespace Player.Scripts
         private PauseController pauseController;
         
         [SerializeField] private CarStats carStats;
-        
-        private float acceleration;
-        private float turnSpeed;
-        private Vector3 groundCheckOffset;
-        private float groundCheckDistance;
-        private float jumpForce;
-        private float maxSpeed;
 
         void Awake()
         {
@@ -29,8 +20,6 @@ namespace Player.Scripts
             carRb = GetComponent<Rigidbody>();
             
             pauseController = FindFirstObjectByType<PauseController>();
-
-            InitializeCarStats();
         }
 
 
@@ -48,16 +37,6 @@ namespace Player.Scripts
                 }
             }
 
-        }
-
-        private void InitializeCarStats()
-        {
-            acceleration = carStats.acceleration;
-            turnSpeed = carStats.turnSpeed;
-            groundCheckOffset = carStats.groundCheckOffset;
-            groundCheckDistance = carStats.groundCheckDistance;
-            jumpForce = carStats.jumpForce;
-            maxSpeed = carStats.maxSpeed;
         }
 
         private void OnEnable()
@@ -97,9 +76,9 @@ namespace Player.Scripts
                 carRb.MoveRotation(Quaternion.Slerp(carRb.rotation, levelRotation, 2f * Time.fixedDeltaTime));
             }
 
-            if (carRb.linearVelocity.magnitude > maxSpeed)
+            if (carRb.linearVelocity.magnitude > carStats.maxSpeed)
             {
-                carRb.linearVelocity = carRb.linearVelocity.normalized * maxSpeed;
+                carRb.linearVelocity = carRb.linearVelocity.normalized * carStats.maxSpeed;
             }
         }
 
@@ -119,22 +98,22 @@ namespace Player.Scripts
             {
                 if (moveInput.x > 0)
                 {
-                    carRb.AddTorque(Vector3.up * turnSpeed);
+                    carRb.AddTorque(Vector3.up * carStats.turnSpeed);
                 }
                 else if (moveInput.x < 0)
                 {
-                    carRb.AddTorque(-Vector3.up * turnSpeed);
+                    carRb.AddTorque(-Vector3.up * carStats.turnSpeed);
                 }
             }
             else if (!IsMovingForward())
             {
                 if (moveInput.x > 0)
                 {
-                    carRb.AddTorque(-Vector3.up * turnSpeed);
+                    carRb.AddTorque(-Vector3.up * carStats.turnSpeed);
                 }
                 else if (moveInput.x < 0)
                 {
-                    carRb.AddTorque(Vector3.up * turnSpeed);
+                    carRb.AddTorque(Vector3.up * carStats.turnSpeed);
                 }
             }
         }
@@ -148,11 +127,11 @@ namespace Player.Scripts
         {
             if (moveInput.y > 0)
             {
-                carRb.AddRelativeForce(Vector3.forward * acceleration);
+                carRb.AddRelativeForce(Vector3.forward * carStats.acceleration);
             }
             else if (moveInput.y < 0)
             {
-                carRb.AddRelativeForce(-Vector3.forward * acceleration);
+                carRb.AddRelativeForce(-Vector3.forward * carStats.acceleration);
             }
 
             Vector3 localVelocity = transform.InverseTransformDirection(carRb.linearVelocity);
@@ -169,18 +148,18 @@ namespace Player.Scripts
         {
             RaycastHit hit;
             
-            Vector3 origin = transform.position + groundCheckOffset;
+            Vector3 origin = transform.position + carStats.groundCheckOffset;
 
-            Debug.DrawRay(origin, -transform.up * groundCheckDistance, Color.red);
+            Debug.DrawRay(origin, -transform.up * carStats.groundCheckDistance, Color.red);
             
-            return Physics.Raycast(origin, -transform.up, out hit, groundCheckDistance);
+            return Physics.Raycast(origin, -transform.up, out hit, carStats.groundCheckDistance);
         }
 
         private void Jump()
         {
             if (IsGrounded())
             {
-                carRb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+                carRb.AddForce(transform.up * carStats.jumpForce, ForceMode.Impulse);
             }
         }
     }

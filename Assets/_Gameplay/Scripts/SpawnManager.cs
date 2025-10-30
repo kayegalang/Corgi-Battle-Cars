@@ -47,6 +47,11 @@ namespace _Gameplay.Scripts
             Spawn("BotOne",  GetUniqueSpawnPoint());
             Spawn("BotTwo", GetUniqueSpawnPoint());
             Spawn("BotThree", GetUniqueSpawnPoint());
+            
+            GameplayManager.instance.UpdatePlayerList("PlayerOne");
+            GameplayManager.instance.UpdatePlayerList("BotOne");
+            GameplayManager.instance.UpdatePlayerList("BotTwo");
+            GameplayManager.instance.UpdatePlayerList("BotThree");
         }
 
         public void Respawn(string playerTag)
