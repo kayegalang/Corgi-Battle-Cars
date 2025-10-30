@@ -39,18 +39,33 @@ namespace _UI.Scripts
             }
 
             string results = "";
+            int currentRank = 1;  // The rank number (1st, 2nd, etc.)
+            int playersWithSameScore = 1; // How many players share the same rank
+
             for (int i = 0; i < sorted.Count; i++)
             {
-                int rank = i + 1;
-                if (i > 0 && sorted[i].points == sorted[i - 1].points)
-                    rank--; // handle tie
-
-                string rankText = GetOrdinal(rank);
                 string playerName = string.IsNullOrEmpty(sorted[i].tag) ? "Unknown" : sorted[i].tag;
                 int playerPoints = sorted[i].points;
 
-                // ✅ Fixed: use "\n", not "\\n"
+                // Apply rank
+                string rankText = GetOrdinal(currentRank);
                 results += $"{rankText} - {playerName} ({playerPoints} points)\n";
+
+                // Check next player's score
+                if (i < sorted.Count - 1)
+                {
+                    if (sorted[i + 1].points == sorted[i].points)
+                    {
+                        // Next player is tied, same rank
+                        playersWithSameScore++;
+                    }
+                    else
+                    {
+                        // Skip ranks equal to the number of tied players
+                        currentRank += playersWithSameScore;
+                        playersWithSameScore = 1;
+                    }
+                }
             }
 
             resultsText.text = results;
@@ -68,5 +83,6 @@ namespace _UI.Scripts
                 _ => num + "th"
             };
         }
+
     }
 }

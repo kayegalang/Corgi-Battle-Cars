@@ -145,7 +145,7 @@ namespace _Gameplay.Scripts
         private void StartGameTimer()
         {
             gameTimerText = GameObject.Find("GameTimerText").GetComponent<TextMeshProUGUI>();
-            StartCoroutine(GameTimer(30));
+            StartCoroutine(GameTimer(60));
         }
 
         private void EndGame()
