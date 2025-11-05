@@ -11,7 +11,6 @@ namespace _Bot.Scripts
 {
     public class BotAI : MonoBehaviour
     {
-                
         [SerializeField] private AICarStats carStats;
         [SerializeField] private ProjectileObject projectile;
         private BotController botController;
@@ -22,7 +21,7 @@ namespace _Bot.Scripts
         
         // Run Away
         private Transform lastAttacker;
-        private float runAwayDuration = 3f;
+        private readonly float runAwayDuration = 3f;
         private float runAwayTimer;
 
         // Shooting
@@ -31,7 +30,7 @@ namespace _Bot.Scripts
         private float nextFireTime = 0f;
         
         // Target
-        private float targetCheckInterval = 2f;
+        const float TargetCheckInterval = 2f;
         private float targetCheckTimer = 0f;
 
         void Awake()
@@ -43,7 +42,7 @@ namespace _Bot.Scripts
         void Update()
         {
             targetCheckTimer += Time.deltaTime;
-            if (targetCheckTimer >= targetCheckInterval)
+            if (ReadyToFindTarget())
             {
                 FindClosestTarget();
                 targetCheckTimer = 0f;
@@ -67,38 +66,57 @@ namespace _Bot.Scripts
             HandleStateTransitions();
         }
 
+        private bool ReadyToFindTarget()
+        {
+            return targetCheckTimer >= TargetCheckInterval;
+        }
+
         void FixedUpdate()
         {
-            if (currentState == BotStates.Attack && Time.time > nextFireTime)
+            if (currentState == BotStates.Attack && FinishedFireRateCooldown())
             {
                 Shoot();
                 nextFireTime = Time.time + projectile.fireRate;
             }
         }
 
+        private bool FinishedFireRateCooldown()
+        {
+            return Time.time > nextFireTime;
+        }
+
         private void HandleStateTransitions()
         {
-            if (runAwayTimer >= runAwayDuration)
+            if (RunAwayTimerEnded())
                  SetState(BotStates.Chase);
 
             switch (currentState) {
                 case BotStates.Chase:
-                    if (GetDistanceFromTarget() <= carStats.reachedTargetDistance)
+                    if (ReachedTarget())
                     {
                         SetState(BotStates.Attack);
                     }
                     break;
                 case BotStates.Attack:
-                    if (GetDistanceFromTarget() > carStats.reachedTargetDistance)
+                    if (!ReachedTarget())
                     {
                         SetState(BotStates.Chase);
                     }
-
                     break;
                 case BotStates.RunAway:
                     break;
         }
     }
+
+        private bool ReachedTarget()
+        {
+            return GetDistanceFromTarget() <= carStats.reachedTargetDistance;
+        }
+
+        private bool RunAwayTimerEnded()
+        {
+            return runAwayTimer >= runAwayDuration;
+        }
 
         private void Chase()
         {
@@ -106,45 +124,65 @@ namespace _Bot.Scripts
 
             if (!avoiding)
             {
-                float turnAmount = 0f;
-                float moveAmount = 0f;
-            
-                var distanceFromTarget = GetDistanceFromTarget();
+                int turnInput = 0;
+                int moveInput = 0;
 
-                if (distanceFromTarget > carStats.reachedTargetDistance)
+                if (!ReachedTarget())
                 {
-                    Vector3 direction = (target.position - transform.position).normalized;
-                    float dotProduct = Vector3.Dot(transform.forward, direction);
-
-                    if (dotProduct > 0)
+                    if (IsTargetInFront())
                     {
-                        moveAmount = 1f;
-                    
-                        if (distanceFromTarget < carStats.stoppingDistance && botController.GetSpeed() > carStats.stoppingSpeed)
+                        moveInput = (int)MoveDirection.Forward;
+
+                        if (GetDistanceFromTarget() < carStats.stoppingDistance && botController.GetSpeed() > carStats.stoppingSpeed)
                         {
-                            moveAmount = -1f;
+                            // Brake
+                            moveInput = (int)MoveDirection.Backward;
                         }
                     }
-                
-                    float turnAngle = Vector3.SignedAngle(transform.forward, direction, Vector3.up);
 
-                    if (turnAngle > 0)
+                    if (IsTargetToTheRight())
                     {
-                        turnAmount = 1f;
+                        turnInput = (int)TurnDirection.Right;
                     }
                     else
                     {
-                        turnAmount = -1f;
+                        turnInput = (int)TurnDirection.Left;
                     }
                 }
                 else
                 {
-                    turnAmount = 0f;
-                    moveAmount = 0f;
+                    turnInput = (int)TurnDirection.None;
+                    moveInput = (int)MoveDirection.Stop;
                 }
             
-                botController.SetInputs(turnAmount, moveAmount);
+                botController.SetInputs(turnInput, moveInput);
             }
+        }
+
+        private bool IsTargetToTheRight()
+        {
+            return GetTurnAngle() > 0;
+        }
+
+        private float GetTurnAngle()
+        {
+            float turnAngle = Vector3.SignedAngle(transform.forward, GetTargetDirection(), Vector3.up);
+            return turnAngle;
+        }
+
+        private bool IsTargetInFront()
+        {
+            return GetDotProduct() > 0;
+        }
+
+        private float GetDotProduct()
+        {
+            return Vector3.Dot(transform.forward, GetTargetDirection());
+        }
+
+        private Vector3 GetTargetDirection()
+        {
+            return (target.position - transform.position).normalized;
         }
 
         private float GetDistanceFromTarget()
@@ -242,11 +280,6 @@ namespace _Bot.Scripts
 
             return Vector3.zero;
 
-        }
-
-        private void SetTargetPosition(Vector3 targetPosition)
-        {
-            target.position = targetPosition;
         }
 
         private void SetState(BotStates state)
