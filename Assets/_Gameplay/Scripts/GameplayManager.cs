@@ -85,6 +85,16 @@ namespace _Gameplay.Scripts
             {
                 StartSingleplayerGame();
             }
+
+            if (currentGameMode == GameMode.Multiplayer)
+            {
+                StartMultiplayerGame();
+            }
+        }
+
+        private void StartMultiplayerGame()
+        {
+            
         }
 
         public bool IsGameSetupComplete()
