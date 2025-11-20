@@ -1,7 +1,4 @@
-using Gameplay.Scripts;
 using Player.Scripts;
-using UI.Scripts;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace _Bot.Scripts

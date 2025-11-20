@@ -1,5 +1,4 @@
 using _Gameplay.Scripts;
-using Gameplay.Scripts;
 using UnityEngine;
 
 namespace _UI.Scripts

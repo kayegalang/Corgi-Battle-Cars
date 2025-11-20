@@ -1,7 +1,6 @@
 using _Bot.Scripts;
 using _Gameplay.Scripts;
 using _UI.Scripts;
-using Gameplay.Scripts;
 using UnityEngine;
 
 namespace _Cars.Scripts

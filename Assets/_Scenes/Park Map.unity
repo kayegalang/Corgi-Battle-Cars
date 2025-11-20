@@ -7278,7 +7278,7 @@ MonoBehaviour:
   - {fileID: 901155284}
   - {fileID: 564686714}
   - {fileID: 2082242893}
-  playerPrefab: {fileID: 577275122352473270, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
+  playerPrefab: {fileID: 6756967992314760238, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
   botPrefab: {fileID: 3398083622699686620, guid: 69272e12e7c3d4ab6b7fd163e1710241, type: 3}
 --- !u!1001 &2056422690
 PrefabInstance:

@@ -2,10 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
-using System.Linq;
-using _Cars.Scripts;
 using _UI.Scripts;
-using Gameplay.Scripts;
 using TMPro;
 
 namespace _Gameplay.Scripts
