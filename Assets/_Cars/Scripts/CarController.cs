@@ -1,12 +1,17 @@
 using Player.Scripts;
 using UI.Scripts;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace _Cars.Scripts
 {
     public class CarController : MonoBehaviour
     {
-        private PlayerControls controls;
+        private PlayerInput playerInput;
+        private InputAction moveAction;
+        private InputAction jumpAction;
+        private InputAction pauseAction;
+        
         private Vector2 moveInput;
         private Rigidbody carRb;
         
@@ -16,7 +21,13 @@ namespace _Cars.Scripts
 
         void Awake()
         {
-            controls = new PlayerControls();
+            playerInput = GetComponent<PlayerInput>();
+            
+            var actions = playerInput.actions;
+            moveAction = actions.FindAction("Move", true);
+            jumpAction = actions.FindAction("Jump", true);
+            pauseAction = actions.FindAction("Pause", true);
+            
             carRb = GetComponent<Rigidbody>();
             
             pauseController = FindFirstObjectByType<PauseController>();
@@ -25,7 +36,7 @@ namespace _Cars.Scripts
 
         void Update()
         {
-            if (controls.UI.Pause.triggered) 
+            if (pauseAction.triggered) 
             {
                 if (pauseController.GetIsPaused())
                 {
@@ -41,21 +52,23 @@ namespace _Cars.Scripts
 
         private void OnEnable()
         {
-            controls.Gameplay.Enable();
-            controls.UI.Enable();
+            moveAction.Enable();
+            jumpAction.Enable();
+            pauseAction.Enable();
             
             // Movement
-            controls.Gameplay.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-            controls.Gameplay.Move.canceled += ctx => moveInput = Vector2.zero;
+            moveAction.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
+            moveAction.canceled += ctx => moveInput = Vector2.zero;
             
             // Jump
-            controls.Gameplay.Jump.performed += ctx => Jump();
+           jumpAction.performed += ctx => Jump();
         }
 
         private void OnDisable()
         {
-            controls.Gameplay.Disable();
-            controls.UI.Disable();
+            moveAction.Disable();
+            jumpAction.Disable();
+            pauseAction.Disable();
         }
 
         private void FixedUpdate()

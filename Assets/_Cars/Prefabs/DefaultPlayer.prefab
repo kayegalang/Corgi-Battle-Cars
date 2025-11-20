@@ -822,8 +822,8 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 0aaa72f9-da01-4d9d-9dbb-370f26b0b988
     m_ActionName: 'UI/Pause[/Keyboard/escape]'
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
+  m_NeverAutoSwitchControlSchemes: 1
+  m_DefaultControlScheme: Keyboard
   m_DefaultActionMap: Gameplay
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 3186835064538186838}
