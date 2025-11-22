@@ -7,18 +7,21 @@ namespace _UI.Scripts
     {
         public void OnQuitButtonClick()
         {
-            #if UNITY_EDITOR 
-                UnityEditor.EditorApplication.isPlaying = false;
-            #else
+#if UNITY_EDITOR 
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
                 Application.Quit();
-            #endif
+#endif
         }
 
         public void OnSingleplayerButtonClicked()
         {
             GameplayManager.instance.SetGameMode(GameMode.Singleplayer);
         }
-        
+
+        public void OnMultiplayerButtonClicked()
+        {
+            GameplayManager.instance.SetGameMode(GameMode.Multiplayer);
+        }
     }
 }
-

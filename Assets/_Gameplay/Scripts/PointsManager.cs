@@ -46,9 +46,16 @@ namespace _Gameplay.Scripts
         
         public void AddPoint(string playerTag)
         {
+            // Check if the tag exists in the dictionary
+            if (!playerScores.ContainsKey(playerTag))
+            {
+                Debug.LogWarning($"Attempted to add point for unknown player tag: {playerTag}");
+                return;
+            }
+
             playerScores[playerTag]++;
             
-            if (playerTag.Equals("PlayerOne"))
+            if (playerTag.Equals("Player1"))
             {
                 UpdatePointsUI();
             }
@@ -63,7 +70,7 @@ namespace _Gameplay.Scripts
         
         private void UpdatePointsUI()
         {
-            pointsText.text = "Points: " + playerScores["PlayerOne"];
+            pointsText.text = "Points: " + playerScores["Player1"];
         }
         
         private void UpdateScoreboard()

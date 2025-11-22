@@ -11,13 +11,14 @@ namespace _Cars.Scripts
 
         [Header("Reticle Settings")]
         [SerializeField] private RectTransform reticle;
-        [SerializeField] private Canvas reticleCanvas;
+        [SerializeField] private Canvas reticleCanvas;        
         [SerializeField] private float controllerSensitivity = 900f;
+        [SerializeField] private Camera playerCamera;         
 
         private Vector2 controllerAim;
         private bool usingMouse = true;
 
-        [Header("Projectile")]
+        [Header("Projectile Settings")]
         public GameObject projectilePrefab;
         [SerializeField] private float fireForce = 30f;
         [SerializeField] private float fireRate = 0.25f;
@@ -25,15 +26,13 @@ namespace _Cars.Scripts
         private float nextFire = 0f;
         private bool isFiring;
         private Transform firePoint;
-
-
+        
         void Awake()
         {
             controls = new PlayerControls();
             carRb = GetComponent<Rigidbody>();
             firePoint = transform.Find("FirePoint");
 
-            // Hide OS cursor
             Cursor.visible = false;
         }
 
@@ -41,11 +40,11 @@ namespace _Cars.Scripts
         {
             controls.Gameplay.Enable();
 
-            // Shoot
+            // Shooting input
             controls.Gameplay.Shoot.performed += ctx => isFiring = true;
             controls.Gameplay.Shoot.canceled += ctx => isFiring = false;
 
-            // Controller Aim
+            // Controller aim
             controls.Gameplay.Aim.performed += ctx =>
             {
                 controllerAim = ctx.ReadValue<Vector2>();
@@ -74,12 +73,7 @@ namespace _Cars.Scripts
                 nextFire = Time.time + fireRate;
             }
         }
-
-
-        // ============================================================
-        //  RETICLE SYSTEM
-        // ============================================================
-
+        
         private void UpdateReticle()
         {
             if (usingMouse)
@@ -90,24 +84,24 @@ namespace _Cars.Scripts
 
         private void MoveReticleWithMouse()
         {
-            RectTransform canvasRectTransform = reticleCanvas.transform as RectTransform;
+            // Global mouse position → THIS player's viewport
+            Vector2 mousePos = Mouse.current.position.ReadValue();
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvasRectTransform,
-                Mouse.current.position.ReadValue(),
-                null,
-                out Vector2 localPoint
+            Vector2 viewport = playerCamera.ScreenToViewportPoint(mousePos);
+
+            // Convert viewport (0–1) into canvas local space
+            RectTransform canvasRect = (RectTransform)reticleCanvas.transform;
+
+            reticle.anchoredPosition = new Vector2(
+                (viewport.x - 0.5f) * canvasRect.sizeDelta.x,
+                (viewport.y - 0.5f) * canvasRect.sizeDelta.y
             );
-
-            reticle.anchoredPosition = localPoint;
-
         }
 
         private void MoveReticleWithController()
         {
-            RectTransform canvasRect = reticleCanvas.transform as RectTransform;
+            RectTransform canvasRect = (RectTransform)reticleCanvas.transform;
 
-            // Move reticle based on right stick input
             reticle.anchoredPosition += controllerAim * controllerSensitivity * Time.deltaTime;
 
             reticle.anchoredPosition = ClampToCanvas(reticle.anchoredPosition, canvasRect);
@@ -124,36 +118,40 @@ namespace _Cars.Scripts
             return pos;
         }
 
-
-        // ============================================================
-        //  SHOOTING SYSTEM
-        // ============================================================
-
         private void Shoot()
         {
             Vector3 shootDir = GetDirectionFromReticle();
 
-            GameObject bullet = Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(shootDir));
+            GameObject bullet = Instantiate(projectilePrefab, firePoint.position, 
+                                            Quaternion.LookRotation(shootDir));
 
             Projectile proj = bullet.GetComponent<Projectile>();
             if (proj != null)
-                proj.SetShooter(gameObject);
-
-            Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
-            if (bulletRb != null)
             {
-                bulletRb.linearVelocity = carRb.linearVelocity; // inherit movement
-                bulletRb.AddForce(shootDir * fireForce, ForceMode.Impulse);
+                // Pass the root GameObject which has the proper tag (Player1, Player2, etc.)
+                GameObject rootObject = transform.root.gameObject;
+                proj.SetShooter(rootObject);
+            }
+
+            Rigidbody rb = bullet.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.linearVelocity = carRb.linearVelocity;
+                rb.AddForce(shootDir * fireForce, ForceMode.Impulse);
             }
         }
 
         private Vector3 GetDirectionFromReticle()
         {
-            // Convert UI reticle position → screen position
-            Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
+            RectTransform canvasRect = (RectTransform)reticleCanvas.transform;
 
-            // Ray from camera to reticle
-            Ray ray = Camera.main.ScreenPointToRay(screenPos);
+            // Convert anchored pos back into viewport coordinates
+            Vector2 normalizedViewport = new Vector2(
+                (reticle.anchoredPosition.x / canvasRect.sizeDelta.x) + 0.5f,
+                (reticle.anchoredPosition.y / canvasRect.sizeDelta.y) + 0.5f
+            );
+
+            Ray ray = playerCamera.ViewportPointToRay(normalizedViewport);
 
             if (Physics.Raycast(ray, out RaycastHit hit))
                 return (hit.point - firePoint.position).normalized;

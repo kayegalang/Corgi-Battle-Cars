@@ -4,14 +4,13 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - PlayerOne
-  - PlayerTwo
-  - PlayerThree
-  - PlayerFour
-  - BotOne
-  - BotTwo
-  - BotThree
-  - BotFour
+  - Player1
+  - Player2
+  - Player3
+  - Player4
+  - Bot1
+  - Bot2
+  - Bot3
   layers:
   - Default
   - TransparentFX
@@ -19,11 +18,11 @@ TagManager:
   - Map
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Player1
+  - Player2
+  - Player3
+  - Player4
+  - Loading
   - 
   - 
   - 

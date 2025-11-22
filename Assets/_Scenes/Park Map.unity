@@ -1171,6 +1171,59 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 6060582266823880569, guid: c95ace4fc9471044cbed311b2062c33a, type: 3}
+--- !u!1 &287636023
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 287636025}
+  - component: {fileID: 287636024}
+  m_Layer: 0
+  m_Name: PlayerManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &287636024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 287636023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40389725582bc4bca845d4a8f0753739, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Player.Scripts.PlayerManager
+  playerLayers:
+  - serializedVersion: 2
+    m_Bits: 64
+  - serializedVersion: 2
+    m_Bits: 128
+  - serializedVersion: 2
+    m_Bits: 256
+  - serializedVersion: 2
+    m_Bits: 512
+--- !u!4 &287636025
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 287636023}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.99392, y: 3.28331, z: 3.45647}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &299450813
 GameObject:
   m_ObjectHideFlags: 0
@@ -7278,7 +7331,7 @@ MonoBehaviour:
   - {fileID: 901155284}
   - {fileID: 564686714}
   - {fileID: 2082242893}
-  playerPrefab: {fileID: 6756967992314760238, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
+  playerPrefab: {fileID: 6630201899111060283, guid: 0bc22946a9e554e089cc32057ad1195f, type: 3}
   botPrefab: {fileID: 3398083622699686620, guid: 69272e12e7c3d4ab6b7fd163e1710241, type: 3}
 --- !u!1001 &2056422690
 PrefabInstance:
@@ -7749,3 +7802,4 @@ SceneRoots:
   - {fileID: 3105355848357116286}
   - {fileID: 478994507}
   - {fileID: 1328203550}
+  - {fileID: 287636025}
