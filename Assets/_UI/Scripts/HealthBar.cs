@@ -14,17 +14,28 @@ namespace _UI.Scripts
         {
             healthBarSlider = GetComponent<Slider>();
             healthBarSlider.value = 1;
+            
+            // Get the camera from this player's hierarchy, NOT Camera.main
+            if (carCamera == null)
+            {
+                carCamera = GetComponentInParent<Camera>();
+                if (carCamera == null)
+                {
+                    // Search in siblings
+                    Transform parent = transform.parent?.parent; // Go up to player root
+                    if (parent != null)
+                    {
+                        carCamera = parent.GetComponentInChildren<Camera>();
+                    }
+                }
+            }
         }
+        
         void Update()
         {
-            
             if (carCamera != null)
             {
                 transform.LookAt(carCamera.transform);
-            }
-            else
-            {
-                carCamera = Camera.main;
             }
         }
 
@@ -34,4 +45,3 @@ namespace _UI.Scripts
         }
     }
 }
-

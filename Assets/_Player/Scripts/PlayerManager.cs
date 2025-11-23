@@ -48,26 +48,16 @@ using System.Collections.Generic;
 
                 // Convert layer mask (bit) to an integer 
                 int layerToAdd = (int)Mathf.Log(playerLayers[playerIndex].value, 2);
-                Debug.Log($"Player {players.Count}: Layer to add: {layerToAdd} (Layer name: {LayerMask.LayerToName(layerToAdd)})");
 
                 // Find Camera and CinemachineCamera as direct children
                 CinemachineCamera cinemachineCamera = playerParent.GetComponentInChildren<CinemachineCamera>();
                 Camera playerCamera = playerParent.GetComponentInChildren<Camera>();
                 CinemachineBrain cinemachineBrain = playerParent.GetComponentInChildren<CinemachineBrain>();
 
-                Debug.Log($"CinemachineCamera found: {cinemachineCamera != null}");
-                Debug.Log($"Camera found: {playerCamera != null}");
-                Debug.Log($"CinemachineBrain found: {cinemachineBrain != null}");
-
                 // Set the layer for CinemachineCamera so the Brain can find it
                 if (cinemachineCamera != null)
                 {
                     cinemachineCamera.gameObject.layer = layerToAdd;
-                    Debug.Log($"Set CinemachineCamera layer to {layerToAdd}");
-                }
-                else
-                {
-                    Debug.LogWarning("CinemachineCamera not found!");
                 }
 
                 // Configure the Camera
@@ -86,27 +76,16 @@ using System.Collections.Generic;
                         {
                             int otherLayer = (int)Mathf.Log(playerLayers[i].value, 2);
                             cullingMask &= ~(1 << otherLayer); // Remove this layer from culling mask
-                            Debug.Log($"Player {players.Count}: Excluding layer {otherLayer} from culling mask");
                         }
                     }
                     
                     playerCamera.cullingMask = cullingMask;
-                    Debug.Log($"Set Camera layer to {layerToAdd} and culling mask to {cullingMask}");
-                }
-                else
-                {
-                    Debug.LogWarning("Camera not found!");
                 }
 
                 // Configure the CinemachineBrain to only listen to cameras on this layer
                 if (cinemachineBrain != null)
                 {
                     cinemachineBrain.ChannelMask = (OutputChannels)(1 << layerToAdd);
-                    Debug.Log($"Set CinemachineBrain channel mask to layer {layerToAdd}");
-                }
-                else
-                {
-                    Debug.LogWarning("CinemachineBrain not found!");
                 }
             }
         }

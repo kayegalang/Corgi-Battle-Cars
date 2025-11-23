@@ -16,57 +16,29 @@ namespace _Cars.Scripts
         private bool isDead = false;
 
         void Start()
-        
         {
             isBot = GetComponent<BotAI>() != null;
             currentHealth = maxHealth;
             spawnManager = FindFirstObjectByType<SpawnManager>();
-            isBot = GetComponent<BotAI>() != null;
             
-            // Find the Canvas in this player's children (should be PlayerHealthCanvas)
+            // Find the Canvas and set it to the correct layer for split-screen
             Canvas healthCanvas = GetComponentInChildren<Canvas>();
             
-            Debug.Log($"Player {gameObject.name}: Found Canvas: {healthCanvas != null}");
-            
-            if (healthCanvas != null)
+            if (healthCanvas != null && healthCanvas.renderMode == RenderMode.WorldSpace)
             {
-                Debug.Log($"Player {gameObject.name}: Canvas name: {healthCanvas.gameObject.name}, render mode: {healthCanvas.renderMode}");
+                Camera playerCamera = GetComponentInChildren<Camera>();
                 
-                if (healthCanvas.renderMode == RenderMode.WorldSpace)
+                if (playerCamera != null)
                 {
-                    // Find the camera on this player's GameObject hierarchy
-                    Camera playerCamera = GetComponentInChildren<Camera>();
+                    int cameraLayer = playerCamera.gameObject.layer;
                     
-                    if (playerCamera != null)
-                    {
-                        int cameraLayer = playerCamera.gameObject.layer;
-                        
-                        // IMPORTANT: Set canvas and ALL children to the camera's layer
-                        // This makes each camera only see its own health bar
-                        healthCanvas.gameObject.layer = cameraLayer;
-                        
-                        // Set all children recursively
-                        SetLayerRecursively(healthCanvas.gameObject, cameraLayer);
-                        
-                        // Set the world camera for event handling
-                        healthCanvas.worldCamera = playerCamera;
-                        
-                        Debug.Log($"Player {gameObject.name}: Set health canvas and children to layer {cameraLayer}, camera: {playerCamera.name}");
-                        Debug.Log($"Player {gameObject.name}: Camera instance ID: {playerCamera.GetInstanceID()}");
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"Player {gameObject.name}: No camera found on player for health bar!");
-                    }
+                    // Set canvas and all children to the camera's layer
+                    healthCanvas.gameObject.layer = cameraLayer;
+                    SetLayerRecursively(healthCanvas.gameObject, cameraLayer);
+                    
+                    // Set the world camera for event handling
+                    healthCanvas.worldCamera = playerCamera;
                 }
-                else
-                {
-                    Debug.LogWarning($"Player {gameObject.name}: Canvas is not in WorldSpace mode!");
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"Player {gameObject.name}: No Canvas found in children!");
             }
         }
         
@@ -116,6 +88,4 @@ namespace _Cars.Scripts
             return isBot;
         }
     }
-
- 
 }
