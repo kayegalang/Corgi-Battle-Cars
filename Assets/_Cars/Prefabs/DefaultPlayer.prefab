@@ -597,12 +597,12 @@ Transform:
   - {fileID: 7652293949044176762}
   - {fileID: 3903207523722678821}
   - {fileID: 972364904635086011}
+  - {fileID: 3931791187119128230}
   - {fileID: 1472332132007029616}
   - {fileID: 4674326669141190266}
   - {fileID: 8424545403700250414}
   - {fileID: 6748091113179364387}
   - {fileID: 8467850694644994381}
-  - {fileID: 3931791187119128230}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4124793060182405462
@@ -739,6 +739,7 @@ MonoBehaviour:
   reticle: {fileID: 4652348421670467688}
   reticleCanvas: {fileID: 7948261623164164328}
   controllerSensitivity: 800
+  mouseSensitivity: 1.5
   projectilePrefab: {fileID: 5940751187897929002, guid: a1cbf08f72ec94c2ca82033c3604a0d1, type: 3}
   fireForce: 30
   fireRate: 0.25
@@ -790,7 +791,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
   m_Actions: {fileID: -944628639613478452, guid: 5c5eb66c939104e15a4a5352aee60f65, type: 3}
-  m_NotificationBehavior: 2
+  m_NotificationBehavior: 0
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
     m_PersistentCalls:
