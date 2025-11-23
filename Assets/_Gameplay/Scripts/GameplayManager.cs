@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using _UI.Scripts;
+using _Cars.Scripts;
 using TMPro;
 
 namespace _Gameplay.Scripts
@@ -19,6 +20,8 @@ namespace _Gameplay.Scripts
 
         private TextMeshProUGUI matchTimerText = null;
         private TextMeshProUGUI gameTimerText = null;
+        
+        private bool isGameEnded = false;
         
         private EndGameManager endGameManager;
         private void Awake()
@@ -70,10 +73,30 @@ namespace _Gameplay.Scripts
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            // Reset state when loading a map (starting a new game)
             if (mapNames.Contains(scene.name))
             {
+                ResetGameState();
                 SetupGame();
             }
+        }
+        
+        private void ResetGameState()
+        {
+            // Clear player tags from previous game
+            playerTags.Clear();
+            
+            // Reset references
+            spawnManager = null;
+            matchTimerText = null;
+            gameTimerText = null;
+            endGameManager = null;
+            
+            // Reset game ended flag
+            isGameEnded = false;
+            
+            // Stop any running coroutines
+            StopAllCoroutines();
         }
 
         private void SetupGame()
@@ -157,6 +180,26 @@ namespace _Gameplay.Scripts
 
         private void EndGame()
         {
+            // Mark game as ended
+            isGameEnded = true;
+            
+            // Show and unlock cursor when game ends
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            
+            // Find all CarController and CarShooter components and disable them
+            CarController[] carControllers = FindObjectsByType<CarController>(FindObjectsSortMode.None);
+            foreach (CarController controller in carControllers)
+            {
+                controller.enabled = false;
+            }
+            
+            CarShooter[] carShooters = FindObjectsByType<CarShooter>(FindObjectsSortMode.None);
+            foreach (CarShooter shooter in carShooters)
+            {
+                shooter.enabled = false;
+            }
+            
             endGameManager = FindFirstObjectByType<EndGameManager>();
             endGameManager.OnGameEnd();
         }
@@ -170,6 +213,10 @@ namespace _Gameplay.Scripts
         {
             return playerTags;
         }
+        
+        public bool IsGameEnded()
+        {
+            return isGameEnded;
+        }
     }
 }
-

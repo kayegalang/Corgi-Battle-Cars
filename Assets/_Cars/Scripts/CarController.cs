@@ -1,3 +1,5 @@
+using _UI.Scripts;
+using _Gameplay.Scripts;
 using Player.Scripts;
 using UI.Scripts;
 using UnityEngine;
@@ -36,6 +38,12 @@ namespace _Cars.Scripts
 
         void Update()
         {
+            // Don't allow pause input if game has ended
+            if (GameplayManager.instance != null && GameplayManager.instance.IsGameEnded())
+            {
+                return;
+            }
+            
             if (pauseAction.triggered) 
             {
                 if (pauseController.GetIsPaused())
@@ -57,11 +65,11 @@ namespace _Cars.Scripts
             pauseAction.Enable();
             
             // Movement
-            moveAction.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-            moveAction.canceled += ctx => moveInput = Vector2.zero;
+            moveAction.performed += OnMovePerformed;
+            moveAction.canceled += OnMoveCanceled;
             
             // Jump
-           jumpAction.performed += ctx => Jump();
+            jumpAction.performed += OnJumpPerformed;
         }
 
         private void OnDisable()
@@ -69,6 +77,26 @@ namespace _Cars.Scripts
             moveAction.Disable();
             jumpAction.Disable();
             pauseAction.Disable();
+            
+            // Unsubscribe from callbacks
+            moveAction.performed -= OnMovePerformed;
+            moveAction.canceled -= OnMoveCanceled;
+            jumpAction.performed -= OnJumpPerformed;
+        }
+        
+        private void OnMovePerformed(InputAction.CallbackContext ctx)
+        {
+            moveInput = ctx.ReadValue<Vector2>();
+        }
+        
+        private void OnMoveCanceled(InputAction.CallbackContext ctx)
+        {
+            moveInput = Vector2.zero;
+        }
+        
+        private void OnJumpPerformed(InputAction.CallbackContext ctx)
+        {
+            Jump();
         }
 
         private void FixedUpdate()
@@ -176,4 +204,4 @@ namespace _Cars.Scripts
             }
         }
     }
-} 
+}

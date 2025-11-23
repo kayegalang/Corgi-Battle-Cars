@@ -49,9 +49,25 @@ namespace _UI.Scripts
             
             op.allowSceneActivation = true;
             
+            // Wait for scene to actually be active
             yield return null;
-
-            yield return new WaitUntil(() => GameplayManager.instance.IsGameSetupComplete());
+            
+            // Give the scene a moment to initialize before checking for player
+            yield return new WaitForSeconds(0.5f);
+            
+            // Wait for game setup with a timeout safety
+            float timeout = 5f;
+            float elapsed = 0f;
+            while (!GameplayManager.instance.IsGameSetupComplete() && elapsed < timeout)
+            {
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            
+            if (elapsed >= timeout)
+            {
+                Debug.LogWarning("Game setup timed out after 5 seconds!");
+            }
             
             loadingScreen.SetActive(false);
             
@@ -61,4 +77,3 @@ namespace _UI.Scripts
         }
     }
 }
-

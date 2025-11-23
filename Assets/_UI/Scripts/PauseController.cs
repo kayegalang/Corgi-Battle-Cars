@@ -16,6 +16,9 @@ namespace UI.Scripts
             PauseScreen.SetActive(true);
             Time.timeScale = 0;
             SetIsPaused(true);
+            
+            // Show cursor when paused
+            Cursor.visible = true;
         }
     
         public void UnpauseGame()
@@ -24,6 +27,9 @@ namespace UI.Scripts
             PauseScreen.SetActive(false);
             Time.timeScale = 1;
             SetIsPaused(false);
+            
+            // Hide cursor when unpaused (reticle will show)
+            Cursor.visible = false;
         }
 
         public bool GetIsPaused()
@@ -38,15 +44,19 @@ namespace UI.Scripts
     
         public void OnMainMenuButtonClick()
         {
+            // Reset timeScale before leaving the scene
+            Time.timeScale = 1;
+            SetIsPaused(false);
+            
             SceneManager.LoadScene("MainMenu");
         }
 
         public void OnQuitButtonClick()
         {
             #if UNITY_EDITOR 
-                UnityEditor.EditorApplication.isPlaying = false;
+                        UnityEditor.EditorApplication.isPlaying = false;
             #else
-                Application.Quit();
+                            Application.Quit();
             #endif
         }
     }
