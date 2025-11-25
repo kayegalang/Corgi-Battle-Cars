@@ -17,6 +17,8 @@ namespace _Gameplay.Scripts
         private SpawnManager spawnManager;
         private List<string> mapNames;
         private List<string> playerTags;
+        
+        private int multiplayerPlayerCount = 0; // Number of human players in multiplayer
 
         private TextMeshProUGUI matchTimerText = null;
         private TextMeshProUGUI gameTimerText = null;
@@ -53,6 +55,12 @@ namespace _Gameplay.Scripts
         public void SetGameMode(GameMode mode)
         {
             currentGameMode = mode;
+        }
+        
+        public void SetMultiplayerPlayerCount(int count)
+        {
+            multiplayerPlayerCount = count;
+            Debug.Log($"Multiplayer player count set to: {count}");
         }
 
         public void SetMap(string mapName)
@@ -114,12 +122,14 @@ namespace _Gameplay.Scripts
 
         private void StartMultiplayerGame()
         {
-            
+            spawnManager = FindFirstObjectByType<SpawnManager>();
+            spawnManager.StartMultiplayerGame(multiplayerPlayerCount);
         }
 
         public bool IsGameSetupComplete()
         {
-            return GameObject.FindGameObjectWithTag("PlayerOne") != null;
+            // Check if we have players registered (works for both single & multiplayer)
+            return playerTags.Count > 0;
         }
 
         private IEnumerator GameTimer(int time)
@@ -175,7 +185,23 @@ namespace _Gameplay.Scripts
         private void StartGameTimer()
         {
             gameTimerText = GameObject.Find("GameTimerText").GetComponent<TextMeshProUGUI>();
+            
+            // Enable gameplay for all players now that the match has started
+            EnableGameplayForAllPlayers();
+            
             StartCoroutine(GameTimer(60));
+        }
+        
+        private void EnableGameplayForAllPlayers()
+        {
+            // Find all CarShooter components and enable gameplay
+            CarShooter[] allShooters = FindObjectsByType<CarShooter>(FindObjectsSortMode.None);
+            foreach (CarShooter shooter in allShooters)
+            {
+                shooter.EnableGameplay();
+            }
+            
+            Debug.Log($"Enabled gameplay for {allShooters.Length} players");
         }
 
         private void EndGame()

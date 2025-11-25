@@ -19,6 +19,11 @@ namespace _UI.Scripts
             GameplayManager.instance.SetGameMode(GameMode.Singleplayer);
         }
         
+        public void OnMultiplayerButtonClicked()
+        {
+            GameplayManager.instance.SetGameMode(GameMode.Multiplayer);
+        }
+        
     }
 }
 

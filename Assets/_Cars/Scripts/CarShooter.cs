@@ -14,6 +14,10 @@ namespace _Cars.Scripts
         
         private Rigidbody carRb;
         private PauseController pauseController;
+        private Camera playerCamera; // Store reference to this player's camera
+        
+        [Header("Gameplay Control")]
+        [SerializeField] private bool gameplayEnabled = false; // Toggle this to enable/disable gameplay
 
         [Header("Reticle Settings")]
         [SerializeField] private RectTransform reticle;
@@ -46,11 +50,14 @@ namespace _Cars.Scripts
             carRb = GetComponent<Rigidbody>();
             firePoint = transform.Find("FirePoint");
             
+            // Find this player's camera (not Camera.main)
+            playerCamera = GetComponentInChildren<Camera>();
+            
             pauseController = FindFirstObjectByType<PauseController>();
 
-            // Hide OS cursor, lock it, and show reticle
-            SetCursorState(false);
-            Cursor.lockState = CursorLockMode.Locked;
+            // Start with reticle hidden (gameplay not enabled yet)
+            if (reticle != null)
+                reticle.gameObject.SetActive(false);
             
             // Initialize last mouse position
             lastMousePosition = Mouse.current.position.ReadValue();
@@ -114,6 +121,14 @@ namespace _Cars.Scripts
 
         void Update()
         {
+            // If gameplay not enabled, keep reticle hidden
+            if (!gameplayEnabled)
+            {
+                if (reticle != null)
+                    reticle.gameObject.SetActive(false);
+                return;
+            }
+            
             // Check if game has ended - if so, keep cursor visible and don't update reticle
             if (GameplayManager.instance != null && GameplayManager.instance.IsGameEnded())
             {
@@ -135,6 +150,10 @@ namespace _Cars.Scripts
 
         void FixedUpdate()
         {
+            // Don't shoot if gameplay not enabled
+            if (!gameplayEnabled)
+                return;
+            
             if (isFiring && Time.time > nextFire)
             {
                 Shoot();
@@ -187,13 +206,25 @@ namespace _Cars.Scripts
 
         private Vector2 ClampToCanvas(Vector2 pos, RectTransform canvas)
         {
-            float halfW = canvas.sizeDelta.x / 2f;
-            float halfH = canvas.sizeDelta.y / 2f;
-
-            pos.x = Mathf.Clamp(pos.x, -halfW, halfW);
-            pos.y = Mathf.Clamp(pos.y, -halfH, halfH);
-
-            return pos;
+            // Get camera viewport in screen pixels
+            Rect viewportRect = playerCamera.pixelRect;
+            
+            // Convert canvas anchored position to screen position
+            Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
+            
+            // Clamp screen position to camera viewport
+            screenPos.x = Mathf.Clamp(screenPos.x, viewportRect.xMin, viewportRect.xMax);
+            screenPos.y = Mathf.Clamp(screenPos.y, viewportRect.yMin, viewportRect.yMax);
+            
+            // Convert back to canvas anchored position
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvas,
+                screenPos,
+                null,
+                out Vector2 localPoint
+            );
+            
+            return localPoint;
         }
 
 
@@ -224,8 +255,8 @@ namespace _Cars.Scripts
             // Convert UI reticle position → screen position
             Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
 
-            // Ray from camera to reticle
-            Ray ray = Camera.main.ScreenPointToRay(screenPos);
+            // Ray from THIS PLAYER'S camera to reticle (not Camera.main)
+            Ray ray = playerCamera.ScreenPointToRay(screenPos);
 
             if (Physics.Raycast(ray, out RaycastHit hit))
                 return (hit.point - firePoint.position).normalized;
@@ -236,6 +267,18 @@ namespace _Cars.Scripts
         // ============================================================
         //  CURSOR & RETICLE STATE
         // ============================================================
+        
+        public void EnableGameplay()
+        {
+            gameplayEnabled = true;
+            Debug.Log($"{gameObject.name}: Gameplay enabled!");
+        }
+        
+        public void DisableGameplay()
+        {
+            gameplayEnabled = false;
+            SetCursorState(true); // Show cursor when disabled
+        }
         
         private void SetCursorState(bool showCursor)
         {

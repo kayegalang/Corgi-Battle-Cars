@@ -52,11 +52,11 @@ namespace _UI.Scripts
             // Wait for scene to actually be active
             yield return null;
             
-            // Give the scene a moment to initialize before checking for player
+            // Give the scene time to initialize
             yield return new WaitForSeconds(0.5f);
             
             // Wait for game setup with a timeout safety
-            float timeout = 5f;
+            float timeout = 3f;
             float elapsed = 0f;
             while (!GameplayManager.instance.IsGameSetupComplete() && elapsed < timeout)
             {
@@ -66,7 +66,11 @@ namespace _UI.Scripts
             
             if (elapsed >= timeout)
             {
-                Debug.LogWarning("Game setup timed out after 5 seconds!");
+                Debug.LogWarning("Game setup timed out!");
+            }
+            else
+            {
+                Debug.Log("Game setup complete!");
             }
             
             loadingScreen.SetActive(false);

@@ -53,6 +53,61 @@ namespace _Gameplay.Scripts
             GameplayManager.instance.UpdatePlayerList("BotTwo");
             GameplayManager.instance.UpdatePlayerList("BotThree");
         }
+        
+        public void StartMultiplayerGame(int humanPlayerCount)
+        {
+            Debug.Log($"Starting multiplayer game with {humanPlayerCount} human players");
+            
+            // Spawn human players first
+            for (int i = 1; i <= humanPlayerCount; i++)
+            {
+                string playerTag = GetPlayerTag(i);
+                Spawn(playerTag, GetUniqueSpawnPoint());
+                GameplayManager.instance.UpdatePlayerList(playerTag);
+                Debug.Log($"Spawned human player: {playerTag}");
+            }
+            
+            // Calculate how many bots we need (total should be 4)
+            int botsNeeded = 4 - humanPlayerCount;
+            
+            // Spawn bots to fill remaining slots
+            for (int i = 0; i < botsNeeded; i++)
+            {
+                int botNumber = humanPlayerCount + i + 1; // Bot numbers come after human players
+                string botTag = GetBotTag(botNumber);
+                
+                Spawn(botTag, GetUniqueSpawnPoint());
+                GameplayManager.instance.UpdatePlayerList(botTag);
+                
+                Debug.Log($"Spawning bot: {botTag}");
+            }
+        }
+        
+        // Helper to get player tag (PlayerOne, PlayerTwo, etc.)
+        private string GetPlayerTag(int playerNumber)
+        {
+            return playerNumber switch
+            {
+                1 => "PlayerOne",
+                2 => "PlayerTwo",
+                3 => "PlayerThree",
+                4 => "PlayerFour",
+                _ => "PlayerOne"
+            };
+        }
+        
+        // Helper to get bot tag based on position (BotOne, BotTwo, etc.)
+        private string GetBotTag(int botPosition)
+        {
+            return botPosition switch
+            {
+                1 => "BotOne",
+                2 => "BotTwo",
+                3 => "BotThree",
+                4 => "BotFour",
+                _ => "BotOne"
+            };
+        }
 
         public void Respawn(string playerTag)
         {
@@ -65,7 +120,7 @@ namespace _Gameplay.Scripts
             {
                 prefabToSpawn = playerPrefab;
             }
-            StartCoroutine(WaitToSpawn(playerTag, prefabToSpawn, GetSpawnPoint()));
+            StartCoroutine(WaitToRespawn(playerTag, prefabToSpawn, GetSpawnPoint()));
         }
 
         private void Spawn(string playerTag, Transform spawnPoint)
@@ -79,17 +134,25 @@ namespace _Gameplay.Scripts
             {
                 prefabToSpawn = playerPrefab;
             }
-            StartCoroutine(WaitToSpawn(playerTag, prefabToSpawn, spawnPoint));
+            
+            // Spawn immediately (no more 3 second wait!)
+            GameObject player = Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
+            player.tag = playerTag;
+            player.name = playerTag; // Also set the name for easier debugging
+            
+            Debug.Log($"Spawned {playerTag} at {spawnPoint.position}");
         }
 
-        private IEnumerator WaitToSpawn(string playerTag, GameObject playerObject, Transform spawnPoint)
+        private IEnumerator WaitToRespawn(string playerTag, GameObject playerObject, Transform spawnPoint)
         { 
             yield return new WaitForSeconds(3f);
             
             GameObject player = Instantiate(playerObject, spawnPoint.position, spawnPoint.rotation);
             player.tag = playerTag;
+            player.name = playerTag;
+            
+            Debug.Log($"Respawned {playerTag}");
         }
         
     }
 }
-
