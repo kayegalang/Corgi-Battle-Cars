@@ -32,9 +32,39 @@ using System.Collections.Generic;
 
             public void AddPlayer(PlayerInput player)
             {
+                Debug.Log($"[PlayerManager] AddPlayer called for: {player.gameObject.name}, tag: '{player.gameObject.tag}'");
+                
+                // Check if this exact PlayerInput instance is already registered
+                if (players.Contains(player))
+                {
+                    Debug.Log($"[PlayerManager] This PlayerInput instance is already registered, skipping");
+                    return;
+                }
+                
+                // Check if this player already has a tag (respawn case)
+                int existingPlayerIndex = GetPlayerIndexFromTag(player.gameObject.tag);
+                
+                if (existingPlayerIndex >= 0)
+                {
+                    // This is a respawned player - use their existing index/layer
+                    Debug.Log($"[PlayerManager] Detected player with existing tag '{player.gameObject.tag}', using index {existingPlayerIndex}");
+                    
+                    // Update the list to point to the new instance (old one was destroyed)
+                    if (existingPlayerIndex < players.Count)
+                    {
+                        players[existingPlayerIndex] = player;
+                    }
+                    
+                    AssignPlayerLayer(player, existingPlayerIndex);
+                    return;
+                }
+                
+                // This is a new player joining
                 players.Add(player);
                 
                 int playerIndex = players.Count - 1;
+                
+                Debug.Log($"[PlayerManager] New player, assigned index {playerIndex} (total players: {players.Count})");
 
                 // Check if we have enough player layers
                 if (playerIndex >= playerLayers.Count)
@@ -43,6 +73,19 @@ using System.Collections.Generic;
                     return;
                 }
 
+                // Assign tag based on player index
+                string playerTag = GetPlayerTag(playerIndex + 1);
+                player.gameObject.tag = playerTag;
+                player.gameObject.name = playerTag;
+                
+                Debug.Log($"[PlayerManager] New player joined: {playerTag}");
+                
+                // Assign layer
+                AssignPlayerLayer(player, playerIndex);
+            }
+            
+            private void AssignPlayerLayer(PlayerInput player, int playerIndex)
+            {
                 // PlayerInput is now directly on the parent (DefaultPlayer)
                 Transform playerParent = player.transform;
 
@@ -87,6 +130,32 @@ using System.Collections.Generic;
                 {
                     cinemachineBrain.ChannelMask = (OutputChannels)(1 << layerToAdd);
                 }
+            }
+            
+            // Get player index from tag (PlayerOne = 0, PlayerTwo = 1, etc.)
+            private int GetPlayerIndexFromTag(string tag)
+            {
+                return tag switch
+                {
+                    "PlayerOne" => 0,
+                    "PlayerTwo" => 1,
+                    "PlayerThree" => 2,
+                    "PlayerFour" => 3,
+                    _ => -1 // Not a player tag
+                };
+            }
+            
+            // Get player tag from index
+            private string GetPlayerTag(int playerNumber)
+            {
+                return playerNumber switch
+                {
+                    1 => "PlayerOne",
+                    2 => "PlayerTwo",
+                    3 => "PlayerThree",
+                    4 => "PlayerFour",
+                    _ => "PlayerOne"
+                };
             }
         }
     }

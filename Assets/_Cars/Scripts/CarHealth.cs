@@ -8,7 +8,8 @@ namespace _Cars.Scripts
     public class CarHealth : MonoBehaviour
     {
         [SerializeField] private SpawnManager spawnManager;
-        [SerializeField] HealthBar healthBar;
+        private HealthBarManager healthBarManager;
+        
         private readonly int maxHealth = 100;
         private int currentHealth;
 
@@ -21,40 +22,19 @@ namespace _Cars.Scripts
             currentHealth = maxHealth;
             spawnManager = FindFirstObjectByType<SpawnManager>();
             
-            // Find the Canvas and set it to the correct layer for split-screen
-            Canvas healthCanvas = GetComponentInChildren<Canvas>();
+            // Get the HealthBarManager component
+            healthBarManager = GetComponentInChildren<HealthBarManager>();
             
-            if (healthCanvas != null && healthCanvas.renderMode == RenderMode.WorldSpace)
+            if (healthBarManager == null)
             {
-                Camera playerCamera = GetComponentInChildren<Camera>();
-                
-                if (playerCamera != null)
-                {
-                    int cameraLayer = playerCamera.gameObject.layer;
-                    
-                    // Set canvas and all children to the camera's layer
-                    healthCanvas.gameObject.layer = cameraLayer;
-                    SetLayerRecursively(healthCanvas.gameObject, cameraLayer);
-                    
-                    // Set the world camera for event handling
-                    healthCanvas.worldCamera = playerCamera;
-                }
-            }
-        }
-        
-        private void SetLayerRecursively(GameObject obj, int layer)
-        {
-            obj.layer = layer;
-            foreach (Transform child in obj.transform)
-            {
-                SetLayerRecursively(child.gameObject, layer);
+                Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
             }
         }
 
         public void TakeDamage(int amount, GameObject shooter)
         {
             currentHealth -= amount;
-            healthBar.UpdateHealthBar();
+            UpdateHealthBar();
         
             if (currentHealth <= 0)
             {
@@ -86,6 +66,14 @@ namespace _Cars.Scripts
         public bool GetIsBot()
         {
             return isBot;
+        }
+        
+        private void UpdateHealthBar()
+        {
+            if (healthBarManager != null)
+            {
+                healthBarManager.UpdateAllHealthBars(GetHealthPercent());
+            }
         }
     }
 }
