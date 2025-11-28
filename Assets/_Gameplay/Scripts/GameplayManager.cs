@@ -60,7 +60,6 @@ namespace _Gameplay.Scripts
         public void SetMultiplayerPlayerCount(int count)
         {
             multiplayerPlayerCount = count;
-            Debug.Log($"Multiplayer player count set to: {count}");
         }
 
         public void SetMap(string mapName)
@@ -201,7 +200,12 @@ namespace _Gameplay.Scripts
                 shooter.EnableGameplay();
             }
             
-            Debug.Log($"Enabled gameplay for {allShooters.Length} players");
+            PlayerUIManager[] allPlayerUI = FindObjectsByType<PlayerUIManager>(FindObjectsSortMode.None);
+            foreach (PlayerUIManager playerUI in allPlayerUI)
+            {
+                playerUI.EnableGameplay();
+            }
+            
         }
 
         private void EndGame()
@@ -224,6 +228,12 @@ namespace _Gameplay.Scripts
             foreach (CarShooter shooter in carShooters)
             {
                 shooter.enabled = false;
+            }
+            
+            PlayerUIManager[] allPlayerUI = FindObjectsByType<PlayerUIManager>(FindObjectsSortMode.None);
+            foreach (PlayerUIManager playerUI in allPlayerUI)
+            {
+                playerUI.DisableGameplay();
             }
             
             endGameManager = FindFirstObjectByType<EndGameManager>();

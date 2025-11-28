@@ -57,8 +57,6 @@ namespace _UI.Scripts
                 return;
             }
             
-            Debug.Log($"{gameObject.name}: Creating {playerCameras.Length} health bar instances");
-            
             // Create one health bar for each camera found
             healthBarInstances = new GameObject[playerCameras.Length];
             
@@ -82,7 +80,6 @@ namespace _UI.Scripts
                 cameraFacing.SetTargetCamera(playerCameras[i]);
                 
                 string playerTag = playerCameras[i].transform.root.tag;
-                Debug.Log($"✓ Created {healthBarInstance.name} on layer {healthBarLayer} (for {playerTag} camera: {playerCameras[i].name})");
             }
         }
         
@@ -116,12 +113,6 @@ namespace _UI.Scripts
             if (healthBarInstances == null) return;
             
             Vector3 worldPosition = transform.position + healthBarOffset;
-            
-            // Debug every few frames
-            if (Time.frameCount % 120 == 0)
-            {
-                Debug.Log($"{gameObject.name} health bars at: {worldPosition}, instances: {healthBarInstances.Length}");
-            }
             
             foreach (GameObject healthBar in healthBarInstances)
             {
@@ -208,7 +199,6 @@ namespace _UI.Scripts
                 if (cam != null && cam.gameObject.layer == targetLayer)
                 {
                     targetCamera = cam;
-                    Debug.Log($"{gameObject.name}: Found target camera on layer {targetLayer}");
                     break;
                 }
             }

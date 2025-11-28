@@ -68,10 +68,6 @@ namespace _UI.Scripts
             {
                 Debug.LogWarning("Game setup timed out!");
             }
-            else
-            {
-                Debug.Log("Game setup complete!");
-            }
             
             loadingScreen.SetActive(false);
             

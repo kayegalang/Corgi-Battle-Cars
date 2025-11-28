@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using _Cars.Scripts;
+using _UI.Scripts;
 using UnityEngine;
 
 namespace _Gameplay.Scripts 
@@ -58,15 +59,12 @@ namespace _Gameplay.Scripts
         
         public void StartMultiplayerGame(int humanPlayerCount)
         {
-            Debug.Log($"[SpawnManager] Starting multiplayer game with {humanPlayerCount} human players");
-            
             // Spawn human players using playerPrefab (with PlayerInput)
             for (int i = 1; i <= humanPlayerCount; i++)
             {
                 string playerTag = GetPlayerTag(i);
                 Spawn(playerTag, GetUniqueSpawnPoint(), playerPrefab);
                 GameplayManager.instance.UpdatePlayerList(playerTag);
-                Debug.Log($"[SpawnManager] Spawned human player: {playerTag}");
             }
             
             // Calculate how many bots we need (total should be 4)
@@ -80,8 +78,6 @@ namespace _Gameplay.Scripts
                 
                 SpawnBot(botTag, GetUniqueSpawnPoint());
                 GameplayManager.instance.UpdatePlayerList(botTag);
-                
-                Debug.Log($"[SpawnManager] Spawned bot: {botTag}");
             }
         }
         
@@ -129,8 +125,6 @@ namespace _Gameplay.Scripts
 
         private void Spawn(string playerTag, Transform spawnPoint, GameObject prefab)
         {
-            Debug.Log($"[SpawnManager] Spawning {playerTag}");
-            
             // Check if this prefab has PlayerInput
             UnityEngine.InputSystem.PlayerInput prefabInput = prefab.GetComponent<UnityEngine.InputSystem.PlayerInput>();
             bool hasPlayerInput = prefabInput != null;
@@ -162,8 +156,6 @@ namespace _Gameplay.Scripts
                 // Restore prefab state
                 prefabInput.enabled = wasEnabled;
             }
-            
-            Debug.Log($"[SpawnManager] Spawned {playerTag} at {spawnPoint.position}");
         }
         
         private void SpawnBot(string botTag, Transform spawnPoint)
@@ -172,8 +164,6 @@ namespace _Gameplay.Scripts
             GameObject bot = Instantiate(botPrefab, spawnPoint.position, spawnPoint.rotation);
             bot.tag = botTag;
             bot.name = botTag;
-            
-            Debug.Log($"[SpawnManager] Spawned bot {botTag} at {spawnPoint.position}");
         }
 
         private IEnumerator WaitToRespawn(string playerTag, GameObject playerObject, Transform spawnPoint)
@@ -195,8 +185,6 @@ namespace _Gameplay.Scripts
             player.tag = playerTag;
             player.name = playerTag;
             
-            Debug.Log($"[SpawnManager] Respawned {playerTag}, tag set, now enabling PlayerInput");
-            
             // Now enable PlayerInput - this will trigger onPlayerJoined with correct tag
             UnityEngine.InputSystem.PlayerInput instanceInput = player.GetComponent<UnityEngine.InputSystem.PlayerInput>();
             if (instanceInput != null)
@@ -215,10 +203,13 @@ namespace _Gameplay.Scripts
             if (shooter != null)
             {
                 shooter.EnableGameplay();
-                Debug.Log($"[SpawnManager] Enabled gameplay for respawned {playerTag}");
             }
             
-            Debug.Log($"[SpawnManager] Respawn complete for {playerTag}");
+            PlayerUIManager UIManager = player.GetComponent<PlayerUIManager>();
+            if (UIManager != null)
+            {
+                UIManager.EnableGameplay();
+            }
         }
     }
 }

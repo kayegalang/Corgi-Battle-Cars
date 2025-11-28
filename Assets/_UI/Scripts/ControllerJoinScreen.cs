@@ -53,7 +53,6 @@ namespace _UI.Scripts
             if (playerInputManager != null)
             {
                 DontDestroyOnLoad(playerInputManager.gameObject);
-                Debug.Log("PlayerInputManager set to DontDestroyOnLoad");
             }
             
             // Show the panel
@@ -62,8 +61,6 @@ namespace _UI.Scripts
             
             // Enable joining
             playerInputManager.EnableJoining();
-            
-            Debug.Log($"Waiting for {targetPlayerCount} players to join");
             
             // Initialize UI slots
             InitializeSlots();
@@ -114,7 +111,6 @@ namespace _UI.Scripts
             {
                 // This will trigger OnPlayerJoined callback
                 playerInputManager.JoinPlayer(0, -1, null);
-                Debug.Log("Player 1 auto-joined!");
             }
         }
         
@@ -138,8 +134,6 @@ namespace _UI.Scripts
         {
             joinedPlayerCount++;
             
-            Debug.Log($"Player {joinedPlayerCount} joined! ({joinedPlayerCount}/{targetPlayerCount})");
-            
             // Update UI for this player
             if (joinedPlayerCount <= playerSlots.Count)
             {
@@ -156,7 +150,6 @@ namespace _UI.Scripts
             // Check if all players have joined
             if (joinedPlayerCount >= targetPlayerCount)
             {
-                Debug.Log("All players joined! Moving to Character Selection");
                 playerInputManager.DisableJoining();
                 
                 // Set the multiplayer player count in GameplayManager

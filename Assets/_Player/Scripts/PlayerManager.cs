@@ -30,14 +30,11 @@ using System.Collections.Generic;
                 playerInputManager.onPlayerJoined -= AddPlayer;
             }
 
-            public void AddPlayer(PlayerInput player)
+            private void AddPlayer(PlayerInput player)
             {
-                Debug.Log($"[PlayerManager] AddPlayer called for: {player.gameObject.name}, tag: '{player.gameObject.tag}'");
-                
                 // Check if this exact PlayerInput instance is already registered
                 if (players.Contains(player))
                 {
-                    Debug.Log($"[PlayerManager] This PlayerInput instance is already registered, skipping");
                     return;
                 }
                 
@@ -47,7 +44,6 @@ using System.Collections.Generic;
                 if (existingPlayerIndex >= 0)
                 {
                     // This is a respawned player - use their existing index/layer
-                    Debug.Log($"[PlayerManager] Detected player with existing tag '{player.gameObject.tag}', using index {existingPlayerIndex}");
                     
                     // Update the list to point to the new instance (old one was destroyed)
                     if (existingPlayerIndex < players.Count)
@@ -64,8 +60,6 @@ using System.Collections.Generic;
                 
                 int playerIndex = players.Count - 1;
                 
-                Debug.Log($"[PlayerManager] New player, assigned index {playerIndex} (total players: {players.Count})");
-
                 // Check if we have enough player layers
                 if (playerIndex >= playerLayers.Count)
                 {
@@ -77,8 +71,6 @@ using System.Collections.Generic;
                 string playerTag = GetPlayerTag(playerIndex + 1);
                 player.gameObject.tag = playerTag;
                 player.gameObject.name = playerTag;
-                
-                Debug.Log($"[PlayerManager] New player joined: {playerTag}");
                 
                 // Assign layer
                 AssignPlayerLayer(player, playerIndex);

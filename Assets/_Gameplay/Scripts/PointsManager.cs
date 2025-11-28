@@ -14,10 +14,7 @@ namespace _Gameplay.Scripts
         [SerializeField] private EndGameManager endGameManager;
 
         private Dictionary<string, int> playerScores;
-
         private List<string> playerTags;
-        
-        [SerializeField] private TextMeshProUGUI pointsText;
 
 
         private void Awake()
@@ -48,22 +45,30 @@ namespace _Gameplay.Scripts
         {
             playerScores[playerTag]++;
             
-            if (playerTag.Equals("PlayerOne"))
-            {
-                UpdatePointsUI();
-            }
+            // Update all player UIs
+            UpdateAllPlayerUIs();
             
             UpdateScoreboard();
+        }
+        
+        private void UpdateAllPlayerUIs()
+        {
+            // Find all PlayerUIManager components and update them
+            PlayerUIManager[] allPlayerUIs = FindObjectsByType<PlayerUIManager>(FindObjectsSortMode.None);
+            
+            foreach (PlayerUIManager ui in allPlayerUIs)
+            {
+                string tag = ui.GetPlayerTag();
+                if (playerScores.ContainsKey(tag))
+                {
+                    ui.UpdateScore(playerScores[tag]);
+                }
+            }
         }
         
         public int GetPoints(string playerTag)
         {
             return playerScores.GetValueOrDefault(playerTag);
-        }
-        
-        private void UpdatePointsUI()
-        {
-            pointsText.text = "Points: " + playerScores["PlayerOne"];
         }
         
         private void UpdateScoreboard()

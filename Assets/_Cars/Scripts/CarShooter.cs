@@ -271,7 +271,6 @@ namespace _Cars.Scripts
         public void EnableGameplay()
         {
             gameplayEnabled = true;
-            Debug.Log($"{gameObject.name}: Gameplay enabled!");
         }
         
         public void DisableGameplay()

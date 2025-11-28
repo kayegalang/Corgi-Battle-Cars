@@ -31,8 +31,6 @@ namespace _UI.Scripts
         
         private void SelectPlayerCount(int playerCount)
         {
-            Debug.Log($"Selected {playerCount} players");
-            
             // Hide this panel
             if (selectionPanel != null)
                 selectionPanel.SetActive(false);
