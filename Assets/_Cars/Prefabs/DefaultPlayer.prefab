@@ -592,6 +592,7 @@ MonoBehaviour:
   scoreText: {fileID: 3118154989981798388}
   scoreTransform: {fileID: 364867877055681358}
   canvas: {fileID: 7948261623164164328}
+  gameplayEnabled: 0
 --- !u!1 &3717008475596874410
 GameObject:
   m_ObjectHideFlags: 0
