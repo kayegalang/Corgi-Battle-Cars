@@ -85,7 +85,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7365095802682505954}
   - component: {fileID: 4897749673806825646}
-  - component: {fileID: 6086282296146651782}
   m_Layer: 5
   m_Name: HealthBar
   m_TagString: Untagged
@@ -165,19 +164,6 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &6086282296146651782
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5141252764789444302}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5709cd44af561d41b1ed3f3fc6876c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Player.Scripts.HealthBar
-  health: {fileID: 0}
 --- !u!1 &7834429449017319128
 GameObject:
   m_ObjectHideFlags: 0
@@ -226,7 +212,6 @@ GameObject:
   - component: {fileID: 3551928519112829158}
   - component: {fileID: 4371648156020169321}
   - component: {fileID: 1756344707276884545}
-  - component: {fileID: 5267202234997872222}
   m_Layer: 5
   m_Name: PlayerHealthCanvas
   m_TagString: Untagged
@@ -317,19 +302,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &5267202234997872222
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8595757495618680016}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b50532784979f42ed9ebae3fd95aa584, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::_UI.Scripts.CameraBillboard
-  lockYAxis: 1
 --- !u!1 &8755898934491782102
 GameObject:
   m_ObjectHideFlags: 0

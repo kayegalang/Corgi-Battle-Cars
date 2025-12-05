@@ -506,6 +506,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarHealth
   spawnManager: {fileID: 0}
+  OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!65 &8444278377508488590
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -26,7 +26,6 @@ namespace _Bot.Scripts
 
         // Shooting
         private Transform firePoint;
-        private bool isFiring = false;
         private float nextFireTime = 0f;
         
         // Target

@@ -1,31 +1,33 @@
 using UnityEngine;
 using TMPro;
 
-namespace UI.Scripts
+namespace _UI.Scripts
 {
     public class StartScreenText : MonoBehaviour
     {
-        private TextMeshProUGUI startText;
         [SerializeField] private float blinkSpeed;
         
-        void Start()
+        private TextMeshProUGUI startText;
+        
+        private void Start()
         {
             startText = GetComponent<TextMeshProUGUI>();
         }
 
-        void Update()
+        private void Update()
         {
-            float alpha = Mathf.Abs(Mathf.Sin(Time.time * blinkSpeed));
-                startText.color = new Color(
-                startText.color.r,
-                startText.color.g,
-                startText.color.b,
-                alpha
-            );
+            BlinkText();
         }
-        
-        
-        
+
+        private void BlinkText()
+        {
+            if (startText == null) return;
+            
+            float alpha = Mathf.Abs(Mathf.Sin(Time.time * blinkSpeed));
+            
+            Color currentColor = startText.color;
+            currentColor.a = alpha;
+            startText.color = currentColor;
+        }
     }
 }
-

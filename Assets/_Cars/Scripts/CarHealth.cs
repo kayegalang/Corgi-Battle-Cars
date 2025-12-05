@@ -2,12 +2,18 @@ using _Bot.Scripts;
 using _Gameplay.Scripts;
 using _UI.Scripts;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace _Cars.Scripts
 {
     public class CarHealth : MonoBehaviour
     {
+        [Header("References")]
         [SerializeField] private SpawnManager spawnManager;
+        
+        [Header("Events")]
+        public UnityEvent<float> OnHealthChanged; // Passes health percent (0-1)
+        
         private HealthBarManager healthBarManager;
         
         private readonly int maxHealth = 100;
@@ -20,15 +26,21 @@ namespace _Cars.Scripts
         {
             isBot = GetComponent<BotAI>() != null;
             currentHealth = maxHealth;
-            spawnManager = FindFirstObjectByType<SpawnManager>();
             
-            // Get the HealthBarManager component
+            if (spawnManager == null)
+            {
+                spawnManager = FindFirstObjectByType<SpawnManager>();
+            }
+            
             healthBarManager = GetComponentInChildren<HealthBarManager>();
             
             if (healthBarManager == null)
             {
                 Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
             }
+            
+            // Initialize health bar
+            UpdateHealthBar();
         }
 
         public void TakeDamage(int amount, GameObject shooter)
@@ -43,7 +55,7 @@ namespace _Cars.Scripts
 
             if (isBot)
             {
-                GetComponent<BotAI>().OnHit(shooter.transform);
+                GetComponent<BotAI>()?.OnHit(shooter.transform);
             }
         }
 
@@ -54,7 +66,7 @@ namespace _Cars.Scripts
             
             PointsManager.instance.AddPoint(shooter.tag);
             
-            spawnManager.Respawn(gameObject.tag);
+            spawnManager?.Respawn(gameObject.tag);
             Destroy(gameObject);
         }
 
@@ -70,10 +82,13 @@ namespace _Cars.Scripts
         
         private void UpdateHealthBar()
         {
-            if (healthBarManager != null)
-            {
-                healthBarManager.UpdateAllHealthBars(GetHealthPercent());
-            }
+            float healthPercent = GetHealthPercent();
+            
+            // Update via direct reference
+            healthBarManager?.UpdateAllHealthBars(healthPercent);
+            
+            // Also fire event (for future flexibility)
+            OnHealthChanged?.Invoke(healthPercent);
         }
     }
 }

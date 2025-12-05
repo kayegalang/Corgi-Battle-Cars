@@ -9,20 +9,24 @@ namespace _UI.Scripts
         [SerializeField] private GameObject mainMenu;
 
         private static bool hasSeenStartScreen = false;
+        
         void Start()
         {
-            if (!hasSeenStartScreen)
+            bool showStartScreen = !hasSeenStartScreen;
+            
+            startScreen.SetActive(showStartScreen);
+            mainMenu.SetActive(!showStartScreen);
+            
+            if (showStartScreen)
             {
-                startScreen.SetActive(true);
-                mainMenu.SetActive(false);
                 hasSeenStartScreen = true;
             }
-            else
-            {
-                startScreen.SetActive(false);
-                mainMenu.SetActive(true);
-            }
             
+            DeactivatePanels();
+        }
+
+        private void DeactivatePanels()
+        {
             foreach (GameObject panel in scenePanels)
             {
                 panel.SetActive(false);
@@ -30,4 +34,3 @@ namespace _UI.Scripts
         }
     }
 }
-
