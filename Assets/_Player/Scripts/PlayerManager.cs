@@ -1,153 +1,236 @@
 using System.Collections.Generic;
-    using UnityEngine;
-    using Unity.Cinemachine;
-    using UnityEngine.InputSystem;
+using UnityEngine;
+using Unity.Cinemachine;
+using UnityEngine.InputSystem;
 
-    namespace _Player.Scripts
+namespace _Player.Scripts
+{
+    public class PlayerManager : MonoBehaviour
     {
-        public class PlayerManager : MonoBehaviour
+        [SerializeField] private List<LayerMask> playerLayers;
+        
+        private List<PlayerInput> players = new List<PlayerInput>();
+        private PlayerInputManager playerInputManager;
+        
+        private const int INVALID_INDEX = -1;
+        private const int RENDER_ALL_LAYERS = ~0;
+        
+        private static readonly Dictionary<string, int> TagToIndexMap = new Dictionary<string, int>
         {
-            private List<PlayerInput> players = new List<PlayerInput>();
-            //[SerializeField]
-            //private List<Transform> startingPoints;
-            [SerializeField]
-            private List<LayerMask> playerLayers;
-
-            private PlayerInputManager playerInputManager;
-
-            private void Awake()
+            { "PlayerOne", 0 },
+            { "PlayerTwo", 1 },
+            { "PlayerThree", 2 },
+            { "PlayerFour", 3 }
+        };
+        
+        private static readonly Dictionary<int, string> IndexToTagMap = new Dictionary<int, string>
+        {
+            { 1, "PlayerOne" },
+            { 2, "PlayerTwo" },
+            { 3, "PlayerThree" },
+            { 4, "PlayerFour" }
+        };
+        
+        private void Awake()
+        {
+            InitializePlayerInputManager();
+        }
+        
+        private void OnEnable()
+        {
+            SubscribeToPlayerJoinedEvent();
+        }
+        
+        private void OnDisable()
+        {
+            UnsubscribeFromPlayerJoinedEvent();
+        }
+        
+        private void InitializePlayerInputManager()
+        {
+            playerInputManager = FindFirstObjectByType<PlayerInputManager>();
+            
+            if (playerInputManager == null)
             {
-                playerInputManager = FindFirstObjectByType<PlayerInputManager>();
+                Debug.LogError($"[{nameof(PlayerManager)}] PlayerInputManager not found!");
             }
-
-            private void OnEnable()
+        }
+        
+        private void SubscribeToPlayerJoinedEvent()
+        {
+            if (playerInputManager == null)
+            {
+                InitializePlayerInputManager();
+            }
+            
+            if (playerInputManager != null)
             {
                 playerInputManager.onPlayerJoined += AddPlayer;
             }
-
-            private void OnDisable()
+            else
+            {
+                Debug.LogWarning($"[{nameof(PlayerManager)}] PlayerInputManager not found in OnEnable");
+            }
+        }
+        
+        private void UnsubscribeFromPlayerJoinedEvent()
+        {
+            if (playerInputManager != null)
             {
                 playerInputManager.onPlayerJoined -= AddPlayer;
             }
-
-            private void AddPlayer(PlayerInput player)
+        }
+        
+        private void AddPlayer(PlayerInput player)
+        {
+            if (IsPlayerAlreadyRegistered(player))
             {
-                // Check if this exact PlayerInput instance is already registered
-                if (players.Contains(player))
-                {
-                    return;
-                }
-                
-                // Check if this player already has a tag (respawn case)
-                int existingPlayerIndex = GetPlayerIndexFromTag(player.gameObject.tag);
-                
-                if (existingPlayerIndex >= 0)
-                {
-                    // This is a respawned player - use their existing index/layer
-                    
-                    // Update the list to point to the new instance (old one was destroyed)
-                    if (existingPlayerIndex < players.Count)
-                    {
-                        players[existingPlayerIndex] = player;
-                    }
-                    
-                    AssignPlayerLayer(player, existingPlayerIndex);
-                    return;
-                }
-                
-                // This is a new player joining
-                players.Add(player);
-                
-                int playerIndex = players.Count - 1;
-                
-                // Check if we have enough player layers
-                if (playerIndex >= playerLayers.Count)
-                {
-                    Debug.LogError($"Not enough player layers! Player {players.Count} cannot be assigned a layer. Please add more layers to the PlayerManager.");
-                    return;
-                }
-
-                // Assign tag based on player index
-                string playerTag = GetPlayerTag(playerIndex + 1);
-                player.gameObject.tag = playerTag;
-                player.gameObject.name = playerTag;
-                
-                // Assign layer
-                AssignPlayerLayer(player, playerIndex);
+                return;
             }
             
-            private void AssignPlayerLayer(PlayerInput player, int playerIndex)
+            if (IsRespawningPlayer(player, out int existingPlayerIndex))
             {
-                // PlayerInput is now directly on the parent (DefaultPlayer)
-                Transform playerParent = player.transform;
-
-                // Convert layer mask (bit) to an integer 
-                int layerToAdd = (int)Mathf.Log(playerLayers[playerIndex].value, 2);
-
-                // Find Camera and CinemachineCamera as direct children
-                CinemachineCamera cinemachineCamera = playerParent.GetComponentInChildren<CinemachineCamera>();
-                Camera playerCamera = playerParent.GetComponentInChildren<Camera>();
-                CinemachineBrain cinemachineBrain = playerParent.GetComponentInChildren<CinemachineBrain>();
-
-                // Set the layer for CinemachineCamera so the Brain can find it
-                if (cinemachineCamera != null)
-                {
-                    cinemachineCamera.gameObject.layer = layerToAdd;
-                }
-
-                // Configure the Camera
-                if (playerCamera != null)
-                {
-                    // Set the Camera GameObject's layer
-                    playerCamera.gameObject.layer = layerToAdd;
-                    
-                    // Start with rendering everything
-                    int cullingMask = ~0;
-                    
-                    // Remove all other player layers from the culling mask
-                    for (int i = 0; i < playerLayers.Count; i++)
-                    {
-                        if (i != playerIndex) // Don't remove our own layer
-                        {
-                            int otherLayer = (int)Mathf.Log(playerLayers[i].value, 2);
-                            cullingMask &= ~(1 << otherLayer); // Remove this layer from culling mask
-                        }
-                    }
-                    
-                    playerCamera.cullingMask = cullingMask;
-                }
-
-                // Configure the CinemachineBrain to only listen to cameras on this layer
-                if (cinemachineBrain != null)
-                {
-                    cinemachineBrain.ChannelMask = (OutputChannels)(1 << layerToAdd);
-                }
+                HandleRespawningPlayer(player, existingPlayerIndex);
+                return;
             }
             
-            // Get player index from tag (PlayerOne = 0, PlayerTwo = 1, etc.)
-            private int GetPlayerIndexFromTag(string tag)
+            HandleNewPlayer(player);
+        }
+        
+        private bool IsPlayerAlreadyRegistered(PlayerInput player)
+        {
+            return players.Contains(player);
+        }
+        
+        private bool IsRespawningPlayer(PlayerInput player, out int existingPlayerIndex)
+        {
+            existingPlayerIndex = GetPlayerIndexFromTag(player.gameObject.tag);
+            return existingPlayerIndex != INVALID_INDEX;
+        }
+        
+        private void HandleRespawningPlayer(PlayerInput player, int existingPlayerIndex)
+        {
+            if (existingPlayerIndex < players.Count)
             {
-                return tag switch
-                {
-                    "PlayerOne" => 0,
-                    "PlayerTwo" => 1,
-                    "PlayerThree" => 2,
-                    "PlayerFour" => 3,
-                    _ => -1 // Not a player tag
-                };
+                players[existingPlayerIndex] = player;
             }
             
-            // Get player tag from index
-            private string GetPlayerTag(int playerNumber)
+            AssignPlayerLayer(player, existingPlayerIndex);
+        }
+        
+        private void HandleNewPlayer(PlayerInput player)
+        {
+            players.Add(player);
+            
+            int playerIndex = players.Count - 1;
+            
+            if (!ValidatePlayerLayerExists(playerIndex))
             {
-                return playerNumber switch
-                {
-                    1 => "PlayerOne",
-                    2 => "PlayerTwo",
-                    3 => "PlayerThree",
-                    4 => "PlayerFour",
-                    _ => "PlayerOne"
-                };
+                return;
+            }
+            
+            AssignPlayerTag(player, playerIndex);
+            AssignPlayerLayer(player, playerIndex);
+        }
+        
+        private bool ValidatePlayerLayerExists(int playerIndex)
+        {
+            if (playerIndex >= playerLayers.Count)
+            {
+                Debug.LogError($"[{nameof(PlayerManager)}] Not enough player layers! Player {players.Count} cannot be assigned a layer. Please add more layers.");
+                return false;
+            }
+            
+            return true;
+        }
+        
+        private void AssignPlayerTag(PlayerInput player, int playerIndex)
+        {
+            string playerTag = GetPlayerTag(playerIndex + 1);
+            player.gameObject.tag = playerTag;
+            player.gameObject.name = playerTag;
+        }
+        
+        private void AssignPlayerLayer(PlayerInput player, int playerIndex)
+        {
+            int layer = ConvertLayerMaskToLayer(playerLayers[playerIndex]);
+            
+            CinemachineCamera cinemachineCamera = player.GetComponentInChildren<CinemachineCamera>();
+            Camera playerCamera = player.GetComponentInChildren<Camera>();
+            CinemachineBrain cinemachineBrain = player.GetComponentInChildren<CinemachineBrain>();
+            
+            SetupCinemachineCamera(cinemachineCamera, layer);
+            SetupPlayerCamera(playerCamera, layer, playerIndex);
+            SetupCinemachineBrain(cinemachineBrain, layer);
+        }
+        
+        private int ConvertLayerMaskToLayer(LayerMask layerMask)
+        {
+            return (int)Mathf.Log(layerMask.value, 2);
+        }
+        
+        private void SetupCinemachineCamera(CinemachineCamera cinemachineCamera, int layer)
+        {
+            if (cinemachineCamera != null)
+            {
+                cinemachineCamera.gameObject.layer = layer;
             }
         }
+        
+        private void SetupPlayerCamera(Camera playerCamera, int layer, int playerIndex)
+        {
+            if (playerCamera == null)
+            {
+                return;
+            }
+            
+            playerCamera.gameObject.layer = layer;
+            playerCamera.cullingMask = CalculateCullingMask(playerIndex);
+        }
+        
+        private int CalculateCullingMask(int playerIndex)
+        {
+            int cullingMask = RENDER_ALL_LAYERS;
+            
+            for (int i = 0; i < playerLayers.Count; i++)
+            {
+                if (i != playerIndex)
+                {
+                    int otherLayer = ConvertLayerMaskToLayer(playerLayers[i]);
+                    cullingMask &= ~(1 << otherLayer);
+                }
+            }
+            
+            return cullingMask;
+        }
+        
+        private void SetupCinemachineBrain(CinemachineBrain cinemachineBrain, int layer)
+        {
+            if (cinemachineBrain != null)
+            {
+                cinemachineBrain.ChannelMask = (OutputChannels)(1 << layer);
+            }
+        }
+        
+        private int GetPlayerIndexFromTag(string tag)
+        {
+            if (TagToIndexMap.TryGetValue(tag, out int index))
+            {
+                return index;
+            }
+            
+            return INVALID_INDEX;
+        }
+        
+        private string GetPlayerTag(int playerNumber)
+        {
+            if (IndexToTagMap.TryGetValue(playerNumber, out string tag))
+            {
+                return tag;
+            }
+            
+            Debug.LogWarning($"[{nameof(PlayerManager)}] Invalid player number: {playerNumber}, defaulting to PlayerOne");
+            return "PlayerOne";
+        }
     }
+}

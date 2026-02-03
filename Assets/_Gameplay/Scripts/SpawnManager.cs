@@ -12,25 +12,151 @@ namespace _Gameplay.Scripts
         [SerializeField] private GameObject playerPrefab;
         [SerializeField] private GameObject botPrefab;
         
+        [Header("Spawn Settings")]
+        [SerializeField] private float respawnDelay = 3f;
+        
         private readonly HashSet<int> usedSpawnIndices = new HashSet<int>();
-
-        void Awake()
+        
+        private const int TOTAL_PLAYERS = 4;
+        private const string PLAYER_TAG_PREFIX = "Player";
+        private const string BOT_TAG_PREFIX = "Bot";
+        
+        private static readonly Dictionary<int, string> PlayerTagMap = new Dictionary<int, string>
+        {
+            { 1, "PlayerOne" },
+            { 2, "PlayerTwo" },
+            { 3, "PlayerThree" },
+            { 4, "PlayerFour" }
+        };
+        
+        private static readonly Dictionary<int, string> BotTagMap = new Dictionary<int, string>
+        {
+            { 1, "BotOne" },
+            { 2, "BotTwo" },
+            { 3, "BotThree" },
+            { 4, "BotFour" }
+        };
+        
+        private void Awake()
+        {
+            ClearUsedSpawnIndices();
+            ValidateReferences();
+        }
+        
+        private void ClearUsedSpawnIndices()
         {
             usedSpawnIndices.Clear();
         }
         
-        private Transform GetSpawnPoint()
+        private void ValidateReferences()
         {
+            if (spawnPoints == null || spawnPoints.Length == 0)
+            {
+                Debug.LogError($"[{nameof(SpawnManager)}] No spawn points assigned!");
+            }
+            
+            if (playerPrefab == null)
+            {
+                Debug.LogError($"[{nameof(SpawnManager)}] Player prefab is not assigned!");
+            }
+            
+            if (botPrefab == null)
+            {
+                Debug.LogError($"[{nameof(SpawnManager)}] Bot prefab is not assigned!");
+            }
+        }
+        
+        public void StartGame(int humanPlayerCount)
+        {
+            if (!ValidatePlayerCount(humanPlayerCount))
+            {
+                return;
+            }
+            
+            SpawnHumanPlayers(humanPlayerCount);
+            SpawnBots(humanPlayerCount);
+        }
+        
+        private bool ValidatePlayerCount(int humanPlayerCount)
+        {
+            if (humanPlayerCount < 0 || humanPlayerCount > TOTAL_PLAYERS)
+            {
+                Debug.LogError($"[{nameof(SpawnManager)}] Invalid player count: {humanPlayerCount}. Must be between 0 and {TOTAL_PLAYERS}");
+                return false;
+            }
+            
+            return true;
+        }
+        
+        private void SpawnHumanPlayers(int humanPlayerCount)
+        {
+            for (int i = 1; i <= humanPlayerCount; i++)
+            {
+                string playerTag = GetPlayerTag(i);
+                SpawnPlayer(playerTag, GetUniqueSpawnPoint(), playerPrefab);
+                RegisterPlayer(playerTag);
+            }
+        }
+        
+        private void SpawnBots(int humanPlayerCount)
+        {
+            int botsNeeded = TOTAL_PLAYERS - humanPlayerCount;
+            
+            for (int i = 0; i < botsNeeded; i++)
+            {
+                int botNumber = humanPlayerCount + i + 1;
+                string botTag = GetBotTag(botNumber);
+                
+                SpawnBot(botTag, GetUniqueSpawnPoint());
+                RegisterPlayer(botTag);
+            }
+        }
+        
+        private void RegisterPlayer(string playerTag)
+        {
+            if (GameplayManager.instance != null)
+            {
+                GameplayManager.instance.UpdatePlayerList(playerTag);
+            }
+        }
+        
+        private Transform GetRandomSpawnPoint()
+        {
+            if (spawnPoints.Length == 0)
+            {
+                Debug.LogError($"[{nameof(SpawnManager)}] No spawn points available!");
+                return null;
+            }
+            
             return spawnPoints[Random.Range(0, spawnPoints.Length)];
         }
-
+        
         private Transform GetUniqueSpawnPoint()
         {
-            if (usedSpawnIndices.Count >= spawnPoints.Length)
+            if (spawnPoints.Length == 0)
             {
-                usedSpawnIndices.Clear();
+                Debug.LogError($"[{nameof(SpawnManager)}] No spawn points available!");
+                return null;
             }
-
+            
+            if (AllSpawnPointsUsed())
+            {
+                ClearUsedSpawnIndices();
+            }
+            
+            int randomIndex = FindUnusedSpawnIndex();
+            usedSpawnIndices.Add(randomIndex);
+            
+            return spawnPoints[randomIndex];
+        }
+        
+        private bool AllSpawnPointsUsed()
+        {
+            return usedSpawnIndices.Count >= spawnPoints.Length;
+        }
+        
+        private int FindUnusedSpawnIndex()
+        {
             int randomIndex;
             
             do
@@ -38,177 +164,162 @@ namespace _Gameplay.Scripts
                 randomIndex = Random.Range(0, spawnPoints.Length);
             } 
             while (usedSpawnIndices.Contains(randomIndex));
-
-            usedSpawnIndices.Add(randomIndex);
-
-            return spawnPoints[randomIndex];
-        }
-
-        public void StartSingleplayerGame()
-        {
-            Spawn("PlayerOne", GetUniqueSpawnPoint(), playerPrefab);
-            Spawn("BotOne",  GetUniqueSpawnPoint(), botPrefab);
-            Spawn("BotTwo", GetUniqueSpawnPoint(), botPrefab);
-            Spawn("BotThree", GetUniqueSpawnPoint(), botPrefab);
             
-            GameplayManager.instance.UpdatePlayerList("PlayerOne");
-            GameplayManager.instance.UpdatePlayerList("BotOne");
-            GameplayManager.instance.UpdatePlayerList("BotTwo");
-            GameplayManager.instance.UpdatePlayerList("BotThree");
+            return randomIndex;
         }
         
-        public void StartMultiplayerGame(int humanPlayerCount)
-        {
-            // Spawn human players using playerPrefab (with PlayerInput)
-            for (int i = 1; i <= humanPlayerCount; i++)
-            {
-                string playerTag = GetPlayerTag(i);
-                Spawn(playerTag, GetUniqueSpawnPoint(), playerPrefab);
-                GameplayManager.instance.UpdatePlayerList(playerTag);
-            }
-            
-            // Calculate how many bots we need (total should be 4)
-            int botsNeeded = 4 - humanPlayerCount;
-            
-            // Spawn bots to fill remaining slots
-            for (int i = 0; i < botsNeeded; i++)
-            {
-                int botNumber = humanPlayerCount + i + 1;
-                string botTag = GetBotTag(botNumber);
-                
-                SpawnBot(botTag, GetUniqueSpawnPoint());
-                GameplayManager.instance.UpdatePlayerList(botTag);
-            }
-        }
-        
-        // Helper to get player tag (PlayerOne, PlayerTwo, etc.)
         private string GetPlayerTag(int playerNumber)
         {
-            return playerNumber switch
+            if (PlayerTagMap.TryGetValue(playerNumber, out string tag))
             {
-                1 => "PlayerOne",
-                2 => "PlayerTwo",
-                3 => "PlayerThree",
-                4 => "PlayerFour",
-                _ => "PlayerOne"
-            };
+                return tag;
+            }
+            
+            Debug.LogWarning($"[{nameof(SpawnManager)}] Invalid player number: {playerNumber}, defaulting to PlayerOne");
+            return "PlayerOne";
         }
         
-        // Helper to get bot tag based on position (BotOne, BotTwo, etc.)
         private string GetBotTag(int botPosition)
         {
-            return botPosition switch
+            if (BotTagMap.TryGetValue(botPosition, out string tag))
             {
-                1 => "BotOne",
-                2 => "BotTwo",
-                3 => "BotThree",
-                4 => "BotFour",
-                _ => "BotOne"
-            };
+                return tag;
+            }
+            
+            Debug.LogWarning($"[{nameof(SpawnManager)}] Invalid bot position: {botPosition}, defaulting to BotOne");
+            return "BotOne";
         }
-
+        
         public void Respawn(string playerTag)
         {
-            GameObject prefabToSpawn = null;
+            GameObject prefabToSpawn = GetPrefabForTag(playerTag);
             
-            if (playerTag.StartsWith("Bot"))
+            if (prefabToSpawn == null)
             {
-                prefabToSpawn = botPrefab;
-            }
-            else if (playerTag.StartsWith("Player"))
-            {
-                prefabToSpawn = playerPrefab;
+                Debug.LogError($"[{nameof(SpawnManager)}] Cannot respawn - no prefab found for tag: {playerTag}");
+                return;
             }
             
-            StartCoroutine(WaitToRespawn(playerTag, prefabToSpawn, GetSpawnPoint()));
+            StartCoroutine(RespawnAfterDelay(playerTag, prefabToSpawn));
         }
-
-        private void Spawn(string playerTag, Transform spawnPoint, GameObject prefab)
+        
+        private GameObject GetPrefabForTag(string playerTag)
         {
-            // Check if this prefab has PlayerInput
+            if (playerTag.StartsWith(BOT_TAG_PREFIX))
+            {
+                return botPrefab;
+            }
+            
+            if (playerTag.StartsWith(PLAYER_TAG_PREFIX))
+            {
+                return playerPrefab;
+            }
+            
+            return null;
+        }
+        
+        private IEnumerator RespawnAfterDelay(string playerTag, GameObject prefab)
+        {
+            yield return new WaitForSeconds(respawnDelay);
+            
+            Transform spawnPoint = GetRandomSpawnPoint();
+            
+            if (spawnPoint == null)
+            {
+                Debug.LogError($"[{nameof(SpawnManager)}] Cannot respawn - no spawn point available!");
+                yield break;
+            }
+            
+            bool isBot = playerTag.StartsWith(BOT_TAG_PREFIX);
+            
+            if (isBot)
+            {
+                SpawnBot(playerTag, spawnPoint);
+            }
+            else
+            {
+                SpawnPlayer(playerTag, spawnPoint, prefab);
+            }
+            
+            EnableGameplayForRespawnedPlayer(playerTag);
+        }
+        
+        private void SpawnPlayer(string playerTag, Transform spawnPoint, GameObject prefab)
+        {
             UnityEngine.InputSystem.PlayerInput prefabInput = prefab.GetComponent<UnityEngine.InputSystem.PlayerInput>();
             bool hasPlayerInput = prefabInput != null;
             bool wasEnabled = false;
             
-            // If it has PlayerInput, disable it temporarily
             if (hasPlayerInput)
             {
                 wasEnabled = prefabInput.enabled;
                 prefabInput.enabled = false;
             }
             
-            // Instantiate
             GameObject player = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
             
-            // Set tag BEFORE enabling PlayerInput
-            player.tag = playerTag;
-            player.name = playerTag;
+            SetPlayerIdentity(player, playerTag);
             
-            // Re-enable PlayerInput if it exists
             if (hasPlayerInput)
             {
-                UnityEngine.InputSystem.PlayerInput instanceInput = player.GetComponent<UnityEngine.InputSystem.PlayerInput>();
-                if (instanceInput != null)
-                {
-                    instanceInput.enabled = true;
-                }
-                
-                // Restore prefab state
-                prefabInput.enabled = wasEnabled;
+                RestorePlayerInput(player, prefabInput, wasEnabled);
             }
         }
         
         private void SpawnBot(string botTag, Transform spawnPoint)
         {
-            // Spawn bot (no PlayerInput, so no complications)
             GameObject bot = Instantiate(botPrefab, spawnPoint.position, spawnPoint.rotation);
-            bot.tag = botTag;
-            bot.name = botTag;
+            SetPlayerIdentity(bot, botTag);
         }
-
-        private IEnumerator WaitToRespawn(string playerTag, GameObject playerObject, Transform spawnPoint)
-        { 
-            yield return new WaitForSeconds(3f);
-            
-            // CRITICAL: Disable PlayerInput on prefab before instantiating
-            UnityEngine.InputSystem.PlayerInput prefabInput = playerObject.GetComponent<UnityEngine.InputSystem.PlayerInput>();
-            bool wasEnabled = false;
-            if (prefabInput != null)
-            {
-                wasEnabled = prefabInput.enabled;
-                prefabInput.enabled = false;
-            }
-            
-            GameObject player = Instantiate(playerObject, spawnPoint.position, spawnPoint.rotation);
-            
-            // Set tag BEFORE enabling PlayerInput
+        
+        private void SetPlayerIdentity(GameObject player, string playerTag)
+        {
             player.tag = playerTag;
             player.name = playerTag;
-            
-            // Now enable PlayerInput - this will trigger onPlayerJoined with correct tag
+        }
+        
+        private void RestorePlayerInput(GameObject player, UnityEngine.InputSystem.PlayerInput prefabInput, bool wasEnabled)
+        {
             UnityEngine.InputSystem.PlayerInput instanceInput = player.GetComponent<UnityEngine.InputSystem.PlayerInput>();
+            
             if (instanceInput != null)
             {
                 instanceInput.enabled = true;
             }
             
-            // Restore prefab state
-            if (prefabInput != null)
+            prefabInput.enabled = wasEnabled;
+        }
+        
+        private void EnableGameplayForRespawnedPlayer(string playerTag)
+        {
+            GameObject player = GameObject.Find(playerTag);
+            
+            if (player == null)
             {
-                prefabInput.enabled = wasEnabled;
+                return;
             }
             
-            // Enable gameplay for this respawned player
+            EnableCarShooter(player);
+            EnablePlayerUI(player);
+        }
+        
+        private void EnableCarShooter(GameObject player)
+        {
             CarShooter shooter = player.GetComponent<CarShooter>();
+            
             if (shooter != null)
             {
                 shooter.EnableGameplay();
             }
+        }
+        
+        private void EnablePlayerUI(GameObject player)
+        {
+            PlayerUIManager uiManager = player.GetComponent<PlayerUIManager>();
             
-            PlayerUIManager UIManager = player.GetComponent<PlayerUIManager>();
-            if (UIManager != null)
+            if (uiManager != null)
             {
-                UIManager.EnableGameplay();
+                uiManager.EnableGameplay();
             }
         }
     }

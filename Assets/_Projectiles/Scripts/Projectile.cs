@@ -6,52 +6,96 @@ namespace _Projectiles.Scripts
 {
     public class Projectile : MonoBehaviour
     {
-        public static GameObject Shooter;
+        [Header("Projectile Settings")]
+        [SerializeField] private float lifetime = 5f;
+        [SerializeField] private float damageDelay = 0.01f;
+        [SerializeField] private int damageAmount = 10;
+        
+        private GameObject shooter;
         private bool canDoDamage = false;
-        void Start()
-        { ;
-            Destroy(gameObject, 5f);
-            StartCoroutine(DoDamage());
-        }
-
-        private IEnumerator DoDamage()
+        
+        private void Start()
         {
-            yield return new WaitForSeconds(0.01f);
+            ScheduleDestruction();
+            StartCoroutine(EnableDamageAfterDelay());
+        }
+        
+        private void ScheduleDestruction()
+        {
+            Destroy(gameObject, lifetime);
+        }
+        
+        private IEnumerator EnableDamageAfterDelay()
+        {
+            yield return new WaitForSeconds(damageDelay);
             canDoDamage = true;
         }
-
+        
         private void OnTriggerEnter(Collider other)
         {
-            if (!canDoDamage) return;
-
-            if (!other.CompareTag(Shooter.tag))
+            if (!CanDamageTarget(other))
             {
-                DamageEnemy(other);
-                
-                Destroy(gameObject);
+                return;
             }
+            
+            DamageTarget(other);
+            DestroyProjectile();
         }
-
-        private static void DamageEnemy(Collider other)
+        
+        private bool CanDamageTarget(Collider other)
         {
-            CarHealth health = other.gameObject.GetComponent<CarHealth>();
-
+            if (!canDoDamage)
+            {
+                return false;
+            }
+            
+            if (IsShooter(other))
+            {
+                return false;
+            }
+            
+            return true;
+        }
+        
+        private bool IsShooter(Collider other)
+        {
+            if (shooter == null)
+            {
+                return false;
+            }
+            
+            return other.CompareTag(shooter.tag);
+        }
+        
+        private void DamageTarget(Collider other)
+        {
+            CarHealth health = other.GetComponent<CarHealth>();
+            
             if (health != null)
             {
-                health.TakeDamage(10, Shooter);
+                health.TakeDamage(damageAmount, shooter);
             }
+        }
+        
+        private void DestroyProjectile()
+        {
+            Destroy(gameObject);
         }
         
         public void SetShooter(GameObject shooterObject)
         {
-            Shooter = shooterObject;
-        }
-
-        public GameObject GetShooter()
-        {
-            return Shooter;
+            if (shooterObject == null)
+            {
+                Debug.LogWarning($"[{nameof(Projectile)}] Trying to set null shooter!");
+                return;
+            }
+            
+            shooter = shooterObject;
         }
         
+        public GameObject GetShooter()
+        {
+            return shooter;
+        }
     }
 }
-

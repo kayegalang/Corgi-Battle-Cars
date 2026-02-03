@@ -696,6 +696,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_UI.Scripts.EndGameManager
   endScreen: {fileID: 1551051815}
   resultsText: {fileID: 1303275249}
+  mainMenuSceneName: MainMenu
+  noPlayersText: No players found!
+  resultLineFormat: '{0} - {1} ({2} points)'
+  unknownPlayerName: Unknown
+  onPlayAgain:
+    m_PersistentCalls:
+      m_Calls: []
+  onReturnToMenu:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &478994507
 Transform:
   m_ObjectHideFlags: 0
@@ -1664,6 +1674,7 @@ MonoBehaviour:
   - {fileID: 2082242893}
   playerPrefab: {fileID: 2474133199045047173, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
   botPrefab: {fileID: 3398083622699686620, guid: 69272e12e7c3d4ab6b7fd163e1710241, type: 3}
+  respawnDelay: 3
 --- !u!1 &2082242892
 GameObject:
   m_ObjectHideFlags: 0
@@ -6588,12 +6599,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -22583,7 +22594,6 @@ RectTransform:
   - {fileID: 593169589734019452}
   - {fileID: 5693281125921667272}
   - {fileID: 2380048491773708780}
-  - {fileID: 8401080307548087808}
   - {fileID: 1551051816}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -24765,8 +24775,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84e24f6669614429a8fdf2076dc622eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI.Scripts.PauseController
-  PauseScreen: {fileID: 8861164561883131088}
-  GameplayPanel: {fileID: 8549572303947998570}
+  pauseScreen: {fileID: 8861164561883131088}
+  gameplayPanel: {fileID: 8549572303947998570}
+  mainMenuSceneName: MainMenu
+  onPaused:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7660101476274926852}
+        m_TargetAssemblyTypeName: _UI.Scripts.PauseController, Assembly-CSharp
+        m_MethodName: PauseGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onUnpaused:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7660101476274926852}
+        m_TargetAssemblyTypeName: _UI.Scripts.PauseController, Assembly-CSharp
+        m_MethodName: UnpauseGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!23 &7672844322186807529
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -27350,11 +27391,11 @@ Transform:
   m_GameObject: {fileID: 668440058011990013}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 787.6858, y: -152.5039, z: 0}
+  m_LocalPosition: {x: 1747.6858, y: 387.4961, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7251216812603321355}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8401701462592029871
 MeshFilter:
@@ -30698,7 +30739,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7660101476274926852}
-        m_TargetAssemblyTypeName: UI.Scripts.PauseController, Assembly-CSharp
+        m_TargetAssemblyTypeName: _UI.Scripts.PauseController, Assembly-CSharp
         m_MethodName: OnMainMenuButtonClick
         m_Mode: 1
         m_Arguments:
@@ -30808,3 +30849,4 @@ SceneRoots:
   - {fileID: 1889762279}
   - {fileID: 193038870}
   - {fileID: 962276158}
+  - {fileID: 8401080307548087808}

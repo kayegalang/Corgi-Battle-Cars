@@ -9,9 +9,9 @@ namespace _UI.Scripts
     public class LoadingManager : MonoBehaviour
     {
         public static LoadingManager instance;
-        
+
         [SerializeField] private GameObject loadingScreen;
-        [SerializeField] private Slider progressBar; 
+        [SerializeField] private Slider progressBar;
 
         void Awake()
         {
@@ -23,39 +23,43 @@ namespace _UI.Scripts
             else
                 Destroy(gameObject);
         }
+        
+        private bool isLoading = false;
+
         public void LoadScene(string sceneName)
         {
+            if (isLoading)
+            {
+                return;
+            }
+    
+            isLoading = true;
             StartCoroutine(LoadSceneAsync(sceneName));
         }
 
         private IEnumerator LoadSceneAsync(string sceneName)
         {
             loadingScreen.SetActive(true);
-            
+            progressBar.value = 0f;
+    
             AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
             op.allowSceneActivation = false;
-            
+    
             while (!op.isDone)
             {
-                float targetProgress = Mathf.Clamp01(op.progress / 0.9f);
-                progressBar.value = Mathf.MoveTowards(progressBar.value, targetProgress, Time.deltaTime * 0.25f);
+                progressBar.value = Mathf.Clamp01(op.progress / 0.9f);
                 yield return null;
 
-                if (progressBar.value >= 1f)
+                if (progressBar.value >= 0.9f)
                 {
                     break;
                 }
             }
-            
+    
             op.allowSceneActivation = true;
-            
-            // Wait for scene to actually be active
             yield return null;
-            
-            // Give the scene time to initialize
             yield return new WaitForSeconds(0.5f);
-            
-            // Wait for game setup with a timeout safety
+    
             float timeout = 3f;
             float elapsed = 0f;
             while (!GameplayManager.instance.IsGameSetupComplete() && elapsed < timeout)
@@ -63,17 +67,13 @@ namespace _UI.Scripts
                 elapsed += Time.deltaTime;
                 yield return null;
             }
-            
-            if (elapsed >= timeout)
-            {
-                Debug.LogWarning("Game setup timed out!");
-            }
-            
+    
             loadingScreen.SetActive(false);
-            
             yield return new WaitForSeconds(0.3f);
-            
+    
             GameplayManager.instance.StartMatchTimer();
+    
+            isLoading = false; 
         }
     }
 }

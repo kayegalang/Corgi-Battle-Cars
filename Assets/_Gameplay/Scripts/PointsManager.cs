@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using _Cars.Scripts;
 using _UI.Scripts;
-using TMPro;
 using UnityEngine;
 
 namespace _Gameplay.Scripts
@@ -12,12 +10,23 @@ namespace _Gameplay.Scripts
         public static PointsManager instance;
         
         [SerializeField] private EndGameManager endGameManager;
-
+        
         private Dictionary<string, int> playerScores;
         private List<string> playerTags;
-
-
+        
+        private const int INITIAL_SCORE = 0;
+        
         private void Awake()
+        {
+            InitializeSingleton();
+        }
+        
+        private void Start()
+        {
+            InitializeScoreTracking();
+        }
+        
+        private void InitializeSingleton()
         {
             if (instance == null)
             {
@@ -25,35 +34,79 @@ namespace _Gameplay.Scripts
             }
             else
             {
+                Debug.LogWarning($"[{nameof(PointsManager)}] Duplicate instance found, destroying {gameObject.name}");
                 Destroy(gameObject);
             }
         }
-
-        private void Start()
+        
+        private void InitializeScoreTracking()
         {
             playerScores = new Dictionary<string, int>();
+            
+            if (!ValidateGameplayManager())
+            {
+                return;
+            }
+            
             playerTags = GameplayManager.instance.GetPlayerTags();
-
-            // Initialize dictionary for each tag
+            
+            InitializePlayerScores();
+        }
+        
+        private bool ValidateGameplayManager()
+        {
+            if (GameplayManager.instance == null)
+            {
+                Debug.LogError($"[{nameof(PointsManager)}] GameplayManager instance is null!");
+                return false;
+            }
+            
+            return true;
+        }
+        
+        private void InitializePlayerScores()
+        {
             foreach (string playerTag in playerTags)
             {
-                playerScores.TryAdd(playerTag, 0);
+                playerScores.TryAdd(playerTag, INITIAL_SCORE);
             }
         }
         
         public void AddPoint(string playerTag)
         {
-            playerScores[playerTag]++;
+            if (!ValidatePlayerTag(playerTag))
+            {
+                return;
+            }
             
-            // Update all player UIs
+            IncrementPlayerScore(playerTag);
             UpdateAllPlayerUIs();
+        }
+        
+        private bool ValidatePlayerTag(string playerTag)
+        {
+            if (string.IsNullOrEmpty(playerTag))
+            {
+                Debug.LogWarning($"[{nameof(PointsManager)}] Cannot add point - player tag is null or empty");
+                return false;
+            }
             
-            UpdateScoreboard();
+            if (!playerScores.ContainsKey(playerTag))
+            {
+                Debug.LogWarning($"[{nameof(PointsManager)}] Player tag '{playerTag}' not found in score dictionary");
+                return false;
+            }
+            
+            return true;
+        }
+        
+        private void IncrementPlayerScore(string playerTag)
+        {
+            playerScores[playerTag]++;
         }
         
         private void UpdateAllPlayerUIs()
         {
-            // Find all PlayerUIManager components and update them
             PlayerUIManager[] allPlayerUIs = FindObjectsByType<PlayerUIManager>(FindObjectsSortMode.None);
             
             foreach (PlayerUIManager ui in allPlayerUIs)
@@ -68,19 +121,27 @@ namespace _Gameplay.Scripts
         
         public int GetPoints(string playerTag)
         {
-            return playerScores.GetValueOrDefault(playerTag);
+            return playerScores.GetValueOrDefault(playerTag, INITIAL_SCORE);
         }
         
-        private void UpdateScoreboard()
+        public void DisplayFinalScoreboard()
         {
-            var sorted = playerScores
+            if (endGameManager == null)
+            {
+                Debug.LogWarning($"[{nameof(PointsManager)}] EndGameManager is not assigned!");
+                return;
+            }
+            
+            List<(string playerTag, int points)> sortedScores = GetSortedScores();
+            endGameManager.DisplayResults(sortedScores);
+        }
+        
+        private List<(string playerTag, int points)> GetSortedScores()
+        {
+            return playerScores
                 .OrderByDescending(p => p.Value)
                 .Select(p => (playerTag: p.Key, points: p.Value))
                 .ToList();
-
-            // Update EndGameManager
-            if (endGameManager != null)
-                endGameManager.DisplayResults(sorted);
         }
     }
 }

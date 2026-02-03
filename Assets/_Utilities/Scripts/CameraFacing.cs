@@ -34,10 +34,6 @@ namespace _Utilities.Scripts
         
                 FaceCamera();
             }
-            else
-            {
-                Debug.LogWarning($"{gameObject.name}: No target camera!");
-            }
         }
         
         private void FaceCamera()

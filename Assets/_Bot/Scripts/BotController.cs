@@ -1,114 +1,209 @@
-using Player.Scripts;
+using _Cars.ScriptableObjects;
 using UnityEngine;
 
 namespace _Bot.Scripts
 {
     public class BotController : MonoBehaviour
     {
-        private Vector2 moveInput; 
+        [Header("References")]
+        [SerializeField] private CarStats carStats;
+        
+        private Vector2 moveInput;
         private Rigidbody carRb;
         
-        [SerializeField] private CarStats carStats;
-
-        void Awake()
+        private const float GROUNDED_ANGULAR_DAMPING = 3f;
+        private const float AIRBORNE_ANGULAR_DAMPING = 5f;
+        private const float AIRBORNE_ROTATION_SPEED = 2f;
+        private const float MOVE_INPUT_THRESHOLD = 0.01f;
+        private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
+        
+        private void Awake()
+        {
+            InitializeComponents();
+        }
+        
+        private void FixedUpdate()
+        {
+            ApplyPhysics();
+            ApplyMovementLimits();
+        }
+        
+        private void InitializeComponents()
         {
             carRb = GetComponent<Rigidbody>();
+            ValidateComponents();
         }
-
-        private void FixedUpdate()
+        
+        private void ValidateComponents()
+        {
+            if (carRb == null)
+            {
+                Debug.LogError($"[{nameof(BotController)}] Rigidbody not found on {gameObject.name}!");
+            }
+            
+            if (carStats == null)
+            {
+                Debug.LogError($"[{nameof(BotController)}] CarStats not assigned on {gameObject.name}!");
+            }
+        }
+        
+        private void ApplyPhysics()
         {
             Move();
             Turn();
-
-            if (IsGrounded())
-            {
-                carRb.angularDamping = 3;
-            }
-            else
-            {
-                carRb.angularDamping = 5;
-
-                Quaternion levelRotation = Quaternion.Euler(0, carRb.rotation.eulerAngles.y, 0);
-                carRb.MoveRotation(Quaternion.Slerp(carRb.rotation, levelRotation, 2f * Time.fixedDeltaTime));
-            }
-            
-            CapJumpHeight();
-            
-            if (carRb.linearVelocity.magnitude > carStats.maxSpeed)
-            {
-                carRb.linearVelocity = carRb.linearVelocity.normalized * carStats.maxSpeed;
-            }
+            ApplyAngularDamping();
+            LevelRotationInAir();
         }
-
-        private void Turn()
+        
+        private void ApplyMovementLimits()
         {
-            float turnInput = moveInput.x;
-            
-            if (IsMovingForward())
-            {
-                carRb.AddTorque(Vector3.up * turnInput * carStats.turnSpeed);
-            }
-            else
-            {
-                carRb.AddTorque(-Vector3.up * turnInput * carStats.turnSpeed);
-            }
+            CapJumpHeight();
+            CapMaxSpeed();
         }
-
+        
         private void Move()
         {
-            float moveValue = moveInput.y;
-
-            if (Mathf.Abs(moveValue) > 0.01f)
+            if (!ShouldMove())
             {
-                carRb.AddRelativeForce(Vector3.forward * moveValue * carStats.acceleration);
+                return;
             }
-
+            
+            ApplyAcceleration();
+            ConstrainLateralMovement();
+        }
+        
+        private bool ShouldMove()
+        {
+            return Mathf.Abs(moveInput.y) > MOVE_INPUT_THRESHOLD;
+        }
+        
+        private void ApplyAcceleration()
+        {
+            Vector3 force = Vector3.forward * moveInput.y * carStats.Acceleration;
+            carRb.AddRelativeForce(force);
+        }
+        
+        private void ConstrainLateralMovement()
+        {
             Vector3 localVelocity = transform.InverseTransformDirection(carRb.linearVelocity);
             localVelocity.x = 0;
             carRb.linearVelocity = transform.TransformDirection(localVelocity);
         }
-
+        
+        private void Turn()
+        {
+            float turnDirection = IsMovingForward() ? 1f : -1f;
+            Vector3 torque = Vector3.up * moveInput.x * carStats.TurnSpeed * turnDirection;
+            carRb.AddTorque(torque);
+        }
+        
         private bool IsMovingForward()
         {
             return moveInput.y >= 0;
         }
-
-        public bool IsGrounded()
+        
+        private void ApplyAngularDamping()
         {
-            RaycastHit hit;
-            Vector3 origin = transform.position + carStats.groundCheckOffset;
-
-            Debug.DrawRay(origin, -transform.up * carStats.groundCheckDistance, Color.red);
-            return Physics.Raycast(origin, -transform.up, out hit, carStats.groundCheckDistance);
+            carRb.angularDamping = IsGrounded() ? GROUNDED_ANGULAR_DAMPING : AIRBORNE_ANGULAR_DAMPING;
         }
-
-        public void Jump()
+        
+        private void LevelRotationInAir()
         {
             if (IsGrounded())
             {
-                carRb.AddForce(transform.up * carStats.jumpForce, ForceMode.Impulse);
+                return;
             }
+            
+            Quaternion levelRotation = Quaternion.Euler(0, carRb.rotation.eulerAngles.y, 0);
+            Quaternion newRotation = Quaternion.Slerp(
+                carRb.rotation, 
+                levelRotation, 
+                AIRBORNE_ROTATION_SPEED * Time.fixedDeltaTime
+            );
+            
+            carRb.MoveRotation(newRotation);
         }
-
+        
+        public bool IsGrounded()
+        {
+            if (carStats == null)
+            {
+                return false;
+            }
+            
+            Vector3 origin = transform.position + carStats.GroundCheckOffset;
+            Vector3 direction = -transform.up;
+            float distance = carStats.GroundCheckDistance;
+            
+            Debug.DrawRay(origin, direction * distance, Color.red);
+            
+            return Physics.Raycast(origin, direction, out RaycastHit hit, distance);
+        }
+        
+        public void Jump()
+        {
+            if (!CanJump())
+            {
+                return;
+            }
+            
+            Vector3 jumpForce = transform.up * carStats.JumpForce;
+            carRb.AddForce(jumpForce, ForceMode.Impulse);
+        }
+        
+        private bool CanJump()
+        {
+            return IsGrounded() && carStats != null;
+        }
+        
         public void SetInputs(float turnAmount, float moveAmount)
         {
             moveInput.x = Mathf.Clamp(turnAmount, -1f, 1f);
             moveInput.y = Mathf.Clamp(moveAmount, -1f, 1f);
         }
-
+        
         public float GetSpeed()
         {
+            if (carRb == null)
+            {
+                return 0f;
+            }
+            
             return carRb.linearVelocity.magnitude;
         }
         
         private void CapJumpHeight()
         {
-            Vector3 vel = carRb.linearVelocity;
-            if (vel.y > 6f)
+            if (carRb == null)
             {
-                vel.y = 6f;
-                carRb.linearVelocity = vel;
+                return;
             }
+            
+            Vector3 velocity = carRb.linearVelocity;
+            
+            if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY)
+            {
+                velocity.y = MAX_JUMP_HEIGHT_VELOCITY;
+                carRb.linearVelocity = velocity;
+            }
+        }
+        
+        private void CapMaxSpeed()
+        {
+            if (carRb == null || carStats == null)
+            {
+                return;
+            }
+            
+            if (IsExceedingMaxSpeed())
+            {
+                carRb.linearVelocity = carRb.linearVelocity.normalized * carStats.MaxSpeed;
+            }
+        }
+        
+        private bool IsExceedingMaxSpeed()
+        {
+            return carRb.linearVelocity.magnitude > carStats.MaxSpeed;
         }
     }
 }

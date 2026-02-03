@@ -1,95 +1,188 @@
 using UnityEngine;
 using TMPro;
-using UI.Scripts;
+using _Gameplay.Scripts;
 
 namespace _UI.Scripts
 {
-    /// <summary>
-    /// Manages per-player UI (score display)
-    /// Positions UI elements in the player's camera viewport
-    /// </summary>
     public class PlayerUIManager : MonoBehaviour
     {
+        [Header("UI References")]
         [SerializeField] private TMP_Text scoreText;
         [SerializeField] private RectTransform scoreTransform;
-        [SerializeField] private Canvas canvas;
+        
+        [Header("Position Settings")]
+        [SerializeField] private Vector2 scoreOffset = new Vector2(-20, 20);
+        
+        [Header("UI Text")]
+        [SerializeField] private string scoreFormat = "Score: {0}";
         
         [Header("Gameplay Control")]
-        [SerializeField] private bool gameplayEnabled = false; // Toggle this to enable/disable gameplay
+        [SerializeField] private bool gameplayEnabled = false;
         
         private Camera playerCamera;
-        
         private PauseController pauseController;
-
-
-        void Awake()
+        
+        private const int INITIAL_SCORE = 0;
+        
+        private void Awake()
         {
-            pauseController =  FindFirstObjectByType<PauseController>();
+            InitializePauseController();
+            HideScoreInitially();
         }
-        void Start()
+        
+        private void Start()
         {
-            // Get this player's camera
+            ValidateReferences();
+            InitializeCamera();
+            SetAnchors();
+            InitializeScore();
+        }
+        
+        private void OnEnable()
+        {
+            SubscribeToPauseEvents();
+        }
+        
+        private void OnDisable()
+        {
+            UnsubscribeFromPauseEvents();
+        }
+        
+        private void InitializePauseController()
+        {
+            pauseController = FindFirstObjectByType<PauseController>();
+        }
+        
+        private void HideScoreInitially()
+        {
+            if (scoreText != null)
+            {
+                scoreText.gameObject.SetActive(false);
+            }
+        }
+        
+        private void ValidateReferences()
+        {
+            if (scoreText == null)
+            {
+                Debug.LogError($"[{nameof(PlayerUIManager)}] Score text is not assigned on {gameObject.name}!", this);
+            }
+            
+            if (scoreTransform == null)
+            {
+                Debug.LogError($"[{nameof(PlayerUIManager)}] Score transform is not assigned on {gameObject.name}!", this);
+            }
+        }
+        
+        private void InitializeCamera()
+        {
             playerCamera = GetComponentInChildren<Camera>();
             
             if (playerCamera == null)
             {
-                Debug.LogError($"{gameObject.name}: No camera found!");
+                Debug.LogError($"[{nameof(PlayerUIManager)}] No camera found on {gameObject.name}!", this);
+            }
+        }
+        
+        private void InitializeScore()
+        {
+            int currentScore = GetCurrentScoreFromPointsManager();
+            UpdateScore(currentScore);
+        }
+        
+        private int GetCurrentScoreFromPointsManager()
+        {
+            if (PointsManager.instance == null)
+            {
+                return INITIAL_SCORE;
+            }
+            
+            string playerTag = GetPlayerTag();
+            return PointsManager.instance.GetPoints(playerTag);
+        }
+        
+        private void SubscribeToPauseEvents()
+        {
+            if (pauseController != null)
+            {
+                pauseController.onPaused.AddListener(OnGamePaused);
+                pauseController.onUnpaused.AddListener(OnGameUnpaused);
+            }
+        }
+        
+        private void UnsubscribeFromPauseEvents()
+        {
+            if (pauseController != null)
+            {
+                pauseController.onPaused.RemoveListener(OnGamePaused);
+                pauseController.onUnpaused.RemoveListener(OnGameUnpaused);
+            }
+        }
+        
+        private void OnGamePaused()
+        {
+            UpdateScoreVisibility();
+        }
+        
+        private void OnGameUnpaused()
+        {
+            UpdateScoreVisibility();
+        }
+        
+        private void UpdateScoreVisibility()
+        {
+            if (scoreText == null)
+            {
                 return;
             }
             
-            // Set anchors to bottom-right of this player's viewport
-            SetAnchors();
-            
-            // Initialize score
-            if (scoreText != null)
-            {
-                scoreText.text = "Score: 0";
-            }
+            bool shouldShow = ShouldShowScore();
+            scoreText.gameObject.SetActive(shouldShow);
         }
-
-        void Update()
+        
+        private bool ShouldShowScore()
         {
-            // If gameplay not enabled, keep reticle hidden
             if (!gameplayEnabled)
             {
-                if (scoreText != null)
-                    scoreText.gameObject.SetActive(false);
+                return false;
             }
-
-            if (gameplayEnabled)
+            
+            if (pauseController != null && pauseController.GetIsPaused())
             {
-                if (pauseController != null && pauseController.GetIsPaused())
-                {
-                    scoreText.gameObject.SetActive(false);
-                }
-                else
-                {
-                    scoreText.gameObject.SetActive(true);
-                }
+                return false;
             }
+            
+            return true;
         }
-
+        
         private void SetAnchors()
         {
-            if (scoreTransform == null) return;
+            if (!CanSetAnchors())
+            {
+                return;
+            }
             
-            // Get this player's camera viewport (normalized 0-1)
             Rect viewportRect = playerCamera.rect;
             
-            // Set anchors to bottom-right of this player's viewport
-            scoreTransform.anchorMin = new Vector2(viewportRect.xMax, viewportRect.yMin);
-            scoreTransform.anchorMax = new Vector2(viewportRect.xMax, viewportRect.yMin);
-            
-            // Position relative to anchor (offset from bottom-right)
-            scoreTransform.anchoredPosition = new Vector2(-20, 20);
+            Vector2 anchorPosition = new Vector2(viewportRect.xMax, viewportRect.yMin);
+            scoreTransform.anchorMin = anchorPosition;
+            scoreTransform.anchorMax = anchorPosition;
+            scoreTransform.anchoredPosition = scoreOffset;
+        }
+        
+        private bool CanSetAnchors()
+        {
+            return scoreTransform != null && playerCamera != null;
         }
         
         public void UpdateScore(int score)
         {
-            if (scoreText != null)
+            if (scoreText == null)
             {
-                scoreText.text = $"Score: {score}";
+                return;
             }
+            
+            scoreText.text = string.Format(scoreFormat, score);
         }
         
         public string GetPlayerTag()
@@ -100,12 +193,13 @@ namespace _UI.Scripts
         public void EnableGameplay()
         {
             gameplayEnabled = true;
-            scoreText.gameObject.SetActive(true);
+            UpdateScoreVisibility();
         }
         
         public void DisableGameplay()
         {
             gameplayEnabled = false;
+            UpdateScoreVisibility();
         }
     }
 }

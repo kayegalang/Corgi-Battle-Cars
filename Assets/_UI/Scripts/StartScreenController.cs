@@ -1,4 +1,6 @@
+using _Player.Scripts;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace _UI.Scripts
 {

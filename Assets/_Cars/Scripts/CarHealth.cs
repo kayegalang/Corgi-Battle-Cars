@@ -12,7 +12,7 @@ namespace _Cars.Scripts
         [SerializeField] private SpawnManager spawnManager;
         
         [Header("Events")]
-        public UnityEvent<float> OnHealthChanged; // Passes health percent (0-1)
+        public UnityEvent<float> OnHealthChanged;
         
         private HealthBarManager healthBarManager;
         
@@ -39,23 +39,25 @@ namespace _Cars.Scripts
                 Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
             }
             
-            // Initialize health bar
             UpdateHealthBar();
         }
 
         public void TakeDamage(int amount, GameObject shooter)
         {
-            currentHealth -= amount;
-            UpdateHealthBar();
+            if (!isDead)
+            {
+                currentHealth -= amount;
+                UpdateHealthBar();
         
-            if (currentHealth <= 0)
-            {
-                Die(shooter);
-            }
+                if (currentHealth <= 0)
+                {
+                    Die(shooter);
+                }
 
-            if (isBot)
-            {
-                GetComponent<BotAI>()?.OnHit(shooter.transform);
+                if (isBot)
+                {
+                    GetComponent<BotAI>()?.OnHit(shooter.transform);
+                }
             }
         }
 
@@ -84,10 +86,8 @@ namespace _Cars.Scripts
         {
             float healthPercent = GetHealthPercent();
             
-            // Update via direct reference
             healthBarManager?.UpdateAllHealthBars(healthPercent);
             
-            // Also fire event (for future flexibility)
             OnHealthChanged?.Invoke(healthPercent);
         }
     }

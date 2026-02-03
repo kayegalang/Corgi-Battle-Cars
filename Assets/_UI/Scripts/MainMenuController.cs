@@ -5,6 +5,7 @@ namespace _UI.Scripts
 {
     public class MainMenuController : MonoBehaviour
     {
+        [SerializeField] private PlayerCountSelector playerCountSelector;
         public void OnQuitButtonClick()
         {
             #if UNITY_EDITOR 
@@ -17,6 +18,7 @@ namespace _UI.Scripts
         public void OnSingleplayerButtonClicked()
         {
             GameplayManager.instance.SetGameMode(GameMode.Singleplayer);
+            playerCountSelector.SelectPlayerCount(1);
         }
         
         public void OnMultiplayerButtonClicked()

@@ -1,6 +1,6 @@
 using _Projectiles.Scripts;
 using _Gameplay.Scripts;
-using UI.Scripts;
+using _UI.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,10 +14,10 @@ namespace _Cars.Scripts
         
         private Rigidbody carRb;
         private PauseController pauseController;
-        private Camera playerCamera; // Store reference to this player's camera
+        private Camera playerCamera; 
         
         [Header("Gameplay Control")]
-        [SerializeField] private bool gameplayEnabled = false; // Toggle this to enable/disable gameplay
+        [SerializeField] private bool gameplayEnabled = false;
 
         [Header("Reticle Settings")]
         [SerializeField] private RectTransform reticle;
@@ -50,17 +50,19 @@ namespace _Cars.Scripts
             carRb = GetComponent<Rigidbody>();
             firePoint = transform.Find("FirePoint");
             
-            // Find this player's camera (not Camera.main)
             playerCamera = GetComponentInChildren<Camera>();
             
             pauseController = FindFirstObjectByType<PauseController>();
 
-            // Start with reticle hidden (gameplay not enabled yet)
+            HideReticle();
+            
+            lastMousePosition = Mouse.current.position.ReadValue();
+        }
+
+        private void HideReticle()
+        {
             if (reticle != null)
                 reticle.gameObject.SetActive(false);
-            
-            // Initialize last mouse position
-            lastMousePosition = Mouse.current.position.ReadValue();
         }
 
         private void OnEnable()
@@ -226,12 +228,7 @@ namespace _Cars.Scripts
             
             return localPoint;
         }
-
-
-        // ============================================================
-        //  SHOOTING SYSTEM
-        // ============================================================
-
+        
         private void Shoot()
         {
             Vector3 shootDir = GetDirectionFromReticle();
@@ -252,10 +249,8 @@ namespace _Cars.Scripts
 
         private Vector3 GetDirectionFromReticle()
         {
-            // Convert UI reticle position → screen position
             Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
 
-            // Ray from THIS PLAYER'S camera to reticle (not Camera.main)
             Ray ray = playerCamera.ScreenPointToRay(screenPos);
 
             if (Physics.Raycast(ray, out RaycastHit hit))
@@ -264,19 +259,46 @@ namespace _Cars.Scripts
             return (ray.GetPoint(50f) - firePoint.position).normalized;
         }
         
-        // ============================================================
-        //  CURSOR & RETICLE STATE
-        // ============================================================
-        
         public void EnableGameplay()
         {
             gameplayEnabled = true;
+            CenterReticleInViewport();
+        }
+        
+        private void CenterReticleInViewport()
+        {
+            if (reticle == null || playerCamera == null || reticleCanvas == null)
+            {
+                Debug.LogWarning($"[CarShooter] Cannot center reticle - missing components");
+                return;
+            }
+    
+            // Get camera's viewport in normalized coordinates (0-1)
+            Rect viewportRect = playerCamera.rect;
+    
+            // Get the canvas RectTransform
+            RectTransform canvasRect = reticleCanvas.GetComponent<RectTransform>();
+            Vector2 canvasSize = canvasRect.sizeDelta;
+    
+            // Calculate center X (this is working)
+            float centerX = (viewportRect.center.x * canvasSize.x) - (canvasSize.x * 0.5f);
+    
+            // Calculate center Y
+            // If Y=0 is the top, then the center is at -canvasSize.y / 2
+            float centerY = -canvasSize.y * 0.5f;
+    
+            Vector2 centeredPosition = new Vector2(centerX, centerY);
+    
+            // Set reticle position
+            reticle.anchoredPosition = centeredPosition;
+    
+            Debug.Log($"[CarShooter] {gameObject.name} - Reticle centered at: {centeredPosition}");
         }
         
         public void DisableGameplay()
         {
             gameplayEnabled = false;
-            SetCursorState(true); // Show cursor when disabled
+            SetCursorState(true); 
         }
         
         private void SetCursorState(bool showCursor)

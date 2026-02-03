@@ -1,64 +1,124 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-namespace UI.Scripts
+namespace _UI.Scripts
 {
     public class PauseController : MonoBehaviour
     {
-        public GameObject PauseScreen;
-        public GameObject GameplayPanel;
-    
-        private bool isPaused = false;
+        [Header("UI References")]
+        [SerializeField] private GameObject pauseScreen;
+        [SerializeField] private GameObject gameplayPanel;
+        
+        [Header("Scene Names")]
+        [SerializeField] private string mainMenuSceneName = "MainMenu";
+        
+        [Header("Events")]
+        public UnityEvent onPaused;
+        public UnityEvent onUnpaused;
+        
+        public bool IsPaused { get; private set; }
 
         public void PauseGame()
         {
-            GameplayPanel.SetActive(false);
-            PauseScreen.SetActive(true);
-            Time.timeScale = 0;
-            SetIsPaused(true);
+            if (IsPaused)
+            {
+                return;
+            }
             
-            // Show cursor when paused
-            Cursor.visible = true;
+            SetPauseState(true);
+            onPaused?.Invoke();
         }
     
         public void UnpauseGame()
         {
-            GameplayPanel.SetActive(true);
-            PauseScreen.SetActive(false);
-            Time.timeScale = 1;
-            SetIsPaused(false);
+            if (!IsPaused)
+            {
+                return;
+            }
             
-            // Hide cursor when unpaused (reticle will show)
+            SetPauseState(false);
+            onUnpaused?.Invoke();
+        }
+        
+        private void SetPauseState(bool paused)
+        {
+            IsPaused = paused;
+            
+            if (gameplayPanel != null)
+            {
+                gameplayPanel.SetActive(!paused);
+            }
+            
+            if (pauseScreen != null)
+            {
+                pauseScreen.SetActive(paused);
+            }
+            
+            Time.timeScale = paused ? 0 : 1;
+            SetCursorState(paused);
+        }
+        
+        private void SetCursorState(bool visible)
+        {
+            Cursor.visible = visible;
+            Cursor.lockState = visible ? CursorLockMode.None : CursorLockMode.Locked;
+            
+            // Force the cursor state again next frame to ensure it sticks
+            if (!visible)
+            {
+                StartCoroutine(ForceCursorHidden());
+            }
+        }
+        
+        private System.Collections.IEnumerator ForceCursorHidden()
+        {
+            yield return null; // Wait one frame
             Cursor.visible = false;
-        }
-
-        public bool GetIsPaused()
-        {
-            return isPaused;
-        }
-
-        public void SetIsPaused(bool value)
-        {
-            isPaused = value;
+            Cursor.lockState = CursorLockMode.Locked;
         }
     
         public void OnMainMenuButtonClick()
         {
-            // Reset timeScale before leaving the scene
-            Time.timeScale = 1;
-            SetIsPaused(false);
+            Debug.Log($"[{nameof(PauseController)}] Returning to main menu");
             
-            SceneManager.LoadScene("MainMenu");
+            ResetGameState();
+            CleanUpScene();
+            
+            SceneManager.LoadScene(mainMenuSceneName);
+        }
+
+        private void CleanUpScene()
+        {
+            GameObject playerInputManager = GameObject.Find("PlayerInputManager");
+            
+            if (playerInputManager != null)
+            {
+                Debug.Log($"[{nameof(PauseController)}] Destroying PlayerInputManager");
+                Destroy(playerInputManager);
+            }
+        }
+
+        private void ResetGameState()
+        {
+            Debug.Log($"[{nameof(PauseController)}] Resetting game state");
+            
+            Time.timeScale = 1;
+            IsPaused = false;
+            
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
         }
 
         public void OnQuitButtonClick()
         {
-            #if UNITY_EDITOR 
-                        UnityEditor.EditorApplication.isPlaying = false;
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
             #else
-                            Application.Quit();
+                Application.Quit();
             #endif
         }
+        
+        public bool GetIsPaused() => IsPaused;
     }
-
 }
