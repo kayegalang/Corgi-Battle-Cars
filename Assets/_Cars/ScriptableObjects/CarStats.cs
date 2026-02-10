@@ -6,7 +6,7 @@ namespace _Cars.ScriptableObjects
     public class CarStats : ScriptableObject
     {
         [Header("Car Stats (0-100%)")]
-        [Tooltip("Speed stat (affects max speed)")]
+        [Tooltip("Speed stat (affects max speed and turning)")]
         [SerializeField] [Range(0f, 100f)] private float speedStat = 50f;
         
         [Tooltip("Acceleration stat (affects how quickly car reaches max speed)")]
@@ -46,15 +46,12 @@ namespace _Cars.ScriptableObjects
         [Tooltip("Maximum max health (at 100%)")]
         [SerializeField] private int maxMaxHealth = 125;
         
-        [Header("Turn Speed")]
-        [Tooltip("Base turn speed (can be affected by speed stat)")]
-        [SerializeField] private float baseTurnSpeed = 30f;
+        [Header("Turn Speed Range")]
+        [Tooltip("Minimum turn speed (at 0% speed)")]
+        [SerializeField] private float minTurnSpeed = 20f;
         
-        [Tooltip("Should faster cars turn slower?")]
-        [SerializeField] private bool inverseTurnSpeed = true;
-        
-        [Tooltip("Turn speed penalty multiplier for high speed (0 = no penalty, 1 = full penalty)")]
-        [SerializeField] [Range(0f, 1f)] private float turnSpeedPenalty = 0.3f;
+        [Tooltip("Maximum turn speed (at 100% speed)")]
+        [SerializeField] private float maxTurnSpeed = 35f;
         
         [Header("Ground Detection")]
         [Tooltip("Offset from car center for ground check raycast")]
@@ -63,7 +60,7 @@ namespace _Cars.ScriptableObjects
         [Tooltip("Distance of ground check raycast")]
         [SerializeField] [Range(0.1f, 2f)] private float groundCheckDistance = 0.26f;
         
-        // Calculated properties
+        // Calculated properties that CarController uses
         public float Acceleration => CalculateAcceleration();
         public float TurnSpeed => CalculateTurnSpeed();
         public float MaxSpeed => CalculateMaxSpeed();
@@ -72,7 +69,7 @@ namespace _Cars.ScriptableObjects
         public Vector3 GroundCheckOffset => groundCheckOffset;
         public float GroundCheckDistance => groundCheckDistance;
         
-        // Stat getters for UI
+        // Stat getters for UI (returns 0-100)
         public float SpeedStat => speedStat;
         public float AccelerationStat => accelerationStat;
         public float JumpForceStat => jumpForceStat;
@@ -100,14 +97,7 @@ namespace _Cars.ScriptableObjects
         
         private float CalculateTurnSpeed()
         {
-            if (!inverseTurnSpeed)
-            {
-                return baseTurnSpeed;
-            }
-            
-            // Faster cars turn slower (Mario Kart style)
-            float speedPenaltyAmount = (speedStat / 100f) * turnSpeedPenalty;
-            return baseTurnSpeed * (1f - speedPenaltyAmount);
+            return Mathf.Lerp(minTurnSpeed, maxTurnSpeed, speedStat / 100f);
         }
         
         private void OnValidate()
@@ -135,6 +125,11 @@ namespace _Cars.ScriptableObjects
             if (minMaxHealth >= maxMaxHealth)
             {
                 Debug.LogWarning($"[{nameof(CarStats)}] Min max health must be less than max max health on {name}!", this);
+            }
+            
+            if (minTurnSpeed >= maxTurnSpeed)
+            {
+                Debug.LogWarning($"[{nameof(CarStats)}] Min turn speed must be less than max turn speed on {name}!", this);
             }
         }
     }

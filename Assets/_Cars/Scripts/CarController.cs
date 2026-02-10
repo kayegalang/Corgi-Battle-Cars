@@ -23,7 +23,7 @@ namespace _Cars.Scripts
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
         private const float AIRBORNE_ANGULAR_DAMPING = 5f;
         private const float AIRBORNE_ROTATION_SPEED = 2f;
-        private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
+        private const float MOVE_INPUT_THRESHOLD = 0.01f;
         
         private void Awake()
         {
@@ -49,7 +49,6 @@ namespace _Cars.Scripts
         
         private void FixedUpdate()
         {
-            // Don't allow movement until gameplay has started
             if (!CanMove())
             {
                 return;
@@ -61,7 +60,6 @@ namespace _Cars.Scripts
         
         private bool CanMove()
         {
-            // Can't move if gameplay hasn't started yet
             if (GameFlowController.instance != null && !GameFlowController.instance.IsGameplayActive())
             {
                 return false;
@@ -134,13 +132,11 @@ namespace _Cars.Scripts
         
         private bool CanPause()
         {
-            // Can't pause if game has ended
             if (GameplayManager.instance != null && GameplayManager.instance.IsGameEnded())
             {
                 return false;
             }
             
-            // Can't pause if gameplay hasn't started yet (during countdown)
             if (GameFlowController.instance != null && !GameFlowController.instance.IsGameplayActive())
             {
                 return false;
@@ -251,7 +247,7 @@ namespace _Cars.Scripts
         
         private bool ShouldMove()
         {
-            return moveInput.y != 0;
+            return Mathf.Abs(moveInput.y) > MOVE_INPUT_THRESHOLD;
         }
         
         private void ApplyAcceleration()
@@ -282,7 +278,7 @@ namespace _Cars.Scripts
         
         private bool ShouldTurn()
         {
-            return moveInput.x != 0;
+            return Mathf.Abs(moveInput.x) > MOVE_INPUT_THRESHOLD;
         }
         
         private bool IsMovingForward()
@@ -351,11 +347,13 @@ namespace _Cars.Scripts
                 return;
             }
             
+            float maxJumpVelocity = carStats.JumpForce * 0.5f;
+            
             Vector3 velocity = carRb.linearVelocity;
             
-            if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY)
+            if (velocity.y > maxJumpVelocity)
             {
-                velocity.y = MAX_JUMP_HEIGHT_VELOCITY;
+                velocity.y = maxJumpVelocity;
                 carRb.linearVelocity = velocity;
             }
         }
@@ -366,7 +364,7 @@ namespace _Cars.Scripts
             {
                 return;
             }
-            
+
             if (IsExceedingMaxSpeed())
             {
                 carRb.linearVelocity = carRb.linearVelocity.normalized * carStats.MaxSpeed;
