@@ -1,4 +1,5 @@
 using _Bot.Scripts;
+using _Cars.ScriptableObjects;
 using _Gameplay.Scripts;
 using _UI.Scripts;
 using UnityEngine;
@@ -10,13 +11,14 @@ namespace _Cars.Scripts
     {
         [Header("References")]
         [SerializeField] private SpawnManager spawnManager;
+        [SerializeField] private CarStats carStats;
         
         [Header("Events")]
         public UnityEvent<float> OnHealthChanged;
         
         private HealthBarManager healthBarManager;
         
-        private readonly int maxHealth = 100;
+        private int maxHealth;
         private int currentHealth;
 
         private bool isBot;
@@ -25,6 +27,8 @@ namespace _Cars.Scripts
         void Start()
         {
             isBot = GetComponent<BotAI>() != null;
+            
+            maxHealth = (carStats != null) ? carStats.MaxHealth : 100;
             currentHealth = maxHealth;
             
             if (spawnManager == null)
@@ -37,6 +41,11 @@ namespace _Cars.Scripts
             if (healthBarManager == null)
             {
                 Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
+            }
+            
+            if (carStats == null)
+            {
+                Debug.LogWarning($"{gameObject.name}: No CarStats assigned! Using default health of 100");
             }
             
             UpdateHealthBar();
@@ -80,6 +89,16 @@ namespace _Cars.Scripts
         public bool GetIsBot()
         {
             return isBot;
+        }
+        
+        public int GetMaxHealth()
+        {
+            return maxHealth;
+        }
+        
+        public int GetCurrentHealth()
+        {
+            return currentHealth;
         }
         
         private void UpdateHealthBar()

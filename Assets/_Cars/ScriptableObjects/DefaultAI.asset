@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DefaultAI
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.ScriptableObjects.AICarStats
   reachedTargetDistance: 10
-  reverseDistance: 25
+  reverseDistance: 10
   stoppingDistance: 15
   stoppingSpeed: 10
   obstacleCheckDistance: 10
