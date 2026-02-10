@@ -15,7 +15,6 @@ namespace _Bot.Scripts
         private const float AIRBORNE_ANGULAR_DAMPING = 5f;
         private const float AIRBORNE_ROTATION_SPEED = 2f;
         private const float MOVE_INPUT_THRESHOLD = 0.01f;
-        private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
         
         private void Awake()
         {
@@ -65,6 +64,7 @@ namespace _Bot.Scripts
         {
             if (!ShouldMove())
             {
+                ConstrainLateralMovement();
                 return;
             }
             
@@ -92,9 +92,19 @@ namespace _Bot.Scripts
         
         private void Turn()
         {
+            if (!ShouldTurn())
+            {
+                return;
+            }
+
             float turnDirection = IsMovingForward() ? 1f : -1f;
             Vector3 torque = Vector3.up * moveInput.x * carStats.TurnSpeed * turnDirection;
             carRb.AddTorque(torque);
+        }
+        
+        private bool ShouldTurn()
+        {
+            return Mathf.Abs(moveInput.x) > MOVE_INPUT_THRESHOLD;
         }
         
         private bool IsMovingForward()
@@ -146,7 +156,7 @@ namespace _Bot.Scripts
             {
                 return;
             }
-            
+
             Vector3 jumpForce = transform.up * carStats.JumpForce;
             carRb.AddForce(jumpForce, ForceMode.Impulse);
         }
@@ -174,16 +184,18 @@ namespace _Bot.Scripts
         
         private void CapJumpHeight()
         {
-            if (carRb == null)
+            if (carRb == null || carStats == null)
             {
                 return;
             }
+
+            float maxJumpVelocity = carStats.JumpForce * 0.5f;
             
             Vector3 velocity = carRb.linearVelocity;
             
-            if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY)
+            if (velocity.y > maxJumpVelocity)
             {
-                velocity.y = MAX_JUMP_HEIGHT_VELOCITY;
+                velocity.y = maxJumpVelocity;
                 carRb.linearVelocity = velocity;
             }
         }
@@ -194,7 +206,7 @@ namespace _Bot.Scripts
             {
                 return;
             }
-            
+
             if (IsExceedingMaxSpeed())
             {
                 carRb.linearVelocity = carRb.linearVelocity.normalized * carStats.MaxSpeed;
