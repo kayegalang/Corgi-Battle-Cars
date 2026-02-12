@@ -17,12 +17,15 @@ namespace _Cars.Scripts
         public UnityEvent<float> OnHealthChanged;
         
         private HealthBarManager healthBarManager;
+        private DeathSpectateManager deathSpectateManager;
         
         private int maxHealth;
         private int currentHealth;
 
         private bool isBot;
         private bool isDead = false;
+        
+        private const float RESPAWN_DELAY = 3f;
 
         void Start()
         {
@@ -48,35 +51,96 @@ namespace _Cars.Scripts
                 Debug.LogWarning($"{gameObject.name}: No CarStats assigned! Using default health of 100");
             }
             
+            // Get death spectate manager (only for players, not bots)
+            if (!isBot)
+            {
+                deathSpectateManager = GetComponent<DeathSpectateManager>();
+            }
+            
             UpdateHealthBar();
         }
 
         public void TakeDamage(int amount, GameObject shooter)
         {
-            if (!isDead)
+            if (isDead)
             {
-                currentHealth -= amount;
-                UpdateHealthBar();
-        
-                if (currentHealth <= 0)
-                {
-                    Die(shooter);
-                }
+                return;
+            }
+            
+            currentHealth -= amount;
+            UpdateHealthBar();
+    
+            if (currentHealth <= 0)
+            {
+                Die(shooter);
+            }
 
-                if (isBot)
-                {
-                    GetComponent<BotAI>()?.OnHit(shooter.transform);
-                }
+            if (isBot)
+            {
+                GetComponent<BotAI>()?.OnHit(shooter.transform);
             }
         }
 
         private void Die(GameObject shooter)
         {
-            if (isDead) return;
+            if (isDead) 
+            {
+                return;
+            }
+            
             isDead = true;
             
-            PointsManager.instance.AddPoint(shooter.tag);
+            // Award point to shooter
+            if (PointsManager.instance != null)
+            {
+                PointsManager.instance.AddPoint(shooter.tag);
+            }
             
+            // Handle death based on whether this is a bot or player
+            if (isBot)
+            {
+                // Bots get destroyed immediately and respawned
+                HandleBotDeath();
+            }
+            else
+            {
+                // Players get spectate screen
+                HandlePlayerDeath();
+            }
+        }
+        
+        private void HandleBotDeath()
+        {
+            spawnManager?.Respawn(gameObject.tag);
+            Destroy(gameObject);
+        }
+        
+        private void HandlePlayerDeath()
+        {
+            // Hide health bar
+            if (healthBarManager != null)
+            {
+                healthBarManager.gameObject.SetActive(false);
+            }
+            
+            // Show death/spectate screen
+            if (deathSpectateManager != null)
+            {
+                deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY);
+            }
+            else
+            {
+                Debug.LogWarning($"[{nameof(CarHealth)}] No DeathSpectateManager found! Falling back to immediate respawn");
+                HandleBotDeath();
+                return;
+            }
+            
+            // Schedule respawn after delay
+            Invoke(nameof(RespawnPlayer), RESPAWN_DELAY);
+        }
+        
+        private void RespawnPlayer()
+        {
             spawnManager?.Respawn(gameObject.tag);
             Destroy(gameObject);
         }
@@ -99,6 +163,11 @@ namespace _Cars.Scripts
         public int GetCurrentHealth()
         {
             return currentHealth;
+        }
+        
+        public bool IsDead()
+        {
+            return isDead;
         }
         
         private void UpdateHealthBar()
