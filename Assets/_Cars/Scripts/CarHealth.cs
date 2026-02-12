@@ -31,7 +31,6 @@ namespace _Cars.Scripts
         {
             isBot = GetComponent<BotAI>() != null;
             
-            // Get max health from car stats, or use default if not assigned
             maxHealth = (carStats != null) ? carStats.MaxHealth : 100;
             currentHealth = maxHealth;
             
@@ -52,7 +51,6 @@ namespace _Cars.Scripts
                 Debug.LogWarning($"{gameObject.name}: No CarStats assigned! Using default health of 100");
             }
             
-            // Get death spectate manager (only for players, not bots)
             if (!isBot)
             {
                 deathSpectateManager = GetComponent<DeathSpectateManager>();
@@ -91,21 +89,17 @@ namespace _Cars.Scripts
             
             isDead = true;
             
-            // Award point to shooter
             if (PointsManager.instance != null)
             {
                 PointsManager.instance.AddPoint(shooter.tag);
             }
             
-            // Handle death based on whether this is a bot or player
             if (isBot)
             {
-                // Bots get destroyed immediately and respawned
                 HandleBotDeath();
             }
             else
             {
-                // Players get spectate screen
                 HandlePlayerDeath();
             }
         }
@@ -118,17 +112,14 @@ namespace _Cars.Scripts
         
         private void HandlePlayerDeath()
         {
-            // Hide health bar
             if (healthBarManager != null)
             {
-                healthBarManager.gameObject.SetActive(false);
+                HideHealthBar();
             }
             
-            // Show death/spectate screen, passing respawn as a callback
-            // DeathSpectateManager owns the timer and calls this when it hits zero
             if (deathSpectateManager != null)
             {
-                deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY, RespawnPlayer);
+                ShowDeathScreen();
             }
             else
             {
@@ -136,7 +127,17 @@ namespace _Cars.Scripts
                 HandleBotDeath();
             }
         }
-        
+
+        private void ShowDeathScreen()
+        {
+            deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY, RespawnPlayer);
+        }
+
+        private void HideHealthBar()
+        {
+            healthBarManager.gameObject.SetActive(false);
+        }
+
         private void RespawnPlayer()
         {
             spawnManager?.Respawn(gameObject.tag);

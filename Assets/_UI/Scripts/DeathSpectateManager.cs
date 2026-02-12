@@ -68,7 +68,6 @@ namespace _UI.Scripts
             
             if (playerCamera != null)
             {
-                // Store original camera transform
                 originalCameraParent = playerCamera.transform.parent;
                 originalCameraLocalPosition = playerCamera.transform.localPosition;
                 originalCameraLocalRotation = playerCamera.transform.localRotation;
@@ -341,12 +340,6 @@ namespace _UI.Scripts
             playerCamera.transform.SetParent(originalCameraParent);
             playerCamera.transform.localPosition = originalCameraLocalPosition;
             playerCamera.transform.localRotation = originalCameraLocalRotation;
-        }
-        
-        private void EnablePlayerControls()
-        {
-            // Controls will be re-enabled by SpawnManager when player respawns
-            // But we can prepare here
         }
         
         private void OnDestroy()
