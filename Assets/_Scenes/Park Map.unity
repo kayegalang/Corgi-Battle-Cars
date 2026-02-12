@@ -1674,7 +1674,7 @@ MonoBehaviour:
   - {fileID: 2082242893}
   playerPrefab: {fileID: 2474133199045047173, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
   botPrefab: {fileID: 3398083622699686620, guid: 69272e12e7c3d4ab6b7fd163e1710241, type: 3}
-  respawnDelay: 3
+  respawnDelay: 0
 --- !u!1 &2082242892
 GameObject:
   m_ObjectHideFlags: 0
