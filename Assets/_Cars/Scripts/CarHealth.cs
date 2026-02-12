@@ -31,6 +31,7 @@ namespace _Cars.Scripts
         {
             isBot = GetComponent<BotAI>() != null;
             
+            // Get max health from car stats, or use default if not assigned
             maxHealth = (carStats != null) ? carStats.MaxHealth : 100;
             currentHealth = maxHealth;
             
@@ -123,20 +124,17 @@ namespace _Cars.Scripts
                 healthBarManager.gameObject.SetActive(false);
             }
             
-            // Show death/spectate screen
+            // Show death/spectate screen, passing respawn as a callback
+            // DeathSpectateManager owns the timer and calls this when it hits zero
             if (deathSpectateManager != null)
             {
-                deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY);
+                deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY, RespawnPlayer);
             }
             else
             {
                 Debug.LogWarning($"[{nameof(CarHealth)}] No DeathSpectateManager found! Falling back to immediate respawn");
                 HandleBotDeath();
-                return;
             }
-            
-            // Schedule respawn after delay
-            Invoke(nameof(RespawnPlayer), RESPAWN_DELAY);
         }
         
         private void RespawnPlayer()

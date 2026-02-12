@@ -13,7 +13,7 @@ namespace _Gameplay.Scripts
         [SerializeField] private GameObject botPrefab;
         
         [Header("Spawn Settings")]
-        [SerializeField] private float respawnDelay = 3f;
+        [SerializeField] private float respawnDelay = 0f;
         
         private readonly HashSet<int> usedSpawnIndices = new HashSet<int>();
         

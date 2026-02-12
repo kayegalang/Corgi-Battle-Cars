@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using _Cars.Scripts;
@@ -27,6 +28,7 @@ namespace _UI.Scripts
         
         private float respawnTimer = 0f;
         private float respawnDuration = 3f;
+        private Action onRespawnCallback;
         
         private List<GameObject> alivePlayersCache = new List<GameObject>();
         private int currentSpectateIndex = 0;
@@ -98,11 +100,12 @@ namespace _UI.Scripts
             }
         }
         
-        public void OnPlayerDeath(string tag, float respawnDelay)
+        public void OnPlayerDeath(string tag, float respawnDelay, Action onRespawn)
         {
             playerTag = tag;
             respawnDuration = respawnDelay;
             respawnTimer = respawnDuration;
+            onRespawnCallback = onRespawn;
             
             isDead = true;
             
@@ -322,10 +325,10 @@ namespace _UI.Scripts
             
             HideDeathScreen();
             RestoreCamera();
-            EnablePlayerControls();
             
-            // The actual respawn is still handled by SpawnManager
-            // This just cleans up the UI
+            // Fire the respawn callback - happens at the exact same time as UI hiding
+            onRespawnCallback?.Invoke();
+            onRespawnCallback = null;
         }
         
         private void RestoreCamera()
