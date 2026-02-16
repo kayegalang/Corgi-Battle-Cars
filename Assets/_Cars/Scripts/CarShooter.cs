@@ -70,11 +70,9 @@ namespace _Cars.Scripts
             shootAction.Enable();
             aimAction.Enable();
 
-            // Shoot
             shootAction.performed += OnShootPerformed;
             shootAction.canceled += OnShootCanceled;
 
-            // Controller Aim
             aimAction.performed += OnAimPerformed;
             aimAction.canceled += OnAimCanceled;
         }
@@ -84,19 +82,19 @@ namespace _Cars.Scripts
             shootAction.Disable();
             aimAction.Disable();
             
-            // Unsubscribe from callbacks
             shootAction.performed -= OnShootPerformed;
             shootAction.canceled -= OnShootCanceled;
             aimAction.performed -= OnAimPerformed;
             aimAction.canceled -= OnAimCanceled;
             
-            // Hide reticle when disabled (e.g., when game ends)
             if (reticle != null)
                 reticle.gameObject.SetActive(false);
             
-            // Show and unlock cursor when disabled
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+            if (IsKeyboardPlayer())
+            {
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+            }
         }
         
         private void OnShootPerformed(InputAction.CallbackContext ctx)
@@ -123,7 +121,6 @@ namespace _Cars.Scripts
 
         void Update()
         {
-            // If gameplay not enabled, keep reticle hidden
             if (!gameplayEnabled)
             {
                 if (reticle != null)
@@ -131,28 +128,25 @@ namespace _Cars.Scripts
                 return;
             }
             
-            // Check if game has ended - if so, keep cursor visible and don't update reticle
             if (GameplayManager.instance != null && GameplayManager.instance.IsGameEnded())
             {
-                SetCursorState(true); // Show cursor, hide reticle
+                SetCursorState(true);
                 return;
             }
             
-            // Check if game is paused and handle reticle/cursor accordingly
             if (pauseController != null && pauseController.GetIsPaused())
             {
-                SetCursorState(true); // Show cursor, hide reticle
+                SetCursorState(true);
             }
             else
             {
-                SetCursorState(false); // Hide cursor, show reticle
+                SetCursorState(false);
                 UpdateReticle();
             }
         }
 
         void FixedUpdate()
         {
-            // Don't shoot if gameplay not enabled
             if (!gameplayEnabled)
                 return;
             
@@ -180,19 +174,11 @@ namespace _Cars.Scripts
         {
             RectTransform canvasRect = reticleCanvas.transform as RectTransform;
             
-            // Get current mouse position
             Vector2 currentMousePosition = Mouse.current.position.ReadValue();
-            
-            // Calculate mouse delta (how much the mouse moved)
             Vector2 mouseDelta = currentMousePosition - lastMousePosition;
-            
-            // Update last mouse position
             lastMousePosition = currentMousePosition;
             
-            // Move reticle based on mouse delta with sensitivity
             reticle.anchoredPosition += mouseDelta * mouseSensitivity;
-            
-            // Clamp to canvas bounds
             reticle.anchoredPosition = ClampToCanvas(reticle.anchoredPosition, canvasRect);
         }
 
@@ -200,25 +186,19 @@ namespace _Cars.Scripts
         {
             RectTransform canvasRect = reticleCanvas.transform as RectTransform;
 
-            // Move reticle based on right stick input
             reticle.anchoredPosition += controllerAim * controllerSensitivity * Time.deltaTime;
-
             reticle.anchoredPosition = ClampToCanvas(reticle.anchoredPosition, canvasRect);
         }
 
         private Vector2 ClampToCanvas(Vector2 pos, RectTransform canvas)
         {
-            // Get camera viewport in screen pixels
             Rect viewportRect = playerCamera.pixelRect;
             
-            // Convert canvas anchored position to screen position
             Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
             
-            // Clamp screen position to camera viewport
             screenPos.x = Mathf.Clamp(screenPos.x, viewportRect.xMin, viewportRect.xMax);
             screenPos.y = Mathf.Clamp(screenPos.y, viewportRect.yMin, viewportRect.yMax);
             
-            // Convert back to canvas anchored position
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 canvas,
                 screenPos,
@@ -242,7 +222,7 @@ namespace _Cars.Scripts
             Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
             if (bulletRb != null)
             {
-                bulletRb.linearVelocity = carRb.linearVelocity; // inherit movement
+                bulletRb.linearVelocity = carRb.linearVelocity;
                 bulletRb.AddForce(shootDir * fireForce, ForceMode.Impulse);
             }
         }
@@ -273,26 +253,16 @@ namespace _Cars.Scripts
                 return;
             }
     
-            // Get camera's viewport in normalized coordinates (0-1)
             Rect viewportRect = playerCamera.rect;
-    
-            // Get the canvas RectTransform
             RectTransform canvasRect = reticleCanvas.GetComponent<RectTransform>();
             Vector2 canvasSize = canvasRect.sizeDelta;
     
-            // Calculate center X (this is working)
             float centerX = (viewportRect.center.x * canvasSize.x) - (canvasSize.x * 0.5f);
-    
-            // Calculate center Y
-            // If Y=0 is the top, then the center is at -canvasSize.y / 2
             float centerY = -canvasSize.y * 0.5f;
     
-            Vector2 centeredPosition = new Vector2(centerX, centerY);
+            reticle.anchoredPosition = new Vector2(centerX, centerY);
     
-            // Set reticle position
-            reticle.anchoredPosition = centeredPosition;
-    
-            Debug.Log($"[CarShooter] {gameObject.name} - Reticle centered at: {centeredPosition}");
+            Debug.Log($"[CarShooter] {gameObject.name} - Reticle centered at: {reticle.anchoredPosition}");
         }
         
         public void DisableGameplay()
@@ -303,19 +273,19 @@ namespace _Cars.Scripts
         
         private void SetCursorState(bool showCursor)
         {
+            if (!showCursor && !IsKeyboardPlayer())
+                return;
+
             Cursor.visible = showCursor;
-            
-            if (showCursor)
-            {
-                Cursor.lockState = CursorLockMode.None;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-            }
-            
+            Cursor.lockState = showCursor ? CursorLockMode.None : CursorLockMode.Locked;
+
             if (reticle != null)
                 reticle.gameObject.SetActive(!showCursor);
+        }
+
+        private bool IsKeyboardPlayer()
+        {
+            return playerInput != null && playerInput.currentControlScheme == "Keyboard";
         }
         
         public void DisableReticle()

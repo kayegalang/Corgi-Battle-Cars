@@ -120,6 +120,11 @@ namespace _Gameplay.Scripts
             }
         }
         
+        public Transform GetRespawnPoint()
+        {
+            return GetRandomSpawnPoint();
+        }
+        
         private Transform GetRandomSpawnPoint()
         {
             if (spawnPoints.Length == 0)
@@ -190,7 +195,7 @@ namespace _Gameplay.Scripts
             return "BotOne";
         }
         
-        public void Respawn(string playerTag)
+        public void RespawnBot(string playerTag)
         {
             GameObject prefabToSpawn = GetPrefabForTag(playerTag);
             

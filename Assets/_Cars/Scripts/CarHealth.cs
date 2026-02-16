@@ -18,6 +18,7 @@ namespace _Cars.Scripts
         
         private HealthBarManager healthBarManager;
         private DeathSpectateManager deathSpectateManager;
+        private Rigidbody carRb;
         
         private int maxHealth;
         private int currentHealth;
@@ -26,10 +27,13 @@ namespace _Cars.Scripts
         private bool isDead = false;
         
         private const float RESPAWN_DELAY = 3f;
+        
+        private static readonly Vector3 OUT_OF_BOUNDS_POSITION = new Vector3(0f, -500f, 0f);
 
         void Start()
         {
             isBot = GetComponent<BotAI>() != null;
+            carRb = GetComponent<Rigidbody>();
             
             maxHealth = (carStats != null) ? carStats.MaxHealth : 100;
             currentHealth = maxHealth;
@@ -106,42 +110,102 @@ namespace _Cars.Scripts
         
         private void HandleBotDeath()
         {
-            spawnManager?.Respawn(gameObject.tag);
+            spawnManager?.RespawnBot(gameObject.tag);
             Destroy(gameObject);
         }
         
         private void HandlePlayerDeath()
         {
-            if (healthBarManager != null)
-            {
-                HideHealthBar();
-            }
+            HideHealthBar();
+            
+            TeleportOutOfBounds();
             
             if (deathSpectateManager != null)
             {
-                ShowDeathScreen();
+                deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY, RespawnPlayer);
             }
             else
             {
-                Debug.LogWarning($"[{nameof(CarHealth)}] No DeathSpectateManager found! Falling back to immediate respawn");
-                HandleBotDeath();
+                Debug.LogWarning($"[{nameof(CarHealth)}] No DeathSpectateManager found! Respawning immediately.");
+                RespawnPlayer();
             }
         }
 
-        private void ShowDeathScreen()
+        private void TeleportOutOfBounds()
         {
-            deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY, RespawnPlayer);
+            if (carRb != null)
+            {
+                carRb.linearVelocity = Vector3.zero;
+                carRb.angularVelocity = Vector3.zero;
+                carRb.position = OUT_OF_BOUNDS_POSITION;
+            }
+            else
+            {
+                transform.position = OUT_OF_BOUNDS_POSITION;
+            }
+        }
+        
+        private void RespawnPlayer()
+        {
+            if (spawnManager == null)
+            {
+                Debug.LogError($"[{nameof(CarHealth)}] Cannot respawn — SpawnManager is null!");
+                return;
+            }
+            
+            Transform spawnPoint = spawnManager.GetRespawnPoint();
+            
+            if (spawnPoint == null)
+            {
+                Debug.LogError($"[{nameof(CarHealth)}] Cannot respawn — no spawn point available!");
+                return;
+            }
+            
+            if (carRb != null)
+            {
+                carRb.linearVelocity = Vector3.zero;
+                carRb.angularVelocity = Vector3.zero;
+                carRb.position = spawnPoint.position;
+                carRb.rotation = spawnPoint.rotation;
+            }
+            else
+            {
+                transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
+            }
+            
+            isDead = false;
+            currentHealth = maxHealth;
+            UpdateHealthBar();
+            
+            ShowHealthBar();
+            
+            RestorePlayerControls();
+        }
+
+        private void RestorePlayerControls()
+        {
+            CarController carController = GetComponent<CarController>();
+            if (carController != null)
+                carController.enabled = true;
+
+            CarShooter carShooter = GetComponent<CarShooter>();
+            if (carShooter != null)
+            {
+                carShooter.enabled = true;     
+                carShooter.EnableGameplay();   
+            }
         }
 
         private void HideHealthBar()
         {
-            healthBarManager.gameObject.SetActive(false);
+            if (healthBarManager != null)
+                healthBarManager.gameObject.SetActive(false);
         }
 
-        private void RespawnPlayer()
+        private void ShowHealthBar()
         {
-            spawnManager?.Respawn(gameObject.tag);
-            Destroy(gameObject);
+            if (healthBarManager != null)
+                healthBarManager.gameObject.SetActive(true);
         }
 
         public float GetHealthPercent()
