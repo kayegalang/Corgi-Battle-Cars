@@ -714,14 +714,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7b436ab29c1e4778a4276dec4dffecb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_UI.Scripts.DeathSpectateManager
-  deathScreenCanvas: {fileID: 1828251337473144130}
   deathScreenPanel: {fileID: 7401692201005784191}
   respawnCountdownText: {fileID: 5819613232122914146}
   spectatingText: {fileID: 4582637301287516299}
   previousPlayerButton: {fileID: 1255209177404585645}
   nextPlayerButton: {fileID: 20232217389489419}
-  pointsText: {fileID: 7070070465935010297}
-  canvasPlaneDistance: 1
   respawnCountdownFormat: Respawning in {0}
   spectatingFormat: 'Spectating: {0}'
   noPlayersToSpectateText: No players to spectate

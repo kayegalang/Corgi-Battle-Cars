@@ -90,6 +90,9 @@ namespace _Cars.Scripts
             if (reticle != null)
                 reticle.gameObject.SetActive(false);
             
+            // Only restore cursor visibility for keyboard/mouse players.
+            // A gamepad player never owns the cursor, so touching it here
+            // would fight a dead keyboard player who needs it visible.
             if (IsKeyboardPlayer())
             {
                 Cursor.visible = true;
@@ -255,11 +258,19 @@ namespace _Cars.Scripts
     
             Rect viewportRect = playerCamera.rect;
             RectTransform canvasRect = reticleCanvas.GetComponent<RectTransform>();
-            Vector2 canvasSize = canvasRect.sizeDelta;
-    
-            float centerX = (viewportRect.center.x * canvasSize.x) - (canvasSize.x * 0.5f);
-            float centerY = -canvasSize.y * 0.5f;
-    
+
+            // Use rect.size, NOT sizeDelta. A fullscreen overlay canvas uses stretched
+            // anchors (anchorMin=0,0 anchorMax=1,1), which makes sizeDelta = (0,0).
+            // rect.size always returns the actual rendered pixel dimensions.
+            Vector2 canvasSize = canvasRect.rect.size;
+
+            // viewportRect.center is normalised (0-1). anchoredPosition is in pixels
+            // with the canvas anchor at center, so (0,0) = screen center.
+            // Subtract 0.5 to re-centre the range around 0, then multiply by canvas
+            // size to convert to pixels. Works for any split-screen layout.
+            float centerX = (viewportRect.center.x - 0.5f) * canvasSize.x;
+            float centerY = (viewportRect.center.y - 0.5f) * canvasSize.y;
+
             reticle.anchoredPosition = new Vector2(centerX, centerY);
     
             Debug.Log($"[CarShooter] {gameObject.name} - Reticle centered at: {reticle.anchoredPosition}");
@@ -273,14 +284,18 @@ namespace _Cars.Scripts
         
         private void SetCursorState(bool showCursor)
         {
-            if (!showCursor && !IsKeyboardPlayer())
+            // Reticle visibility applies to ALL players regardless of scheme.
+            if (reticle != null)
+                reticle.gameObject.SetActive(!showCursor);
+
+            // Cursor management is keyboard-only. A gamepad player never owns
+            // the cursor, so touching it would fight a dead keyboard player
+            // who needs it visible.
+            if (!IsKeyboardPlayer())
                 return;
 
             Cursor.visible = showCursor;
             Cursor.lockState = showCursor ? CursorLockMode.None : CursorLockMode.Locked;
-
-            if (reticle != null)
-                reticle.gameObject.SetActive(!showCursor);
         }
 
         private bool IsKeyboardPlayer()
