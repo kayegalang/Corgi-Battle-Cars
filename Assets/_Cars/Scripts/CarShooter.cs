@@ -90,6 +90,9 @@ namespace _Cars.Scripts
             if (reticle != null)
                 reticle.gameObject.SetActive(false);
             
+            // Only restore cursor visibility for keyboard/mouse players.
+            // A gamepad player never owns the cursor, so touching it here
+            // would fight a dead keyboard player who needs it visible.
             if (IsKeyboardPlayer())
             {
                 Cursor.visible = true;
@@ -243,6 +246,18 @@ namespace _Cars.Scripts
         {
             gameplayEnabled = true;
             CenterReticleInViewport();
+            
+            // Reset lastMousePosition to current mouse position so MoveReticleWithMouse()
+            // doesn't immediately apply a delta from before death/respawn.
+            if (Mouse.current != null)
+            {
+                lastMousePosition = Mouse.current.position.ReadValue();
+            }
+        }
+
+        private int GetPlayerCount()
+        {
+            return UnityEngine.InputSystem.PlayerInput.all.Count;
         }
         
         private void CenterReticleInViewport()
@@ -252,18 +267,45 @@ namespace _Cars.Scripts
                 Debug.LogWarning($"[CarShooter] Cannot center reticle - missing components");
                 return;
             }
-    
-            Rect viewportRect = playerCamera.rect;
-            RectTransform canvasRect = reticleCanvas.GetComponent<RectTransform>();
-
-            Vector2 canvasSize = canvasRect.rect.size;
             
-            float centerX = (viewportRect.center.x - 0.5f) * canvasSize.x;
-            float centerY = (viewportRect.center.y - 0.5f) * canvasSize.y;
+            int playerCount = GetPlayerCount();
+            
+            // Parse player number from tag (e.g. "PlayerOne" → 1, "PlayerTwo" → 2)
+            string tag = gameObject.tag;
+            int playerNumber = 1; // default
+            if (tag.Contains("One")) playerNumber = 1;
+            else if (tag.Contains("Two")) playerNumber = 2;
+            else if (tag.Contains("Three")) playerNumber = 3;
+            else if (tag.Contains("Four")) playerNumber = 4;
+            
+            Vector2 targetPosition = Vector2.zero;
 
-            reticle.anchoredPosition = new Vector2(centerX, centerY);
-    
-            Debug.Log($"[CarShooter] {gameObject.name} - Reticle centered at: {reticle.anchoredPosition}");
+            if (playerCount == 1)
+            {
+                // Fullscreen - center at (0.5f, 0.5f)
+                targetPosition = new Vector2(0.5f, 0.5f);
+            }
+            else if (playerCount == 2)
+            {
+                // Vertical split - left/right
+                targetPosition = playerNumber == 1 ? new Vector2(-480, 0) : new Vector2(480, 0);
+            }
+            else if (playerCount == 3 || playerCount == 4)
+            {
+                // 2x2 grid
+                if (playerNumber == 1)
+                    targetPosition = new Vector2(-480, 270);   // top left
+                else if (playerNumber == 2)
+                    targetPosition = new Vector2(480, 270);    // top right
+                else if (playerNumber == 3)
+                    targetPosition = new Vector2(-480, -270);  // bottom left
+                else
+                    targetPosition = new Vector2(480, -270);   // bottom right
+            }
+
+            reticle.anchoredPosition = targetPosition;
+
+            Debug.Log($"[{gameObject.name}] playerCount={playerCount} playerNum={playerNumber} anchoredPosition={targetPosition}");
         }
         
         public void DisableGameplay()
