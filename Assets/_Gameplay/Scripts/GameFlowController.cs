@@ -77,6 +77,7 @@ namespace _Gameplay.Scripts
             isGameEnded = true;
             
             ShowCursor();
+            ForceHideAllDeathScreens(); 
             DisableAllPlayerControls();
             DisableAllPlayerUI();
             ShowEndScreen();
@@ -87,6 +88,16 @@ namespace _Gameplay.Scripts
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
+        }
+        
+        private void ForceHideAllDeathScreens()
+        {
+            DeathSpectateManager[] deathScreens = FindObjectsByType<DeathSpectateManager>(FindObjectsSortMode.None);
+            
+            foreach (DeathSpectateManager deathScreen in deathScreens)
+            {
+                deathScreen.ForceHide();
+            }
         }
         
         private void DisableAllPlayerControls()
