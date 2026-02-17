@@ -46,6 +46,10 @@ namespace _UI.Scripts
         private const float ALIVE_CHECK_INTERVAL = 0.5f;
         private float aliveCheckTimer = 0f;
 
+        // ──────────────────────────────────────────────
+        //  STARTUP
+        // ──────────────────────────────────────────────
+
         private void Awake()
         {
             HideDeathScreen();
@@ -72,11 +76,7 @@ namespace _UI.Scripts
 
             originalViewportRect = playerCamera.rect;
 
-            SaveOriginalCameraDetails();
-        }
-
-        private void SaveOriginalCameraDetails()
-        {
+            // Bookmark the camera's original transform so we can restore it on respawn
             originalCameraParent = playerCamera.transform.parent;
             originalCameraLocalPosition = playerCamera.transform.localPosition;
             originalCameraLocalRotation = playerCamera.transform.localRotation;
@@ -104,6 +104,10 @@ namespace _UI.Scripts
                 nextPlayerButton.onClick.AddListener(SpectateNextPlayer);
         }
 
+        // ──────────────────────────────────────────────
+        //  UPDATE
+        // ──────────────────────────────────────────────
+
         private void Update()
         {
             if (!isDead) return;
@@ -115,9 +119,15 @@ namespace _UI.Scripts
         private void LateUpdate()
         {
             if (!isDead) return;
-            
+
+            // The camera follows its target naturally via SetParent.
+            // We just need to keep the viewport rect locked to our split screen slice,
+            // because reparenting doesn't change rect.
             playerCamera.rect = originalViewportRect;
-            
+
+            // Keyboard players need their cursor confined to their own viewport slice.
+            // Other players' CarShooters won't touch the cursor (see CarShooter fix),
+            // but we still warp it back in case it drifts out.
             if (IsKeyboardPlayer())
             {
                 ConfineCursorToViewport();
@@ -149,6 +159,10 @@ namespace _UI.Scripts
                 Mouse.current.WarpCursorPosition(clamped);
         }
 
+        // ──────────────────────────────────────────────
+        //  DEATH ENTRY POINT
+        // ──────────────────────────────────────────────
+
         public void OnPlayerDeath(string tag, float respawnDelay, Action onRespawn)
         {
             playerTag = tag;
@@ -159,13 +173,16 @@ namespace _UI.Scripts
 
             ShowDeathScreen();
             DisablePlayerControls();
-            
+
+            // Show cursor for keyboard players so they can click the spectate buttons.
+            // Gamepad players have no cursor so we leave it untouched.
             if (IsKeyboardPlayer())
             {
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;
             }
 
+            // Stop Cinemachine fighting us when we reparent the camera
             if (cinemachineBrain != null)
                 cinemachineBrain.enabled = false;
 
@@ -197,6 +214,10 @@ namespace _UI.Scripts
             if (carShooter != null)
                 carShooter.enabled = false;
         }
+
+        // ──────────────────────────────────────────────
+        //  SPECTATING
+        // ──────────────────────────────────────────────
 
         private void FindAlivePlayersToSpectate()
         {
@@ -254,12 +275,15 @@ namespace _UI.Scripts
 
             if (targetCamera != null)
             {
+                // Human player: sit in exactly the same local slot as their camera
                 playerCamera.transform.SetParent(targetCamera.transform.parent);
                 playerCamera.transform.localPosition = targetCamera.transform.localPosition;
                 playerCamera.transform.localRotation = targetCamera.transform.localRotation;
             }
             else
             {
+                // Bot (no camera): parent to the bot's root and use original offset
+                // The camera just rides along as a child — same trick that worked before
                 playerCamera.transform.SetParent(target.transform);
                 playerCamera.transform.localPosition = originalCameraLocalPosition;
                 playerCamera.transform.localRotation = originalCameraLocalRotation;
@@ -323,6 +347,10 @@ namespace _UI.Scripts
                 nextPlayerButton.interactable = interactable && moreThanOne;
         }
 
+        // ──────────────────────────────────────────────
+        //  TIMER
+        // ──────────────────────────────────────────────
+
         private void UpdateRespawnTimer()
         {
             respawnTimer -= Time.deltaTime;
@@ -340,6 +368,10 @@ namespace _UI.Scripts
             respawnCountdownText.text = string.Format(respawnCountdownFormat, seconds);
         }
 
+        // ──────────────────────────────────────────────
+        //  RESPAWN
+        // ──────────────────────────────────────────────
+
         private void OnRespawn()
         {
             isDead = false;
@@ -349,6 +381,15 @@ namespace _UI.Scripts
 
             onRespawnCallback?.Invoke();
             onRespawnCallback = null;
+        }
+        
+        public void ForceHide()
+        {
+            if (!isDead) return;
+
+            isDead = false;
+            StopAllCoroutines();
+            HideDeathScreen();
         }
 
         private void RestoreCamera()
@@ -365,6 +406,10 @@ namespace _UI.Scripts
             if (cinemachineBrain != null)
                 cinemachineBrain.enabled = true;
         }
+
+        // ──────────────────────────────────────────────
+        //  CLEANUP
+        // ──────────────────────────────────────────────
 
         private void OnDestroy()
         {

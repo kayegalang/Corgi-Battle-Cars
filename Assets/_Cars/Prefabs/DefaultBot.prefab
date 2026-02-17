@@ -277,8 +277,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bot.Scripts.BotAI
   carStats: {fileID: 11400000, guid: d2b0ed14282fa4d0180dcb3cfa031b51, type: 2}
   projectile: {fileID: 11400000, guid: e104ec775ead94f4eb9403e209f95daf, type: 2}
-  currentState: 0
-  target: {fileID: 0}
 --- !u!114 &3883904779664031299
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305,6 +303,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarHealth
   spawnManager: {fileID: 0}
+  carStats: {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
+  OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!65 &3308493156854308235
 BoxCollider:
   m_ObjectHideFlags: 0
