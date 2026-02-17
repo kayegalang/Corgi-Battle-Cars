@@ -9,7 +9,7 @@ namespace _Prototyping.Scripts
         [SerializeField] SpawnManager spawnManager;
         public void OnClick()
         {
-           spawnManager.Respawn("PlayerOne");
+           spawnManager.RespawnBot("PlayerOne");
         }
     }
 }
