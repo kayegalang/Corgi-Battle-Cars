@@ -36,12 +36,6 @@ namespace _UI.Scripts
             DeactivatePanels();
         }
 
-        private void OnDestroy()
-        {
-            // Reset for next editor play session
-            hasSeenStartScreen = false;
-        }
-
         private void Update()
         {
             if (!waitingForInput) return;
@@ -71,17 +65,13 @@ namespace _UI.Scripts
         private bool WasAnyGamepadButtonPressed()
         {
             Gamepad gamepad = Gamepad.current;
-            
+
             return gamepad.buttonSouth.wasPressedThisFrame ||
                    gamepad.buttonNorth.wasPressedThisFrame ||
                    gamepad.buttonEast.wasPressedThisFrame ||
                    gamepad.buttonWest.wasPressedThisFrame ||
                    gamepad.startButton.wasPressedThisFrame ||
-                   gamepad.selectButton.wasPressedThisFrame ||
-                   gamepad.leftShoulder.wasPressedThisFrame ||
-                   gamepad.rightShoulder.wasPressedThisFrame ||
-                   gamepad.leftTrigger.wasPressedThisFrame ||
-                   gamepad.rightTrigger.wasPressedThisFrame;
+                   gamepad.selectButton.wasPressedThisFrame;
         }
 
         private void DismissStartScreen(bool isController)
@@ -98,8 +88,6 @@ namespace _UI.Scripts
 
         private System.Collections.IEnumerator TransitionToMainMenu(bool isController)
         {
-            // If controller, wait until all buttons are released
-            // This prevents any lingering input from affecting the menu
             if (isController && Gamepad.current != null)
             {
                 while (IsAnyGamepadButtonHeld())
@@ -126,11 +114,7 @@ namespace _UI.Scripts
                    gamepad.buttonEast.isPressed ||
                    gamepad.buttonWest.isPressed ||
                    gamepad.startButton.isPressed ||
-                   gamepad.selectButton.isPressed ||
-                   gamepad.leftShoulder.isPressed ||
-                   gamepad.rightShoulder.isPressed ||
-                   gamepad.leftTrigger.isPressed ||
-                   gamepad.rightTrigger.isPressed;
+                   gamepad.selectButton.isPressed;
         }
 
         private void DeactivatePanels()

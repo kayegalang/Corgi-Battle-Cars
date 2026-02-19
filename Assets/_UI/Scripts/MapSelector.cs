@@ -1,23 +1,18 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
-using _Gameplay.Scripts;
 
 namespace _UI.Scripts
 {
     /// <summary>
-    /// Map selector that checks game mode before showing join screen.
-    /// For singleplayer: goes straight to game!
-    /// For multiplayer: shows join screen for P2/P3/P4.
+    /// FIXED VERSION - Always starts game when clicking Start Game button.
+    /// Map selector comes AFTER join screen in multiplayer, so just start game!
     /// </summary>
     public class MapSelector : MonoBehaviour
     {
         [Header("UI References")]
         [SerializeField] private Button startGameButton;
         [SerializeField] private Button[] mapButtons;
-        
-        [Header("Join Screen (Multiplayer Only)")]
-        [SerializeField] private GameObject joinScreenPanel;
         
         [Header("Button Colors")]
         [SerializeField] private Color normalColor = Color.white;
@@ -94,36 +89,12 @@ namespace _UI.Scripts
         
         public void OnStartGameButtonClicked()
         {
-            Debug.Log("[MapSelector] Start Game clicked");
+            Debug.Log("[MapSelector] Start Game clicked - loading map!");
             
-            // Check game mode
-            if (GameplayManager.instance != null)
-            {
-                GameMode mode = GameplayManager.instance.GetCurrentGameMode();
-                Debug.Log($"[MapSelector] Current game mode: {mode}");
-                
-                if (mode == GameMode.Singleplayer)
-                {
-                    // Singleplayer: Skip join screen, start game immediately!
-                    Debug.Log("[MapSelector] Singleplayer mode - starting game directly");
-                    onStartGameClicked?.Invoke();
-                }
-                else
-                {
-                    // Multiplayer: Show join screen
-                    Debug.Log("[MapSelector] Multiplayer mode - showing join screen");
-                    
-                    if (joinScreenPanel != null)
-                    {
-                        gameObject.SetActive(false);
-                        joinScreenPanel.SetActive(true);
-                    }
-                    else
-                    {
-                        Debug.LogWarning("[MapSelector] Join screen panel not assigned!");
-                    }
-                }
-            }
+            // Just start the game! 
+            // For singleplayer: Goes straight to game
+            // For multiplayer: Players already joined, just start game
+            onStartGameClicked?.Invoke();
         }
         
         private void ResetSelection()

@@ -356,8 +356,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI.Scripts.MainMenuController
   mainMenuPanel: {fileID: 103740118}
-  mapSelectionPanel: {fileID: 945544600}
-  joinScreenPanel: {fileID: 2139473169}
+  characterSelectionPanel: {fileID: 1021778366}
   playerCountSelector: {fileID: 1489527846}
 --- !u!1 &103740118
 GameObject:
@@ -4171,7 +4170,7 @@ MonoBehaviour:
   - {fileID: 2139473169}
   startScreen: {fileID: 1168183515}
   mainMenu: {fileID: 103740118}
-  startScreenText: {fileID: 0}
+  startScreenText: {fileID: 1201900538}
   keyboardPrompt: PRESS ANYWHERE TO START
   controllerPrompt: PRESS ANY BUTTON TO START
 --- !u!1 &1168241046
@@ -6593,7 +6592,6 @@ MonoBehaviour:
   - {fileID: 1641245354}
   - {fileID: 865778779}
   - {fileID: 15594076}
-  joinScreenPanel: {fileID: 0}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   highlightedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   comingSoonButtonName: Coming Soon
@@ -6907,18 +6905,6 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 2139473169}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
         m_CallState: 2
       - m_Target: {fileID: 91683490}
         m_TargetAssemblyTypeName: _UI.Scripts.MainMenuController, Assembly-CSharp
