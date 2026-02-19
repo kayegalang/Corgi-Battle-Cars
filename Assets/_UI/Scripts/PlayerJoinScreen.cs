@@ -100,14 +100,67 @@ namespace _UI.Scripts
                 return;
             }
             
-            // Clean up any existing players first
             CleanupExistingPlayers();
             
             ResetJoinState(playerCount);
             ShowJoinPanel();
-            EnablePlayerJoining();
             InitializeSlots();
+            
+            // IMPORTANT: Wait for button release before enabling joining
+            // This prevents Input System assertion when button press is still being processed
+            StartCoroutine(EnableJoiningAfterButtonRelease());
+        }
+        
+        private IEnumerator EnableJoiningAfterButtonRelease()
+        {
+            Debug.Log($"[{nameof(PlayerJoinScreen)}] Waiting for button release...");
+            
+            // Wait for all gamepad buttons to be released
+            if (Gamepad.current != null)
+            {
+                while (IsAnyGamepadButtonPressed())
+                {
+                    yield return null;
+                }
+            }
+            
+            // Wait for keyboard keys to be released
+            if (Keyboard.current != null)
+            {
+                while (Keyboard.current.anyKey.isPressed)
+                {
+                    yield return null;
+                }
+            }
+            
+            // Wait one more frame to ensure input is fully processed
+            yield return null;
+            
+            // Wait a bit longer to be safe (prevents assertion)
+            yield return new WaitForSeconds(0.2f);
+            
+            Debug.Log($"[{nameof(PlayerJoinScreen)}] Button released, enabling joining");
+            
+            // Now it's safe to enable joining
+            EnablePlayerJoining();
+            
+            // Auto-join first player
             StartCoroutine(AutoJoinFirstPlayer());
+        }
+        
+        private bool IsAnyGamepadButtonPressed()
+        {
+            if (Gamepad.current == null)
+                return false;
+
+            return Gamepad.current.buttonSouth.isPressed ||
+                   Gamepad.current.buttonNorth.isPressed ||
+                   Gamepad.current.buttonEast.isPressed ||
+                   Gamepad.current.buttonWest.isPressed ||
+                   Gamepad.current.startButton.isPressed ||
+                   Gamepad.current.selectButton.isPressed ||
+                   Gamepad.current.leftShoulder.isPressed ||
+                   Gamepad.current.rightShoulder.isPressed;
         }
         
         private void CleanupExistingPlayers()
@@ -117,7 +170,6 @@ namespace _UI.Scripts
                 return;
             }
             
-            // Get all currently joined players
             List<PlayerInput> playersToRemove = new List<PlayerInput>();
             
             for (int i = 0; i < playerInputManager.playerCount; i++)
@@ -129,7 +181,6 @@ namespace _UI.Scripts
                 }
             }
             
-            // Destroy all players
             foreach (PlayerInput player in playersToRemove)
             {
                 if (player != null && player.gameObject != null)
@@ -175,49 +226,50 @@ namespace _UI.Scripts
             if (playerInputManager != null)
             {
                 playerInputManager.EnableJoining();
+                Debug.Log($"[{nameof(PlayerJoinScreen)}] Joining enabled");
             }
         }
         
         private IEnumerator AutoJoinFirstPlayer()
         {
-            yield return new WaitForSeconds(autoJoinDelay);
+            // Short delay to ensure joining is fully enabled
+            yield return new WaitForSeconds(0.1f);
             
             Debug.Log($"[{nameof(PlayerJoinScreen)}] AutoJoinFirstPlayer - Current joined count: {joinedPlayerCount}");
             
-            // Check if a player has already joined (from clicking the button)
             if (joinedPlayerCount > 0)
             {
                 Debug.Log($"[{nameof(PlayerJoinScreen)}] Player already joined, skipping auto-join");
                 yield break;
             }
             
-            // Check if PlayerInputManager is ready
             if (playerInputManager == null)
             {
                 Debug.LogError($"[{nameof(PlayerJoinScreen)}] PlayerInputManager is null!");
                 yield break;
             }
             
-            // Check if joining is enabled
-            if (!playerInputManager.joiningEnabled)
-            {
-                Debug.LogWarning($"[{nameof(PlayerJoinScreen)}] Joining is not enabled, enabling it now");
-                playerInputManager.EnableJoining();
-            }
-            
-            Debug.Log($"[{nameof(PlayerJoinScreen)}] Auto-joining first player with device index {FIRST_PLAYER_INDEX}");
-            
             try
             {
-                PlayerInput joinedPlayer = playerInputManager.JoinPlayer(FIRST_PLAYER_INDEX, ANY_DEVICE, null);
+                Debug.Log($"[{nameof(PlayerJoinScreen)}] Calling JoinPlayer (auto-detect device)");
+                
+                // Join player with NO control scheme - let it auto-detect
+                PlayerInput joinedPlayer = playerInputManager.JoinPlayer(
+                    playerIndex: FIRST_PLAYER_INDEX,
+                    splitScreenIndex: ANY_DEVICE,
+                    controlScheme: null  // Auto-detect!
+                );
                 
                 if (joinedPlayer != null)
                 {
-                    Debug.Log($"[{nameof(PlayerJoinScreen)}] Successfully auto-joined player: {joinedPlayer.gameObject.name}");
+                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Successfully auto-joined player: {joinedPlayer.gameObject.name}");
+                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Player control scheme: {joinedPlayer.currentControlScheme}");
+                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Player devices: {string.Join(", ", System.Array.ConvertAll(joinedPlayer.devices.ToArray(), d => d.displayName))}");
                 }
                 else
                 {
-                    Debug.LogWarning($"[{nameof(PlayerJoinScreen)}] JoinPlayer returned null!");
+                    Debug.LogError($"[{nameof(PlayerJoinScreen)}] JoinPlayer returned null!");
+                    Debug.LogError($"  Check PlayerInputManager has player prefab assigned!");
                 }
             }
             catch (System.Exception e)
@@ -294,7 +346,7 @@ namespace _UI.Scripts
         
         private void OnPlayerJoined(PlayerInput playerInput)
         {
-            Debug.Log($"[{nameof(PlayerJoinScreen)}] OnPlayerJoined called - Player: {playerInput.gameObject.name}, Device: {playerInput.devices[0].displayName}");
+            Debug.Log($"[{nameof(PlayerJoinScreen)}] OnPlayerJoined called - Player: {playerInput.gameObject.name}");
             
             joinedPlayerCount++;
             
