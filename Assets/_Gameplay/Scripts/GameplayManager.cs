@@ -325,5 +325,10 @@ namespace _Gameplay.Scripts
                 MatchTimerManager.instance.onGameEnd.RemoveListener(OnGameEnd);
             }
         }
+        
+        public GameMode GetCurrentGameMode()
+        {
+            return currentGameMode;
+        }
     }
 }

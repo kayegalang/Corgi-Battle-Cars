@@ -2,10 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using _Cars.Scripts;
 using _UI.Scripts;
+using _Player.Scripts;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace _Gameplay.Scripts 
 {
+    /// <summary>
+    /// Simple spawning - NO player persistence!
+    /// Spawns fresh players in game scene.
+    /// Uses PlayerOneInputTracker to set correct control scheme for PlayerOne.
+    /// </summary>
     public class SpawnManager : MonoBehaviour
     {
         [SerializeField] private Transform[] spawnPoints;
@@ -13,7 +20,7 @@ namespace _Gameplay.Scripts
         [SerializeField] private GameObject botPrefab;
         
         [Header("Spawn Settings")]
-        [SerializeField] private float respawnDelay = 0f;
+        [SerializeField] private float respawnDelay = 3f;
         
         private readonly HashSet<int> usedSpawnIndices = new HashSet<int>();
         
@@ -73,6 +80,8 @@ namespace _Gameplay.Scripts
                 return;
             }
             
+            Debug.Log($"[{nameof(SpawnManager)}] Starting game with {humanPlayerCount} human players");
+            
             SpawnHumanPlayers(humanPlayerCount);
             SpawnBots(humanPlayerCount);
         }
@@ -93,8 +102,61 @@ namespace _Gameplay.Scripts
             for (int i = 1; i <= humanPlayerCount; i++)
             {
                 string playerTag = GetPlayerTag(i);
-                SpawnPlayer(playerTag, GetUniqueSpawnPoint(), playerPrefab);
+                Transform spawnPoint = GetUniqueSpawnPoint();
+                
+                GameObject player = SpawnPlayer(playerTag, spawnPoint, playerPrefab);
+                
+                // Set correct control scheme for PlayerOne
+                if (i == 1 && player != null)
+                {
+                    SetPlayerOneControlScheme(player);
+                }
+                
                 RegisterPlayer(playerTag);
+            }
+        }
+        
+        private void SetPlayerOneControlScheme(GameObject player)
+        {
+            PlayerInput playerInput = player.GetComponent<PlayerInput>();
+            
+            if (playerInput == null)
+            {
+                Debug.LogWarning($"[{nameof(SpawnManager)}] No PlayerInput on PlayerOne!");
+                return;
+            }
+            
+            // Check tracker to see what PlayerOne used
+            bool shouldUseController = PlayerOneInputTracker.instance != null && 
+                                     PlayerOneInputTracker.instance.IsPlayerOneUsingController();
+            
+            Debug.Log($"[{nameof(SpawnManager)}] Setting PlayerOne control scheme to: {(shouldUseController ? "Controller" : "Keyboard")}");
+            
+            if (shouldUseController)
+            {
+                // Pair with gamepad
+                if (Gamepad.current != null)
+                {
+                    playerInput.SwitchCurrentControlScheme("Controller", Gamepad.current);
+                    Debug.Log($"[{nameof(SpawnManager)}] ✓ PlayerOne using Controller (paired with {Gamepad.current.displayName})");
+                }
+                else
+                {
+                    Debug.LogWarning($"[{nameof(SpawnManager)}] No gamepad found!");
+                }
+            }
+            else
+            {
+                // Pair with keyboard and mouse
+                if (Keyboard.current != null && Mouse.current != null)
+                {
+                    playerInput.SwitchCurrentControlScheme("Keyboard", Keyboard.current, Mouse.current);
+                    Debug.Log($"[{nameof(SpawnManager)}] ✓ PlayerOne using Keyboard + Mouse");
+                }
+                else
+                {
+                    Debug.LogWarning($"[{nameof(SpawnManager)}] No keyboard/mouse found!");
+                }
             }
         }
         
@@ -238,15 +300,21 @@ namespace _Gameplay.Scripts
             }
             else
             {
-                SpawnPlayer(playerTag, spawnPoint, prefab);
+                GameObject player = SpawnPlayer(playerTag, spawnPoint, prefab);
+                
+                // If respawning PlayerOne, set control scheme again
+                if (playerTag == "PlayerOne" && player != null)
+                {
+                    SetPlayerOneControlScheme(player);
+                }
             }
             
             EnableGameplayForRespawnedPlayer(playerTag);
         }
         
-        private void SpawnPlayer(string playerTag, Transform spawnPoint, GameObject prefab)
+        private GameObject SpawnPlayer(string playerTag, Transform spawnPoint, GameObject prefab)
         {
-            UnityEngine.InputSystem.PlayerInput prefabInput = prefab.GetComponent<UnityEngine.InputSystem.PlayerInput>();
+            PlayerInput prefabInput = prefab.GetComponent<PlayerInput>();
             bool hasPlayerInput = prefabInput != null;
             bool wasEnabled = false;
             
@@ -264,6 +332,8 @@ namespace _Gameplay.Scripts
             {
                 RestorePlayerInput(player, prefabInput, wasEnabled);
             }
+            
+            return player;
         }
         
         private void SpawnBot(string botTag, Transform spawnPoint)
@@ -278,9 +348,9 @@ namespace _Gameplay.Scripts
             player.name = playerTag;
         }
         
-        private void RestorePlayerInput(GameObject player, UnityEngine.InputSystem.PlayerInput prefabInput, bool wasEnabled)
+        private void RestorePlayerInput(GameObject player, PlayerInput prefabInput, bool wasEnabled)
         {
-            UnityEngine.InputSystem.PlayerInput instanceInput = player.GetComponent<UnityEngine.InputSystem.PlayerInput>();
+            PlayerInput instanceInput = player.GetComponent<PlayerInput>();
             
             if (instanceInput != null)
             {

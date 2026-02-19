@@ -249,22 +249,25 @@ namespace _UI.Scripts
                 yield break;
             }
             
+            // Get the correct control scheme from tracker
+            string controlScheme = GetPlayerOneControlScheme();
+            
             try
             {
-                Debug.Log($"[{nameof(PlayerJoinScreen)}] Calling JoinPlayer (auto-detect device)");
+                Debug.Log($"[{nameof(PlayerJoinScreen)}] Calling JoinPlayer with control scheme: {controlScheme}");
                 
-                // Join player with NO control scheme - let it auto-detect
+                // Join PlayerOne with EXPLICIT control scheme (not auto-detect!)
                 PlayerInput joinedPlayer = playerInputManager.JoinPlayer(
                     playerIndex: FIRST_PLAYER_INDEX,
                     splitScreenIndex: ANY_DEVICE,
-                    controlScheme: null  // Auto-detect!
+                    controlScheme: controlScheme  // EXPLICIT scheme based on Start Screen choice!
                 );
                 
                 if (joinedPlayer != null)
                 {
-                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Successfully auto-joined player: {joinedPlayer.gameObject.name}");
-                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Player control scheme: {joinedPlayer.currentControlScheme}");
-                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Player devices: {string.Join(", ", System.Array.ConvertAll(joinedPlayer.devices.ToArray(), d => d.displayName))}");
+                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Successfully auto-joined PlayerOne");
+                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Control scheme: {joinedPlayer.currentControlScheme}");
+                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Devices: {string.Join(", ", System.Array.ConvertAll(joinedPlayer.devices.ToArray(), d => d.displayName))}");
                 }
                 else
                 {
@@ -275,6 +278,20 @@ namespace _UI.Scripts
             catch (System.Exception e)
             {
                 Debug.LogError($"[{nameof(PlayerJoinScreen)}] Failed to auto-join player: {e.Message}");
+            }
+        }
+        
+        private string GetPlayerOneControlScheme()
+        {
+            // Check tracker to see what PlayerOne used on Start Screen
+            if (_Player.Scripts.PlayerOneInputTracker.instance != null && 
+                _Player.Scripts.PlayerOneInputTracker.instance.IsPlayerOneUsingController())
+            {
+                return "Controller";
+            }
+            else
+            {
+                return "Keyboard";
             }
         }
         
