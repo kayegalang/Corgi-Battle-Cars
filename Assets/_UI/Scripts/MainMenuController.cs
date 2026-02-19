@@ -5,7 +5,11 @@ namespace _UI.Scripts
 {
     public class MainMenuController : MonoBehaviour
     {
+        [Header("UI Panels")]
+        [SerializeField] private GameObject mainMenuPanel;
+        [SerializeField] private GameObject characterSelectionPanel;
         [SerializeField] private PlayerCountSelector playerCountSelector;
+        
         public void OnQuitButtonClick()
         {
             #if UNITY_EDITOR 
@@ -17,15 +21,35 @@ namespace _UI.Scripts
 
         public void OnSingleplayerButtonClicked()
         {
-            GameplayManager.instance.SetGameMode(GameMode.Singleplayer);
-            playerCountSelector.SelectPlayerCount(1);
+            Debug.Log("[MainMenuController] Singleplayer selected - going to character selection!");
+            
+            // Set game mode and player count
+            if (GameplayManager.instance != null)
+            {
+                GameplayManager.instance.SetGameMode(GameMode.Singleplayer);
+                GameplayManager.instance.SetMultiplayerPlayerCount(1);
+            }
+            
+            // Show character selection directly
+            if (characterSelectionPanel != null)
+            {
+                mainMenuPanel.SetActive(false);
+                characterSelectionPanel.SetActive(true);
+            }
+            else
+            {
+                Debug.LogError("[MainMenuController] Character Selection Panel not assigned!");
+            }
         }
         
         public void OnMultiplayerButtonClicked()
         {
-            GameplayManager.instance.SetGameMode(GameMode.Multiplayer);
+            Debug.Log("[MainMenuController] Multiplayer selected - going to player count selection!");
+            
+            if (GameplayManager.instance != null)
+            {
+                GameplayManager.instance.SetGameMode(GameMode.Multiplayer);
+            }
         }
-        
     }
 }
-
