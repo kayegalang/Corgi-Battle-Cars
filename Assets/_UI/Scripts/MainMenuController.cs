@@ -12,11 +12,11 @@ namespace _UI.Scripts
         
         public void OnQuitButtonClick()
         {
-#if UNITY_EDITOR 
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
+            #if UNITY_EDITOR 
+                UnityEditor.EditorApplication.isPlaying = false;
+            #else
                 Application.Quit();
-#endif
+            #endif
         }
 
         public void OnSingleplayerButtonClicked()
@@ -50,10 +50,6 @@ namespace _UI.Scripts
             {
                 GameplayManager.instance.SetGameMode(GameMode.Multiplayer);
             }
-            
-            // Multiplayer goes through the normal flow:
-            // Player Count Selection → Join Screen → Character Selection
-            // (The existing UI handles this)
         }
     }
 }

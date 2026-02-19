@@ -20,7 +20,6 @@ namespace _UI.Scripts
         [SerializeField] private string playerJoinedFormat = "Player {0} Joined!";
         
         [Header("Timing Settings")]
-        [SerializeField] private float autoJoinDelay = 0.1f;
         [SerializeField] private float transitionDelay = 0.5f;
         
         [Header("Events")]
@@ -106,8 +105,6 @@ namespace _UI.Scripts
             ShowJoinPanel();
             InitializeSlots();
             
-            // IMPORTANT: Wait for button release before enabling joining
-            // This prevents Input System assertion when button press is still being processed
             StartCoroutine(EnableJoiningAfterButtonRelease());
         }
         
@@ -232,9 +229,6 @@ namespace _UI.Scripts
         
         private IEnumerator AutoJoinFirstPlayer()
         {
-            // Short delay to ensure joining is fully enabled
-            yield return new WaitForSeconds(0.1f);
-            
             Debug.Log($"[{nameof(PlayerJoinScreen)}] AutoJoinFirstPlayer - Current joined count: {joinedPlayerCount}");
             
             if (joinedPlayerCount > 0)
@@ -367,6 +361,14 @@ namespace _UI.Scripts
             
             joinedPlayerCount++;
             
+            // TRACK DEVICE: Record which device this player used
+            if (playerInput.devices.Count > 0)
+            {
+                InputDevice device = playerInput.devices[0];
+                string playerTag = GetPlayerTag(joinedPlayerCount);
+                _Player.Scripts.PlayerDeviceTracker.instance?.RecordPlayerDevice(playerTag, device);
+            }
+            
             Debug.Log($"[{nameof(PlayerJoinScreen)}] Total joined players: {joinedPlayerCount}/{targetPlayerCount}");
             
             UpdateSlotForJoinedPlayer();
@@ -374,6 +376,18 @@ namespace _UI.Scripts
             if (AllPlayersHaveJoined())
             {
                 OnAllPlayersJoined();
+            }
+        }
+        
+        private string GetPlayerTag(int playerNumber)
+        {
+            switch (playerNumber)
+            {
+                case 1: return "PlayerOne";
+                case 2: return "PlayerTwo";
+                case 3: return "PlayerThree";
+                case 4: return "PlayerFour";
+                default: return "PlayerOne";
             }
         }
         

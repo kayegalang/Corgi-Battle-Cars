@@ -4,10 +4,6 @@ using UnityEngine.Events;
 
 namespace _UI.Scripts
 {
-    /// <summary>
-    /// FIXED VERSION - Always starts game when clicking Start Game button.
-    /// Map selector comes AFTER join screen in multiplayer, so just start game!
-    /// </summary>
     public class MapSelector : MonoBehaviour
     {
         [Header("UI References")]
@@ -91,9 +87,6 @@ namespace _UI.Scripts
         {
             Debug.Log("[MapSelector] Start Game clicked - loading map!");
             
-            // Just start the game! 
-            // For singleplayer: Goes straight to game
-            // For multiplayer: Players already joined, just start game
             onStartGameClicked?.Invoke();
         }
         

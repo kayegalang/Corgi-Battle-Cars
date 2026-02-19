@@ -10,29 +10,18 @@ namespace _UI.Scripts
         [SerializeField] private GameObject healthBarPrefab;
         [SerializeField] private Vector3 healthBarOffset = new Vector3(0, 2, 0);
         
-        // [Header("Setup Timing")]
-        // [SerializeField] private float setupDelay = 0.5f;
-        // [SerializeField] private float setupRetryDelay = 0.5f;
         
         private Camera[] playerCameras;
         private GameObject[] healthBarInstances;
         
         void Start()
         {
-            // Invoke(nameof(SetupHealthBars), setupDelay);
             SetupHealthBars();
         }
         
         private void SetupHealthBars()
         {
             playerCameras = CameraUtility.FindPlayerCameras();
-            
-            // if (playerCameras.Length == 0)
-            // {
-            //     Debug.LogWarning($"{gameObject.name}: No player cameras found! Retrying in {setupRetryDelay}s...");
-            //     Invoke(nameof(SetupHealthBars), setupRetryDelay);
-            //     return;
-            // }
             
             CreateHealthBarInstances();
         }

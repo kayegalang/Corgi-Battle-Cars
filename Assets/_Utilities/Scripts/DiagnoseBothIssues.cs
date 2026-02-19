@@ -2,12 +2,6 @@ using UnityEngine;
 using _Gameplay.Scripts;
 using _Player.Scripts;
 using _UI.Scripts;
-
-/// <summary>
-/// TEMPORARY DIAGNOSTIC SCRIPT
-/// Attach to any GameObject in Main Menu to check what's wrong.
-/// Check console for detailed report.
-/// </summary>
 public class DiagnoseBothIssues : MonoBehaviour
 {
     void Start()

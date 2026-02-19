@@ -8,11 +8,6 @@ using UnityEngine.InputSystem;
 
 namespace _Gameplay.Scripts 
 {
-    /// <summary>
-    /// Simple spawning - NO player persistence!
-    /// Spawns fresh players in game scene.
-    /// Uses PlayerOneInputTracker to set correct control scheme for PlayerOne.
-    /// </summary>
     public class SpawnManager : MonoBehaviour
     {
         [SerializeField] private Transform[] spawnPoints;
@@ -106,13 +101,84 @@ namespace _Gameplay.Scripts
                 
                 GameObject player = SpawnPlayer(playerTag, spawnPoint, playerPrefab);
                 
-                // Set correct control scheme for PlayerOne
-                if (i == 1 && player != null)
+                // Restore device for this player
+                if (player != null)
                 {
-                    SetPlayerOneControlScheme(player);
+                    RestorePlayerDevice(player, i);
                 }
                 
                 RegisterPlayer(playerTag);
+            }
+        }
+        
+        private void RestorePlayerDevice(GameObject player, int playerNumber)
+        {
+            PlayerInput playerInput = player.GetComponent<PlayerInput>();
+            
+            if (playerInput == null)
+            {
+                Debug.LogWarning($"[{nameof(SpawnManager)}] No PlayerInput on Player {playerNumber}!");
+                return;
+            }
+            
+            // Convert player number to player tag
+            string playerTag = GetPlayerTag(playerNumber);
+            
+            // Get the device this player used in the join screen
+            InputDevice device = _Player.Scripts.PlayerDeviceTracker.instance?.GetPlayerDevice(playerTag);
+            
+            if (device == null)
+            {
+                Debug.LogWarning($"[{nameof(SpawnManager)}] No device tracked for {playerTag}. Using defaults.");
+                
+                // Fallback: PlayerOne uses tracked input, others use controller
+                if (playerNumber == 1)
+                {
+                    SetPlayerOneControlScheme(player);
+                }
+                else
+                {
+                    // Try to use any available gamepad
+                    UseAnyAvailableGamepad(playerInput, playerNumber);
+                }
+                return;
+            }
+            
+            // Restore the tracked device
+            string controlScheme = device is Gamepad ? "Controller" : "Keyboard";
+            
+            Debug.Log($"[{nameof(SpawnManager)}] Restoring {playerTag} → {device.displayName} ({controlScheme})");
+            
+            try
+            {
+                if (device is Keyboard && Mouse.current != null)
+                {
+                    playerInput.SwitchCurrentControlScheme(controlScheme, device, Mouse.current);
+                }
+                else
+                {
+                    playerInput.SwitchCurrentControlScheme(controlScheme, device);
+                }
+                
+                Debug.Log($"[{nameof(SpawnManager)}] ✓ {playerTag} restored with {device.displayName}");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[{nameof(SpawnManager)}] Failed to restore device for {playerTag}: {e.Message}");
+            }
+        }
+        
+        private void UseAnyAvailableGamepad(PlayerInput playerInput, int playerNumber)
+        {
+            if (Gamepad.all.Count >= playerNumber)
+            {
+                Gamepad gamepad = Gamepad.all[playerNumber - 1];
+                playerInput.SwitchCurrentControlScheme("Controller", gamepad);
+                Debug.Log($"[{nameof(SpawnManager)}] Player {playerNumber} using fallback gamepad: {gamepad.displayName}");
+            }
+            else
+            {
+                Debug.LogWarning($"[{nameof(SpawnManager)}] Not enough gamepads for Player {playerNumber}");
             }
         }
         
@@ -241,6 +307,20 @@ namespace _Gameplay.Scripts
             return "PlayerOne";
         }
         
+        private int GetPlayerNumberFromTag(string playerTag)
+        {
+            foreach (var kvp in PlayerTagMap)
+            {
+                if (kvp.Value == playerTag)
+                {
+                    return kvp.Key;
+                }
+            }
+            
+            Debug.LogWarning($"[{nameof(SpawnManager)}] Unknown player tag: {playerTag}, defaulting to 1");
+            return 1;
+        }
+        
         private string GetBotTag(int botPosition)
         {
             if (BotTagMap.TryGetValue(botPosition, out string tag))
@@ -302,10 +382,11 @@ namespace _Gameplay.Scripts
             {
                 GameObject player = SpawnPlayer(playerTag, spawnPoint, prefab);
                 
-                // If respawning PlayerOne, set control scheme again
-                if (playerTag == "PlayerOne" && player != null)
+                // Restore device for any player (not just PlayerOne)
+                if (player != null)
                 {
-                    SetPlayerOneControlScheme(player);
+                    int playerNumber = GetPlayerNumberFromTag(playerTag);
+                    RestorePlayerDevice(player, playerNumber);
                 }
             }
             
