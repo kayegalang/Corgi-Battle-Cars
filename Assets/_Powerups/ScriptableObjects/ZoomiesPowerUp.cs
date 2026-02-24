@@ -18,18 +18,17 @@ namespace _PowerUps.ScriptableObjects
         
         public override void Apply(GameObject player)
         {
-            // Works for both human players and bots
             CarController controller = player.GetComponent<CarController>();
             if (controller != null)
             {
-                //controller.ApplySpeedMultiplier(speedMultiplier, accelerationMultiplier);
+                controller.ApplySpeedMultiplier(speedMultiplier, accelerationMultiplier);
                 return;
             }
             
             BotController botController = player.GetComponent<BotController>();
             if (botController != null)
             {
-                //botController.ApplySpeedMultiplier(speedMultiplier, accelerationMultiplier);
+                botController.ApplySpeedMultiplier(speedMultiplier, accelerationMultiplier);
                 return;
             }
             
@@ -43,14 +42,14 @@ namespace _PowerUps.ScriptableObjects
             CarController controller = player.GetComponent<CarController>();
             if (controller != null)
             {
-                //controller.RemoveSpeedMultiplier();
+                controller.RemoveSpeedMultiplier();
                 return;
             }
             
             BotController botController = player.GetComponent<BotController>();
             if (botController != null)
             {
-                //botController.RemoveSpeedMultiplier();
+                botController.RemoveSpeedMultiplier();
             }
         }
     }

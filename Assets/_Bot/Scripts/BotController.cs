@@ -8,13 +8,22 @@ namespace _Bot.Scripts
         [Header("References")]
         [SerializeField] private CarStats carStats;
         
+        [Header("Zoomies VFX")]
+        [SerializeField] private ParticleSystem zoomiesParticles; 
+        
         private Vector2 moveInput;
         private Rigidbody carRb;
+        
+        // Zoomies power-up state
+        private bool hasZoomies = false;
+        private float speedMultiplier = 1f;
+        private float accelerationMultiplier = 1f;
         
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
         private const float AIRBORNE_ANGULAR_DAMPING = 5f;
         private const float AIRBORNE_ROTATION_SPEED = 2f;
         private const float MOVE_INPUT_THRESHOLD = 0.01f;
+        private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
         
         private void Awake()
         {
@@ -64,7 +73,6 @@ namespace _Bot.Scripts
         {
             if (!ShouldMove())
             {
-                ConstrainLateralMovement();
                 return;
             }
             
@@ -79,7 +87,7 @@ namespace _Bot.Scripts
         
         private void ApplyAcceleration()
         {
-            Vector3 force = Vector3.forward * moveInput.y * carStats.Acceleration;
+            Vector3 force = Vector3.forward * moveInput.y * carStats.Acceleration * accelerationMultiplier;
             carRb.AddRelativeForce(force);
         }
         
@@ -92,19 +100,9 @@ namespace _Bot.Scripts
         
         private void Turn()
         {
-            if (!ShouldTurn())
-            {
-                return;
-            }
-
             float turnDirection = IsMovingForward() ? 1f : -1f;
             Vector3 torque = Vector3.up * moveInput.x * carStats.TurnSpeed * turnDirection;
             carRb.AddTorque(torque);
-        }
-        
-        private bool ShouldTurn()
-        {
-            return Mathf.Abs(moveInput.x) > MOVE_INPUT_THRESHOLD;
         }
         
         private bool IsMovingForward()
@@ -156,7 +154,7 @@ namespace _Bot.Scripts
             {
                 return;
             }
-
+            
             Vector3 jumpForce = transform.up * carStats.JumpForce;
             carRb.AddForce(jumpForce, ForceMode.Impulse);
         }
@@ -184,18 +182,16 @@ namespace _Bot.Scripts
         
         private void CapJumpHeight()
         {
-            if (carRb == null || carStats == null)
+            if (carRb == null)
             {
                 return;
             }
-
-            float maxJumpVelocity = carStats.JumpForce * 0.5f;
             
             Vector3 velocity = carRb.linearVelocity;
             
-            if (velocity.y > maxJumpVelocity)
+            if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY)
             {
-                velocity.y = maxJumpVelocity;
+                velocity.y = MAX_JUMP_HEIGHT_VELOCITY;
                 carRb.linearVelocity = velocity;
             }
         }
@@ -206,16 +202,50 @@ namespace _Bot.Scripts
             {
                 return;
             }
-
+            
             if (IsExceedingMaxSpeed())
             {
-                carRb.linearVelocity = carRb.linearVelocity.normalized * carStats.MaxSpeed;
+                carRb.linearVelocity = carRb.linearVelocity.normalized * (carStats.MaxSpeed * speedMultiplier);
             }
         }
         
         private bool IsExceedingMaxSpeed()
         {
-            return carRb.linearVelocity.magnitude > carStats.MaxSpeed;
+            return carRb.linearVelocity.magnitude > (carStats.MaxSpeed * speedMultiplier);
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  ZOOMIES POWER-UP! ⚡🌟
+        // ═══════════════════════════════════════════════
+        
+        public void ApplySpeedMultiplier(float speedMult, float accelMult)
+        {
+            hasZoomies = true;
+            speedMultiplier = speedMult;
+            accelerationMultiplier = accelMult;
+            
+            // Start the speed lines effect!
+            if (zoomiesParticles != null)
+            {
+                zoomiesParticles.Play();
+            }
+            
+            Debug.Log($"[BotController] {gameObject.name} got ZOOMIES! Speed x{speedMult}, Accel x{accelMult} ⚡");
+        }
+        
+        public void RemoveSpeedMultiplier()
+        {
+            hasZoomies = false;
+            speedMultiplier = 1f;
+            accelerationMultiplier = 1f;
+            
+            // Stop the speed lines
+            if (zoomiesParticles != null)
+            {
+                zoomiesParticles.Stop();
+            }
+            
+            Debug.Log($"[BotController] {gameObject.name}'s zoomies wore off!");
         }
     }
 }

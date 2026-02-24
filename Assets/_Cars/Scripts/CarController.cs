@@ -11,6 +11,9 @@ namespace _Cars.Scripts
         [Header("References")]
         [SerializeField] private CarStats carStats;
         
+        [Header("Zoomies VFX")]
+        [SerializeField] private ParticleSystem zoomiesParticles; 
+        
         private PlayerInput playerInput;
         private InputAction moveAction;
         private InputAction jumpAction;
@@ -20,10 +23,15 @@ namespace _Cars.Scripts
         private Rigidbody carRb;
         private PauseController pauseController;
         
+        // Zoomies power-up state
+        private bool hasZoomies = false;
+        private float speedMultiplier = 1f;
+        private float accelerationMultiplier = 1f;
+        
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
         private const float AIRBORNE_ANGULAR_DAMPING = 5f;
         private const float AIRBORNE_ROTATION_SPEED = 2f;
-        private const float MOVE_INPUT_THRESHOLD = 0.01f;
+        private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
         
         private void Awake()
         {
@@ -60,6 +68,7 @@ namespace _Cars.Scripts
         
         private bool CanMove()
         {
+            // Can't move if gameplay hasn't started yet
             if (GameFlowController.instance != null && !GameFlowController.instance.IsGameplayActive())
             {
                 return false;
@@ -132,11 +141,13 @@ namespace _Cars.Scripts
         
         private bool CanPause()
         {
+            // Can't pause if game has ended
             if (GameplayManager.instance != null && GameplayManager.instance.IsGameEnded())
             {
                 return false;
             }
             
+            // Can't pause if gameplay hasn't started yet (during countdown)
             if (GameFlowController.instance != null && !GameFlowController.instance.IsGameplayActive())
             {
                 return false;
@@ -247,13 +258,13 @@ namespace _Cars.Scripts
         
         private bool ShouldMove()
         {
-            return Mathf.Abs(moveInput.y) > MOVE_INPUT_THRESHOLD;
+            return moveInput.y != 0;
         }
         
         private void ApplyAcceleration()
         {
             Vector3 direction = moveInput.y > 0 ? Vector3.forward : -Vector3.forward;
-            Vector3 force = direction * carStats.Acceleration;
+            Vector3 force = direction * carStats.Acceleration * accelerationMultiplier;
             carRb.AddRelativeForce(force);
         }
         
@@ -278,7 +289,7 @@ namespace _Cars.Scripts
         
         private bool ShouldTurn()
         {
-            return Mathf.Abs(moveInput.x) > MOVE_INPUT_THRESHOLD;
+            return moveInput.x != 0;
         }
         
         private bool IsMovingForward()
@@ -347,13 +358,11 @@ namespace _Cars.Scripts
                 return;
             }
             
-            float maxJumpVelocity = carStats.JumpForce * 0.5f;
-            
             Vector3 velocity = carRb.linearVelocity;
             
-            if (velocity.y > maxJumpVelocity)
+            if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY)
             {
-                velocity.y = maxJumpVelocity;
+                velocity.y = MAX_JUMP_HEIGHT_VELOCITY;
                 carRb.linearVelocity = velocity;
             }
         }
@@ -364,16 +373,50 @@ namespace _Cars.Scripts
             {
                 return;
             }
-
+            
             if (IsExceedingMaxSpeed())
             {
-                carRb.linearVelocity = carRb.linearVelocity.normalized * carStats.MaxSpeed;
+                carRb.linearVelocity = carRb.linearVelocity.normalized * (carStats.MaxSpeed * speedMultiplier);
             }
         }
         
         private bool IsExceedingMaxSpeed()
         {
-            return carRb.linearVelocity.magnitude > carStats.MaxSpeed;
+            return carRb.linearVelocity.magnitude > (carStats.MaxSpeed * speedMultiplier);
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  ZOOMIES POWER-UP! ⚡🌟
+        // ═══════════════════════════════════════════════
+        
+        public void ApplySpeedMultiplier(float speedMult, float accelMult)
+        {
+            hasZoomies = true;
+            speedMultiplier = speedMult;
+            accelerationMultiplier = accelMult;
+            
+            // Start the speed lines effect!
+            if (zoomiesParticles != null)
+            {
+                zoomiesParticles.Play();
+            }
+            
+            Debug.Log($"[CarController] {gameObject.name} got ZOOMIES! Speed x{speedMult}, Accel x{accelMult} ⚡");
+        }
+        
+        public void RemoveSpeedMultiplier()
+        {
+            hasZoomies = false;
+            speedMultiplier = 1f;
+            accelerationMultiplier = 1f;
+            
+            // Stop the speed lines
+            if (zoomiesParticles != null)
+            {
+                zoomiesParticles.Stop();
+            }
+            
+            Debug.Log($"[CarController] {gameObject.name}'s zoomies wore off!");
         }
     }
 }
