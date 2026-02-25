@@ -12,7 +12,7 @@ namespace _Cars.Scripts
         [SerializeField] private CarStats carStats;
         
         [Header("Zoomies VFX")]
-        [SerializeField] private ParticleSystem zoomiesParticles; 
+        [SerializeField] private ParticleSystem zoomiesParticles;
         
         private PlayerInput playerInput;
         private InputAction moveAction;
@@ -28,10 +28,17 @@ namespace _Cars.Scripts
         private float speedMultiplier = 1f;
         private float accelerationMultiplier = 1f;
         
+        // Super Jump power-up state
+        private bool hasSuperJump = false;
+        private float jumpMultiplier = 1f;
+        private float jumpHeightCapMultiplier = 1f;
+        
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
         private const float AIRBORNE_ANGULAR_DAMPING = 5f;
         private const float AIRBORNE_ROTATION_SPEED = 2f;
         private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
+        private const float AIR_CONTROL_FACTOR = 0.3f;  // 30% control in air (tweak this!)
+
         
         private void Awake()
         {
@@ -57,6 +64,7 @@ namespace _Cars.Scripts
         
         private void FixedUpdate()
         {
+            // Don't allow movement until gameplay has started
             if (!CanMove())
             {
                 return;
@@ -68,7 +76,6 @@ namespace _Cars.Scripts
         
         private bool CanMove()
         {
-            // Can't move if gameplay hasn't started yet
             if (GameFlowController.instance != null && !GameFlowController.instance.IsGameplayActive())
             {
                 return false;
@@ -141,13 +148,11 @@ namespace _Cars.Scripts
         
         private bool CanPause()
         {
-            // Can't pause if game has ended
             if (GameplayManager.instance != null && GameplayManager.instance.IsGameEnded())
             {
                 return false;
             }
             
-            // Can't pause if gameplay hasn't started yet (during countdown)
             if (GameFlowController.instance != null && !GameFlowController.instance.IsGameplayActive())
             {
                 return false;
@@ -281,9 +286,11 @@ namespace _Cars.Scripts
             {
                 return;
             }
-            
             float turnDirection = IsMovingForward() ? moveInput.x : -moveInput.x;
-            Vector3 torque = Vector3.up * turnDirection * carStats.TurnSpeed;
+                
+            float controlFactor = IsGrounded() ? 1f : AIR_CONTROL_FACTOR;
+               
+            Vector3 torque = Vector3.up * turnDirection * carStats.TurnSpeed * controlFactor;
             carRb.AddTorque(torque);
         }
         
@@ -342,7 +349,7 @@ namespace _Cars.Scripts
                 return;
             }
             
-            Vector3 jumpForce = transform.up * carStats.JumpForce;
+            Vector3 jumpForce = transform.up * carStats.JumpForce * jumpMultiplier;
             carRb.AddForce(jumpForce, ForceMode.Impulse);
         }
         
@@ -360,9 +367,9 @@ namespace _Cars.Scripts
             
             Vector3 velocity = carRb.linearVelocity;
             
-            if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY)
+            if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier)
             {
-                velocity.y = MAX_JUMP_HEIGHT_VELOCITY;
+                velocity.y = MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier;
                 carRb.linearVelocity = velocity;
             }
         }
@@ -386,7 +393,7 @@ namespace _Cars.Scripts
         }
         
         // ═══════════════════════════════════════════════
-        //  ZOOMIES POWER-UP! ⚡🌟
+        //  ZOOMIES POWER-UP
         // ═══════════════════════════════════════════════
         
         public void ApplySpeedMultiplier(float speedMult, float accelMult)
@@ -395,7 +402,6 @@ namespace _Cars.Scripts
             speedMultiplier = speedMult;
             accelerationMultiplier = accelMult;
             
-            // Start the speed lines effect!
             if (zoomiesParticles != null)
             {
                 zoomiesParticles.Play();
@@ -410,13 +416,34 @@ namespace _Cars.Scripts
             speedMultiplier = 1f;
             accelerationMultiplier = 1f;
             
-            // Stop the speed lines
             if (zoomiesParticles != null)
             {
                 zoomiesParticles.Stop();
             }
             
             Debug.Log($"[CarController] {gameObject.name}'s zoomies wore off!");
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  SUPER JUMP POWER-UP
+        // ═══════════════════════════════════════════════
+        
+        public void ApplyJumpMultiplier(float jumpMult, float jumpHeightCapMult)
+        {
+            hasSuperJump = true;
+            jumpMultiplier = jumpMult;
+            jumpHeightCapMultiplier = jumpHeightCapMult;
+            
+            Debug.Log($"[CarController] {gameObject.name} got SUPER JUMP! Jump x{jumpMult}, Height Cap x{jumpHeightCapMult} 🚀");
+        }
+        
+        public void RemoveJumpMultiplier()
+        {
+            hasSuperJump = false;
+            jumpMultiplier = 1f;
+            jumpHeightCapMultiplier = 1f;
+            
+            Debug.Log($"[CarController] {gameObject.name}'s super jump wore off!");
         }
     }
 }

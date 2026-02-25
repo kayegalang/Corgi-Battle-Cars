@@ -22,14 +22,14 @@ namespace _PowerUps.ScriptableObjects
             CarController controller = player.GetComponent<CarController>();
             if (controller != null)
             {
-                //controller.ApplyJumpMultiplier(jumpMultiplier, jumpHeightCapMultiplier);
+                controller.ApplyJumpMultiplier(jumpMultiplier, jumpHeightCapMultiplier);
                 return;
             }
             
             BotController botController = player.GetComponent<BotController>();
             if (botController != null)
             {
-                //botController.ApplyJumpMultiplier(jumpMultiplier, jumpHeightCapMultiplier);
+                botController.ApplyJumpMultiplier(jumpMultiplier, jumpHeightCapMultiplier);
                 return;
             }
             
@@ -43,14 +43,14 @@ namespace _PowerUps.ScriptableObjects
             CarController controller = player.GetComponent<CarController>();
             if (controller != null)
             {
-                //controller.RemoveJumpMultiplier();
+                controller.RemoveJumpMultiplier();
                 return;
             }
             
             BotController botController = player.GetComponent<BotController>();
             if (botController != null)
             {
-                //botController.RemoveJumpMultiplier();
+                botController.RemoveJumpMultiplier();
             }
         }
     }

@@ -19,12 +19,17 @@ namespace _Bot.Scripts
         private float speedMultiplier = 1f;
         private float accelerationMultiplier = 1f;
         
+        // Super jump power-up state:
+        private bool hasSuperJump = false;
+        private float jumpMultiplier = 1f;
+        private float jumpHeightCapMultiplier = 1f;
+        
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
         private const float AIRBORNE_ANGULAR_DAMPING = 5f;
         private const float AIRBORNE_ROTATION_SPEED = 2f;
         private const float MOVE_INPUT_THRESHOLD = 0.01f;
         private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
-        
+    
         private void Awake()
         {
             InitializeComponents();
@@ -154,10 +159,11 @@ namespace _Bot.Scripts
             {
                 return;
             }
-            
-            Vector3 jumpForce = transform.up * carStats.JumpForce;
+               
+            Vector3 jumpForce = transform.up * carStats.JumpForce * jumpMultiplier;
             carRb.AddForce(jumpForce, ForceMode.Impulse);
         }
+        
         
         private bool CanJump()
         {
@@ -186,12 +192,12 @@ namespace _Bot.Scripts
             {
                 return;
             }
-            
+                
             Vector3 velocity = carRb.linearVelocity;
-            
-            if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY)
+                
+            if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier)
             {
-                velocity.y = MAX_JUMP_HEIGHT_VELOCITY;
+                velocity.y = MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier;
                 carRb.linearVelocity = velocity;
             }
         }
@@ -246,6 +252,26 @@ namespace _Bot.Scripts
             }
             
             Debug.Log($"[BotController] {gameObject.name}'s zoomies wore off!");
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  SUPER JUMP POWER-UP! 🚀
+        // ═══════════════════════════════════════════════
+        public void ApplyJumpMultiplier(float jumpMult, float jumpHeightCapMult)
+        {
+            hasSuperJump = true;
+            jumpMultiplier = jumpMult;
+            jumpHeightCapMultiplier = jumpHeightCapMult;
+            
+            Debug.Log($"[BotController] {gameObject.name} got SUPER JUMP! Jump x{jumpMult}, Height Cap x{jumpHeightCapMult} 🚀");
+        }
+    
+        public void RemoveJumpMultiplier()
+        {
+            hasSuperJump = false;
+            jumpMultiplier = 1f;
+            jumpHeightCapMultiplier = 1f;
+            Debug.Log($"[BotController] {gameObject.name}'s super jump wore off!");
         }
     }
 }

@@ -424,7 +424,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2058743849}
         m_TargetAssemblyTypeName: UI.Scripts.PauseController, Assembly-CSharp
         m_MethodName: OnResumeButtonClick
         m_Mode: 1
@@ -474,68 +474,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 163466953}
   m_CullTransparentMesh: 1
---- !u!1001 &164187022
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 447686063}
-    m_Modifications:
-    - target: {fileID: 3903705523138361772, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-      propertyPath: m_Name
-      value: ZoomiesSpeedTrail
-      objectReference: {fileID: 0}
-    - target: {fileID: 8355015663822691598, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8355015663822691598, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8355015663822691598, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8355015663822691598, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8355015663822691598, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8355015663822691598, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8355015663822691598, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8355015663822691598, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: -90
-      objectReference: {fileID: 0}
-    - target: {fileID: 8355015663822691598, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8355015663822691598, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
---- !u!4 &164187023 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8355015663822691598, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-  m_PrefabInstance: {fileID: 164187022}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &178982896 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6755084027253256115, guid: fc5a676d2c90b3d4f8a22e369c35950d, type: 3}
@@ -573,11 +511,6 @@ MonoBehaviour:
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 0d5d89f8946374192ab45d9f5026aad2, type: 2}
   m_BuildHeightMesh: 0
---- !u!198 &234624842 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 7925573364777875441, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
-  m_PrefabInstance: {fileID: 164187022}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &311972073 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7725550455073907413, guid: fc5a676d2c90b3d4f8a22e369c35950d, type: 3}
@@ -824,7 +757,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2058743849}
         m_TargetAssemblyTypeName: UI.Scripts.PauseController, Assembly-CSharp
         m_MethodName: OnQuitButtonClick
         m_Mode: 1
@@ -1234,11 +1167,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 408769013}
   m_CullTransparentMesh: 1
---- !u!4 &447686063 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 240752657499608402, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-  m_PrefabInstance: {fileID: 1450635310}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &471906743
 GameObject:
   m_ObjectHideFlags: 0
@@ -1843,7 +1771,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2058743849}
         m_TargetAssemblyTypeName: UI.Scripts.PauseController, Assembly-CSharp
         m_MethodName: OnMainMenuButtonClick
         m_Mode: 1
@@ -2308,28 +2236,9 @@ PrefabInstance:
       propertyPath: carStats
       value: 
       objectReference: {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
-    - target: {fileID: 3264006447316882629, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: zoomiesParticles
-      value: 
-      objectReference: {fileID: 234624842}
-    - target: {fileID: 7652293949044176762, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7652293949044176762, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 7652293949044176762, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -8
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 240752657499608402, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 164187023}
+    m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
 --- !u!1 &1774116552
@@ -2540,6 +2449,7 @@ GameObject:
   - component: {fileID: 2058743846}
   - component: {fileID: 2058743848}
   - component: {fileID: 2058743847}
+  - component: {fileID: 2058743849}
   m_Layer: 5
   m_Name: PauseScreen
   m_TagString: Untagged
@@ -2609,6 +2519,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2058743845}
   m_CullTransparentMesh: 1
+--- !u!114 &2058743849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2058743845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a15eb2ba080c4318aeb97b04f58191f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI.Scripts.PauseController
 --- !u!1 &2120315916
 GameObject:
   m_ObjectHideFlags: 0
