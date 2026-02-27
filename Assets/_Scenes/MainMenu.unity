@@ -5969,7 +5969,6 @@ MonoBehaviour:
     joinedColor: {r: 0, g: 1, b: 0, a: 1}
   waitingText: Waiting...
   playerJoinedFormat: Player {0} Joined!
-  autoJoinDelay: 0.1
   transitionDelay: 0.5
   onAllPlayersJoined:
     m_PersistentCalls:

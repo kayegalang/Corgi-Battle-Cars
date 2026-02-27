@@ -26,6 +26,10 @@ namespace _PowerUps.ScriptableObjects
         [Range(0f, 10f)]
         public float minimumSpeedToDrop = 1f;
         
+        [Tooltip("How far behind the car to spawn the poop")]
+        [Range(1f, 10f)]
+        public float spawnDistanceBehind = 4f;
+        
         private float dropTimer = 0f;
         
         public override void Apply(GameObject player)
@@ -40,9 +44,6 @@ namespace _PowerUps.ScriptableObjects
             Debug.Log($"[PoopPowerUp] Poop trail ended on {player.name}");
         }
         
-        /// <summary>
-        /// Called every frame while active. Handles dropping poop at intervals.
-        /// </summary>
         public override void OnUpdate(GameObject player)
         {
             if (player == null) return;
@@ -71,11 +72,11 @@ namespace _PowerUps.ScriptableObjects
                 return;
             }
             
-            // Drop poop at player's position
-            Vector3 spawnPos = player.transform.position;
+            // Drop poop BEHIND the player
+            Vector3 spawnPos = player.transform.position - (player.transform.forward * spawnDistanceBehind);
             
             // Raycast down to place poop on the ground
-            if (Physics.Raycast(player.transform.position, Vector3.down, out RaycastHit hit, 2f))
+            if (Physics.Raycast(spawnPos + Vector3.up * 2f, Vector3.down, out RaycastHit hit, 5f))
             {
                 spawnPos = hit.point;
             }
@@ -86,7 +87,7 @@ namespace _PowerUps.ScriptableObjects
             PoopHazard hazard = poop.GetComponent<PoopHazard>();
             if (hazard != null)
             {
-                hazard.Initialize(player, spinOutDuration);
+                hazard.Initialize(player);
             }
             
             // Destroy poop after lifetime

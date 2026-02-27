@@ -1,3 +1,4 @@
+using System.Collections;
 using _Cars.ScriptableObjects;
 using UnityEngine;
 
@@ -29,6 +30,10 @@ namespace _Bot.Scripts
         private const float AIRBORNE_ROTATION_SPEED = 2f;
         private const float MOVE_INPUT_THRESHOLD = 0.01f;
         private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
+        
+        // Poop power-up state
+        private bool isSlipping = false;
+        private Coroutine slipCoroutine;
     
         private void Awake()
         {
@@ -37,6 +42,13 @@ namespace _Bot.Scripts
         
         private void FixedUpdate()
         {
+            // Can't move while slipping!
+            if (isSlipping)
+            {
+                ApplyMovementLimits();
+                return;
+            }
+            
             ApplyPhysics();
             ApplyMovementLimits();
         }
@@ -272,6 +284,47 @@ namespace _Bot.Scripts
             jumpMultiplier = 1f;
             jumpHeightCapMultiplier = 1f;
             Debug.Log($"[BotController] {gameObject.name}'s super jump wore off!");
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  POOP POWER-UP
+        // ═══════════════════════════════════════════════
+            
+        public void TriggerSlip(float duration, float spinForce)
+        {
+            if (isSlipping)
+            {
+                return;
+            }
+                    
+            if (slipCoroutine != null)
+            {
+                StopCoroutine(slipCoroutine);
+            }
+                    
+            slipCoroutine = StartCoroutine(SlipRoutine(duration, spinForce));
+        }
+        
+        private IEnumerator SlipRoutine(float duration, float spinForce)
+        {
+            isSlipping = true;
+                
+            Debug.Log($"[CarController] {gameObject.name} is slipping! 💩💨");
+                
+            SpinPlayer(spinForce);
+               
+            yield return new WaitForSeconds(duration);
+                
+            isSlipping = false;
+                
+            Debug.Log($"[CarController] {gameObject.name} regained control!");
+        }
+
+        private void SpinPlayer(float spinForce)
+        {
+            float randomDirection = Random.value > 0.5f ? 1f : -1f;
+            Vector3 spinTorque = Vector3.up * spinForce * randomDirection;
+            carRb.AddTorque(spinTorque, ForceMode.Impulse);
         }
     }
 }
