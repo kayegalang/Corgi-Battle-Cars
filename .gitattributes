@@ -1,0 +1,9 @@
+# ========================================
+# FMOD Unity Integration - .gitattributes
+# ========================================
+# Add these lines to your .gitattributes file
+# (Create this file in your project root if it doesn't exist)
+
+# Ensure FMOD bundle files use consistent line endings
+Assets/Plugins/FMOD/**/*.bundle text eol=lf
+Assets/Plugins/FMOD/**/Info.plist text eol=lf
