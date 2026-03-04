@@ -337,7 +337,7 @@ namespace _Gameplay.Scripts
             return "BotOne";
         }
         
-        public void RespawnBot(string playerTag)
+        public void Respawn(string playerTag)
         {
             GameObject prefabToSpawn = GetPrefabForTag(playerTag);
             
