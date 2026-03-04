@@ -1,4 +1,3 @@
-using _Bot.Scripts;
 using _PowerUps.Scripts;
 using UnityEngine;
 
@@ -8,83 +7,82 @@ namespace _PowerUps.ScriptableObjects
     public class SquirrelPowerUp : PowerUpObject
     {
         [Header("Squirrel Settings")]
-        [Tooltip("How long bots/players are distracted by the squirrel")]
-        [Range(1f, 15f)]
-        public float distractDuration = 5f;
+        [Tooltip("The squirrel prefab that gets thrown")]
+        public GameObject squirrelPrefab;
         
-        [Tooltip("Radius within which the squirrel attracts enemies")]
-        [Range(1f, 50f)]
-        public float attractRadius = 20f;
+        [Tooltip("How hard the squirrel is thrown")]
+        [Range(10f, 50f)]
+        public float throwForce = 25f;
         
-        [Tooltip("The throwable squirrel prefab")]
-        public GameObject squirrelProjectilePrefab;
+        [Tooltip("Upward force component for arc")]
+        [Range(1f, 20f)]
+        public float upwardForce = 8f;
         
-        [Tooltip("Force used to throw the squirrel")]
-        [Range(1f, 50f)]
-        public float throwForce = 20f;
+        [Header("Audio")]
+        public AudioClip throwSound;
         
         public override void Apply(GameObject player)
         {
-            PowerUpHandler handler = player.GetComponent<PowerUpHandler>();
+            // Squirrel is instant-use, so we just throw it immediately
+            ThrowSquirrel(player, player.transform.forward);
             
-            if (handler == null)
-            {
-                Debug.LogWarning($"[SquirrelPowerUp] No PowerUpHandler found on {player.name}!");
-                return;
-            }
-            
-            // Give the player a squirrel to throw
-            handler.SetSquirrelData(this);
-            handler.SetHasThrowable(true);
-            
-            Debug.Log($"[SquirrelPowerUp] Squirrel ready to throw on {player.name}!");
+            Debug.Log($"[SquirrelPowerUp] {player.name} threw a squirrel! 🐿️");
         }
         
         public override void Remove(GameObject player)
         {
-            if (player == null) return;
-            
-            PowerUpHandler handler = player.GetComponent<PowerUpHandler>();
-            
-            if (handler == null) return;
-            
-            handler.SetSquirrelData(null);
-            handler.SetHasThrowable(false);
-            
-            Debug.Log($"[SquirrelPowerUp] Squirrel power-up expired on {player.name}");
+            // Nothing to remove - squirrel is already in the world
+        }
+        
+        public override void OnUpdate(GameObject player)
+        {
+            // No per-frame updates needed
         }
         
         /// <summary>
-        /// Called by PowerUpHandler when the player throws the squirrel.
+        /// Throws the squirrel in the specified direction
         /// </summary>
-        public void ThrowSquirrel(GameObject player, Vector3 throwDirection)
+        public void ThrowSquirrel(GameObject player, Vector3 direction)
         {
-            if (squirrelProjectilePrefab == null)
+            if (squirrelPrefab == null)
             {
-                Debug.LogWarning("[SquirrelPowerUp] No squirrel projectile prefab assigned!");
+                Debug.LogError("[SquirrelPowerUp] No squirrel prefab assigned!");
                 return;
             }
             
-            // Spawn squirrel slightly in front of the player
-            Vector3 spawnPos = player.transform.position + player.transform.forward * 1.5f + Vector3.up * 0.5f;
+            // Spawn squirrel slightly in front of and above the player
+            Vector3 spawnPosition = player.transform.position + 
+                                   player.transform.forward * 2f + 
+                                   Vector3.up * 1f;
             
-            GameObject squirrel = Object.Instantiate(squirrelProjectilePrefab, spawnPos, Quaternion.identity);
+            // Make squirrel face the same direction as the player!
+            Quaternion spawnRotation = Quaternion.LookRotation(direction);
             
-            // Set up the squirrel projectile
-            SquirrelProjectile squirrelComp = squirrel.GetComponent<SquirrelProjectile>();
-            if (squirrelComp != null)
+            GameObject squirrel = Instantiate(squirrelPrefab, spawnPosition, spawnRotation);
+            
+            // Set the owner so it doesn't affect the thrower
+            Squirrel squirrelScript = squirrel.GetComponent<Squirrel>();
+            if (squirrelScript != null)
             {
-                squirrelComp.Initialize(player, attractRadius, distractDuration);
+                squirrelScript.Initialize(player);
             }
             
-            // Throw it
-            Rigidbody rb = squirrel.GetComponent<Rigidbody>();
-            if (rb != null)
+            // Throw it with physics!
+            Rigidbody squirrelRb = squirrel.GetComponent<Rigidbody>();
+            if (squirrelRb != null)
             {
-                rb.AddForce(throwDirection * throwForce, ForceMode.Impulse);
+                Vector3 throwDirection = direction.normalized;
+                Vector3 force = throwDirection * throwForce + Vector3.up * upwardForce;
+                squirrelRb.AddForce(force, ForceMode.Impulse);
             }
             
-            Debug.Log($"[SquirrelPowerUp] Squirrel thrown by {player.name}!");
+            // Play throw sound
+            if (throwSound != null)
+            {
+                AudioSource.PlayClipAtPoint(throwSound, player.transform.position);
+            }
+            
+            Debug.Log($"[SquirrelPowerUp] Squirrel launched in direction {direction}! 🐿️💨");
         }
     }
 }

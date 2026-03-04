@@ -548,5 +548,14 @@ namespace _Cars.Scripts
             
             Debug.Log($"[CarController] Torque applied! Current angular velocity: {carRb.angularVelocity}");
         }
+        
+        // ═══════════════════════════════════════════════
+        //  SQUIRREL POWER-UP
+        // ═══════════════════════════════════════════════
+        public void SetInputs(float turnAmount, float moveAmount)
+        {
+            moveInput.x = Mathf.Clamp(turnAmount, -1f, 1f);
+            moveInput.y = Mathf.Clamp(moveAmount, -1f, 1f);
+        } 
     }
 }
