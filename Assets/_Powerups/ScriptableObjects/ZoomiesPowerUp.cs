@@ -4,36 +4,35 @@ using UnityEngine;
 
 namespace _PowerUps.ScriptableObjects
 {
-    [CreateAssetMenu(fileName = "SuperJump", menuName = "Power Ups/Super Jump")]
-    public class SuperJumpPowerUp : PowerUpObject
+    [CreateAssetMenu(fileName = "Zoomies", menuName = "Power Ups/Zoomies")]
+    public class ZoomiesPowerUp : PowerUpObject
     {
-        [Header("Super Jump Settings")]
-        [Tooltip("How much to multiply the car's jump force by")]
-        [Range(1f, 10f)]
-        public float jumpMultiplier = 3f;
-        
-        [Tooltip("How much to increase the jump height cap by")]
+        [Header("Zoomies Settings")]
+        [Tooltip("How much to multiply the car's max speed by")]
         [Range(1f, 5f)]
-        public float jumpHeightCapMultiplier = 3f;
+        public float speedMultiplier = 2.5f;
+        
+        [Tooltip("How much to multiply the car's acceleration by")]
+        [Range(1f, 5f)]
+        public float accelerationMultiplier = 2f;
         
         public override void Apply(GameObject player)
         {
-            // Works for both human players and bots
             CarController controller = player.GetComponent<CarController>();
             if (controller != null)
             {
-                //controller.ApplyJumpMultiplier(jumpMultiplier, jumpHeightCapMultiplier);
+                controller.ApplySpeedMultiplier(speedMultiplier, accelerationMultiplier);
                 return;
             }
             
             BotController botController = player.GetComponent<BotController>();
             if (botController != null)
             {
-                //botController.ApplyJumpMultiplier(jumpMultiplier, jumpHeightCapMultiplier);
+                botController.ApplySpeedMultiplier(speedMultiplier, accelerationMultiplier);
                 return;
             }
             
-            Debug.LogWarning($"[SuperJumpPowerUp] No CarController or BotController found on {player.name}!");
+            Debug.LogWarning($"[ZoomiesPowerUp] No CarController or BotController found on {player.name}!");
         }
         
         public override void Remove(GameObject player)
@@ -43,14 +42,14 @@ namespace _PowerUps.ScriptableObjects
             CarController controller = player.GetComponent<CarController>();
             if (controller != null)
             {
-                //controller.RemoveJumpMultiplier();
+                controller.RemoveSpeedMultiplier();
                 return;
             }
             
             BotController botController = player.GetComponent<BotController>();
             if (botController != null)
             {
-                //botController.RemoveJumpMultiplier();
+                botController.RemoveSpeedMultiplier();
             }
         }
     }

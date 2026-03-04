@@ -1,82 +1,113 @@
-using System.Collections;
 using _Cars.Scripts;
+using _Bot.Scripts;
 using UnityEngine;
 
 namespace _PowerUps.Scripts
 {
-    /// <summary>
-    /// Placed in the world by the Poop power-up.
-    /// Causes players that drive through it to spin out.
-    /// </summary>
     public class PoopHazard : MonoBehaviour
     {
+        [Header("Slip Settings")]
+        [Tooltip("How long the player loses control")]
+        [SerializeField] private float slipDuration = 1.5f;
+        
+        [Tooltip("How strong the spin-out is")]
+        [SerializeField] private float spinForce = 500f;
+        
+        [Header("Lifetime")]
+        [Tooltip("How long before the poop disappears")]
+        [SerializeField] private float lifetime = 10f;
+        
+        [Header("Grace Period")]
+        [Tooltip("Time after spawning before owner can hit their own poop")]
+        [SerializeField] private float ownerGracePeriod = 0.5f;
+        
         private GameObject owner;
-        private float spinOutDuration;
-        private bool isInitialized = false;
+        private float spawnTime;
         
-        [Header("Spin Out Settings")]
-        [SerializeField] private float spinTorque = 15f;
-        [SerializeField] private float speedReduction = 0.3f; // Multiplied against current velocity
-        
-        public void Initialize(GameObject poopOwner, float spinDuration)
+        private void Start()
         {
-            owner = poopOwner;
-            spinOutDuration = spinDuration;
-            isInitialized = true;
+            Destroy(gameObject, lifetime);
+            spawnTime = Time.time;
+            Debug.Log($"[PoopHazard] Spawned at {transform.position}");
+        }
+        
+        public void Initialize(GameObject ownerObject)
+        {
+            owner = ownerObject;
+            Debug.Log($"[PoopHazard] Owner set to: {owner?.name}");
         }
         
         private void OnTriggerEnter(Collider other)
         {
-            if (!isInitialized) return;
+            Debug.Log($"[PoopHazard] ★★★ OnTriggerEnter CALLED! ★★★");
+            Debug.Log($"[PoopHazard] Collided with: {other.gameObject.name}");
+            Debug.Log($"[PoopHazard] Other root: {other.transform.root.gameObject.name}");
             
-            // Don't spin out the person who dropped the poop
-            if (other.gameObject == owner) return;
+            // Check if still in grace period for the owner
+            if (owner != null && IsOwnerCollision(other))
+            {
+                float timeSinceSpawn = Time.time - spawnTime;
+                if (timeSinceSpawn < ownerGracePeriod)
+                {
+                    Debug.Log($"[PoopHazard] Grace period active ({timeSinceSpawn:F2}s < {ownerGracePeriod}s) - ignoring owner");
+                    return;
+                }
+                Debug.Log($"[PoopHazard] Grace period expired - owner CAN hit this poop!");
+            }
             
-            // Only affect players and bots (anything with a Rigidbody and CarHealth)
-            CarHealth carHealth = other.GetComponent<CarHealth>();
-            Rigidbody rb = other.GetComponent<Rigidbody>();
+            // Check if it's a car (player or bot)
+            CarController carController = other.GetComponent<CarController>();
+            BotController botController = other.GetComponent<BotController>();
             
-            if (carHealth == null || rb == null) return;
+            // Also check the root in case collider is on a child
+            if (carController == null)
+            {
+                carController = other.transform.root.GetComponent<CarController>();
+            }
+            if (botController == null)
+            {
+                botController = other.transform.root.GetComponent<BotController>();
+            }
             
-            StartCoroutine(SpinOut(other.gameObject, rb));
+            if (carController != null)
+            {
+                Debug.Log($"[PoopHazard] {other.gameObject.name} slipped on a poop! 💩");
+                carController.TriggerSlip(slipDuration, spinForce);
+                DestroyPoop();
+            }
+            else if (botController != null)
+            {
+                Debug.Log($"[PoopHazard] {other.gameObject.name} slipped on a poop! 💩");
+                botController.TriggerSlip(slipDuration, spinForce);
+                DestroyPoop();
+            }
+            else
+            {
+                Debug.LogWarning($"[PoopHazard] No CarController or BotController found on {other.gameObject.name} or its root!");
+            }
         }
         
-        private IEnumerator SpinOut(GameObject player, Rigidbody rb)
+        private bool IsOwnerCollision(Collider other)
         {
-            Debug.Log($"[PoopHazard] {player.name} stepped in poop! 💩");
+            // Check both the collided object AND its root
+            GameObject rootObject = other.transform.root.gameObject;
             
-            // Disable player controls during spin
-            CarController carController = player.GetComponent<CarController>();
-            bool wasEnabled = false;
+            bool directMatch = other.gameObject == owner;
+            bool rootMatch = rootObject == owner;
             
-            if (carController != null)
+            if (directMatch || rootMatch)
             {
-                wasEnabled = carController.enabled;
-                carController.enabled = false;
+                Debug.Log($"[PoopHazard] Owner match found! Direct: {directMatch}, Root: {rootMatch}");
+                return true;
             }
             
-            // Slow them down
-            rb.linearVelocity *= speedReduction;
-            
-            float elapsed = 0f;
-            float direction = Random.value > 0.5f ? 1f : -1f; // Random spin direction
-            
-            while (elapsed < spinOutDuration)
-            {
-                // Apply spinning torque
-                rb.AddTorque(Vector3.up * spinTorque * direction, ForceMode.Force);
-                
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-            
-            // Restore controls
-            if (carController != null)
-            {
-                carController.enabled = wasEnabled;
-            }
-            
-            Debug.Log($"[PoopHazard] {player.name} recovered from poop spin-out");
+            return false;
+        }
+        
+        private void DestroyPoop()
+        {
+            Debug.Log($"[PoopHazard] Destroying poop!");
+            Destroy(gameObject);
         }
     }
 }
