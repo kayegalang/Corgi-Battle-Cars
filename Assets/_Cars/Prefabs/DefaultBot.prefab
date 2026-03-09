@@ -129,6 +129,7 @@ GameObject:
   - component: {fileID: 3883904779664031299}
   - component: {fileID: 1539554114368885456}
   - component: {fileID: 3308493156854308235}
+  - component: {fileID: 3241976254510136405}
   m_Layer: 0
   m_Name: DefaultBot
   m_TagString: BotOne
@@ -290,6 +291,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player.Scripts.BotController
   carStats: {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
+  zoomiesParticles: {fileID: 7925573364777875441, guid: 9d12caa9882f2405990225a797f92e4c, type: 3}
 --- !u!114 &1539554114368885456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -328,6 +330,23 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.2491, y: 1.446317, z: 3.7814965}
   m_Center: {x: -0.000000834465, y: 0.95552886, z: 0.09951556}
+--- !u!114 &3241976254510136405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3398083622699686620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e286330116d4543afa606a297b6afa60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_PowerUps.Scripts.PowerUpHandler
+  powerUpUI: {fileID: 0}
+  powerUpIcon: {fileID: 0}
+  powerUpNameText: {fileID: 0}
+  timerBar: {fileID: 0}
+  botAutoUseDelay: 1.5
 --- !u!1 &6940145831851952758
 GameObject:
   m_ObjectHideFlags: 0

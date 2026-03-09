@@ -4,24 +4,38 @@ using _PowerUps.ScriptableObjects;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 namespace _PowerUps.Scripts
 {
     /// <summary>
     /// Sits on the player. Receives power-ups from PowerUpPickup and manages
     /// activating, ticking, and removing effects.
+    /// NOW WITH HOLD AND USE SYSTEM!
     /// </summary>
     public class PowerUpHandler : MonoBehaviour
     {
-        [Header("UI References")]
+        [Header("Active Power-Up UI")]
         [SerializeField] private GameObject powerUpUI;          // Panel shown when power-up is active
         [SerializeField] private Image powerUpIcon;             // Icon of the active power-up
         [SerializeField] private TextMeshProUGUI powerUpNameText;
         [SerializeField] private Image timerBar;                // Drains left to right as time runs out
         
+        [Header("Held Power-Up UI (NEW!)")]
+        [SerializeField] private GameObject heldPowerUpUI;      // Panel shown when holding a power-up
+        [SerializeField] private TextMeshProUGUI heldPowerUpNameText; // Name of held power-up
+        
         [Header("Bot Settings")]
         [Tooltip("How long after collecting before a bot auto-uses an active power-up (bark/squirrel)")]
         [SerializeField] private float botAutoUseDelay = 1.5f;
+        
+        [Header("Input")]
+        private PlayerInput playerInput;
+        private InputAction usePowerUpAction;
+        
+        // HELD POWER-UP STATE (NEW!)
+        private PowerUpObject heldPowerUp;
+        private bool hasPowerUp = false;
         
         // Active power-up state
         private PowerUpObject activePowerUp;
@@ -42,7 +56,38 @@ namespace _PowerUps.Scripts
         private void Awake()
         {
             IsBot = GetComponent<BotAI>() != null;
+            InitializeInput();
             HidePowerUpUI();
+            HideHeldPowerUpUI();
+        }
+        
+        private void OnEnable()
+        {
+            if (usePowerUpAction != null)
+            {
+                usePowerUpAction.Enable();
+                usePowerUpAction.performed += OnUsePowerUpPressed;
+            }
+        }
+        
+        private void OnDisable()
+        {
+            if (usePowerUpAction != null)
+            {
+                usePowerUpAction.performed -= OnUsePowerUpPressed;
+                usePowerUpAction.Disable();
+            }
+        }
+        
+        private void InitializeInput()
+        {
+            playerInput = GetComponent<PlayerInput>();
+            
+            if (playerInput != null)
+            {
+                var actions = playerInput.actions;
+                usePowerUpAction = actions.FindAction("UsePowerUp", true);
+            }
         }
         
         private void Update()
@@ -54,6 +99,85 @@ namespace _PowerUps.Scripts
             
             // Per-frame effect (e.g. poop dropping)
             activePowerUp?.OnUpdate(gameObject);
+        }
+        
+        // ──────────────────────────────────────────────
+        //  HOLD AND USE SYSTEM (NEW!)
+        // ──────────────────────────────────────────────
+        
+        /// <summary>
+        /// Try to pick up a power-up into the held slot
+        /// Returns true if successfully picked up
+        /// </summary>
+        public bool TryPickUpPowerUp(PowerUpObject powerUp)
+        {
+            if (hasPowerUp)
+            {
+                Debug.Log($"[PowerUpHandler] {gameObject.name} already has a power-up! Can't pick up another.");
+                return false;
+            }
+            
+            heldPowerUp = powerUp;
+            hasPowerUp = true;
+            
+            ShowHeldPowerUpUI();
+            
+            Debug.Log($"[PowerUpHandler] {gameObject.name} picked up: {powerUp.powerUpName}! Press button to use!");
+            
+            // Bots auto-use immediately
+            if (IsBot)
+            {
+                UseHeldPowerUp();
+            }
+            
+            return true;
+        }
+        
+        /// <summary>
+        /// Called when player presses the "Use Power-Up" button
+        /// </summary>
+        private void OnUsePowerUpPressed(InputAction.CallbackContext ctx)
+        {
+            UseHeldPowerUp();
+        }
+        
+        /// <summary>
+        /// Activate the held power-up
+        /// </summary>
+        public void UseHeldPowerUp()
+        {
+            if (!hasPowerUp || heldPowerUp == null)
+            {
+                Debug.Log($"[PowerUpHandler] {gameObject.name} has no power-up to use!");
+                return;
+            }
+            
+            Debug.Log($"[PowerUpHandler] {gameObject.name} is using: {heldPowerUp.powerUpName}!");
+            
+            // Activate the held power-up
+            ActivatePowerUp(heldPowerUp);
+            
+            // Clear the held slot
+            ClearHeldPowerUp();
+        }
+        
+        private void ClearHeldPowerUp()
+        {
+            heldPowerUp = null;
+            hasPowerUp = false;
+            HideHeldPowerUpUI();
+            
+            Debug.Log($"[PowerUpHandler] {gameObject.name} used their held power-up!");
+        }
+        
+        public bool HasHeldPowerUp()
+        {
+            return hasPowerUp;
+        }
+        
+        public PowerUpObject GetHeldPowerUp()
+        {
+            return heldPowerUp;
         }
         
         // ──────────────────────────────────────────────
@@ -176,7 +300,7 @@ namespace _PowerUps.Scripts
         }
         
         // ──────────────────────────────────────────────
-        //  UI
+        //  UI - ACTIVE POWER-UP
         // ──────────────────────────────────────────────
         
         private void ShowPowerUpUI(PowerUpObject powerUp)
@@ -197,6 +321,31 @@ namespace _PowerUps.Scripts
             if (timerBar == null || activePowerUp == null) return;
             
             timerBar.fillAmount = remainingDuration / activePowerUp.duration;
+        }
+        
+        // ──────────────────────────────────────────────
+        //  UI - HELD POWER-UP (NEW!)
+        // ──────────────────────────────────────────────
+        
+        private void ShowHeldPowerUpUI()
+        {
+            if (heldPowerUpUI != null)
+            {
+                heldPowerUpUI.SetActive(true);
+            }
+            
+            if (heldPowerUpNameText != null && heldPowerUp != null)
+            {
+                heldPowerUpNameText.text = heldPowerUp.powerUpName;
+            }
+        }
+        
+        private void HideHeldPowerUpUI()
+        {
+            if (heldPowerUpUI != null)
+            {
+                heldPowerUpUI.SetActive(false);
+            }
         }
         
         // ──────────────────────────────────────────────

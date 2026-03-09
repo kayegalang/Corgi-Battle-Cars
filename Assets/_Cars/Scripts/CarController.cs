@@ -1,3 +1,4 @@
+using System.Collections;
 using _Cars.ScriptableObjects;
 using _UI.Scripts;
 using _Gameplay.Scripts;
@@ -11,6 +12,9 @@ namespace _Cars.Scripts
         [Header("References")]
         [SerializeField] private CarStats carStats;
         
+        [Header("Zoomies VFX")]
+        [SerializeField] private ParticleSystem zoomiesParticles;
+        
         private PlayerInput playerInput;
         private InputAction moveAction;
         private InputAction jumpAction;
@@ -20,13 +24,30 @@ namespace _Cars.Scripts
         private Rigidbody carRb;
         private PauseController pauseController;
         
+        // Zoomies power-up state
+        private bool hasZoomies = false;
+        private float speedMultiplier = 1f;
+        private float accelerationMultiplier = 1f;
+        
+        // Super Jump power-up state
+        private bool hasSuperJump = false;
+        private float jumpMultiplier = 1f;
+        private float jumpHeightCapMultiplier = 1f;
+        
+        // Poop power-up state
+        private bool isSlipping = false;
+        private Coroutine slipCoroutine;
+        
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
         private const float AIRBORNE_ANGULAR_DAMPING = 5f;
         private const float AIRBORNE_ROTATION_SPEED = 2f;
-        private const float MOVE_INPUT_THRESHOLD = 0.01f;
+        private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
+        private const float AIR_CONTROL_FACTOR = 0.3f; 
+
         
         private void Awake()
         {
+            Debug.Log($"[CarController] Awake called on {gameObject.name}");
             InitializeComponents();
         }
         
@@ -37,20 +58,31 @@ namespace _Cars.Scripts
         
         private void OnEnable()
         {
+            Debug.Log($"[CarController] OnEnable called on {gameObject.name}");
             EnableInputActions();
             SubscribeToInputEvents();
         }
         
         private void OnDisable()
         {
+            Debug.Log($"[CarController] OnDisable called on {gameObject.name}");
             DisableInputActions();
             UnsubscribeFromInputEvents();
         }
         
         private void FixedUpdate()
         {
+            // Don't allow movement until gameplay has started
             if (!CanMove())
             {
+                return;
+            }
+            
+            // Can't move while slipping!
+            if (isSlipping)
+            {
+                Debug.Log($"[CarController] {gameObject.name} is currently slipping - no player input!");
+                ApplyMovementLimits();
                 return;
             }
             
@@ -70,6 +102,7 @@ namespace _Cars.Scripts
         
         private void InitializeComponents()
         {
+            Debug.Log($"[CarController] Initializing components on {gameObject.name}");
             InitializePlayerInput();
             InitializeRigidbody();
             InitializePauseController();
@@ -86,12 +119,19 @@ namespace _Cars.Scripts
                 moveAction = actions.FindAction("Move", true);
                 jumpAction = actions.FindAction("Jump", true);
                 pauseAction = actions.FindAction("Pause", true);
+                Debug.Log($"[CarController] PlayerInput initialized successfully on {gameObject.name}");
             }
         }
         
         private void InitializeRigidbody()
         {
             carRb = GetComponent<Rigidbody>();
+            if (carRb != null)
+            {
+                Debug.Log($"[CarController] Rigidbody found on {gameObject.name}");
+                Debug.Log($"[CarController] Rigidbody IsKinematic: {carRb.isKinematic}");
+                Debug.Log($"[CarController] Rigidbody Constraints: {carRb.constraints}");
+            }
         }
         
         private void InitializePauseController()
@@ -115,6 +155,8 @@ namespace _Cars.Scripts
             {
                 Debug.LogError($"[{nameof(CarController)}] CarStats not assigned on {gameObject.name}!");
             }
+            
+            Debug.Log($"[CarController] Component validation complete on {gameObject.name}");
         }
         
         private void HandlePauseInput()
@@ -247,13 +289,13 @@ namespace _Cars.Scripts
         
         private bool ShouldMove()
         {
-            return Mathf.Abs(moveInput.y) > MOVE_INPUT_THRESHOLD;
+            return moveInput.y != 0;
         }
         
         private void ApplyAcceleration()
         {
             Vector3 direction = moveInput.y > 0 ? Vector3.forward : -Vector3.forward;
-            Vector3 force = direction * carStats.Acceleration;
+            Vector3 force = direction * carStats.Acceleration * accelerationMultiplier;
             carRb.AddRelativeForce(force);
         }
         
@@ -270,15 +312,17 @@ namespace _Cars.Scripts
             {
                 return;
             }
-            
             float turnDirection = IsMovingForward() ? moveInput.x : -moveInput.x;
-            Vector3 torque = Vector3.up * turnDirection * carStats.TurnSpeed;
+                
+            float controlFactor = IsGrounded() ? 1f : AIR_CONTROL_FACTOR;
+               
+            Vector3 torque = Vector3.up * turnDirection * carStats.TurnSpeed * controlFactor;
             carRb.AddTorque(torque);
         }
         
         private bool ShouldTurn()
         {
-            return Mathf.Abs(moveInput.x) > MOVE_INPUT_THRESHOLD;
+            return moveInput.x != 0;
         }
         
         private bool IsMovingForward()
@@ -331,7 +375,7 @@ namespace _Cars.Scripts
                 return;
             }
             
-            Vector3 jumpForce = transform.up * carStats.JumpForce;
+            Vector3 jumpForce = transform.up * carStats.JumpForce * jumpMultiplier;
             carRb.AddForce(jumpForce, ForceMode.Impulse);
         }
         
@@ -347,13 +391,11 @@ namespace _Cars.Scripts
                 return;
             }
             
-            float maxJumpVelocity = carStats.JumpForce * 0.5f;
-            
             Vector3 velocity = carRb.linearVelocity;
             
-            if (velocity.y > maxJumpVelocity)
+            if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier)
             {
-                velocity.y = maxJumpVelocity;
+                velocity.y = MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier;
                 carRb.linearVelocity = velocity;
             }
         }
@@ -364,16 +406,156 @@ namespace _Cars.Scripts
             {
                 return;
             }
-
+            
             if (IsExceedingMaxSpeed())
             {
-                carRb.linearVelocity = carRb.linearVelocity.normalized * carStats.MaxSpeed;
+                carRb.linearVelocity = carRb.linearVelocity.normalized * (carStats.MaxSpeed * speedMultiplier);
             }
         }
         
         private bool IsExceedingMaxSpeed()
         {
-            return carRb.linearVelocity.magnitude > carStats.MaxSpeed;
+            return carRb.linearVelocity.magnitude > (carStats.MaxSpeed * speedMultiplier);
         }
+        
+        // ═══════════════════════════════════════════════
+        //  ZOOMIES POWER-UP
+        // ═══════════════════════════════════════════════
+        
+        public void ApplySpeedMultiplier(float speedMult, float accelMult)
+        {
+            hasZoomies = true;
+            speedMultiplier = speedMult;
+            accelerationMultiplier = accelMult;
+            
+            if (zoomiesParticles != null)
+            {
+                zoomiesParticles.Play();
+                Debug.Log($"[CarController] Zoomies particles started on {gameObject.name}");
+            }
+            
+            Debug.Log($"[CarController] {gameObject.name} got ZOOMIES! Speed x{speedMult}, Accel x{accelMult} ⚡");
+        }
+        
+        public void RemoveSpeedMultiplier()
+        {
+            hasZoomies = false;
+            speedMultiplier = 1f;
+            accelerationMultiplier = 1f;
+            
+            if (zoomiesParticles != null)
+            {
+                zoomiesParticles.Stop();
+                Debug.Log($"[CarController] Zoomies particles stopped on {gameObject.name}");
+            }
+            
+            Debug.Log($"[CarController] {gameObject.name}'s zoomies wore off!");
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  SUPER JUMP POWER-UP
+        // ═══════════════════════════════════════════════
+        
+        public void ApplyJumpMultiplier(float jumpMult, float jumpHeightCapMult)
+        {
+            hasSuperJump = true;
+            jumpMultiplier = jumpMult;
+            jumpHeightCapMultiplier = jumpHeightCapMult;
+            
+            Debug.Log($"[CarController] {gameObject.name} got SUPER JUMP! Jump x{jumpMult}, Height Cap x{jumpHeightCapMult} 🚀");
+        }
+        
+        public void RemoveJumpMultiplier()
+        {
+            hasSuperJump = false;
+            jumpMultiplier = 1f;
+            jumpHeightCapMultiplier = 1f;
+            
+            Debug.Log($"[CarController] {gameObject.name}'s super jump wore off!");
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  POOP POWER-UP - SLIP MECHANIC
+        // ═══════════════════════════════════════════════
+        
+        public void TriggerSlip(float duration, float spinForce)
+        {
+            Debug.Log($"[CarController] TriggerSlip called on {gameObject.name}! Duration: {duration}, SpinForce: {spinForce}");
+            
+            if (isSlipping)
+            {
+                Debug.Log($"[CarController] {gameObject.name} is already slipping - ignoring new slip trigger");
+                return;
+            }
+            
+            if (carRb == null)
+            {
+                Debug.LogError($"[CarController] Cannot trigger slip - Rigidbody is null on {gameObject.name}!");
+                return;
+            }
+            
+            Debug.Log($"[CarController] Starting slip coroutine on {gameObject.name}");
+            
+            if (slipCoroutine != null)
+            {
+                Debug.Log($"[CarController] Stopping existing slip coroutine");
+                StopCoroutine(slipCoroutine);
+            }
+            
+            slipCoroutine = StartCoroutine(SlipRoutine(duration, spinForce));
+        }
+        
+        private IEnumerator SlipRoutine(float duration, float spinForce)
+        {
+            Debug.Log($"[CarController] SlipRoutine STARTED on {gameObject.name}");
+            
+            isSlipping = true;
+            Debug.Log($"[CarController] isSlipping set to TRUE");
+            
+            Debug.Log($"[CarController] {gameObject.name} is slipping! 💩💨");
+            
+            SpinPlayer(spinForce);
+            
+            Debug.Log($"[CarController] Waiting {duration} seconds...");
+            yield return new WaitForSeconds(duration);
+            
+            isSlipping = false;
+            Debug.Log($"[CarController] isSlipping set to FALSE");
+            
+            Debug.Log($"[CarController] {gameObject.name} regained control! SlipRoutine ENDED");
+        }
+
+        private void SpinPlayer(float spinForce)
+        {
+            Debug.Log($"[CarController] SpinPlayer called with force: {spinForce}");
+            
+            if (carRb == null)
+            {
+                Debug.LogError($"[CarController] Cannot spin - Rigidbody is null!");
+                return;
+            }
+            
+            // Check Rigidbody constraints
+            Debug.Log($"[CarController] Rigidbody constraints: {carRb.constraints}");
+            
+            float randomDirection = Random.value > 0.5f ? 1f : -1f;
+            Debug.Log($"[CarController] Random spin direction: {randomDirection}");
+            
+            Vector3 spinTorque = Vector3.up * spinForce * randomDirection;
+            Debug.Log($"[CarController] Applying spin torque: {spinTorque}");
+            
+            carRb.AddTorque(spinTorque, ForceMode.Impulse);
+            
+            Debug.Log($"[CarController] Torque applied! Current angular velocity: {carRb.angularVelocity}");
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  SQUIRREL POWER-UP
+        // ═══════════════════════════════════════════════
+        public void SetInputs(float turnAmount, float moveAmount)
+        {
+            moveInput.x = Mathf.Clamp(turnAmount, -1f, 1f);
+            moveInput.y = Mathf.Clamp(moveAmount, -1f, 1f);
+        } 
     }
 }

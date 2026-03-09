@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04e5a49ad4c204971b0595d83e77688d, type: 3}
+  m_Name: SuperBark
+  m_EditorClassIdentifier: Assembly-CSharp::_PowerUps.ScriptableObjects.SuperBarkPowerUp
+  powerUpName: Super Bark
+  description: Blast away opponents with a powerful bark
+  icon: {fileID: 0}
+  type: 2
+  duration: 5
+  revealDistance: 5
+  vibrationDistance: 15
+  smellDistance: 25
+  smellTrailColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  smellTrailPrefab: {fileID: 0}
+  treatVisualPrefab: {fileID: 0}
+  collectSound: {fileID: 0}
+  activeSound: {fileID: 0}
+  barkInterval: 0.8
+  barkWavePrefab: {fileID: 576101037032569973, guid: cb1a2f22fdbcd4040968c5d8bcdad63d, type: 3}
+  spawnDistance: 2
+  barkSound: {fileID: 0}

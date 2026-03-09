@@ -2480,7 +2480,19 @@ MonoBehaviour:
   gameTimerFormat: 'Time: {0}'
   onMatchStart:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   onGameEnd:
     m_PersistentCalls:
       m_Calls: []
@@ -5975,7 +5987,6 @@ MonoBehaviour:
     joinedColor: {r: 0, g: 1, b: 0, a: 1}
   waitingText: Waiting...
   playerJoinedFormat: Player {0} Joined!
-  autoJoinDelay: 0.1
   transitionDelay: 0.5
   onAllPlayersJoined:
     m_PersistentCalls:
@@ -7246,7 +7257,7 @@ MonoBehaviour:
         m_Flags: 0
       m_Flags: 0
     m_Reference: {fileID: 0}
-  m_PlayerPrefab: {fileID: 2474133199045047173, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
+  m_PlayerPrefab: {fileID: 852133240821571215, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
   m_SplitScreen: 1
   m_MaintainAspectRatioInSplitScreen: 0
   m_FixedNumberOfSplitScreens: -1

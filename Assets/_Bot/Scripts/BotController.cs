@@ -1,3 +1,4 @@
+using System.Collections;
 using _Cars.ScriptableObjects;
 using UnityEngine;
 
@@ -8,14 +9,32 @@ namespace _Bot.Scripts
         [Header("References")]
         [SerializeField] private CarStats carStats;
         
+        [Header("Zoomies VFX")]
+        [SerializeField] private ParticleSystem zoomiesParticles; 
+        
         private Vector2 moveInput;
         private Rigidbody carRb;
+        
+        // Zoomies power-up state
+        private bool hasZoomies = false;
+        private float speedMultiplier = 1f;
+        private float accelerationMultiplier = 1f;
+        
+        // Super jump power-up state:
+        private bool hasSuperJump = false;
+        private float jumpMultiplier = 1f;
+        private float jumpHeightCapMultiplier = 1f;
         
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
         private const float AIRBORNE_ANGULAR_DAMPING = 5f;
         private const float AIRBORNE_ROTATION_SPEED = 2f;
         private const float MOVE_INPUT_THRESHOLD = 0.01f;
+        private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
         
+        // Poop power-up state
+        private bool isSlipping = false;
+        private Coroutine slipCoroutine;
+    
         private void Awake()
         {
             InitializeComponents();
@@ -23,6 +42,13 @@ namespace _Bot.Scripts
         
         private void FixedUpdate()
         {
+            // Can't move while slipping!
+            if (isSlipping)
+            {
+                ApplyMovementLimits();
+                return;
+            }
+            
             ApplyPhysics();
             ApplyMovementLimits();
         }
@@ -64,7 +90,6 @@ namespace _Bot.Scripts
         {
             if (!ShouldMove())
             {
-                ConstrainLateralMovement();
                 return;
             }
             
@@ -79,7 +104,7 @@ namespace _Bot.Scripts
         
         private void ApplyAcceleration()
         {
-            Vector3 force = Vector3.forward * moveInput.y * carStats.Acceleration;
+            Vector3 force = Vector3.forward * moveInput.y * carStats.Acceleration * accelerationMultiplier;
             carRb.AddRelativeForce(force);
         }
         
@@ -92,19 +117,9 @@ namespace _Bot.Scripts
         
         private void Turn()
         {
-            if (!ShouldTurn())
-            {
-                return;
-            }
-
             float turnDirection = IsMovingForward() ? 1f : -1f;
             Vector3 torque = Vector3.up * moveInput.x * carStats.TurnSpeed * turnDirection;
             carRb.AddTorque(torque);
-        }
-        
-        private bool ShouldTurn()
-        {
-            return Mathf.Abs(moveInput.x) > MOVE_INPUT_THRESHOLD;
         }
         
         private bool IsMovingForward()
@@ -156,10 +171,11 @@ namespace _Bot.Scripts
             {
                 return;
             }
-
-            Vector3 jumpForce = transform.up * carStats.JumpForce;
+               
+            Vector3 jumpForce = transform.up * carStats.JumpForce * jumpMultiplier;
             carRb.AddForce(jumpForce, ForceMode.Impulse);
         }
+        
         
         private bool CanJump()
         {
@@ -184,18 +200,16 @@ namespace _Bot.Scripts
         
         private void CapJumpHeight()
         {
-            if (carRb == null || carStats == null)
+            if (carRb == null)
             {
                 return;
             }
-
-            float maxJumpVelocity = carStats.JumpForce * 0.5f;
-            
+                
             Vector3 velocity = carRb.linearVelocity;
-            
-            if (velocity.y > maxJumpVelocity)
+                
+            if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier)
             {
-                velocity.y = maxJumpVelocity;
+                velocity.y = MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier;
                 carRb.linearVelocity = velocity;
             }
         }
@@ -206,16 +220,111 @@ namespace _Bot.Scripts
             {
                 return;
             }
-
+            
             if (IsExceedingMaxSpeed())
             {
-                carRb.linearVelocity = carRb.linearVelocity.normalized * carStats.MaxSpeed;
+                carRb.linearVelocity = carRb.linearVelocity.normalized * (carStats.MaxSpeed * speedMultiplier);
             }
         }
         
         private bool IsExceedingMaxSpeed()
         {
-            return carRb.linearVelocity.magnitude > carStats.MaxSpeed;
+            return carRb.linearVelocity.magnitude > (carStats.MaxSpeed * speedMultiplier);
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  ZOOMIES POWER-UP! ⚡🌟
+        // ═══════════════════════════════════════════════
+        
+        public void ApplySpeedMultiplier(float speedMult, float accelMult)
+        {
+            hasZoomies = true;
+            speedMultiplier = speedMult;
+            accelerationMultiplier = accelMult;
+            
+            // Start the speed lines effect!
+            if (zoomiesParticles != null)
+            {
+                zoomiesParticles.Play();
+            }
+            
+            Debug.Log($"[BotController] {gameObject.name} got ZOOMIES! Speed x{speedMult}, Accel x{accelMult} ⚡");
+        }
+        
+        public void RemoveSpeedMultiplier()
+        {
+            hasZoomies = false;
+            speedMultiplier = 1f;
+            accelerationMultiplier = 1f;
+            
+            // Stop the speed lines
+            if (zoomiesParticles != null)
+            {
+                zoomiesParticles.Stop();
+            }
+            
+            Debug.Log($"[BotController] {gameObject.name}'s zoomies wore off!");
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  SUPER JUMP POWER-UP! 🚀
+        // ═══════════════════════════════════════════════
+        public void ApplyJumpMultiplier(float jumpMult, float jumpHeightCapMult)
+        {
+            hasSuperJump = true;
+            jumpMultiplier = jumpMult;
+            jumpHeightCapMultiplier = jumpHeightCapMult;
+            
+            Debug.Log($"[BotController] {gameObject.name} got SUPER JUMP! Jump x{jumpMult}, Height Cap x{jumpHeightCapMult} 🚀");
+        }
+    
+        public void RemoveJumpMultiplier()
+        {
+            hasSuperJump = false;
+            jumpMultiplier = 1f;
+            jumpHeightCapMultiplier = 1f;
+            Debug.Log($"[BotController] {gameObject.name}'s super jump wore off!");
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  POOP POWER-UP
+        // ═══════════════════════════════════════════════
+            
+        public void TriggerSlip(float duration, float spinForce)
+        {
+            if (isSlipping)
+            {
+                return;
+            }
+                    
+            if (slipCoroutine != null)
+            {
+                StopCoroutine(slipCoroutine);
+            }
+                    
+            slipCoroutine = StartCoroutine(SlipRoutine(duration, spinForce));
+        }
+        
+        private IEnumerator SlipRoutine(float duration, float spinForce)
+        {
+            isSlipping = true;
+                
+            Debug.Log($"[CarController] {gameObject.name} is slipping! 💩💨");
+                
+            SpinPlayer(spinForce);
+               
+            yield return new WaitForSeconds(duration);
+                
+            isSlipping = false;
+                
+            Debug.Log($"[CarController] {gameObject.name} regained control!");
+        }
+
+        private void SpinPlayer(float spinForce)
+        {
+            float randomDirection = Random.value > 0.5f ? 1f : -1f;
+            Vector3 spinTorque = Vector3.up * spinForce * randomDirection;
+            carRb.AddTorque(spinTorque, ForceMode.Impulse);
         }
     }
 }

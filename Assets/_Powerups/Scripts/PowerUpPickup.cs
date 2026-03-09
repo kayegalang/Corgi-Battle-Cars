@@ -236,17 +236,29 @@ namespace _PowerUps.Scripts
         
         private void Collect(GameObject player)
         {
+            // Try to give the power-up to the player
+            PowerUpHandler handler = player.GetComponent<PowerUpHandler>();
+            if (handler == null)
+            {
+                Debug.LogWarning($"[PowerUpPickup] {player.name} has no PowerUpHandler!");
+                return;
+            }
+            
+            // NEW: Try to pick up into the held slot
+            bool pickedUp = handler.TryPickUpPowerUp(powerUp);
+            
+            if (!pickedUp)
+            {
+                Debug.Log($"[PowerUpPickup] {player.name} already has a power-up! Can't pick up another.");
+                // Don't destroy - player can come back when they use their current one
+                return;
+            }
+            
+            // Successfully picked up!
             isCollected = true;
             
             // Stop all proximity effects
             StopAllVibrations();
-            
-            // Give the power-up to the player
-            PowerUpHandler handler = player.GetComponent<PowerUpHandler>();
-            if (handler != null)
-            {
-                handler.ActivatePowerUp(powerUp);
-            }
             
             // Play collect sound
             if (powerUp.collectSound != null)
