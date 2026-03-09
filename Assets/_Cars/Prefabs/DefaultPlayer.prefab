@@ -426,6 +426,7 @@ GameObject:
   - component: {fileID: 1407006503480949192}
   - component: {fileID: 6780135246515626385}
   - component: {fileID: 5318306423533893095}
+  - component: {fileID: 4419713350480467197}
   m_Layer: 0
   m_Name: DefaultPlayer
   m_TagString: PlayerOne
@@ -722,6 +723,20 @@ MonoBehaviour:
   respawnCountdownFormat: Respawning in {0}
   spectatingFormat: 'Spectating: {0}'
   noPlayersToSpectateText: No players to spectate
+--- !u!114 &4419713350480467197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2474133199045047173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioListener
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 2474133199045047173}
 --- !u!1 &2498936164859706600
 GameObject:
   m_ObjectHideFlags: 0
