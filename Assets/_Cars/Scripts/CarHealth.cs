@@ -15,12 +15,14 @@ namespace _Cars.Scripts
         public UnityEvent<float> OnHealthChanged;
         
         private HealthBarManager healthBarManager;
+        private DeathSpectateManager deathSpectateManager;
         
         private readonly int maxHealth = 100;
         private int currentHealth;
-
         private bool isBot;
         private bool isDead = false;
+        
+        private const float RESPAWN_DELAY = 3f;
 
         void Start()
         {
@@ -39,34 +41,49 @@ namespace _Cars.Scripts
                 Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
             }
             
+            if (!isBot)
+            {
+                deathSpectateManager = GetComponent<DeathSpectateManager>();
+                
+                if (deathSpectateManager == null)
+                {
+                    Debug.LogWarning($"{gameObject.name}: No DeathSpectateManager found! Player will respawn immediately.");
+                }
+            }
+            
             UpdateHealthBar();
         }
 
         public void TakeDamage(int amount, GameObject shooter)
         {
-            if (!isDead)
+            if (isDead)
             {
-                currentHealth -= amount;
-                UpdateHealthBar();
-        
-                if (currentHealth <= 0)
-                {
-                    Die(shooter);
-                }
+                return;
+            }
+            
+            currentHealth -= amount;
+            UpdateHealthBar();
+    
+            if (currentHealth <= 0)
+            {
+                Die(shooter);
+            }
 
-                if (isBot)
-                {
-                    GetComponent<BotAI>()?.OnHit(shooter.transform);
-                }
+            if (isBot)
+            {
+                GetComponent<BotAI>()?.OnHit(shooter.transform);
             }
         }
 
         private void Die(GameObject shooter)
         {
-            if (isDead) return;
+            if (isDead) 
+            {
+                return;
+            }
+            
             isDead = true;
             
-            // FIXED: Check if shooter still exists before accessing it!
             if (shooter != null)
             {
                 PointsManager.instance.AddPoint(shooter.tag);
@@ -76,6 +93,42 @@ namespace _Cars.Scripts
                 Debug.LogWarning($"[{nameof(CarHealth)}] {gameObject.name} died but shooter was already destroyed!");
             }
             
+            if (isBot)
+            {
+                HandleBotDeath();
+            }
+            else
+            {
+                HandlePlayerDeath();
+            }
+        }
+        
+        private void HandleBotDeath()
+        {
+            spawnManager?.Respawn(gameObject.tag);
+            Destroy(gameObject);
+        }
+        
+        private void HandlePlayerDeath()
+        {
+            if (healthBarManager != null)
+            {
+                healthBarManager.gameObject.SetActive(false);
+            }
+            
+            if (deathSpectateManager != null)
+            {
+                deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY, RespawnPlayer);
+            }
+            else
+            {
+                Debug.LogWarning($"[{nameof(CarHealth)}] No DeathSpectateManager found! Falling back to immediate respawn");
+                HandleBotDeath();
+            }
+        }
+
+        private void RespawnPlayer()
+        {
             spawnManager?.Respawn(gameObject.tag);
             Destroy(gameObject);
         }
