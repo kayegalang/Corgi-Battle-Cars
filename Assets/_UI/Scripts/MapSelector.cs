@@ -41,24 +41,20 @@ namespace _UI.Scripts
         
         private void OnMapButtonClicked(Button btn)
         {
-            // Toggle selection if clicking the same button
             if (selectedButton == btn)
             {
                 DeselectButton();
                 return;
             }
             
-            // Deselect previous button
             if (selectedButton != null)
             {
                 SetButtonColor(selectedButton, normalColor);
             }
             
-            // Select new button
             selectedButton = btn;
             SetButtonColor(selectedButton, highlightedColor);
             
-            // Check if it's a valid map
             bool isValidMap = selectedButton.name != comingSoonButtonName;
             startGameButton.interactable = isValidMap;
             
@@ -89,8 +85,11 @@ namespace _UI.Scripts
         
         public void OnStartGameButtonClicked()
         {
+            Debug.Log("[MapSelector] Start Game clicked - loading map!");
+            
             onStartGameClicked?.Invoke();
         }
+        
         private void ResetSelection()
         {
             if (selectedButton != null)

@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using _Cars.Scripts;
 using _UI.Scripts;
+using _Player.Scripts;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace _Gameplay.Scripts 
 {
@@ -13,7 +15,7 @@ namespace _Gameplay.Scripts
         [SerializeField] private GameObject botPrefab;
         
         [Header("Spawn Settings")]
-        [SerializeField] private float respawnDelay = 0f;
+        [SerializeField] private float respawnDelay = 3f;
         
         private readonly HashSet<int> usedSpawnIndices = new HashSet<int>();
         
@@ -73,6 +75,8 @@ namespace _Gameplay.Scripts
                 return;
             }
             
+            Debug.Log($"[{nameof(SpawnManager)}] Starting game with {humanPlayerCount} human players");
+            
             SpawnHumanPlayers(humanPlayerCount);
             SpawnBots(humanPlayerCount);
         }
@@ -93,8 +97,132 @@ namespace _Gameplay.Scripts
             for (int i = 1; i <= humanPlayerCount; i++)
             {
                 string playerTag = GetPlayerTag(i);
-                SpawnPlayer(playerTag, GetUniqueSpawnPoint(), playerPrefab);
+                Transform spawnPoint = GetUniqueSpawnPoint();
+                
+                GameObject player = SpawnPlayer(playerTag, spawnPoint, playerPrefab);
+                
+                // Restore device for this player
+                if (player != null)
+                {
+                    RestorePlayerDevice(player, i);
+                }
+                
                 RegisterPlayer(playerTag);
+            }
+        }
+        
+        private void RestorePlayerDevice(GameObject player, int playerNumber)
+        {
+            PlayerInput playerInput = player.GetComponent<PlayerInput>();
+            
+            if (playerInput == null)
+            {
+                Debug.LogWarning($"[{nameof(SpawnManager)}] No PlayerInput on Player {playerNumber}!");
+                return;
+            }
+            
+            // Convert player number to player tag
+            string playerTag = GetPlayerTag(playerNumber);
+            
+            // Get the device this player used in the join screen
+            InputDevice device = _Player.Scripts.PlayerDeviceTracker.instance?.GetPlayerDevice(playerTag);
+            
+            if (device == null)
+            {
+                Debug.LogWarning($"[{nameof(SpawnManager)}] No device tracked for {playerTag}. Using defaults.");
+                
+                // Fallback: PlayerOne uses tracked input, others use controller
+                if (playerNumber == 1)
+                {
+                    SetPlayerOneControlScheme(player);
+                }
+                else
+                {
+                    // Try to use any available gamepad
+                    UseAnyAvailableGamepad(playerInput, playerNumber);
+                }
+                return;
+            }
+            
+            // Restore the tracked device
+            string controlScheme = device is Gamepad ? "Controller" : "Keyboard";
+            
+            Debug.Log($"[{nameof(SpawnManager)}] Restoring {playerTag} → {device.displayName} ({controlScheme})");
+            
+            try
+            {
+                if (device is Keyboard && Mouse.current != null)
+                {
+                    playerInput.SwitchCurrentControlScheme(controlScheme, device, Mouse.current);
+                }
+                else
+                {
+                    playerInput.SwitchCurrentControlScheme(controlScheme, device);
+                }
+                
+                Debug.Log($"[{nameof(SpawnManager)}] ✓ {playerTag} restored with {device.displayName}");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[{nameof(SpawnManager)}] Failed to restore device for {playerTag}: {e.Message}");
+            }
+        }
+        
+        private void UseAnyAvailableGamepad(PlayerInput playerInput, int playerNumber)
+        {
+            if (Gamepad.all.Count >= playerNumber)
+            {
+                Gamepad gamepad = Gamepad.all[playerNumber - 1];
+                playerInput.SwitchCurrentControlScheme("Controller", gamepad);
+                Debug.Log($"[{nameof(SpawnManager)}] Player {playerNumber} using fallback gamepad: {gamepad.displayName}");
+            }
+            else
+            {
+                Debug.LogWarning($"[{nameof(SpawnManager)}] Not enough gamepads for Player {playerNumber}");
+            }
+        }
+        
+        private void SetPlayerOneControlScheme(GameObject player)
+        {
+            PlayerInput playerInput = player.GetComponent<PlayerInput>();
+            
+            if (playerInput == null)
+            {
+                Debug.LogWarning($"[{nameof(SpawnManager)}] No PlayerInput on PlayerOne!");
+                return;
+            }
+            
+            // Check tracker to see what PlayerOne used
+            bool shouldUseController = PlayerOneInputTracker.instance != null && 
+                                     PlayerOneInputTracker.instance.IsPlayerOneUsingController();
+            
+            Debug.Log($"[{nameof(SpawnManager)}] Setting PlayerOne control scheme to: {(shouldUseController ? "Controller" : "Keyboard")}");
+            
+            if (shouldUseController)
+            {
+                // Pair with gamepad
+                if (Gamepad.current != null)
+                {
+                    playerInput.SwitchCurrentControlScheme("Controller", Gamepad.current);
+                    Debug.Log($"[{nameof(SpawnManager)}] ✓ PlayerOne using Controller (paired with {Gamepad.current.displayName})");
+                }
+                else
+                {
+                    Debug.LogWarning($"[{nameof(SpawnManager)}] No gamepad found!");
+                }
+            }
+            else
+            {
+                // Pair with keyboard and mouse
+                if (Keyboard.current != null && Mouse.current != null)
+                {
+                    playerInput.SwitchCurrentControlScheme("Keyboard", Keyboard.current, Mouse.current);
+                    Debug.Log($"[{nameof(SpawnManager)}] ✓ PlayerOne using Keyboard + Mouse");
+                }
+                else
+                {
+                    Debug.LogWarning($"[{nameof(SpawnManager)}] No keyboard/mouse found!");
+                }
             }
         }
         
@@ -184,6 +312,20 @@ namespace _Gameplay.Scripts
             return "PlayerOne";
         }
         
+        private int GetPlayerNumberFromTag(string playerTag)
+        {
+            foreach (var kvp in PlayerTagMap)
+            {
+                if (kvp.Value == playerTag)
+                {
+                    return kvp.Key;
+                }
+            }
+            
+            Debug.LogWarning($"[{nameof(SpawnManager)}] Unknown player tag: {playerTag}, defaulting to 1");
+            return 1;
+        }
+        
         private string GetBotTag(int botPosition)
         {
             if (BotTagMap.TryGetValue(botPosition, out string tag))
@@ -195,7 +337,7 @@ namespace _Gameplay.Scripts
             return "BotOne";
         }
         
-        public void RespawnBot(string playerTag)
+        public void Respawn(string playerTag)
         {
             GameObject prefabToSpawn = GetPrefabForTag(playerTag);
             
@@ -243,15 +385,22 @@ namespace _Gameplay.Scripts
             }
             else
             {
-                SpawnPlayer(playerTag, spawnPoint, prefab);
+                GameObject player = SpawnPlayer(playerTag, spawnPoint, prefab);
+                
+                // Restore device for any player (not just PlayerOne)
+                if (player != null)
+                {
+                    int playerNumber = GetPlayerNumberFromTag(playerTag);
+                    RestorePlayerDevice(player, playerNumber);
+                }
             }
             
             EnableGameplayForRespawnedPlayer(playerTag);
         }
         
-        private void SpawnPlayer(string playerTag, Transform spawnPoint, GameObject prefab)
+        private GameObject SpawnPlayer(string playerTag, Transform spawnPoint, GameObject prefab)
         {
-            UnityEngine.InputSystem.PlayerInput prefabInput = prefab.GetComponent<UnityEngine.InputSystem.PlayerInput>();
+            PlayerInput prefabInput = prefab.GetComponent<PlayerInput>();
             bool hasPlayerInput = prefabInput != null;
             bool wasEnabled = false;
             
@@ -269,6 +418,8 @@ namespace _Gameplay.Scripts
             {
                 RestorePlayerInput(player, prefabInput, wasEnabled);
             }
+            
+            return player;
         }
         
         private void SpawnBot(string botTag, Transform spawnPoint)
@@ -283,9 +434,9 @@ namespace _Gameplay.Scripts
             player.name = playerTag;
         }
         
-        private void RestorePlayerInput(GameObject player, UnityEngine.InputSystem.PlayerInput prefabInput, bool wasEnabled)
+        private void RestorePlayerInput(GameObject player, PlayerInput prefabInput, bool wasEnabled)
         {
-            UnityEngine.InputSystem.PlayerInput instanceInput = player.GetComponent<UnityEngine.InputSystem.PlayerInput>();
+            PlayerInput instanceInput = player.GetComponent<PlayerInput>();
             
             if (instanceInput != null)
             {

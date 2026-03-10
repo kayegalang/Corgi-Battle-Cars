@@ -1,5 +1,6 @@
 using _Cars.Scripts;
 using _UI.Scripts;
+using _PowerUps.Scripts;
 using UnityEngine;
 
 namespace _Gameplay.Scripts
@@ -42,6 +43,7 @@ namespace _Gameplay.Scripts
             
             EnableAllShooters();
             EnableAllPlayerUI();
+            StartPowerUpSpawner(); // NEW: Start power-up spawning!
         }
         
         private void EnableAllShooters()
@@ -64,6 +66,22 @@ namespace _Gameplay.Scripts
             }
         }
         
+        // NEW: Start the power-up spawner when match begins!
+        private void StartPowerUpSpawner()
+        {
+            PowerUpSpawner spawner = FindFirstObjectByType<PowerUpSpawner>();
+            
+            if (spawner != null)
+            {
+                spawner.StartSpawning();
+                Debug.Log($"[{nameof(GameFlowController)}] Started PowerUpSpawner! 🎁");
+            }
+            else
+            {
+                Debug.LogWarning($"[{nameof(GameFlowController)}] PowerUpSpawner not found in scene!");
+            }
+        }
+        
         public void EndGame()
         {
             if (isGameEnded)
@@ -76,8 +94,9 @@ namespace _Gameplay.Scripts
             
             isGameEnded = true;
             
+            StopPowerUpSpawner(); // NEW: Stop spawner and clear power-ups!
+            
             ShowCursor();
-            ForceHideAllDeathScreens(); 
             DisableAllPlayerControls();
             DisableAllPlayerUI();
             ShowEndScreen();
@@ -88,16 +107,6 @@ namespace _Gameplay.Scripts
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
-        }
-        
-        private void ForceHideAllDeathScreens()
-        {
-            DeathSpectateManager[] deathScreens = FindObjectsByType<DeathSpectateManager>(FindObjectsSortMode.None);
-            
-            foreach (DeathSpectateManager deathScreen in deathScreens)
-            {
-                deathScreen.ForceHide();
-            }
         }
         
         private void DisableAllPlayerControls()
@@ -133,6 +142,19 @@ namespace _Gameplay.Scripts
             foreach (PlayerUIManager playerUI in allPlayerUI)
             {
                 playerUI.DisableGameplay();
+            }
+        }
+        
+        // NEW: Stop spawner and clear all power-ups when game ends!
+        private void StopPowerUpSpawner()
+        {
+            PowerUpSpawner spawner = FindFirstObjectByType<PowerUpSpawner>();
+            
+            if (spawner != null)
+            {
+                spawner.StopSpawning();
+                spawner.ClearAllPowerUps();
+                Debug.Log($"[{nameof(GameFlowController)}] Stopped and cleared PowerUpSpawner!");
             }
         }
         
