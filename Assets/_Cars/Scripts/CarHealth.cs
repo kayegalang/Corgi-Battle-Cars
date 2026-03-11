@@ -1,4 +1,5 @@
 using _Bot.Scripts;
+using _Cars.ScriptableObjects;
 using _Gameplay.Scripts;
 using _UI.Scripts;
 using UnityEngine;
@@ -8,6 +9,9 @@ namespace _Cars.Scripts
 {
     public class CarHealth : MonoBehaviour
     {
+        [Header("Configuration")]
+        [SerializeField] private CarStats carStats;
+        
         [Header("References")]
         [SerializeField] private SpawnManager spawnManager;
         
@@ -17,16 +21,18 @@ namespace _Cars.Scripts
         private HealthBarManager healthBarManager;
         private DeathSpectateManager deathSpectateManager;
         
-        private readonly int maxHealth = 100;
+        private int maxHealth;
         private int currentHealth;
         private bool isBot;
         private bool isDead = false;
         
         private const float RESPAWN_DELAY = 3f;
+        private const int FALLBACK_MAX_HEALTH = 100;
 
         void Start()
         {
             isBot = GetComponent<BotAI>() != null;
+            maxHealth = DetermineMaxHealth();
             currentHealth = maxHealth;
             
             if (spawnManager == null)
@@ -51,7 +57,31 @@ namespace _Cars.Scripts
                 }
             }
             
+            ValidateCarStats();
             UpdateHealthBar();
+        }
+
+        private int DetermineMaxHealth()
+        {
+            if (carStats != null)
+            {
+                return carStats.MaxHealth;
+            }
+            
+            Debug.LogWarning($"{gameObject.name}: No CarStats assigned! Using default health of {FALLBACK_MAX_HEALTH}");
+            return FALLBACK_MAX_HEALTH;
+        }
+
+        private void ValidateCarStats()
+        {
+            if (carStats == null)
+            {
+                Debug.LogWarning($"{gameObject.name}: No CarStats assigned!");
+            }
+            else
+            {
+                Debug.Log($"[CarHealth] {gameObject.name} using CarStats: {carStats.name} (Max Health: {maxHealth})");
+            }
         }
 
         public void TakeDamage(int amount, GameObject shooter)
@@ -141,6 +171,16 @@ namespace _Cars.Scripts
         public bool GetIsBot()
         {
             return isBot;
+        }
+        
+        public int GetMaxHealth()
+        {
+            return maxHealth;
+        }
+        
+        public int GetCurrentHealth()
+        {
+            return currentHealth;
         }
         
         public bool IsDead()
