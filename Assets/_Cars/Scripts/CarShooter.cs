@@ -1,4 +1,5 @@
 using _Projectiles.Scripts;
+using _Projectiles.ScriptableObjects;
 using _Gameplay.Scripts;
 using _UI.Scripts;
 using UnityEngine;
@@ -8,193 +9,380 @@ namespace _Cars.Scripts
 {
     public class CarShooter : MonoBehaviour
     {
+        [Header("Gameplay State")]
+        [SerializeField] [Tooltip("Whether shooting is currently enabled")]
+        private bool gameplayEnabled;
+
+        [Header("Projectile Configuration")]
+        [SerializeField] [Tooltip("The projectile type to shoot")]
+        private ProjectileObject projectileType;
+
+        [Header("Reticle Configuration")]
+        [SerializeField] [Tooltip("The UI element that shows where you're aiming")]
+        private RectTransform reticle;
+        
+        [SerializeField] [Tooltip("Canvas containing the reticle")]
+        private Canvas reticleCanvas;
+        
+        [SerializeField] [Tooltip("How fast the reticle moves with controller stick")]
+        [Range(100f, 2000f)]
+        private float controllerSensitivity = 900f;
+        
+        [SerializeField] [Tooltip("How fast the reticle moves with mouse")]
+        [Range(0.1f, 5f)]
+        private float mouseSensitivity = 1.5f;
+
+        private CooldownBarUI cooldownBar;
+
         private PlayerInput playerInput;
         private InputAction shootAction;
         private InputAction aimAction;
-        
-        private Rigidbody carRb;
+        private Rigidbody carRigidbody;
         private PauseController pauseController;
         private Camera playerCamera; 
-        
-        [Header("Gameplay Control")]
-        [SerializeField] private bool gameplayEnabled = false;
-
-        [Header("Reticle Settings")]
-        [SerializeField] private RectTransform reticle;
-        [SerializeField] private Canvas reticleCanvas;
-        [SerializeField] private float controllerSensitivity = 900f;
-        [SerializeField] private float mouseSensitivity = 1.5f;
-
-        private Vector2 controllerAim;
-        private Vector2 lastMousePosition;
-        private bool usingMouse = true;
-
-        [Header("Projectile")]
-        public GameObject projectilePrefab;
-        [SerializeField] private float fireForce = 30f;
-        [SerializeField] private float fireRate = 0.25f;
-
-        private float nextFire = 0f;
-        private bool isFiring;
         private Transform firePoint;
+        
+        private Vector2 controllerAimInput;
+        private Vector2 lastMousePosition;
+        private bool usingMouseForAiming = true;
+        private bool isFiring;
+        
+        private float currentCooldown;
+        private bool weaponIsReady = true;
 
-
-        void Awake()
+        private void Awake()
         {
-            playerInput = GetComponent<PlayerInput>();
-            
-            var actions = playerInput.actions;
-            shootAction = actions.FindAction("Shoot", true);
-            aimAction = actions.FindAction("Aim", true);
-            
-            carRb = GetComponent<Rigidbody>();
-            firePoint = transform.Find("FirePoint");
-            
-            playerCamera = GetComponentInChildren<Camera>();
-            
-            pauseController = FindFirstObjectByType<PauseController>();
-
-            HideReticle();
-            
-            lastMousePosition = Mouse.current.position.ReadValue();
+            CacheComponents();
+            BindInputActions();
+            InitializeReticleState();
+            CaptureInitialMousePosition();
+            ValidateProjectileType();
+            FindCooldownBar();
         }
 
-        private void HideReticle()
+        private void CacheComponents()
         {
-            if (reticle != null)
-                reticle.gameObject.SetActive(false);
+            playerInput = GetComponent<PlayerInput>();
+            carRigidbody = GetComponent<Rigidbody>();
+            firePoint = transform.Find("FirePoint");
+            playerCamera = GetComponentInChildren<Camera>();
+            pauseController = FindFirstObjectByType<PauseController>();
+        }
+
+        private void BindInputActions()
+        {
+            var actions = playerInput.actions;
+            shootAction = actions.FindAction("Shoot", throwIfNotFound: true);
+            aimAction = actions.FindAction("Aim", throwIfNotFound: true);
+        }
+
+        private void InitializeReticleState()
+        {
+            HideReticle();
+        }
+
+        private void CaptureInitialMousePosition()
+        {
+            if (Mouse.current != null)
+            {
+                lastMousePosition = Mouse.current.position.ReadValue();
+            }
+        }
+
+        private void ValidateProjectileType()
+        {
+            if (projectileType == null)
+            {
+                Debug.LogError($"[{nameof(CarShooter)}] No projectile type assigned on {gameObject.name}!");
+            }
+        }
+
+        private void FindCooldownBar()
+        {
+            if (cooldownBar != null)
+            {
+                Debug.Log($"[{nameof(CarShooter)}] Cooldown bar already assigned for {gameObject.name}");
+                return;
+            }
+
+            if (playerCamera == null)
+            {
+                Debug.LogWarning($"[{nameof(CarShooter)}] Cannot find cooldown bar - no camera found on {gameObject.name}");
+                return;
+            }
+
+            cooldownBar = playerCamera.GetComponentInChildren<CooldownBarUI>();
+
+            if (cooldownBar != null)
+            {
+                Debug.Log($"[{nameof(CarShooter)}] ✓ Found cooldown bar for {gameObject.name}: {cooldownBar.gameObject.name}");
+            }
+            else
+            {
+                Debug.LogWarning($"[{nameof(CarShooter)}] No CooldownBarUI found in camera hierarchy for {gameObject.name}! Cooldown bar will not display.");
+            }
         }
 
         private void OnEnable()
         {
+            EnableInputActions();
+            SubscribeToInputEvents();
+        }
+
+        private void EnableInputActions()
+        {
             shootAction.Enable();
             aimAction.Enable();
+        }
 
-            shootAction.performed += OnShootPerformed;
-            shootAction.canceled += OnShootCanceled;
-
-            aimAction.performed += OnAimPerformed;
-            aimAction.canceled += OnAimCanceled;
+        private void SubscribeToInputEvents()
+        {
+            shootAction.performed += StartFiring;
+            shootAction.canceled += StopFiring;
+            aimAction.performed += UpdateControllerAim;
+            aimAction.canceled += ResetControllerAim;
         }
 
         private void OnDisable()
         {
+            DisableInputActions();
+            UnsubscribeFromInputEvents();
+            CleanupUIState();
+        }
+
+        private void DisableInputActions()
+        {
             shootAction.Disable();
             aimAction.Disable();
-            
-            shootAction.performed -= OnShootPerformed;
-            shootAction.canceled -= OnShootCanceled;
-            aimAction.performed -= OnAimPerformed;
-            aimAction.canceled -= OnAimCanceled;
-            
-            if (reticle != null)
-                reticle.gameObject.SetActive(false);
+        }
+
+        private void UnsubscribeFromInputEvents()
+        {
+            shootAction.performed -= StartFiring;
+            shootAction.canceled -= StopFiring;
+            aimAction.performed -= UpdateControllerAim;
+            aimAction.canceled -= ResetControllerAim;
+        }
+
+        private void CleanupUIState()
+        {
+            HideReticle();
             
             // Only restore cursor visibility for keyboard/mouse players.
             // A gamepad player never owns the cursor, so touching it here
             // would fight a dead keyboard player who needs it visible.
             if (IsKeyboardPlayer())
             {
-                Cursor.visible = true;
-                Cursor.lockState = CursorLockMode.None;
+                ShowAndUnlockCursor();
             }
         }
-        
-        private void OnShootPerformed(InputAction.CallbackContext ctx)
+
+        private bool IsKeyboardPlayer()
+        {
+            return playerInput != null && playerInput.currentControlScheme == "Keyboard";
+        }
+
+        private void ShowAndUnlockCursor()
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+
+        private void StartFiring(InputAction.CallbackContext context)
         {
             isFiring = true;
         }
         
-        private void OnShootCanceled(InputAction.CallbackContext ctx)
+        private void StopFiring(InputAction.CallbackContext context)
         {
             isFiring = false;
         }
         
-        private void OnAimPerformed(InputAction.CallbackContext ctx)
+        private void UpdateControllerAim(InputAction.CallbackContext context)
         {
-            controllerAim = ctx.ReadValue<Vector2>();
-            if (controllerAim.sqrMagnitude > 0.1f)
-                usingMouse = false;
+            controllerAimInput = context.ReadValue<Vector2>();
+            
+            if (ControllerStickIsBeingUsed())
+            {
+                SwitchToControllerAiming();
+            }
+        }
+
+        private bool ControllerStickIsBeingUsed()
+        {
+            return controllerAimInput.sqrMagnitude > 0.1f;
+        }
+
+        private void SwitchToControllerAiming()
+        {
+            usingMouseForAiming = false;
         }
         
-        private void OnAimCanceled(InputAction.CallbackContext ctx)
+        private void ResetControllerAim(InputAction.CallbackContext context)
         {
-            controllerAim = Vector2.zero;
+            controllerAimInput = Vector2.zero;
         }
 
-        void Update()
+        private void Update()
         {
-            if (!gameplayEnabled)
+            UpdateCooldownProgress();
+            UpdateCooldownBar();
+            
+            if (GameHasEnded())
             {
-                if (reticle != null)
-                    reticle.gameObject.SetActive(false);
+                ShowCursorAndHideReticle();
                 return;
             }
             
-            if (GameplayManager.instance != null && GameplayManager.instance.IsGameEnded())
+            if (GameIsPaused())
             {
-                SetCursorState(true);
-                return;
-            }
-            
-            if (pauseController != null && pauseController.GetIsPaused())
-            {
-                SetCursorState(true);
+                ShowCursorAndHideReticle();
             }
             else
             {
-                SetCursorState(false);
-                UpdateReticle();
+                HideCursorAndShowReticle();
+                UpdateReticlePosition();
             }
         }
 
-        void FixedUpdate()
+        private bool GameplayIsDisabled()
         {
-            if (!gameplayEnabled)
-                return;
-            
-            if (isFiring && Time.time > nextFire)
+            return !gameplayEnabled;
+        }
+
+        private bool GameHasEnded()
+        {
+            return GameplayManager.instance != null && GameplayManager.instance.IsGameEnded();
+        }
+
+        private bool GameIsPaused()
+        {
+            return pauseController != null && pauseController.GetIsPaused();
+        }
+
+        private void UpdateCooldownProgress()
+        {
+            if (weaponIsReady)
             {
-                Shoot();
-                nextFire = Time.time + fireRate;
+                return;
+            }
+            
+            currentCooldown += Time.deltaTime;
+            
+            if (CooldownCompleted())
+            {
+                SetWeaponReady();
             }
         }
 
-
-        // ============================================================
-        //  RETICLE SYSTEM
-        // ============================================================
-
-        private void UpdateReticle()
+        private bool CooldownCompleted()
         {
-            if (usingMouse)
-                MoveReticleWithMouse();
-            else
-                MoveReticleWithController();
+            if (projectileType == null)
+            {
+                return true;
+            }
+            
+            return currentCooldown >= projectileType.CooldownDuration;
         }
 
-        private void MoveReticleWithMouse()
+        private void SetWeaponReady()
         {
-            RectTransform canvasRect = reticleCanvas.transform as RectTransform;
+            weaponIsReady = true;
+            currentCooldown = projectileType != null ? projectileType.CooldownDuration : 0f;
+        }
+
+        private void UpdateCooldownBar()
+        {
+            if (cooldownBar == null || projectileType == null)
+            {
+                return;
+            }
+            
+            cooldownBar.UpdateCooldown(currentCooldown, projectileType.CooldownDuration);
+        }
+
+        private void FixedUpdate()
+        {
+            if (GameplayIsDisabled())
+            {
+                return;
+            }
+            
+            if (PlayerPressingFireButton() && CanShootNow())
+            {
+                FireProjectile();
+            }
+        }
+
+        private bool PlayerPressingFireButton()
+        {
+            return isFiring;
+        }
+
+        private bool CanShootNow()
+        {
+            return weaponIsReady && projectileType != null;
+        }
+
+        private void UpdateReticlePosition()
+        {
+            DetectMouseMovementAndSwitch();
+            
+            if (usingMouseForAiming)
+            {
+                MoveReticleWithMouseDelta();
+            }
+            else
+            {
+                MoveReticleWithControllerStick();
+            }
+        }
+
+        private void DetectMouseMovementAndSwitch()
+        {
+            if (Mouse.current == null)
+            {
+                return;
+            }
+            
+            Vector2 currentMousePosition = Mouse.current.position.ReadValue();
+            Vector2 mouseDelta = currentMousePosition - lastMousePosition;
+            
+            if (mouseDelta.sqrMagnitude > 0.1f)
+            {
+                SwitchToMouseAiming();
+            }
+        }
+
+        private void SwitchToMouseAiming()
+        {
+            usingMouseForAiming = true;
+        }
+
+        private void MoveReticleWithMouseDelta()
+        {
+            if (Mouse.current == null)
+            {
+                return;
+            }
             
             Vector2 currentMousePosition = Mouse.current.position.ReadValue();
             Vector2 mouseDelta = currentMousePosition - lastMousePosition;
             lastMousePosition = currentMousePosition;
             
             reticle.anchoredPosition += mouseDelta * mouseSensitivity;
-            reticle.anchoredPosition = ClampToCanvas(reticle.anchoredPosition, canvasRect);
+            reticle.anchoredPosition = ClampPositionToCanvas();
         }
 
-        private void MoveReticleWithController()
+        private void MoveReticleWithControllerStick()
+        {
+            reticle.anchoredPosition += controllerAimInput * controllerSensitivity * Time.deltaTime;
+            reticle.anchoredPosition = ClampPositionToCanvas();
+        }
+
+        private Vector2 ClampPositionToCanvas()
         {
             RectTransform canvasRect = reticleCanvas.transform as RectTransform;
-
-            reticle.anchoredPosition += controllerAim * controllerSensitivity * Time.deltaTime;
-            reticle.anchoredPosition = ClampToCanvas(reticle.anchoredPosition, canvasRect);
-        }
-
-        private Vector2 ClampToCanvas(Vector2 pos, RectTransform canvas)
-        {
             Rect viewportRect = playerCamera.pixelRect;
             
             Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
@@ -203,7 +391,7 @@ namespace _Cars.Scripts
             screenPos.y = Mathf.Clamp(screenPos.y, viewportRect.yMin, viewportRect.yMax);
             
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvas,
+                canvasRect,
                 screenPos,
                 null,
                 out Vector2 localPoint
@@ -212,34 +400,104 @@ namespace _Cars.Scripts
             return localPoint;
         }
         
-        private void Shoot()
+        private void FireProjectile()
         {
-            Vector3 shootDir = GetDirectionFromReticle();
+            Vector3 shootDirection = CalculateShootDirectionFromReticle();
+            GameObject projectile = CreateProjectileAtFirePoint(shootDirection);
+            
+            ConfigureProjectileStats(projectile);
+            ApplyVelocityAndForceToProjectile(projectile, shootDirection);
+            ApplyRecoilToShooter(shootDirection);
+            StartCooldown();
+        }
 
-            GameObject bullet = Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(shootDir));
+        private Vector3 CalculateShootDirectionFromReticle()
+        {
+            Vector2 reticleScreenPosition = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
+            Ray rayFromReticle = playerCamera.ScreenPointToRay(reticleScreenPosition);
 
-            Projectile proj = bullet.GetComponent<Projectile>();
-            if (proj != null)
-                proj.SetShooter(gameObject);
-
-            Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
-            if (bulletRb != null)
+            if (RayHitsSomething(rayFromReticle, out RaycastHit hit))
             {
-                bulletRb.linearVelocity = carRb.linearVelocity;
-                bulletRb.AddForce(shootDir * fireForce, ForceMode.Impulse);
+                return CalculateDirectionToHitPoint(hit.point);
+            }
+
+            return CalculateDirectionToDefaultDistance(rayFromReticle);
+        }
+
+        private bool RayHitsSomething(Ray ray, out RaycastHit hit)
+        {
+            return Physics.Raycast(ray, out hit);
+        }
+
+        private Vector3 CalculateDirectionToHitPoint(Vector3 hitPoint)
+        {
+            return (hitPoint - firePoint.position).normalized;
+        }
+
+        private Vector3 CalculateDirectionToDefaultDistance(Ray ray)
+        {
+            const float DEFAULT_DISTANCE = 50f;
+            return (ray.GetPoint(DEFAULT_DISTANCE) - firePoint.position).normalized;
+        }
+
+        private GameObject CreateProjectileAtFirePoint(Vector3 direction)
+        {
+            Quaternion rotation = Quaternion.LookRotation(direction);
+            return Instantiate(projectileType.ProjectilePrefab, firePoint.position, rotation);
+        }
+
+        private void ConfigureProjectileStats(GameObject projectile)
+        {
+            Projectile projectileComponent = projectile.GetComponent<Projectile>();
+            
+            if (projectileComponent != null)
+            {
+                projectileComponent.ConfigureProjectile(
+                    gameObject,
+                    projectileType.Damage,
+                    projectileType.Lifetime
+                );
             }
         }
 
-        private Vector3 GetDirectionFromReticle()
+        private void ApplyVelocityAndForceToProjectile(GameObject projectile, Vector3 direction)
         {
-            Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
+            Rigidbody projectileRigidbody = projectile.GetComponent<Rigidbody>();
+            
+            if (projectileRigidbody != null)
+            {
+                InheritCarVelocity(projectileRigidbody);
+                ApplyShootingForce(projectileRigidbody, direction);
+            }
+        }
 
-            Ray ray = playerCamera.ScreenPointToRay(screenPos);
+        private void InheritCarVelocity(Rigidbody projectileRigidbody)
+        {
+            projectileRigidbody.linearVelocity = carRigidbody.linearVelocity;
+        }
 
-            if (Physics.Raycast(ray, out RaycastHit hit))
-                return (hit.point - firePoint.position).normalized;
+        private void ApplyShootingForce(Rigidbody projectileRigidbody, Vector3 direction)
+        {
+            projectileRigidbody.AddForce(direction * projectileType.FireForce, ForceMode.Impulse);
+        }
 
-            return (ray.GetPoint(50f) - firePoint.position).normalized;
+        private void ApplyRecoilToShooter(Vector3 shootDirection)
+        {
+            if (projectileType.RecoilForce <= 0f)
+            {
+                return;
+            }
+            
+            Vector3 recoilDirection = -shootDirection;
+            Vector3 recoilForce = recoilDirection * projectileType.RecoilForce;
+            
+            carRigidbody.AddForce(recoilForce, ForceMode.Impulse);
+        }
+
+        private void StartCooldown()
+        {
+            weaponIsReady = false;
+            currentCooldown = 0f;
         }
         
         public void EnableGameplay()
@@ -311,29 +569,46 @@ namespace _Cars.Scripts
         public void DisableGameplay()
         {
             gameplayEnabled = false;
-            SetCursorState(true); 
-        }
-        
-        private void SetCursorState(bool showCursor)
-        {
-            if (reticle != null)
-                reticle.gameObject.SetActive(!showCursor);
-            
-            if (!IsKeyboardPlayer())
-                return;
-
-            Cursor.visible = showCursor;
-            Cursor.lockState = showCursor ? CursorLockMode.None : CursorLockMode.Locked;
+            ShowCursorAndHideReticle();
         }
 
-        private bool IsKeyboardPlayer()
-        {
-            return playerInput != null && playerInput.currentControlScheme == "Keyboard";
-        }
-        
         public void DisableReticle()
         {
-            SetCursorState(true);
+            ShowCursorAndHideReticle();
+        }
+        
+        private void ShowCursorAndHideReticle()
+        {
+            SetCursorVisibility(visible: true);
+        }
+
+        private void HideCursorAndShowReticle()
+        {
+            SetCursorVisibility(visible: false);
+        }
+        
+        private void SetCursorVisibility(bool visible)
+        {
+            if (reticle != null)
+            {
+                reticle.gameObject.SetActive(!visible);
+            }
+            
+            if (!IsKeyboardPlayer())
+            {
+                return;
+            }
+
+            Cursor.visible = visible;
+            Cursor.lockState = visible ? CursorLockMode.None : CursorLockMode.Locked;
+        }
+
+        private void HideReticle()
+        {
+            if (reticle != null)
+            {
+                reticle.gameObject.SetActive(false);
+            }
         }
     }
 }

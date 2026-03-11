@@ -325,14 +325,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5a3a327d9b4b4e158631acde3ef07f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player.Scripts.CarShooter
-  gameplayEnabled: 0
+  gameplayEnabled: 1
+  projectileType: {fileID: 11400000, guid: e104ec775ead94f4eb9403e209f95daf, type: 2}
   reticle: {fileID: 7300972525670497128}
   reticleCanvas: {fileID: 7913115902583245656}
   controllerSensitivity: 800
   mouseSensitivity: 1.5
-  projectilePrefab: {fileID: 5940751187897929002, guid: a1cbf08f72ec94c2ca82033c3604a0d1, type: 3}
-  fireForce: 30
-  fireRate: 0.25
 --- !u!114 &6192070679033599830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -437,7 +435,7 @@ MonoBehaviour:
   scoreTransform: {fileID: 2082422597934522621}
   scoreOffset: {x: -20, y: 20}
   scoreFormat: 'Score: {0}'
-  gameplayEnabled: 0
+  gameplayEnabled: 1
 --- !u!114 &7227054066109839993
 MonoBehaviour:
   m_ObjectHideFlags: 0
