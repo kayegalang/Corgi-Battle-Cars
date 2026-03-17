@@ -50,20 +50,19 @@ namespace _UI.Scripts
         {
             if (cooldownFillImage == null)
             {
+                Debug.LogError($"[{nameof(CooldownBarUI)}] {gameObject.name} - cooldownFillImage is NULL!");
                 return;
             }
             
             float fillAmount = CalculateFillAmount(currentCooldown, maxCooldown);
-            SetFillAmount(fillAmount);
             
-            if (WeaponIsReady(fillAmount))
+            // Debug log every 10 frames
+            if (Time.frameCount % 10 == 0)
             {
-                SetWeaponReady();
+                Debug.Log($"[{nameof(CooldownBarUI)}] {gameObject.name} - UpdateCooldown called: current={currentCooldown:F2}, max={maxCooldown:F2}, fillAmount={fillAmount:F2} ({fillAmount * 100:F0}%)");
             }
-            else
-            {
-                SetOnCooldown();
-            }
+            
+            SetFillAmount(fillAmount); // This now handles color gradient!
         }
         
         private float CalculateFillAmount(float current, float max)
@@ -79,6 +78,26 @@ namespace _UI.Scripts
         private void SetFillAmount(float amount)
         {
             cooldownFillImage.fillAmount = amount;
+            
+            // Smooth color gradient based on fill amount
+            // 100% - 50% = Blue to Yellow
+            // 50% - 0% = Yellow to Red
+            Color fillColor;
+            
+            if (amount >= 0.5f)
+            {
+                // High charge: Lerp from Yellow (0.5) to Blue (1.0)
+                float t = (amount - 0.5f) / 0.5f; // 0 at 50%, 1 at 100%
+                fillColor = Color.Lerp(Color.yellow, weaponReadyColor, t);
+            }
+            else
+            {
+                // Low charge: Lerp from Red (0) to Yellow (0.5)
+                float t = amount / 0.5f; // 0 at 0%, 1 at 50%
+                fillColor = Color.Lerp(onCooldownColor, Color.yellow, t);
+            }
+            
+            cooldownFillImage.color = fillColor;
         }
         
         private bool WeaponIsReady(float fillAmount)

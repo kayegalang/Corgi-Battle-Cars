@@ -99,7 +99,7 @@ namespace _Cars.Scripts
                 Die(shooter);
             }
 
-            if (isBot)
+            if (isBot && shooter != null)
             {
                 GetComponent<BotAI>()?.OnHit(shooter.transform);
             }

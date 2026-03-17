@@ -47,8 +47,13 @@ namespace _Cars.Scripts
         private bool usingMouseForAiming = true;
         private bool isFiring;
         
-        private float currentCooldown;
-        private bool weaponIsReady = true;
+        private float currentCharge;
+        private float maxCharge = 100f;
+        private float chargePerShot = 10f; // How much charge each shot costs
+        private float chargeRegenRate = 20f; // Charge regenerated per second
+        private float fireRate = 0.1f; // Minimum time between shots (10 shots/sec max)
+        private float nextAllowedFireTime;
+        private bool isOverheated = false; // Locks shooting until fully recharged
 
         private void Awake()
         {
@@ -57,6 +62,18 @@ namespace _Cars.Scripts
             InitializeReticleState();
             CaptureInitialMousePosition();
             ValidateProjectileType();
+            // Don't find cooldown bar yet - HealthBarManager creates it in Start()
+        }
+
+        private void Start()
+        {
+            // Delay one frame to let HealthBarManager create PlayerHealthCanvas
+            StartCoroutine(FindCooldownBarDelayed());
+        }
+
+        private System.Collections.IEnumerator FindCooldownBarDelayed()
+        {
+            yield return null; // Wait one frame
             FindCooldownBar();
         }
 
@@ -79,6 +96,7 @@ namespace _Cars.Scripts
         private void InitializeReticleState()
         {
             HideReticle();
+            currentCharge = maxCharge; // Start with full charge
         }
 
         private void CaptureInitialMousePosition()
@@ -101,25 +119,66 @@ namespace _Cars.Scripts
         {
             if (cooldownBar != null)
             {
-                Debug.Log($"[{nameof(CarShooter)}] Cooldown bar already assigned for {gameObject.name}");
+                Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} - Cooldown bar already assigned");
                 return;
             }
 
-            if (playerCamera == null)
+            Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} - Searching for CooldownBarUI under player...");
+            
+            // Debug: Show ALL children of this player
+            Debug.Log($"[{nameof(CarShooter)}] === HIERARCHY DEBUG START ===");
+            Debug.Log($"[{nameof(CarShooter)}] Searching under: {gameObject.name}");
+            Debug.Log($"[{nameof(CarShooter)}] Child count: {transform.childCount}");
+            
+            for (int i = 0; i < transform.childCount; i++)
             {
-                Debug.LogWarning($"[{nameof(CarShooter)}] Cannot find cooldown bar - no camera found on {gameObject.name}");
-                return;
+                Transform child = transform.GetChild(i);
+                Debug.Log($"[{nameof(CarShooter)}]   Child {i}: {child.name} (children: {child.childCount})");
+                
+                // Show grandchildren too
+                for (int j = 0; j < child.childCount; j++)
+                {
+                    Transform grandchild = child.GetChild(j);
+                    Debug.Log($"[{nameof(CarShooter)}]     Grandchild {j}: {grandchild.name} (children: {grandchild.childCount})");
+                    
+                    // Show great-grandchildren
+                    for (int k = 0; k < grandchild.childCount; k++)
+                    {
+                        Transform greatGrandchild = grandchild.GetChild(k);
+                        Debug.Log($"[{nameof(CarShooter)}]       GreatGrandchild {k}: {greatGrandchild.name}");
+                        
+                        // Check if this has CooldownBarUI
+                        CooldownBarUI barUI = greatGrandchild.GetComponent<CooldownBarUI>();
+                        if (barUI != null)
+                        {
+                            Debug.Log($"[{nameof(CarShooter)}]       ^^^ HAS CooldownBarUI COMPONENT!");
+                        }
+                    }
+                }
             }
-
-            cooldownBar = playerCamera.GetComponentInChildren<CooldownBarUI>();
+            Debug.Log($"[{nameof(CarShooter)}] === HIERARCHY DEBUG END ===");
+            
+            // Now search for CooldownBarUI
+            cooldownBar = GetComponentInChildren<CooldownBarUI>();
 
             if (cooldownBar != null)
             {
-                Debug.Log($"[{nameof(CarShooter)}] ✓ Found cooldown bar for {gameObject.name}: {cooldownBar.gameObject.name}");
+                Debug.Log($"[{nameof(CarShooter)}] ✓✓✓ {gameObject.name} - FOUND cooldown bar: {cooldownBar.gameObject.name}");
             }
             else
             {
-                Debug.LogWarning($"[{nameof(CarShooter)}] No CooldownBarUI found in camera hierarchy for {gameObject.name}! Cooldown bar will not display.");
+                Debug.LogError($"[{nameof(CarShooter)}] ✗✗✗ {gameObject.name} - NO CooldownBarUI found under player! Cooldown bar will not display.");
+                
+                // Extra debug: Try to find HealthBarContainer
+                Transform healthBarContainer = transform.Find("HealthBarContainer");
+                if (healthBarContainer != null)
+                {
+                    Debug.Log($"[{nameof(CarShooter)}] DEBUG: Found HealthBarContainer with {healthBarContainer.childCount} children");
+                }
+                else
+                {
+                    Debug.LogError($"[{nameof(CarShooter)}] DEBUG: HealthBarContainer NOT FOUND!");
+                }
             }
         }
 
@@ -225,7 +284,7 @@ namespace _Cars.Scripts
 
         private void Update()
         {
-            UpdateCooldownProgress();
+            RegenerateCharge();
             UpdateCooldownBar();
             
             if (GameHasEnded())
@@ -245,6 +304,22 @@ namespace _Cars.Scripts
             }
         }
 
+        private void RegenerateCharge()
+        {
+            if (currentCharge < maxCharge)
+            {
+                currentCharge += chargeRegenRate * Time.deltaTime;
+                currentCharge = Mathf.Min(currentCharge, maxCharge);
+                
+                // Only clear overheat when FULLY recharged
+                if (currentCharge >= maxCharge && isOverheated)
+                {
+                    isOverheated = false;
+                    Debug.Log($"<color=green>[{nameof(CarShooter)}] {gameObject.name} - ✓✓✓ COOLED DOWN! Weapon unlocked! Can shoot again!</color>");
+                }
+            }
+        }
+
         private bool GameplayIsDisabled()
         {
             return !gameplayEnabled;
@@ -260,45 +335,29 @@ namespace _Cars.Scripts
             return pauseController != null && pauseController.GetIsPaused();
         }
 
-        private void UpdateCooldownProgress()
-        {
-            if (weaponIsReady)
-            {
-                return;
-            }
-            
-            currentCooldown += Time.deltaTime;
-            
-            if (CooldownCompleted())
-            {
-                SetWeaponReady();
-            }
-        }
-
-        private bool CooldownCompleted()
-        {
-            if (projectileType == null)
-            {
-                return true;
-            }
-            
-            return currentCooldown >= projectileType.CooldownDuration;
-        }
-
-        private void SetWeaponReady()
-        {
-            weaponIsReady = true;
-            currentCooldown = projectileType != null ? projectileType.CooldownDuration : 0f;
-        }
-
         private void UpdateCooldownBar()
         {
-            if (cooldownBar == null || projectileType == null)
+            if (cooldownBar == null)
             {
+                // Only log this once per second to avoid spam
+                if (Time.frameCount % 60 == 0)
+                {
+                    Debug.LogError($"[{nameof(CarShooter)}] {gameObject.name} - Cooldown bar is NULL! Not found during Start!");
+                }
                 return;
             }
             
-            cooldownBar.UpdateCooldown(currentCooldown, projectileType.CooldownDuration);
+            // Show current charge out of max charge
+            // When charge is full (100), bar is blue (ready)
+            // When charge is low/empty, bar is red (can't shoot)
+            
+            if (Time.frameCount % 30 == 0) // Debug every 30 frames
+            {
+                string overheatStatus = isOverheated ? "🔥 OVERHEATED!" : "✓ OK";
+                Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} - Charge: {currentCharge:F1}/{maxCharge}, fillPercent={(currentCharge / maxCharge) * 100:F0}%, Status: {overheatStatus}");
+            }
+            
+            cooldownBar.UpdateCooldown(currentCharge, maxCharge);
         }
 
         private void FixedUpdate()
@@ -310,7 +369,32 @@ namespace _Cars.Scripts
             
             if (PlayerPressingFireButton() && CanShootNow())
             {
+                // Check if after THIS shot, we won't have enough for ANOTHER shot
+                // This prevents regen from keeping us barely above 0
+                float chargeAfterShot = currentCharge - chargePerShot;
+                bool willOverheat = chargeAfterShot < chargePerShot;
+                
+                Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} - SHOOTING! Charge: {currentCharge:F1} → {chargeAfterShot:F1}, WillOverheat: {willOverheat}");
                 FireProjectile();
+                currentCharge -= chargePerShot;
+                
+                // Overheat if we can't shoot again
+                if (willOverheat)
+                {
+                    currentCharge = 0f; // Clamp to 0
+                    isOverheated = true;
+                    Debug.Log($"<color=red>[{nameof(CarShooter)}] {gameObject.name} - ⚠️⚠️⚠️ OVERHEATED! Weapon locked until fully recharged!</color>");
+                }
+                
+                nextAllowedFireTime = Time.time + fireRate;
+            }
+            else if (PlayerPressingFireButton() && isOverheated)
+            {
+                // Log when trying to shoot while overheated (every 30 frames to avoid spam)
+                if (Time.frameCount % 30 == 0)
+                {
+                    Debug.LogWarning($"[{nameof(CarShooter)}] {gameObject.name} - ❌ Can't shoot! OVERHEATED! Charge: {currentCharge:F1}/100");
+                }
             }
         }
 
@@ -321,7 +405,22 @@ namespace _Cars.Scripts
 
         private bool CanShootNow()
         {
-            return weaponIsReady && projectileType != null;
+            if (projectileType == null)
+            {
+                return false;
+            }
+            
+            // Cannot shoot if overheated - must wait for full recharge!
+            if (isOverheated)
+            {
+                return false;
+            }
+            
+            // Need BOTH enough charge AND enough time has passed
+            bool hasEnoughCharge = currentCharge >= chargePerShot;
+            bool fireRateReady = Time.time >= nextAllowedFireTime;
+            
+            return hasEnoughCharge && fireRateReady;
         }
 
         private void UpdateReticlePosition()
@@ -408,7 +507,6 @@ namespace _Cars.Scripts
             ConfigureProjectileStats(projectile);
             ApplyVelocityAndForceToProjectile(projectile, shootDirection);
             ApplyRecoilToShooter(shootDirection);
-            StartCooldown();
         }
 
         private Vector3 CalculateShootDirectionFromReticle()
@@ -488,17 +586,25 @@ namespace _Cars.Scripts
                 return;
             }
             
-            Vector3 recoilDirection = -shootDirection;
-            Vector3 recoilForce = recoilDirection * projectileType.RecoilForce;
+            // Only apply horizontal recoil (ignore vertical component)
+            Vector3 horizontalShootDirection = new Vector3(shootDirection.x, 0f, shootDirection.z).normalized;
+            Vector3 recoilDirection = -horizontalShootDirection;
             
+            // Reduce recoil slightly if moving opposite to recoil direction (allows acceleration)
+            Vector3 horizontalVelocity = new Vector3(carRigidbody.linearVelocity.x, 0f, carRigidbody.linearVelocity.z);
+            float velocityAlongRecoil = Vector3.Dot(horizontalVelocity, recoilDirection);
+            
+            float recoilScale = 1f;
+            if (velocityAlongRecoil < 0f) // Moving opposite to recoil (trying to accelerate forward)
+            {
+                // Reduce recoil by 50% when actively accelerating against it
+                recoilScale = 0.5f;
+            }
+            
+            Vector3 recoilForce = recoilDirection * projectileType.RecoilForce * recoilScale;
             carRigidbody.AddForce(recoilForce, ForceMode.Impulse);
         }
 
-        private void StartCooldown()
-        {
-            weaponIsReady = false;
-            currentCooldown = 0f;
-        }
         
         public void EnableGameplay()
         {
