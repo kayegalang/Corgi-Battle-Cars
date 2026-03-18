@@ -21,16 +21,16 @@ namespace _PowerUps.Scripts
         
         [Header("Spawn Settings")]
         [Tooltip("Minimum time between spawns (seconds)")]
-        [SerializeField] private float minSpawnInterval = 5f;
+        [SerializeField] public float minSpawnInterval = 5f;
         
         [Tooltip("Maximum time between spawns (seconds)")]
-        [SerializeField] private float maxSpawnInterval = 10f;
+        [SerializeField] public float maxSpawnInterval = 10f;
         
         [Tooltip("Maximum power-ups that can exist at once")]
-        [SerializeField] private int maxActivePowerUps = 10;
+        [SerializeField] public int maxActivePowerUps = 10;
         
         [Tooltip("Spawn power-ups slightly above ground (prevents clipping)")]
-        [SerializeField] private float verticalOffset = 0.5f;
+        [SerializeField] public float verticalOffset = 0.5f;
         
         [Header("Ground Detection")]
         [Tooltip("Start raycast this high above the map")]

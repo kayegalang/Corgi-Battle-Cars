@@ -10,8 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7ce0eacbad3343a1b1a907d6b5d5156, type: 3}
-  m_Name: BoneShooter
+  m_Name: bArK-47
   m_EditorClassIdentifier: Assembly-CSharp::_Projectiles.ScriptableObjects.Projectile
+  projectileName: bArK-47
+  projectileDescription: Fast but inaccurate
+  projectileID: Rapid Fire
   projectilePrefab: {fileID: 5940751187897929002, guid: a1cbf08f72ec94c2ca82033c3604a0d1, type: 3}
+  damage: 5
+  fireRate: 0.1
+  cooldownDuration: 2
+  recoilForce: 5
   fireForce: 30
-  fireRate: 0.25
+  lifetime: 5

@@ -10,18 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a2469d3e375b4ecaba7e2b5ad7e34e0, type: 3}
-  m_Name: BruiserStats
+  m_Name: AirBud
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.ScriptableObjects.CarStats
-  speedStat: 70
-  accelerationStat: 65
-  jumpForceStat: 65
-  healthStat: 70
+  carName: Air Bud
+  carDescription: 'Jump higher, less health '
+  carID: Aerial
+  speedStat: 100
+  accelerationStat: 63.492065
+  jumpForceStat: 100
+  healthStat: 45
   minMaxSpeed: 25
   maxMaxSpeed: 50
   minAcceleration: 12
   maxAcceleration: 30
-  minJumpForce: 8
-  maxJumpForce: 14
+  minJumpForce: 40
+  maxJumpForce: 100
   minMaxHealth: 75
   maxMaxHealth: 125
   minTurnSpeed: 20

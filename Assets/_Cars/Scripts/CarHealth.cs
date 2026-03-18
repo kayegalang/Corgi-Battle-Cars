@@ -1,4 +1,5 @@
 using _Bot.Scripts;
+using _Cars.ScriptableObjects;
 using _Gameplay.Scripts;
 using _UI.Scripts;
 using UnityEngine;
@@ -8,6 +9,9 @@ namespace _Cars.Scripts
 {
     public class CarHealth : MonoBehaviour
     {
+        [Header("Configuration")]
+        [SerializeField] private CarStats carStats;
+        
         [Header("References")]
         [SerializeField] private SpawnManager spawnManager;
         
@@ -15,16 +19,20 @@ namespace _Cars.Scripts
         public UnityEvent<float> OnHealthChanged;
         
         private HealthBarManager healthBarManager;
+        private DeathSpectateManager deathSpectateManager;
         
-        private readonly int maxHealth = 100;
+        private int maxHealth;
         private int currentHealth;
-
         private bool isBot;
         private bool isDead = false;
+        
+        private const float RESPAWN_DELAY = 3f;
+        private const int FALLBACK_MAX_HEALTH = 100;
 
         void Start()
         {
             isBot = GetComponent<BotAI>() != null;
+            maxHealth = DetermineMaxHealth();
             currentHealth = maxHealth;
             
             if (spawnManager == null)
@@ -39,34 +47,73 @@ namespace _Cars.Scripts
                 Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
             }
             
+            if (!isBot)
+            {
+                deathSpectateManager = GetComponent<DeathSpectateManager>();
+                
+                if (deathSpectateManager == null)
+                {
+                    Debug.LogWarning($"{gameObject.name}: No DeathSpectateManager found! Player will respawn immediately.");
+                }
+            }
+            
+            ValidateCarStats();
             UpdateHealthBar();
+        }
+
+        private int DetermineMaxHealth()
+        {
+            if (carStats != null)
+            {
+                return carStats.MaxHealth;
+            }
+            
+            Debug.LogWarning($"{gameObject.name}: No CarStats assigned! Using default health of {FALLBACK_MAX_HEALTH}");
+            return FALLBACK_MAX_HEALTH;
+        }
+
+        private void ValidateCarStats()
+        {
+            if (carStats == null)
+            {
+                Debug.LogWarning($"{gameObject.name}: No CarStats assigned!");
+            }
+            else
+            {
+                Debug.Log($"[CarHealth] {gameObject.name} using CarStats: {carStats.name} (Max Health: {maxHealth})");
+            }
         }
 
         public void TakeDamage(int amount, GameObject shooter)
         {
-            if (!isDead)
+            if (isDead)
             {
-                currentHealth -= amount;
-                UpdateHealthBar();
-        
-                if (currentHealth <= 0)
-                {
-                    Die(shooter);
-                }
+                return;
+            }
+            
+            currentHealth -= amount;
+            UpdateHealthBar();
+    
+            if (currentHealth <= 0)
+            {
+                Die(shooter);
+            }
 
-                if (isBot)
-                {
-                    GetComponent<BotAI>()?.OnHit(shooter.transform);
-                }
+            if (isBot && shooter != null)
+            {
+                GetComponent<BotAI>()?.OnHit(shooter.transform);
             }
         }
 
         private void Die(GameObject shooter)
         {
-            if (isDead) return;
+            if (isDead) 
+            {
+                return;
+            }
+            
             isDead = true;
             
-            // FIXED: Check if shooter still exists before accessing it!
             if (shooter != null)
             {
                 PointsManager.instance.AddPoint(shooter.tag);
@@ -76,6 +123,42 @@ namespace _Cars.Scripts
                 Debug.LogWarning($"[{nameof(CarHealth)}] {gameObject.name} died but shooter was already destroyed!");
             }
             
+            if (isBot)
+            {
+                HandleBotDeath();
+            }
+            else
+            {
+                HandlePlayerDeath();
+            }
+        }
+        
+        private void HandleBotDeath()
+        {
+            spawnManager?.Respawn(gameObject.tag);
+            Destroy(gameObject);
+        }
+        
+        private void HandlePlayerDeath()
+        {
+            if (healthBarManager != null)
+            {
+                healthBarManager.gameObject.SetActive(false);
+            }
+            
+            if (deathSpectateManager != null)
+            {
+                deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY, RespawnPlayer);
+            }
+            else
+            {
+                Debug.LogWarning($"[{nameof(CarHealth)}] No DeathSpectateManager found! Falling back to immediate respawn");
+                HandleBotDeath();
+            }
+        }
+
+        private void RespawnPlayer()
+        {
             spawnManager?.Respawn(gameObject.tag);
             Destroy(gameObject);
         }
@@ -88,6 +171,16 @@ namespace _Cars.Scripts
         public bool GetIsBot()
         {
             return isBot;
+        }
+        
+        public int GetMaxHealth()
+        {
+            return maxHealth;
+        }
+        
+        public int GetCurrentHealth()
+        {
+            return currentHealth;
         }
         
         public bool IsDead()
