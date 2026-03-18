@@ -1,6 +1,11 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using _Gameplay.Scripts;
+using _Player.Scripts;
 
 namespace _UI.Scripts
 {
@@ -9,98 +14,234 @@ namespace _UI.Scripts
         [Header("UI References")]
         [SerializeField] private Button startGameButton;
         [SerializeField] private Button[] mapButtons;
-        
+
         [Header("Button Colors")]
-        [SerializeField] private Color normalColor = Color.white;
+        [SerializeField] private Color normalColor      = Color.white;
         [SerializeField] private Color highlightedColor = Color.gray;
-        
+
         [Header("Settings")]
         [SerializeField] private string comingSoonButtonName = "Coming Soon";
-        
+
+        [Header("Buttons — hidden when using controller")]
+        [SerializeField] private GameObject backButton;
+
+        [Header("Navigation")]
+        [Tooltip("Panel to return to when going back")]
+        [SerializeField] private GameObject previousPanel;
+
         [Header("Events")]
         public UnityEvent<string> onMapSelected;
         public UnityEvent onStartGameClicked;
-        
-        private Button selectedButton;
 
-        void Start()
+        // ─── state ───────────────────────────────────────────
+        private Button selectedButton;
+        private bool   isControllerMode = false;
+
+        private enum ControllerStep { SelectingMap, ConfirmingStart }
+        private ControllerStep controllerStep = ControllerStep.SelectingMap;
+
+        // ═══════════════════════════════════════════════
+        //  UNITY LIFECYCLE
+        // ═══════════════════════════════════════════════
+
+        private void OnEnable()
         {
+            selectedButton   = null;
+            controllerStep   = ControllerStep.SelectingMap;
+            isControllerMode = false;
+
+            // Hide buttons immediately before the player sees them
+            bool controllerConnected =
+                (PlayerOneInputTracker.instance != null && PlayerOneInputTracker.instance.IsPlayerOneUsingController())
+                || Gamepad.current != null;
+
+            if (backButton != null)
+                backButton.SetActive(!controllerConnected);
+
+            if (startGameButton != null)
+                startGameButton.interactable = false;
+
             InitializeButtons();
+            StartCoroutine(EnableControllerWhenButtonsReleased());
         }
-        
-        private void InitializeButtons()
+
+        private IEnumerator EnableControllerWhenButtonsReleased()
         {
-            startGameButton.interactable = false;
-            
-            foreach (Button button in mapButtons)
+            Gamepad pad = Gamepad.current;
+            if (pad != null)
             {
-                Button btn = button; 
-                button.onClick.AddListener(() => OnMapButtonClicked(btn));
+                while (pad.buttonSouth.isPressed || pad.buttonEast.isPressed ||
+                       pad.buttonNorth.isPressed || pad.buttonWest.isPressed)
+                    yield return null;
             }
+
+            yield return null;
+            DetectInputMode();
         }
-        
-        private void OnMapButtonClicked(Button btn)
+
+        private void Update()
         {
-            if (selectedButton == btn)
-            {
-                DeselectButton();
-                return;
-            }
-            
-            if (selectedButton != null)
-            {
-                SetButtonColor(selectedButton, normalColor);
-            }
-            
-            selectedButton = btn;
-            SetButtonColor(selectedButton, highlightedColor);
-            
-            bool isValidMap = selectedButton.name != comingSoonButtonName;
-            startGameButton.interactable = isValidMap;
-            
-            if (isValidMap)
-            {
-                onMapSelected?.Invoke(btn.name);
-            }
+            if (!isControllerMode) return;
+            HandleControllerInput();
         }
-        
-        private void DeselectButton()
+
+        // ═══════════════════════════════════════════════
+        //  INPUT MODE
+        // ═══════════════════════════════════════════════
+
+        private void DetectInputMode()
         {
-            SetButtonColor(selectedButton, normalColor);
-            selectedButton = null;
-            startGameButton.interactable = false;
+            bool usingController = false;
+
+            if (PlayerOneInputTracker.instance != null)
+                usingController = PlayerOneInputTracker.instance.IsPlayerOneUsingController();
+
+            if (!usingController && Gamepad.current != null)
+                usingController = true;
+
+            SetControllerMode(usingController);
         }
-        
-        private void SetButtonColor(Button button, Color color)
+
+        private void SetControllerMode(bool controller)
         {
-            if (button != null)
+            isControllerMode = controller;
+
+            if (backButton != null)
+                backButton.SetActive(!controller);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  CONTROLLER INPUT
+        //  South is handled automatically by EventSystem
+        //  We only need East for going back / reselecting
+        // ═══════════════════════════════════════════════
+
+        private void HandleControllerInput()
+        {
+            Gamepad pad = Gamepad.current;
+            if (pad == null) return;
+
+            if (pad.buttonEast.wasPressedThisFrame)
             {
-                Image image = button.GetComponent<Image>();
-                if (image != null)
+                if (controllerStep == ControllerStep.ConfirmingStart)
                 {
-                    image.color = color;
+                    // Go back to map selection
+                    controllerStep = ControllerStep.SelectingMap;
+                    DeselectButton();
+
+                    if (mapButtons.Length > 0)
+                        EventSystem.current.SetSelectedGameObject(mapButtons[0].gameObject);
+                }
+                else
+                {
+                    GoBack();
                 }
             }
         }
-        
-        public void OnStartGameButtonClicked()
+
+        // ═══════════════════════════════════════════════
+        //  BUTTON SETUP
+        // ═══════════════════════════════════════════════
+
+        private void InitializeButtons()
         {
-            Debug.Log("[MapSelector] Start Game clicked - loading map!");
-            
-            onStartGameClicked?.Invoke();
+            if (startGameButton != null)
+                startGameButton.interactable = false;
+
+            foreach (Button button in mapButtons)
+            {
+                Button btn = button;
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(() => OnMapButtonClicked(btn));
+            }
         }
-        
-        private void ResetSelection()
+
+        // ═══════════════════════════════════════════════
+        //  MAP SELECTION
+        // ═══════════════════════════════════════════════
+
+        private void OnMapButtonClicked(Button btn)
         {
-            if (selectedButton != null)
+            // Clicking the already-selected map deselects it
+            if (selectedButton == btn)
             {
                 DeselectButton();
+                controllerStep = ControllerStep.SelectingMap;
+                return;
             }
+
+            if (selectedButton != null)
+                SetButtonColor(selectedButton, normalColor);
+
+            selectedButton = btn;
+            SetButtonColor(selectedButton, highlightedColor);
+
+            bool isValidMap = selectedButton.name != comingSoonButtonName;
+
+            if (startGameButton != null)
+                startGameButton.interactable = isValidMap;
+
+            if (isValidMap)
+            {
+                onMapSelected?.Invoke(btn.name);
+
+                if (GameplayManager.instance != null)
+                    GameplayManager.instance.SetMap(btn.name);
+
+                if (isControllerMode)
+                {
+                    controllerStep = ControllerStep.ConfirmingStart;
+                    EventSystem.current.SetSelectedGameObject(startGameButton.gameObject);
+                }
+            }
+        }
+
+        private void DeselectButton()
+        {
+            if (selectedButton != null)
+                SetButtonColor(selectedButton, normalColor);
+
+            selectedButton = null;
+
+            if (startGameButton != null)
+                startGameButton.interactable = false;
+        }
+
+        private void SetButtonColor(Button button, Color color)
+        {
+            if (button == null) return;
+            Image image = button.GetComponent<Image>();
+            if (image != null) image.color = color;
+        }
+
+        // ═══════════════════════════════════════════════
+        //  ACTIONS
+        // ═══════════════════════════════════════════════
+
+        public void OnStartGameButtonClicked()
+        {
+            onStartGameClicked?.Invoke();
+
+            if (GameplayManager.instance != null)
+                GameplayManager.instance.StartGame();
         }
 
         public void GoBack()
         {
-            ResetSelection();
+            DeselectButton();
+            controllerStep = ControllerStep.SelectingMap;
+
+            if (previousPanel != null)
+            {
+                previousPanel.SetActive(true);
+                gameObject.SetActive(false);
+            }
+        }
+
+        public void ResetSelection()
+        {
+            DeselectButton();
+            controllerStep = ControllerStep.SelectingMap;
         }
     }
 }
