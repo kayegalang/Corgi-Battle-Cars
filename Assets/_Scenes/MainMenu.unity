@@ -2947,7 +2947,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterSelectUI
   carTypes:
-  - {fileID: 11400000, guid: fb6c5249304a5df499e627f9fd94c821, type: 2}
+  - {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
   - {fileID: 11400000, guid: 8b393014dfa57bc459d9f486e41fa716, type: 2}
   - {fileID: 11400000, guid: b426bf9d8a9ccd147af9464da20c052e, type: 2}
   - {fileID: 11400000, guid: b5e0b2a3e4bf5484aab8eb91cf10eab7, type: 2}

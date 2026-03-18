@@ -10,18 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a2469d3e375b4ecaba7e2b5ad7e34e0, type: 3}
-  m_Name: AerielStats
-  m_EditorClassIdentifier: Assembly-CSharp::_Cars.ScriptableObjects.CarStats
-  speedStat: 60
+  m_Name: KorgiKart
+  m_EditorClassIdentifier: Assembly-CSharp::Player.Scripts.CarStats
+  carName: Korgi Kart
+  carDescription: Even stats
+  carID: All Rounder
+  speedStat: 50
   accelerationStat: 50
-  jumpForceStat: 90
-  healthStat: 45
+  jumpForceStat: 50
+  healthStat: 50
   minMaxSpeed: 25
   maxMaxSpeed: 50
   minAcceleration: 12
   maxAcceleration: 30
-  minJumpForce: 8
-  maxJumpForce: 14
+  minJumpForce: 40
+  maxJumpForce: 50
   minMaxHealth: 75
   maxMaxHealth: 125
   minTurnSpeed: 20

@@ -5,12 +5,23 @@ namespace _Projectiles.ScriptableObjects
     [CreateAssetMenu(fileName = "Projectile", menuName = "Scriptable Objects/Projectile")]
     public class ProjectileObject : ScriptableObject
     {
+        [Header("Projectile Identity")]
+        [Tooltip("Display name of the projectile/weapon (e.g., 'Plasma Cannon', 'Machine Gun')")]
+        [SerializeField] private string projectileName = "Unnamed Weapon";
+        
+        [Tooltip("Description shown in UI (e.g., 'High damage but slow fire rate')")]
+        [TextArea(2, 4)]
+        [SerializeField] private string projectileDescription = "A projectile weapon.";
+        
+        [Tooltip("Unique identifier for this projectile type (e.g., 'plasma_cannon', 'machine_gun')")]
+        [SerializeField] private string projectileID = "default_projectile";
+        
         [Header("Visual")]
         [Tooltip("The prefab instantiated when firing")]
         [SerializeField] private GameObject projectilePrefab;
         
         [Header("Damage")]
-        [Tooltip("How much damage this projectile deals")]
+        [Tooltip("How much damage this projectile deals on hit")]
         [SerializeField] [Range(1, 100)] private int damage = 10;
         
         [Header("Fire Rate")]
@@ -22,21 +33,31 @@ namespace _Projectiles.ScriptableObjects
         [SerializeField] [Range(0.1f, 10f)] private float cooldownDuration = 2f;
         
         [Header("Recoil")]
-        [Tooltip("Backward force applied to shooter when firing")]
+        [Tooltip("Backward force applied to shooter's car when firing (car knockback)")]
         [SerializeField] [Range(0f, 50f)] private float recoilForce = 5f;
         
         [Header("Physics")]
-        [Tooltip("Forward force applied to projectile when fired")]
+        [Tooltip("Forward force applied to projectile = PROJECTILE SPEED (higher = faster projectiles)")]
         [SerializeField] [Range(1f, 100f)] private float fireForce = 30f;
         
-        [Tooltip("How long the projectile exists before auto-destroying")]
+        [Tooltip("How long the projectile exists before disappearing (seconds)")]
         [SerializeField] [Range(1f, 10f)] private float lifetime = 5f;
         
+        // Visual
         public GameObject ProjectilePrefab => projectilePrefab;
+        
+        // Identity
+        public string ProjectileName => projectileName;
+        public string ProjectileDescription => projectileDescription;
+        public string ProjectileID => projectileID;
+        
+        // Combat Stats
         public int Damage => damage;
         public float FireRate => fireRate;
         public float CooldownDuration => cooldownDuration;
         public float RecoilForce => recoilForce;
+        
+        // Physics
         public float FireForce => fireForce;
         public float Lifetime => lifetime;
         

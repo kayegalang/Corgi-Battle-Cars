@@ -47,13 +47,14 @@ namespace _Cars.Scripts
         private bool usingMouseForAiming = true;
         private bool isFiring;
         
+        // Charge system - all values driven by ProjectileObject SO
         private float currentCharge;
-        private float maxCharge = 100f;
-        private float chargePerShot = 10f; // How much charge each shot costs
-        private float chargeRegenRate = 20f; // Charge regenerated per second
-        private float fireRate = 0.1f; // Minimum time between shots (10 shots/sec max)
+        private const float MAX_CHARGE = 100f;
+        private const float CHARGE_PER_SHOT = 10f;  // Fixed: 10 shots before overheat
+        private float chargeRegenRate;               // Derived: MAX_CHARGE / CooldownDuration
+        private float fireRate;                      // From: ProjectileObject.FireRate
         private float nextAllowedFireTime;
-        private bool isOverheated = false; // Locks shooting until fully recharged
+        private bool isOverheated = false;
 
         private void Awake()
         {
@@ -62,7 +63,7 @@ namespace _Cars.Scripts
             InitializeReticleState();
             CaptureInitialMousePosition();
             ValidateProjectileType();
-            // Don't find cooldown bar yet - HealthBarManager creates it in Start()
+            InitializeFromProjectile();
         }
 
         private void Start()
@@ -73,8 +74,32 @@ namespace _Cars.Scripts
 
         private System.Collections.IEnumerator FindCooldownBarDelayed()
         {
-            yield return null; // Wait one frame
+            yield return null;
             FindCooldownBar();
+        }
+
+        /// <summary>
+        /// Reads shooting stats from the assigned ProjectileObject SO.
+        /// Call this again at runtime if the projectile type is swapped (e.g. tuning scene).
+        /// </summary>
+        private void InitializeFromProjectile()
+        {
+            if (projectileType == null)
+            {
+                return;
+            }
+
+            // FireRate: time between shots (lower = faster)
+            fireRate = projectileType.FireRate;
+
+            // CooldownDuration: how long full recharge takes after overheat
+            // regenRate = MAX_CHARGE / CooldownDuration
+            // e.g. CooldownDuration=2s → regenRate=50/s → takes exactly 2s to recharge
+            chargeRegenRate = MAX_CHARGE / Mathf.Max(projectileType.CooldownDuration, 0.1f);
+
+            Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} initialized from {projectileType.ProjectileName}: " +
+                      $"FireRate={fireRate}s, CooldownDuration={projectileType.CooldownDuration}s, " +
+                      $"RegenRate={chargeRegenRate}/s");
         }
 
         private void CacheComponents()
@@ -96,7 +121,7 @@ namespace _Cars.Scripts
         private void InitializeReticleState()
         {
             HideReticle();
-            currentCharge = maxCharge; // Start with full charge
+            currentCharge = MAX_CHARGE;
         }
 
         private void CaptureInitialMousePosition()
@@ -125,7 +150,6 @@ namespace _Cars.Scripts
 
             Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} - Searching for CooldownBarUI under player...");
             
-            // Debug: Show ALL children of this player
             Debug.Log($"[{nameof(CarShooter)}] === HIERARCHY DEBUG START ===");
             Debug.Log($"[{nameof(CarShooter)}] Searching under: {gameObject.name}");
             Debug.Log($"[{nameof(CarShooter)}] Child count: {transform.childCount}");
@@ -135,19 +159,16 @@ namespace _Cars.Scripts
                 Transform child = transform.GetChild(i);
                 Debug.Log($"[{nameof(CarShooter)}]   Child {i}: {child.name} (children: {child.childCount})");
                 
-                // Show grandchildren too
                 for (int j = 0; j < child.childCount; j++)
                 {
                     Transform grandchild = child.GetChild(j);
                     Debug.Log($"[{nameof(CarShooter)}]     Grandchild {j}: {grandchild.name} (children: {grandchild.childCount})");
                     
-                    // Show great-grandchildren
                     for (int k = 0; k < grandchild.childCount; k++)
                     {
                         Transform greatGrandchild = grandchild.GetChild(k);
                         Debug.Log($"[{nameof(CarShooter)}]       GreatGrandchild {k}: {greatGrandchild.name}");
                         
-                        // Check if this has CooldownBarUI
                         CooldownBarUI barUI = greatGrandchild.GetComponent<CooldownBarUI>();
                         if (barUI != null)
                         {
@@ -158,7 +179,6 @@ namespace _Cars.Scripts
             }
             Debug.Log($"[{nameof(CarShooter)}] === HIERARCHY DEBUG END ===");
             
-            // Now search for CooldownBarUI
             cooldownBar = GetComponentInChildren<CooldownBarUI>();
 
             if (cooldownBar != null)
@@ -169,7 +189,6 @@ namespace _Cars.Scripts
             {
                 Debug.LogError($"[{nameof(CarShooter)}] ✗✗✗ {gameObject.name} - NO CooldownBarUI found under player! Cooldown bar will not display.");
                 
-                // Extra debug: Try to find HealthBarContainer
                 Transform healthBarContainer = transform.Find("HealthBarContainer");
                 if (healthBarContainer != null)
                 {
@@ -225,8 +244,6 @@ namespace _Cars.Scripts
 
         private void CleanupUIState()
         {
-            HideReticle();
-            
             // Only restore cursor visibility for keyboard/mouse players.
             // A gamepad player never owns the cursor, so touching it here
             // would fight a dead keyboard player who needs it visible.
@@ -306,17 +323,18 @@ namespace _Cars.Scripts
 
         private void RegenerateCharge()
         {
-            if (currentCharge < maxCharge)
+            if (currentCharge >= MAX_CHARGE)
             {
-                currentCharge += chargeRegenRate * Time.deltaTime;
-                currentCharge = Mathf.Min(currentCharge, maxCharge);
-                
-                // Only clear overheat when FULLY recharged
-                if (currentCharge >= maxCharge && isOverheated)
-                {
-                    isOverheated = false;
-                    Debug.Log($"<color=green>[{nameof(CarShooter)}] {gameObject.name} - ✓✓✓ COOLED DOWN! Weapon unlocked! Can shoot again!</color>");
-                }
+                return;
+            }
+
+            currentCharge += chargeRegenRate * Time.deltaTime;
+            currentCharge = Mathf.Min(currentCharge, MAX_CHARGE);
+            
+            if (currentCharge >= MAX_CHARGE && isOverheated)
+            {
+                isOverheated = false;
+                Debug.Log($"<color=green>[{nameof(CarShooter)}] {gameObject.name} - ✓ COOLED DOWN! Weapon unlocked!</color>");
             }
         }
 
@@ -339,25 +357,10 @@ namespace _Cars.Scripts
         {
             if (cooldownBar == null)
             {
-                // Only log this once per second to avoid spam
-                if (Time.frameCount % 60 == 0)
-                {
-                    Debug.LogError($"[{nameof(CarShooter)}] {gameObject.name} - Cooldown bar is NULL! Not found during Start!");
-                }
                 return;
             }
             
-            // Show current charge out of max charge
-            // When charge is full (100), bar is blue (ready)
-            // When charge is low/empty, bar is red (can't shoot)
-            
-            if (Time.frameCount % 30 == 0) // Debug every 30 frames
-            {
-                string overheatStatus = isOverheated ? "🔥 OVERHEATED!" : "✓ OK";
-                Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} - Charge: {currentCharge:F1}/{maxCharge}, fillPercent={(currentCharge / maxCharge) * 100:F0}%, Status: {overheatStatus}");
-            }
-            
-            cooldownBar.UpdateCooldown(currentCharge, maxCharge);
+            cooldownBar.UpdateCooldown(currentCharge, MAX_CHARGE);
         }
 
         private void FixedUpdate()
@@ -369,32 +372,19 @@ namespace _Cars.Scripts
             
             if (PlayerPressingFireButton() && CanShootNow())
             {
-                // Check if after THIS shot, we won't have enough for ANOTHER shot
-                // This prevents regen from keeping us barely above 0
-                float chargeAfterShot = currentCharge - chargePerShot;
-                bool willOverheat = chargeAfterShot < chargePerShot;
+                float chargeAfterShot = currentCharge - CHARGE_PER_SHOT;
+                bool willOverheat = chargeAfterShot < CHARGE_PER_SHOT;
                 
-                Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} - SHOOTING! Charge: {currentCharge:F1} → {chargeAfterShot:F1}, WillOverheat: {willOverheat}");
                 FireProjectile();
-                currentCharge -= chargePerShot;
+                currentCharge -= CHARGE_PER_SHOT;
                 
-                // Overheat if we can't shoot again
                 if (willOverheat)
                 {
-                    currentCharge = 0f; // Clamp to 0
+                    currentCharge = 0f;
                     isOverheated = true;
-                    Debug.Log($"<color=red>[{nameof(CarShooter)}] {gameObject.name} - ⚠️⚠️⚠️ OVERHEATED! Weapon locked until fully recharged!</color>");
                 }
                 
                 nextAllowedFireTime = Time.time + fireRate;
-            }
-            else if (PlayerPressingFireButton() && isOverheated)
-            {
-                // Log when trying to shoot while overheated (every 30 frames to avoid spam)
-                if (Time.frameCount % 30 == 0)
-                {
-                    Debug.LogWarning($"[{nameof(CarShooter)}] {gameObject.name} - ❌ Can't shoot! OVERHEATED! Charge: {currentCharge:F1}/100");
-                }
             }
         }
 
@@ -410,14 +400,12 @@ namespace _Cars.Scripts
                 return false;
             }
             
-            // Cannot shoot if overheated - must wait for full recharge!
             if (isOverheated)
             {
                 return false;
             }
             
-            // Need BOTH enough charge AND enough time has passed
-            bool hasEnoughCharge = currentCharge >= chargePerShot;
+            bool hasEnoughCharge = currentCharge >= CHARGE_PER_SHOT;
             bool fireRateReady = Time.time >= nextAllowedFireTime;
             
             return hasEnoughCharge && fireRateReady;
@@ -498,7 +486,7 @@ namespace _Cars.Scripts
             
             return localPoint;
         }
-        
+
         private void FireProjectile()
         {
             Vector3 shootDirection = CalculateShootDirectionFromReticle();
@@ -586,18 +574,15 @@ namespace _Cars.Scripts
                 return;
             }
             
-            // Only apply horizontal recoil (ignore vertical component)
             Vector3 horizontalShootDirection = new Vector3(shootDirection.x, 0f, shootDirection.z).normalized;
             Vector3 recoilDirection = -horizontalShootDirection;
             
-            // Reduce recoil slightly if moving opposite to recoil direction (allows acceleration)
             Vector3 horizontalVelocity = new Vector3(carRigidbody.linearVelocity.x, 0f, carRigidbody.linearVelocity.z);
             float velocityAlongRecoil = Vector3.Dot(horizontalVelocity, recoilDirection);
             
             float recoilScale = 1f;
-            if (velocityAlongRecoil < 0f) // Moving opposite to recoil (trying to accelerate forward)
+            if (velocityAlongRecoil < 0f)
             {
-                // Reduce recoil by 50% when actively accelerating against it
                 recoilScale = 0.5f;
             }
             
@@ -605,14 +590,11 @@ namespace _Cars.Scripts
             carRigidbody.AddForce(recoilForce, ForceMode.Impulse);
         }
 
-        
         public void EnableGameplay()
         {
             gameplayEnabled = true;
             CenterReticleInViewport();
             
-            // Reset lastMousePosition to current mouse position so MoveReticleWithMouse()
-            // doesn't immediately apply a delta from before death/respawn.
             if (Mouse.current != null)
             {
                 lastMousePosition = Mouse.current.position.ReadValue();
@@ -634,9 +616,8 @@ namespace _Cars.Scripts
             
             int playerCount = GetPlayerCount();
             
-            // Parse player number from tag (e.g. "PlayerOne" → 1, "PlayerTwo" → 2)
             string tag = gameObject.tag;
-            int playerNumber = 1; // default
+            int playerNumber = 1;
             if (tag.Contains("One")) playerNumber = 1;
             else if (tag.Contains("Two")) playerNumber = 2;
             else if (tag.Contains("Three")) playerNumber = 3;
@@ -646,25 +627,22 @@ namespace _Cars.Scripts
 
             if (playerCount == 1)
             {
-                // Fullscreen - center at (0.5f, 0.5f)
                 targetPosition = new Vector2(0.5f, 0.5f);
             }
             else if (playerCount == 2)
             {
-                // Vertical split - left/right
                 targetPosition = playerNumber == 1 ? new Vector2(-480, 0) : new Vector2(480, 0);
             }
             else if (playerCount == 3 || playerCount == 4)
             {
-                // 2x2 grid
                 if (playerNumber == 1)
-                    targetPosition = new Vector2(-480, 270);   // top left
+                    targetPosition = new Vector2(-480, 270);
                 else if (playerNumber == 2)
-                    targetPosition = new Vector2(480, 270);    // top right
+                    targetPosition = new Vector2(480, 270);
                 else if (playerNumber == 3)
-                    targetPosition = new Vector2(-480, -270);  // bottom left
+                    targetPosition = new Vector2(-480, -270);
                 else
-                    targetPosition = new Vector2(480, -270);   // bottom right
+                    targetPosition = new Vector2(480, -270);
             }
 
             reticle.anchoredPosition = targetPosition;
@@ -715,6 +693,29 @@ namespace _Cars.Scripts
             {
                 reticle.gameObject.SetActive(false);
             }
+        }
+
+        /// <summary>
+        /// Swap the projectile type at runtime (e.g. from TuningManager).
+        /// Immediately re-initializes all shooting stats from the new SO.
+        /// </summary>
+        public void SetProjectileType(ProjectileObject newProjectile)
+        {
+            if (newProjectile == null)
+            {
+                Debug.LogWarning($"[{nameof(CarShooter)}] Cannot set null projectile type!");
+                return;
+            }
+
+            projectileType = newProjectile;
+            InitializeFromProjectile();
+            
+            // Reset charge state so new weapon starts fresh
+            currentCharge = MAX_CHARGE;
+            isOverheated = false;
+            nextAllowedFireTime = 0f;
+
+            Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} swapped to {newProjectile.ProjectileName}");
         }
     }
 }

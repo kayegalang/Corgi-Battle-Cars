@@ -56,12 +56,6 @@ namespace _UI.Scripts
             
             float fillAmount = CalculateFillAmount(currentCooldown, maxCooldown);
             
-            // Debug log every 10 frames
-            if (Time.frameCount % 10 == 0)
-            {
-                Debug.Log($"[{nameof(CooldownBarUI)}] {gameObject.name} - UpdateCooldown called: current={currentCooldown:F2}, max={maxCooldown:F2}, fillAmount={fillAmount:F2} ({fillAmount * 100:F0}%)");
-            }
-            
             SetFillAmount(fillAmount); // This now handles color gradient!
         }
         

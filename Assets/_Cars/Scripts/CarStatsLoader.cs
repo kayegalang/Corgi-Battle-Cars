@@ -128,5 +128,23 @@ namespace _Cars.Scripts
             Debug.Log($"[{nameof(CarStatsLoader)}] Jump Force: {stats.JumpForce}");
             Debug.Log($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         }
+        
+        /// <summary>
+        /// Apply new car stats at runtime (for tuning scene).
+        /// This allows the designer to change bot cars on the fly.
+        /// </summary>
+        public void ApplyCarStats(CarStats newStats)
+        {
+            if (newStats == null)
+            {
+                Debug.LogWarning($"[{nameof(CarStatsLoader)}] Cannot apply null CarStats!");
+                return;
+            }
+            
+            // Reuse existing methods to apply stats
+            ApplyStatsToComponents(newStats);
+            
+            Debug.Log($"[{nameof(CarStatsLoader)}] ✓ Applied {newStats.name} to {gameObject.name} at runtime!");
+        }
     }
 }

@@ -5,6 +5,17 @@ namespace _Cars.ScriptableObjects
     [CreateAssetMenu(fileName = "CarStats", menuName = "Scriptable Objects/CarStats")]
     public class CarStats : ScriptableObject
     {
+        [Header("Car Identity")]
+        [Tooltip("Display name of the car (e.g., 'Speed Demon', 'Tank')")]
+        [SerializeField] private string carName = "Unnamed Car";
+        
+        [Tooltip("Description shown in UI (e.g., 'Fast but fragile')")]
+        [TextArea(2, 4)]
+        [SerializeField] private string carDescription = "A racing car.";
+        
+        [Tooltip("Unique identifier for this car type (e.g., 'speedster', 'tank')")]
+        [SerializeField] private string carID = "default_car";
+        
         [Header("Car Stats (0-100%)")]
         [Tooltip("Speed stat (affects max speed and turning)")]
         [SerializeField] [Range(0f, 100f)] private float speedStat = 50f;
@@ -34,10 +45,10 @@ namespace _Cars.ScriptableObjects
         
         [Header("Jump Force Range")]
         [Tooltip("Minimum jump force (at 0%)")]
-        [SerializeField] private float minJumpForce = 8f;
+        [SerializeField] private float minJumpForce = 40f;
         
         [Tooltip("Maximum jump force (at 100%)")]
-        [SerializeField] private float maxJumpForce = 14f;
+        [SerializeField] private float maxJumpForce = 50f;
         
         [Header("Health Range")]
         [Tooltip("Minimum max health (at 0%)")]
@@ -68,6 +79,11 @@ namespace _Cars.ScriptableObjects
         public int MaxHealth => CalculateMaxHealth();
         public Vector3 GroundCheckOffset => groundCheckOffset;
         public float GroundCheckDistance => groundCheckDistance;
+        
+        // Car identity properties
+        public string CarName => carName;
+        public string CarDescription => carDescription;
+        public string CarID => carID;
         
         // Stat getters for UI (returns 0-100)
         public float SpeedStat => speedStat;

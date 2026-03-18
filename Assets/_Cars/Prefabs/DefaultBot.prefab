@@ -277,7 +277,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bot.Scripts.BotAI
   carStats: {fileID: 11400000, guid: d2b0ed14282fa4d0180dcb3cfa031b51, type: 2}
-  projectile: {fileID: 11400000, guid: e104ec775ead94f4eb9403e209f95daf, type: 2}
+  projectile: {fileID: 11400000, guid: 4435cf7b253264ab8b2e1d0a877e40d6, type: 2}
 --- !u!114 &3883904779664031299
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -304,8 +304,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1f416d43a8ef49a4a279bdbe0a18fa2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarHealth
-  spawnManager: {fileID: 0}
   carStats: {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
+  spawnManager: {fileID: 0}
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -346,6 +346,8 @@ MonoBehaviour:
   powerUpIcon: {fileID: 0}
   powerUpNameText: {fileID: 0}
   timerBar: {fileID: 0}
+  heldPowerUpUI: {fileID: 0}
+  heldPowerUpNameText: {fileID: 0}
   botAutoUseDelay: 1.5
 --- !u!1 &6940145831851952758
 GameObject:
