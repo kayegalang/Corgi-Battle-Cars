@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace _UI.Scripts
@@ -23,15 +24,21 @@ namespace _UI.Scripts
                 return;
             }
 
-            EventSystem.current.SetSelectedGameObject(null);
+            // Only auto-select if a controller is connected — keyboard/mouse
+            // players navigate with the mouse so highlighting is unnecessary
+            if (Gamepad.current == null)
+            {
+                return;
+            }
 
+            EventSystem.current.SetSelectedGameObject(null);
             StartCoroutine(SelectNextFrame());
         }
 
         private System.Collections.IEnumerator SelectNextFrame()
         {
             yield return null;
-            
+
             if (EventSystem.current != null && firstSelected != null)
             {
                 EventSystem.current.SetSelectedGameObject(firstSelected.gameObject);
