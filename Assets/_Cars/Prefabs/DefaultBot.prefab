@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 1539554114368885456}
   - component: {fileID: 3308493156854308235}
   - component: {fileID: 3241976254510136405}
+  - component: {fileID: -8061453450831771047}
   m_Layer: 0
   m_Name: DefaultBot
   m_TagString: BotOne
@@ -349,6 +350,28 @@ MonoBehaviour:
   heldPowerUpUI: {fileID: 0}
   heldPowerUpNameText: {fileID: 0}
   botAutoUseDelay: 1.5
+--- !u!114 &-8061453450831771047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3398083622699686620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de72cd2e8449f4eb7b829934ad41a5f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.BotLoadoutRandomizer
+  availableCarTypes:
+  - {fileID: 11400000, guid: 8b393014dfa57bc459d9f486e41fa716, type: 2}
+  - {fileID: 11400000, guid: b5e0b2a3e4bf5484aab8eb91cf10eab7, type: 2}
+  - {fileID: 11400000, guid: b426bf9d8a9ccd147af9464da20c052e, type: 2}
+  - {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
+  availableWeaponTypes:
+  - {fileID: 11400000, guid: 4435cf7b253264ab8b2e1d0a877e40d6, type: 2}
+  - {fileID: 11400000, guid: e104ec775ead94f4eb9403e209f95daf, type: 2}
+  - {fileID: 11400000, guid: 34193fc487c124ab08ba24caf24f31b7, type: 2}
+  - {fileID: 11400000, guid: 3529a2bd0ba264e97afb032e1479f5f8, type: 2}
 --- !u!1 &6940145831851952758
 GameObject:
   m_ObjectHideFlags: 0
