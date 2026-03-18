@@ -37,13 +37,11 @@ namespace _UI.Scripts
         
         private void InitializeFillImage()
         {
-            if (cooldownFillImage == null)
-            {
-                return;
-            }
-            
-            cooldownFillImage.type = Image.Type.Filled;
+            if (cooldownFillImage == null) return;
+
+            cooldownFillImage.type       = Image.Type.Filled;
             cooldownFillImage.fillMethod = Image.FillMethod.Horizontal;
+            cooldownFillImage.fillOrigin = (int)Image.OriginHorizontal.Right;
         }
         
         public void UpdateCooldown(float currentCooldown, float maxCooldown)
