@@ -111,23 +111,32 @@ namespace _UI.Scripts
         private void Update()
         {
             if (!isDead) return;
+            if (playerCamera == null) return;
 
             UpdateRespawnTimer();
             CheckAlivePlayersCache();
+            HandleControllerSpectateInput(); // ← add this
+        }
+
+        private void HandleControllerSpectateInput()
+        {
+            Gamepad pad = Gamepad.current;
+            if (pad == null) return;
+
+            if (pad.leftTrigger.wasPressedThisFrame)
+                SpectatePreviousPlayer();
+
+            if (pad.rightTrigger.wasPressedThisFrame)
+                SpectateNextPlayer();
         }
 
         private void LateUpdate()
         {
             if (!isDead) return;
+            if (playerCamera == null) return; // ← add this
 
-            // The camera follows its target naturally via SetParent.
-            // We just need to keep the viewport rect locked to our split screen slice,
-            // because reparenting doesn't change rect.
             playerCamera.rect = originalViewportRect;
 
-            // Keyboard players need their cursor confined to their own viewport slice.
-            // Other players' CarShooters won't touch the cursor (see CarShooter fix),
-            // but we still warp it back in case it drifts out.
             if (IsKeyboardPlayer())
             {
                 ConfineCursorToViewport();
