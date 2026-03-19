@@ -115,24 +115,22 @@ namespace _Cars.Scripts
             if (!CanMove()) return;
             if (Time.time - lastCrashTime < crashCooldown) return;
 
-            // Only register if we're moving fast enough
+            // Ignore vertical impacts (landing from a jump)
+            // Only register if the collision is mostly horizontal
+            Vector3 impactDirection = collision.GetContact(0).normal;
+            if (Mathf.Abs(impactDirection.y) > 0.5f) return;
+
             float impactSpeed = collision.relativeVelocity.magnitude;
             if (impactSpeed < crashMinSpeed) return;
 
             lastCrashTime = Time.time;
 
-            // Damage ourselves
             CarHealth myHealth = GetComponent<CarHealth>();
             myHealth?.TakeDamage(crashDamage, null);
 
-            // If we hit another car, damage them too
             CarHealth theirHealth = collision.gameObject.GetComponent<CarHealth>();
             if (theirHealth != null)
-            {
                 theirHealth.TakeDamage(crashDamage, null);
-                // Their own OnCollisionEnter will also fire so we don't double-damage —
-                // the cooldown on their side prevents that
-            }
         }
 
         // ═══════════════════════════════════════════════

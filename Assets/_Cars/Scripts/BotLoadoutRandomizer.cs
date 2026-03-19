@@ -21,6 +21,11 @@ namespace _Cars.Scripts
 
         private void Awake()
         {
+            // Don't randomize in the designer tuning scene —
+            // let TuningManager control the loadout there
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "DesignerTuning")
+                return;
+
             ApplyRandomCar();
             ApplyRandomWeapon();
         }

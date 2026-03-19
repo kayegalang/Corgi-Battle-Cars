@@ -19,6 +19,10 @@ namespace _Cars.Scripts
 
         private void Awake()
         {
+            // Don't load from PlayerPrefs in the designer tuning scene
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "DesignerTuning")
+                return;
+
             LoadAndApplySelectedWeapon();
         }
 

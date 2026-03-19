@@ -1,5 +1,6 @@
 using System.Collections;
 using _Cars.ScriptableObjects;
+using _Cars.Scripts;
 using _Gameplay.Scripts;
 using UnityEngine;
 
@@ -11,31 +12,43 @@ namespace _Bot.Scripts
         [SerializeField] private CarStats carStats;
         
         [Header("Zoomies VFX")]
-        [SerializeField] private ParticleSystem zoomiesParticles; 
+        [SerializeField] private ParticleSystem zoomiesParticles;
+
+        [Header("Crash Settings")]
+        [SerializeField] private int   crashDamage   = 5;
+        [SerializeField] private float crashMinSpeed  = 3f;
+        [SerializeField] private float crashCooldown  = 0.5f;
         
-        private Vector2 moveInput;
-        private Rigidbody carRb;
-        
+        private Vector2    moveInput;
+        private Rigidbody  carRb;
+
         // Zoomies power-up state
-        private bool hasZoomies = false;
-        private float speedMultiplier = 1f;
+        private bool  hasZoomies             = false;
+        private float speedMultiplier        = 1f;
         private float accelerationMultiplier = 1f;
         
-        // Super jump power-up state:
-        private bool hasSuperJump = false;
-        private float jumpMultiplier = 1f;
+        // Super jump power-up state
+        private bool  hasSuperJump            = false;
+        private float jumpMultiplier          = 1f;
         private float jumpHeightCapMultiplier = 1f;
+        
+        // Poop power-up state
+        private bool      isSlipping    = false;
+        private Coroutine slipCoroutine;
+
+        // Crash cooldown
+        private float lastCrashTime = -999f;
         
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
         private const float AIRBORNE_ANGULAR_DAMPING = 5f;
-        private const float AIRBORNE_ROTATION_SPEED = 2f;
-        private const float MOVE_INPUT_THRESHOLD = 0.01f;
+        private const float AIRBORNE_ROTATION_SPEED  = 2f;
+        private const float MOVE_INPUT_THRESHOLD     = 0.01f;
         private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
-        
-        // Poop power-up state
-        private bool isSlipping = false;
-        private Coroutine slipCoroutine;
-    
+
+        // ═══════════════════════════════════════════════
+        //  UNITY LIFECYCLE
+        // ═══════════════════════════════════════════════
+
         private void Awake()
         {
             InitializeComponents();
@@ -43,7 +56,6 @@ namespace _Bot.Scripts
         
         private void FixedUpdate()
         {
-            // Don't move until gameplay is active
             if (GameFlowController.instance != null && !GameFlowController.instance.IsGameplayActive())
                 return;
 
@@ -56,6 +68,36 @@ namespace _Bot.Scripts
             ApplyPhysics();
             ApplyMovementLimits();
         }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (GameFlowController.instance != null && !GameFlowController.instance.IsGameplayActive())
+                return;
+
+            if (Time.time - lastCrashTime < crashCooldown) return;
+
+            // Ignore vertical impacts (landing from a jump)
+            Vector3 impactDirection = collision.GetContact(0).normal;
+            if (Mathf.Abs(impactDirection.y) > 0.5f) return;
+
+            float impactSpeed = collision.relativeVelocity.magnitude;
+            if (impactSpeed < crashMinSpeed) return;
+
+            lastCrashTime = Time.time;
+
+            // Damage ourselves
+            CarHealth myHealth = GetComponent<CarHealth>();
+            myHealth?.TakeDamage(crashDamage, null);
+
+            // Damage the other car if it has health
+            CarHealth theirHealth = collision.gameObject.GetComponent<CarHealth>();
+            if (theirHealth != null)
+                theirHealth.TakeDamage(crashDamage, null);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  INITIALIZATION
+        // ═══════════════════════════════════════════════
         
         private void InitializeComponents()
         {
@@ -66,15 +108,15 @@ namespace _Bot.Scripts
         private void ValidateComponents()
         {
             if (carRb == null)
-            {
                 Debug.LogError($"[{nameof(BotController)}] Rigidbody not found on {gameObject.name}!");
-            }
             
             if (carStats == null)
-            {
                 Debug.LogError($"[{nameof(BotController)}] CarStats not assigned on {gameObject.name}!");
-            }
         }
+
+        // ═══════════════════════════════════════════════
+        //  PHYSICS
+        // ═══════════════════════════════════════════════
         
         private void ApplyPhysics()
         {
@@ -92,19 +134,13 @@ namespace _Bot.Scripts
         
         private void Move()
         {
-            if (!ShouldMove())
-            {
-                return;
-            }
+            if (!ShouldMove()) return;
             
             ApplyAcceleration();
             ConstrainLateralMovement();
         }
         
-        private bool ShouldMove()
-        {
-            return Mathf.Abs(moveInput.y) > MOVE_INPUT_THRESHOLD;
-        }
+        private bool ShouldMove() => Mathf.Abs(moveInput.y) > MOVE_INPUT_THRESHOLD;
         
         private void ApplyAcceleration()
         {
@@ -126,10 +162,7 @@ namespace _Bot.Scripts
             carRb.AddTorque(torque);
         }
         
-        private bool IsMovingForward()
-        {
-            return moveInput.y >= 0;
-        }
+        private bool IsMovingForward() => moveInput.y >= 0;
         
         private void ApplyAngularDamping()
         {
@@ -138,53 +171,37 @@ namespace _Bot.Scripts
         
         private void LevelRotationInAir()
         {
-            if (IsGrounded())
-            {
-                return;
-            }
+            if (IsGrounded()) return;
             
             Quaternion levelRotation = Quaternion.Euler(0, carRb.rotation.eulerAngles.y, 0);
-            Quaternion newRotation = Quaternion.Slerp(
+            Quaternion newRotation   = Quaternion.Slerp(
                 carRb.rotation, 
                 levelRotation, 
                 AIRBORNE_ROTATION_SPEED * Time.fixedDeltaTime
             );
-            
             carRb.MoveRotation(newRotation);
         }
         
         public bool IsGrounded()
         {
-            if (carStats == null)
-            {
-                return false;
-            }
+            if (carStats == null) return false;
             
-            Vector3 origin = transform.position + carStats.GroundCheckOffset;
+            Vector3 origin    = transform.position + carStats.GroundCheckOffset;
             Vector3 direction = -transform.up;
-            float distance = carStats.GroundCheckDistance;
+            float   distance  = carStats.GroundCheckDistance;
             
             Debug.DrawRay(origin, direction * distance, Color.red);
-            
             return Physics.Raycast(origin, direction, out RaycastHit hit, distance);
         }
         
         public void Jump()
         {
-            if (!CanJump())
-            {
-                return;
-            }
-               
+            if (!CanJump()) return;
             Vector3 jumpForce = transform.up * carStats.JumpForce * jumpMultiplier;
             carRb.AddForce(jumpForce, ForceMode.Impulse);
         }
         
-        
-        private bool CanJump()
-        {
-            return IsGrounded() && carStats != null;
-        }
+        private bool CanJump() => IsGrounded() && carStats != null;
         
         public void SetInputs(float turnAmount, float moveAmount)
         {
@@ -192,142 +209,97 @@ namespace _Bot.Scripts
             moveInput.y = Mathf.Clamp(moveAmount, -1f, 1f);
         }
         
-        public float GetSpeed()
-        {
-            if (carRb == null)
-            {
-                return 0f;
-            }
-            
-            return carRb.linearVelocity.magnitude;
-        }
+        public float GetSpeed() => carRb == null ? 0f : carRb.linearVelocity.magnitude;
         
         private void CapJumpHeight()
         {
-            if (carRb == null)
-            {
-                return;
-            }
-                
+            if (carRb == null) return;
+            
             Vector3 velocity = carRb.linearVelocity;
-                
             if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier)
             {
-                velocity.y = MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier;
+                velocity.y           = MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier;
                 carRb.linearVelocity = velocity;
             }
         }
         
         private void CapMaxSpeed()
         {
-            if (carRb == null || carStats == null)
-            {
-                return;
-            }
-            
+            if (carRb == null || carStats == null) return;
             if (IsExceedingMaxSpeed())
-            {
                 carRb.linearVelocity = carRb.linearVelocity.normalized * (carStats.MaxSpeed * speedMultiplier);
-            }
         }
         
-        private bool IsExceedingMaxSpeed()
-        {
-            return carRb.linearVelocity.magnitude > (carStats.MaxSpeed * speedMultiplier);
-        }
-        
+        private bool IsExceedingMaxSpeed() =>
+            carRb.linearVelocity.magnitude > (carStats.MaxSpeed * speedMultiplier);
+
         // ═══════════════════════════════════════════════
-        //  ZOOMIES POWER-UP! ⚡🌟
+        //  ZOOMIES POWER-UP
         // ═══════════════════════════════════════════════
         
         public void ApplySpeedMultiplier(float speedMult, float accelMult)
         {
-            hasZoomies = true;
-            speedMultiplier = speedMult;
+            hasZoomies             = true;
+            speedMultiplier        = speedMult;
             accelerationMultiplier = accelMult;
-            
-            // Start the speed lines effect!
-            if (zoomiesParticles != null)
-            {
-                zoomiesParticles.Play();
-            }
-            
+            if (zoomiesParticles != null) zoomiesParticles.Play();
             Debug.Log($"[BotController] {gameObject.name} got ZOOMIES! Speed x{speedMult}, Accel x{accelMult} ⚡");
         }
         
         public void RemoveSpeedMultiplier()
         {
-            hasZoomies = false;
-            speedMultiplier = 1f;
+            hasZoomies             = false;
+            speedMultiplier        = 1f;
             accelerationMultiplier = 1f;
-            
-            // Stop the speed lines
-            if (zoomiesParticles != null)
-            {
-                zoomiesParticles.Stop();
-            }
-            
+            if (zoomiesParticles != null) zoomiesParticles.Stop();
             Debug.Log($"[BotController] {gameObject.name}'s zoomies wore off!");
         }
-        
+
         // ═══════════════════════════════════════════════
-        //  SUPER JUMP POWER-UP! 🚀
+        //  SUPER JUMP POWER-UP
         // ═══════════════════════════════════════════════
+
         public void ApplyJumpMultiplier(float jumpMult, float jumpHeightCapMult)
         {
-            hasSuperJump = true;
-            jumpMultiplier = jumpMult;
+            hasSuperJump           = true;
+            jumpMultiplier         = jumpMult;
             jumpHeightCapMultiplier = jumpHeightCapMult;
-            
             Debug.Log($"[BotController] {gameObject.name} got SUPER JUMP! Jump x{jumpMult}, Height Cap x{jumpHeightCapMult} 🚀");
         }
     
         public void RemoveJumpMultiplier()
         {
-            hasSuperJump = false;
-            jumpMultiplier = 1f;
+            hasSuperJump           = false;
+            jumpMultiplier         = 1f;
             jumpHeightCapMultiplier = 1f;
             Debug.Log($"[BotController] {gameObject.name}'s super jump wore off!");
         }
-        
+
         // ═══════════════════════════════════════════════
         //  POOP POWER-UP
         // ═══════════════════════════════════════════════
             
         public void TriggerSlip(float duration, float spinForce)
         {
-            if (isSlipping)
-            {
-                return;
-            }
-                    
-            if (slipCoroutine != null)
-            {
-                StopCoroutine(slipCoroutine);
-            }
-                    
+            if (isSlipping) return;
+            if (slipCoroutine != null) StopCoroutine(slipCoroutine);
             slipCoroutine = StartCoroutine(SlipRoutine(duration, spinForce));
         }
         
         private IEnumerator SlipRoutine(float duration, float spinForce)
         {
             isSlipping = true;
-                
-            Debug.Log($"[CarController] {gameObject.name} is slipping! 💩💨");
-                
+            Debug.Log($"[BotController] {gameObject.name} is slipping! 💩💨");
             SpinPlayer(spinForce);
-               
             yield return new WaitForSeconds(duration);
-                
             isSlipping = false;
-                
-            Debug.Log($"[CarController] {gameObject.name} regained control!");
+            Debug.Log($"[BotController] {gameObject.name} regained control!");
         }
 
         private void SpinPlayer(float spinForce)
         {
-            float randomDirection = Random.value > 0.5f ? 1f : -1f;
-            Vector3 spinTorque = Vector3.up * spinForce * randomDirection;
+            float   randomDirection = Random.value > 0.5f ? 1f : -1f;
+            Vector3 spinTorque      = Vector3.up * spinForce * randomDirection;
             carRb.AddTorque(spinTorque, ForceMode.Impulse);
         }
     }
