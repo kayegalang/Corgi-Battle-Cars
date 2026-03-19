@@ -1,23 +1,38 @@
 using _Cars.ScriptableObjects;
+using _Gameplay.Scripts;
 using UnityEngine;
 
 namespace _Cars.Scripts
 {
     /// <summary>
     /// Loads the player's selected car type from CharacterSelect and applies stats.
-    /// Add this to the Player prefab!
+    /// In multiplayer, SpawnManager calls LoadForCurrentTag() after setting the tag.
     /// </summary>
     public class CarStatsLoader : MonoBehaviour
     {
         [Header("Available Car Types")]
-        [Tooltip("All car types available (Tank, Speedster, Aerialist, Bruiser) - SAME ORDER as CharacterSelectUI!")]
+        [Tooltip("All car types available — SAME ORDER as CharacterSelectUI!")]
         [SerializeField] private CarStats[] availableCarTypes;
 
-        private const string SELECTED_INDEX_KEY = "SelectedCarTypeIndex";
+        private const string BASE_KEY = "SelectedCarTypeIndex";
 
         private void Awake()
         {
-            // Don't load from PlayerPrefs in the designer tuning scene
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "DesignerTuning")
+                return;
+
+            // In singleplayer the tag is already correct on the prefab so load immediately
+            // In multiplayer SpawnManager calls LoadForCurrentTag() after setting the tag
+            if (GameplayManager.instance != null &&
+                GameplayManager.instance.GetCurrentGameMode() == GameMode.Singleplayer)
+                LoadAndApplySelectedCarStats();
+        }
+
+        /// <summary>
+        /// Called by SpawnManager after SetPlayerIdentity() so the tag is correct.
+        /// </summary>
+        public void LoadForCurrentTag()
+        {
             if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "DesignerTuning")
                 return;
 
@@ -26,13 +41,10 @@ namespace _Cars.Scripts
 
         private void LoadAndApplySelectedCarStats()
         {
-            if (!ValidateCarTypesArray())
-            {
-                return;
-            }
+            if (!ValidateCarTypesArray()) return;
 
-            int selectedIndex = LoadSelectedIndexFromPlayerPrefs();
-            CarStats selectedStats = GetCarStatsAtIndex(selectedIndex);
+            int      selectedIndex = LoadSelectedIndexFromPlayerPrefs();
+            CarStats selectedStats = availableCarTypes[selectedIndex];
 
             ApplyStatsToComponents(selectedStats);
             LogStatsApplied(selectedStats, selectedIndex);
@@ -42,24 +54,33 @@ namespace _Cars.Scripts
         {
             if (availableCarTypes == null || availableCarTypes.Length == 0)
             {
-                Debug.LogError($"[{nameof(CarStatsLoader)}] No car types assigned! Assign CarStats array in Inspector!");
+                Debug.LogError($"[{nameof(CarStatsLoader)}] No car types assigned on {gameObject.name}!");
                 return false;
             }
-
             return true;
         }
 
         private int LoadSelectedIndexFromPlayerPrefs()
         {
-            int savedIndex = PlayerPrefs.GetInt(SELECTED_INDEX_KEY, 0);
-            int clampedIndex = Mathf.Clamp(savedIndex, 0, availableCarTypes.Length - 1);
-
-            return clampedIndex;
+            string key       = GetPlayerPrefsKey();
+            int    savedIndex = PlayerPrefs.GetInt(key, 0);
+            return Mathf.Clamp(savedIndex, 0, availableCarTypes.Length - 1);
         }
 
-        private CarStats GetCarStatsAtIndex(int index)
+        private string GetPlayerPrefsKey()
         {
-            return availableCarTypes[index];
+            // Singleplayer — use base key (saved by CharacterSelectUI)
+            if (GameplayManager.instance != null &&
+                GameplayManager.instance.GetCurrentGameMode() == GameMode.Singleplayer)
+                return BASE_KEY;
+
+            // Multiplayer — per-player key based on tag
+            string tag = gameObject.tag;
+            if (tag == "PlayerOne"   || tag == "PlayerTwo" ||
+                tag == "PlayerThree" || tag == "PlayerFour")
+                return $"{BASE_KEY}_{tag}";
+
+            return BASE_KEY;
         }
 
         private void ApplyStatsToComponents(CarStats stats)
@@ -78,20 +99,14 @@ namespace _Cars.Scripts
                 return;
             }
 
-            // Use reflection to set the private carStats field
-            var carStatsField = typeof(CarController).GetField("carStats", 
-                System.Reflection.BindingFlags.NonPublic | 
+            var field = typeof(CarController).GetField("carStats",
+                System.Reflection.BindingFlags.NonPublic |
                 System.Reflection.BindingFlags.Instance);
 
-            if (carStatsField != null)
-            {
-                carStatsField.SetValue(carController, stats);
-                Debug.Log($"[{nameof(CarStatsLoader)}] CarStats applied to CarController!");
-            }
+            if (field != null)
+                field.SetValue(carController, stats);
             else
-            {
                 Debug.LogError($"[{nameof(CarStatsLoader)}] Could not find carStats field in CarController!");
-            }
         }
 
         private void ApplyStatsToCarHealth(CarStats stats)
@@ -104,38 +119,26 @@ namespace _Cars.Scripts
                 return;
             }
 
-            // Use reflection to set the private carStats field
-            var carStatsField = typeof(CarHealth).GetField("carStats", 
-                System.Reflection.BindingFlags.NonPublic | 
+            var field = typeof(CarHealth).GetField("carStats",
+                System.Reflection.BindingFlags.NonPublic |
                 System.Reflection.BindingFlags.Instance);
 
-            if (carStatsField != null)
-            {
-                carStatsField.SetValue(carHealth, stats);
-                Debug.Log($"[{nameof(CarStatsLoader)}] CarStats applied to CarHealth!");
-            }
+            if (field != null)
+                field.SetValue(carHealth, stats);
             else
-            {
-                Debug.LogWarning($"[{nameof(CarStatsLoader)}] Could not find carStats field in CarHealth (might not have it yet)");
-            }
+                Debug.LogWarning($"[{nameof(CarStatsLoader)}] Could not find carStats field in CarHealth");
         }
 
         private void LogStatsApplied(CarStats stats, int index)
         {
             Debug.Log($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             Debug.Log($"[{nameof(CarStatsLoader)}] {gameObject.name} loaded car type!");
-            Debug.Log($"[{nameof(CarStatsLoader)}] Selected Index: {index}");
-            Debug.Log($"[{nameof(CarStatsLoader)}] Car Type: {stats.name}");
-            Debug.Log($"[{nameof(CarStatsLoader)}] Max Health: {stats.MaxHealth}");
-            Debug.Log($"[{nameof(CarStatsLoader)}] Max Speed: {stats.MaxSpeed}");
-            Debug.Log($"[{nameof(CarStatsLoader)}] Acceleration: {stats.Acceleration}");
-            Debug.Log($"[{nameof(CarStatsLoader)}] Jump Force: {stats.JumpForce}");
+            Debug.Log($"[{nameof(CarStatsLoader)}] Key: {GetPlayerPrefsKey()} | Index: {index} | Car: {stats.name}");
             Debug.Log($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         }
-        
+
         /// <summary>
-        /// Apply new car stats at runtime (for tuning scene).
-        /// This allows the designer to change bot cars on the fly.
+        /// Apply new car stats at runtime (e.g. from TuningManager).
         /// </summary>
         public void ApplyCarStats(CarStats newStats)
         {
@@ -144,10 +147,8 @@ namespace _Cars.Scripts
                 Debug.LogWarning($"[{nameof(CarStatsLoader)}] Cannot apply null CarStats!");
                 return;
             }
-            
-            // Reuse existing methods to apply stats
+
             ApplyStatsToComponents(newStats);
-            
             Debug.Log($"[{nameof(CarStatsLoader)}] ✓ Applied {newStats.name} to {gameObject.name} at runtime!");
         }
     }

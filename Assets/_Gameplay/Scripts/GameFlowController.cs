@@ -8,69 +8,68 @@ namespace _Gameplay.Scripts
     public class GameFlowController : MonoBehaviour
     {
         public static GameFlowController instance;
-        
-        private bool isGameEnded = false;
+
+        private bool isGameEnded      = false;
         private bool isGameplayActive = false;
-        
+
+        // ═══════════════════════════════════════════════
+        //  SINGLETON
+        // ═══════════════════════════════════════════════
+
         private void Awake()
         {
             InitializeSingleton();
         }
-        
+
         private void InitializeSingleton()
         {
             if (instance == null)
-            {
                 instance = this;
-            }
             else if (instance != this)
-            {
                 Destroy(this);
-            }
         }
-        
+
+        // ═══════════════════════════════════════════════
+        //  START
+        // ═══════════════════════════════════════════════
+
         public void StartGame()
         {
             Debug.Log($"[{nameof(GameFlowController)}] Game starting");
             isGameEnded = false;
         }
-        
+
+        // ═══════════════════════════════════════════════
+        //  ENABLE GAMEPLAY
+        // ═══════════════════════════════════════════════
+
         public void EnableGameplayForAllPlayers()
         {
             Debug.Log($"[{nameof(GameFlowController)}] Enabling gameplay for all players");
-            
+
             isGameplayActive = true;
-            
+
             EnableAllShooters();
             EnableAllPlayerUI();
-            StartPowerUpSpawner(); // NEW: Start power-up spawning!
+            StartPowerUpSpawner();
         }
-        
+
         private void EnableAllShooters()
         {
-            CarShooter[] allShooters = FindObjectsByType<CarShooter>(FindObjectsSortMode.None);
-            
-            foreach (CarShooter shooter in allShooters)
-            {
+            foreach (var shooter in FindObjectsByType<CarShooter>(FindObjectsSortMode.None))
                 shooter.EnableGameplay();
-            }
         }
-        
+
         private void EnableAllPlayerUI()
         {
-            PlayerUIManager[] allPlayerUI = FindObjectsByType<PlayerUIManager>(FindObjectsSortMode.None);
-            
-            foreach (PlayerUIManager playerUI in allPlayerUI)
-            {
+            foreach (var playerUI in FindObjectsByType<PlayerUIManager>(FindObjectsSortMode.None))
                 playerUI.EnableGameplay();
-            }
         }
-        
-        // NEW: Start the power-up spawner when match begins!
+
         private void StartPowerUpSpawner()
         {
             PowerUpSpawner spawner = FindFirstObjectByType<PowerUpSpawner>();
-            
+
             if (spawner != null)
             {
                 spawner.StartSpawning();
@@ -81,7 +80,11 @@ namespace _Gameplay.Scripts
                 Debug.LogWarning($"[{nameof(GameFlowController)}] PowerUpSpawner not found in scene!");
             }
         }
-        
+
+        // ═══════════════════════════════════════════════
+        //  END GAME
+        // ═══════════════════════════════════════════════
+
         public void EndGame()
         {
             if (isGameEnded)
@@ -89,67 +92,62 @@ namespace _Gameplay.Scripts
                 Debug.LogWarning($"[{nameof(GameFlowController)}] Game already ended");
                 return;
             }
-            
+
             Debug.Log($"[{nameof(GameFlowController)}] Game ending");
-            
+
             isGameEnded = true;
-            
-            StopPowerUpSpawner(); // NEW: Stop spawner and clear power-ups!
-            
+
+            StopPowerUpSpawner();
             ShowCursor();
             DisableAllPlayerControls();
             DisableAllPlayerUI();
+
+            // Hide power-up UI for all players
+            foreach (var handler in FindObjectsByType<PowerUpHandler>(FindObjectsSortMode.None))
+                handler.OnGameEnd();
+
+            // Hide death screen for any dead players
+            foreach (var dsm in FindObjectsByType<DeathSpectateManager>(FindObjectsSortMode.None))
+                dsm.ForceHide();
+
             ShowEndScreen();
             DisplayFinalScoreboard();
         }
-        
+
         private void ShowCursor()
         {
-            Cursor.visible = true;
+            Cursor.visible   = true;
             Cursor.lockState = CursorLockMode.None;
         }
-        
+
         private void DisableAllPlayerControls()
         {
-            DisableAllControllers();
+            foreach (var controller in FindObjectsByType<CarController>(FindObjectsSortMode.None))
+                controller.enabled = false;
+
             DisableAllShooters();
         }
-        
-        private void DisableAllControllers()
-        {
-            CarController[] carControllers = FindObjectsByType<CarController>(FindObjectsSortMode.None);
-            
-            foreach (CarController controller in carControllers)
-            {
-                controller.enabled = false;
-            }
-        }
-        
+
         private void DisableAllShooters()
         {
-            CarShooter[] carShooters = FindObjectsByType<CarShooter>(FindObjectsSortMode.None);
-            
-            foreach (CarShooter shooter in carShooters)
+            foreach (var shooter in FindObjectsByType<CarShooter>(FindObjectsSortMode.None))
             {
+                // DisableGameplay hides the reticle before we kill the component
+                shooter.DisableGameplay();
                 shooter.enabled = false;
             }
         }
-        
+
         private void DisableAllPlayerUI()
         {
-            PlayerUIManager[] allPlayerUI = FindObjectsByType<PlayerUIManager>(FindObjectsSortMode.None);
-            
-            foreach (PlayerUIManager playerUI in allPlayerUI)
-            {
+            foreach (var playerUI in FindObjectsByType<PlayerUIManager>(FindObjectsSortMode.None))
                 playerUI.DisableGameplay();
-            }
         }
-        
-        // NEW: Stop spawner and clear all power-ups when game ends!
+
         private void StopPowerUpSpawner()
         {
             PowerUpSpawner spawner = FindFirstObjectByType<PowerUpSpawner>();
-            
+
             if (spawner != null)
             {
                 spawner.StopSpawning();
@@ -157,47 +155,36 @@ namespace _Gameplay.Scripts
                 Debug.Log($"[{nameof(GameFlowController)}] Stopped and cleared PowerUpSpawner!");
             }
         }
-        
+
         private void ShowEndScreen()
         {
             EndGameManager endGameManager = FindFirstObjectByType<EndGameManager>();
-            
+
             if (endGameManager != null)
-            {
                 endGameManager.OnGameEnd();
-            }
             else
-            {
                 Debug.LogWarning($"[{nameof(GameFlowController)}] EndGameManager not found!");
-            }
         }
-        
+
         private void DisplayFinalScoreboard()
         {
             if (PointsManager.instance != null)
-            {
                 PointsManager.instance.DisplayFinalScoreboard();
-            }
             else
-            {
                 Debug.LogWarning($"[{nameof(GameFlowController)}] PointsManager instance not found!");
-            }
         }
-        
-        public bool IsGameEnded()
-        {
-            return isGameEnded;
-        }
-        
+
+        // ═══════════════════════════════════════════════
+        //  GETTERS / RESET
+        // ═══════════════════════════════════════════════
+
+        public bool IsGameEnded()      => isGameEnded;
+        public bool IsGameplayActive() => isGameplayActive;
+
         public void ResetGameState()
         {
-            isGameEnded = false;
+            isGameEnded      = false;
             isGameplayActive = false;
-        }
-        
-        public bool IsGameplayActive()
-        {
-            return isGameplayActive;
         }
     }
 }
