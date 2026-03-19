@@ -314,6 +314,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CarController
   carStats: {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
   zoomiesParticles: {fileID: 4295368576151657587}
+  driftTurnMultiplier: 1
+  driftSpeedBoost: 8
+  minDriftSpeedBoost: 0.3
+  crashDamage: 5
+  crashMinSpeed: 3
+  crashCooldown: 0.5
 --- !u!114 &6153628573682526169
 MonoBehaviour:
   m_ObjectHideFlags: 0
