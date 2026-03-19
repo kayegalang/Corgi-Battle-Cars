@@ -16,7 +16,7 @@ MonoBehaviour:
   projectileDescription: Fast but inaccurate
   projectileID: Rapid Fire
   projectilePrefab: {fileID: 5940751187897929002, guid: a1cbf08f72ec94c2ca82033c3604a0d1, type: 3}
-  damage: 5
+  damage: 57
   fireRate: 0.1
   cooldownDuration: 2
   recoilForce: 5

@@ -94,7 +94,7 @@ namespace _Prototyping.Scripts
         }
         private readonly List<PlayerEntry> players = new List<PlayerEntry>();
 
-        // Per-player arrow picker state (car + weapon index per player)
+        // Per-player picker indices — preserved across respawns
         private readonly List<int> playerCarIndices    = new List<int>();
         private readonly List<int> playerWeaponIndices = new List<int>();
 
@@ -184,6 +184,10 @@ namespace _Prototyping.Scripts
                     p.shooter.DisableGameplay();
                     p.shooter.enabled = false;
                 }
+
+                // Refresh player references (in case someone respawned)
+                // then re-apply their last chosen loadouts
+                ReapplyAllLoadouts();
             }
             else
             {
@@ -195,6 +199,59 @@ namespace _Prototyping.Scripts
                 }
                 pc?.UnpauseGame();
             }
+        }
+
+        // ═══════════════════════════════════════════════
+        //  REAPPLY LOADOUTS AFTER RESPAWN
+        // ═══════════════════════════════════════════════
+
+        private void ReapplyAllLoadouts()
+        {
+            // Save current indices before clearing
+            var savedCarIndices    = new List<int>(playerCarIndices);
+            var savedWeaponIndices = new List<int>(playerWeaponIndices);
+
+            // Refresh player/bot references
+            FindAllPlayers();
+
+            // Restore saved indices (FindAllPlayers resets them to 0)
+            for (int i = 0; i < playerCarIndices.Count && i < savedCarIndices.Count; i++)
+                playerCarIndices[i] = savedCarIndices[i];
+            for (int i = 0; i < playerWeaponIndices.Count && i < savedWeaponIndices.Count; i++)
+                playerWeaponIndices[i] = savedWeaponIndices[i];
+
+            // Re-apply car and weapon to each player/bot
+            for (int i = 0; i < players.Count; i++)
+            {
+                var player = players[i];
+
+                // Car
+                if (i < playerCarIndices.Count && playerCarIndices[i] < carStatsList.Count)
+                {
+                    var stats = carStatsList[playerCarIndices[i]];
+                    if (player.statsLoader != null)
+                    {
+                        player.statsLoader.ApplyCarStats(stats);
+                    }
+                    else if (player.botAI != null)
+                    {
+                        SetPrivateField(player.botAI.GetComponent<BotController>(), "carStats", stats);
+                        SetPrivateField(player.botAI.GetComponent<CarHealth>(),     "carStats", stats);
+                    }
+                }
+
+                // Weapon
+                if (i < playerWeaponIndices.Count && playerWeaponIndices[i] < projectileList.Count)
+                {
+                    var proj = projectileList[playerWeaponIndices[i]];
+                    if (player.shooter != null)
+                        player.shooter.SetProjectileType(proj);
+                    else
+                        player.botAI?.SetProjectile(proj);
+                }
+            }
+
+            Debug.Log("[TuningManager] Loadouts re-applied after respawn.");
         }
 
         // ═══════════════════════════════════════════════
@@ -316,8 +373,18 @@ namespace _Prototyping.Scripts
                 MakeArrowPicker("Car", carNames, playerCarIndices[playerIdx], vl, (i) =>
                 {
                     playerCarIndices[playerIdx] = i;
-                    if (i < carStatsList.Count)
-                        player.statsLoader?.ApplyCarStats(carStatsList[i]);
+                    if (i >= carStatsList.Count) return;
+                    var stats = carStatsList[i];
+
+                    if (player.statsLoader != null)
+                    {
+                        player.statsLoader.ApplyCarStats(stats);
+                    }
+                    else if (player.botAI != null)
+                    {
+                        SetPrivateField(player.botAI.GetComponent<BotController>(), "carStats", stats);
+                        SetPrivateField(player.botAI.GetComponent<CarHealth>(),     "carStats", stats);
+                    }
                 });
 
                 // Weapon picker
@@ -547,13 +614,11 @@ namespace _Prototyping.Scripts
 
         // ═══════════════════════════════════════════════
         //  UI FACTORY — ARROW PICKER
-        //  ◀  Current Option Name  ▶
         // ═══════════════════════════════════════════════
 
         private void MakeArrowPicker(string label, List<string> options, int startIndex,
             Transform parent, System.Action<int> onChange)
         {
-            // Outer row
             var row = MakeRect("Picker_" + label, parent);
             var le  = row.gameObject.AddComponent<LayoutElement>();
             le.preferredHeight = PICKER_H;
@@ -567,7 +632,6 @@ namespace _Prototyping.Scripts
             hl.childControlHeight     = true;
             hl.padding                = new RectOffset(16, 16, 8, 8);
 
-            // Row label (left)
             var lGo  = new GameObject("Lbl"); lGo.transform.SetParent(row, false);
             var lTmp = lGo.AddComponent<TextMeshProUGUI>();
             lTmp.text      = label;
@@ -579,7 +643,6 @@ namespace _Prototyping.Scripts
             lLE.minWidth       = LABEL_W;
             lLE.flexibleWidth  = 0f;
 
-            // Arrow + label container (right, flexible)
             var pickerRow = MakeRect("PickerControls", row);
             var prl = pickerRow.gameObject.AddComponent<HorizontalLayoutGroup>();
             prl.spacing                = 0f;
@@ -590,10 +653,8 @@ namespace _Prototyping.Scripts
             var prLE = pickerRow.gameObject.AddComponent<LayoutElement>();
             prLE.flexibleWidth = 1f;
 
-            // ◀ button
             var leftBtn  = MakeArrowButton("◀", pickerRow);
 
-            // Current name label (centre, stretches)
             var nameBg = MakeRect("NameBg", pickerRow);
             nameBg.gameObject.AddComponent<Image>().color = COL_PICKER;
             var nameLE = nameBg.gameObject.AddComponent<LayoutElement>();
@@ -608,10 +669,8 @@ namespace _Prototyping.Scripts
             nameTmp.color     = Color.white;
             nameTmp.alignment = TextAlignmentOptions.Center;
 
-            // ▶ button
             var rightBtn = MakeArrowButton("▶", pickerRow);
 
-            // State
             int current = Mathf.Clamp(startIndex, 0, options.Count - 1);
 
             void Refresh()
@@ -840,6 +899,7 @@ namespace _Prototyping.Scripts
 
         private void SetPrivateField(object target, string name, object value)
         {
+            if (target == null) return;
             target.GetType()
                 .GetField(name, BindingFlags.NonPublic | BindingFlags.Instance)
                 ?.SetValue(target, value);

@@ -62,7 +62,7 @@ namespace _Gameplay.Scripts
         
         private void SubscribeToMapEvents()
         {
-            MapSelector mapSelector = FindFirstObjectByType<MapSelector>();
+            MapSelector mapSelector = FindFirstObjectByType<MapSelector>(FindObjectsInactive.Include);
             
             if (mapSelector != null)
             {
@@ -308,7 +308,7 @@ namespace _Gameplay.Scripts
         
         private void UnsubscribeFromMapEvents()
         {
-            MapSelector mapSelector = FindFirstObjectByType<MapSelector>();
+            MapSelector mapSelector = FindFirstObjectByType<MapSelector>(FindObjectsInactive.Include);
             
             if (mapSelector != null)
             {

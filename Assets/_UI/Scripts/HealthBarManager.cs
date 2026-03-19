@@ -9,92 +9,107 @@ namespace _UI.Scripts
         [Header("Health Bar Settings")]
         [SerializeField] private GameObject healthBarPrefab;
         [SerializeField] private Vector3 healthBarOffset = new Vector3(0, 2, 0);
-        
-        
-        private Camera[] playerCameras;
-        private GameObject[] healthBarInstances;
-        
-        void Start()
+
+        private Camera[]      playerCameras;
+        private GameObject[]  healthBarInstances;
+
+        // ═══════════════════════════════════════════════
+        //  UNITY LIFECYCLE
+        // ═══════════════════════════════════════════════
+
+        private void Start()
         {
             SetupHealthBars();
         }
-        
+
+        private void LateUpdate()
+        {
+            if (healthBarInstances == null) return;
+
+            Vector3 worldPosition = transform.position + healthBarOffset;
+
+            foreach (GameObject healthBar in healthBarInstances)
+            {
+                if (healthBar != null)
+                    healthBar.transform.position = worldPosition;
+            }
+        }
+
+        // ═══════════════════════════════════════════════
+        //  SETUP
+        // ═══════════════════════════════════════════════
+
         private void SetupHealthBars()
         {
             playerCameras = CameraUtility.FindPlayerCameras();
-            
             CreateHealthBarInstances();
         }
-        
+
         private void CreateHealthBarInstances()
         {
             healthBarInstances = new GameObject[playerCameras.Length];
-    
+
             for (int i = 0; i < playerCameras.Length; i++)
             {
                 if (playerCameras[i] == null) continue;
-        
-                // Use the camera's ACTUAL layer, not an index-based layer!
+
                 int healthBarLayer = playerCameras[i].gameObject.layer;
-        
-                GameObject healthBarInstance = Instantiate(healthBarPrefab, transform);
-                healthBarInstance.name = $"HealthBar_Player{i + 1}_Layer{healthBarLayer}";
-                healthBarInstances[i] = healthBarInstance;
-        
-                SetLayerRecursively(healthBarInstance, healthBarLayer);
-        
-                CameraFacing cameraFacing = healthBarInstance.AddComponent<CameraFacing>();
+
+                GameObject instance = Instantiate(healthBarPrefab, transform);
+                instance.name       = $"HealthBar_Player{i + 1}_Layer{healthBarLayer}";
+                healthBarInstances[i] = instance;
+
+                SetLayerRecursively(instance, healthBarLayer);
+
+                CameraFacing cameraFacing = instance.AddComponent<CameraFacing>();
                 cameraFacing.SetTargetCamera(playerCameras[i]);
             }
         }
 
-        private GameObject CreateHealthBarInstance(int i, int healthBarLayer)
-        {
-            GameObject healthBarInstance = Instantiate(healthBarPrefab, transform);
-            healthBarInstance.name = $"HealthBar_Player{i + 1}_Layer{healthBarLayer}";
-            healthBarInstances[i] = healthBarInstance;
-            return healthBarInstance;
-        }
-        
-        
         private void SetLayerRecursively(GameObject obj, int layer)
         {
             obj.layer = layer;
             foreach (Transform child in obj.transform)
-            {
                 SetLayerRecursively(child.gameObject, layer);
-            }
         }
-        
-        void LateUpdate()
+
+        // ═══════════════════════════════════════════════
+        //  PUBLIC — called by CarHealth when any car spawns
+        // ═══════════════════════════════════════════════
+
+        /// <summary>
+        /// Destroys and rebuilds all health bar instances using the current
+        /// set of active player cameras. Call this whenever a car spawns or
+        /// respawns so every car picks up the new camera.
+        /// </summary>
+        public void RefreshHealthBars()
         {
-            if (healthBarInstances == null) return;
-            
-            Vector3 worldPosition = transform.position + healthBarOffset;
-            
-            foreach (GameObject healthBar in healthBarInstances)
+            // Destroy existing instances
+            if (healthBarInstances != null)
             {
-                if (healthBar != null)
-                {
-                    healthBar.transform.position = worldPosition;
-                }
+                foreach (var bar in healthBarInstances)
+                    if (bar != null) Destroy(bar);
             }
+
+            // Rebuild with whatever cameras exist right now
+            SetupHealthBars();
         }
-        
+
+        // ═══════════════════════════════════════════════
+        //  UPDATE VALUE
+        // ═══════════════════════════════════════════════
+
         public void UpdateAllHealthBars(float healthPercent)
         {
             if (healthBarInstances == null) return;
-            
+
             foreach (GameObject healthBar in healthBarInstances)
             {
-                if (healthBar != null)
-                {
-                    Slider slider = healthBar.GetComponentInChildren<Slider>();
-                    if (slider != null)
-                    {
-                        slider.value = healthPercent;
-                    }
-                }
+                if (healthBar == null) continue;
+
+                Slider slider = healthBar.GetComponentInChildren<Slider>();
+                if (slider != null)
+                    slider.value = healthPercent;
             }
         }
     }

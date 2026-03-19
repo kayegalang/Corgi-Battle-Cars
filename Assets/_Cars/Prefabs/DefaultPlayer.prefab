@@ -160,6 +160,7 @@ GameObject:
   - component: {fileID: 7227054066109839993}
   - component: {fileID: 2842837332286627986}
   - component: {fileID: 901537145194330616}
+  - component: {fileID: 5182652314794960398}
   m_Layer: 0
   m_Name: DefaultPlayer
   m_TagString: PlayerOne
@@ -313,6 +314,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CarController
   carStats: {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
   zoomiesParticles: {fileID: 4295368576151657587}
+  driftTurnMultiplier: 1
+  driftSpeedBoost: 8
+  minDriftSpeedBoost: 0.3
+  crashDamage: 5
+  crashMinSpeed: 3
+  crashCooldown: 0.5
 --- !u!114 &6153628573682526169
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -492,6 +499,23 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b5e0b2a3e4bf5484aab8eb91cf10eab7, type: 2}
   - {fileID: 11400000, guid: b426bf9d8a9ccd147af9464da20c052e, type: 2}
   - {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
+--- !u!114 &5182652314794960398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852133240821571215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4805776d56eb42e386dd6d2350ad8bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.WeaponStatsLoader
+  availableWeaponTypes:
+  - {fileID: 11400000, guid: 4435cf7b253264ab8b2e1d0a877e40d6, type: 2}
+  - {fileID: 11400000, guid: e104ec775ead94f4eb9403e209f95daf, type: 2}
+  - {fileID: 11400000, guid: 34193fc487c124ab08ba24caf24f31b7, type: 2}
+  - {fileID: 11400000, guid: 3529a2bd0ba264e97afb032e1479f5f8, type: 2}
 --- !u!1 &1322768574714407466
 GameObject:
   m_ObjectHideFlags: 0
