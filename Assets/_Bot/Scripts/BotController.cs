@@ -1,5 +1,6 @@
 using System.Collections;
 using _Cars.ScriptableObjects;
+using _Gameplay.Scripts;
 using UnityEngine;
 
 namespace _Bot.Scripts
@@ -42,13 +43,16 @@ namespace _Bot.Scripts
         
         private void FixedUpdate()
         {
-            // Can't move while slipping!
+            // Don't move until gameplay is active
+            if (GameFlowController.instance != null && !GameFlowController.instance.IsGameplayActive())
+                return;
+
             if (isSlipping)
             {
                 ApplyMovementLimits();
                 return;
             }
-            
+    
             ApplyPhysics();
             ApplyMovementLimits();
         }
