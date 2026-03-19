@@ -1,13 +1,13 @@
 using _Cars.Scripts;
+using _Gameplay.Scripts;
 using _Projectiles.ScriptableObjects;
 using UnityEngine;
 
 namespace _Cars.Scripts
 {
     /// <summary>
-    /// Reads the player's selected weapon from CharacterSelect
-    /// and applies it to CarShooter at runtime.
-    /// Add this to the Player prefab alongside CarStatsLoader!
+    /// Reads the player's selected weapon from CharacterSelect and applies it to CarShooter.
+    /// In multiplayer, SpawnManager calls LoadForCurrentTag() after setting the tag.
     /// </summary>
     public class WeaponStatsLoader : MonoBehaviour
     {
@@ -15,11 +15,25 @@ namespace _Cars.Scripts
         [Tooltip("All weapons available — SAME ORDER as CharacterSelectUI!")]
         [SerializeField] private ProjectileObject[] availableWeaponTypes;
 
-        private const string SELECTED_INDEX_KEY = "SelectedWeaponTypeIndex";
+        private const string BASE_KEY = "SelectedWeaponTypeIndex";
 
         private void Awake()
         {
-            // Don't load from PlayerPrefs in the designer tuning scene
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "DesignerTuning")
+                return;
+
+            // In singleplayer the tag is already correct on the prefab so load immediately
+            // In multiplayer SpawnManager calls LoadForCurrentTag() after setting the tag
+            if (GameplayManager.instance != null &&
+                GameplayManager.instance.GetCurrentGameMode() == GameMode.Singleplayer)
+                LoadAndApplySelectedWeapon();
+        }
+
+        /// <summary>
+        /// Called by SpawnManager after SetPlayerIdentity() so the tag is correct.
+        /// </summary>
+        public void LoadForCurrentTag()
+        {
             if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "DesignerTuning")
                 return;
 
@@ -34,8 +48,9 @@ namespace _Cars.Scripts
                 return;
             }
 
-            int savedIndex  = PlayerPrefs.GetInt(SELECTED_INDEX_KEY, 0);
-            int index       = Mathf.Clamp(savedIndex, 0, availableWeaponTypes.Length - 1);
+            string           key      = GetPlayerPrefsKey();
+            int              saved    = PlayerPrefs.GetInt(key, 0);
+            int              index    = Mathf.Clamp(saved, 0, availableWeaponTypes.Length - 1);
             ProjectileObject selected = availableWeaponTypes[index];
 
             if (selected == null)
@@ -45,8 +60,23 @@ namespace _Cars.Scripts
             }
 
             ApplyToCarShooter(selected);
+            Debug.Log($"[{nameof(WeaponStatsLoader)}] {gameObject.name} loaded weapon: {selected.ProjectileName} (key: {key})");
+        }
 
-            Debug.Log($"[{nameof(WeaponStatsLoader)}] {gameObject.name} loaded weapon: {selected.ProjectileName}");
+        private string GetPlayerPrefsKey()
+        {
+            // Singleplayer — use base key (saved by CharacterSelectUI)
+            if (GameplayManager.instance != null &&
+                GameplayManager.instance.GetCurrentGameMode() == GameMode.Singleplayer)
+                return BASE_KEY;
+
+            // Multiplayer — per-player key based on tag
+            string tag = gameObject.tag;
+            if (tag == "PlayerOne"   || tag == "PlayerTwo" ||
+                tag == "PlayerThree" || tag == "PlayerFour")
+                return $"{BASE_KEY}_{tag}";
+
+            return BASE_KEY;
         }
 
         private void ApplyToCarShooter(ProjectileObject weapon)

@@ -38,7 +38,7 @@ namespace _Gameplay.Scripts
             { 3, "BotThree" },
             { 4, "BotFour"  }
         };
-        
+
         // ═══════════════════════════════════════════════
         //  UNITY LIFECYCLE
         // ═══════════════════════════════════════════════
@@ -84,7 +84,7 @@ namespace _Gameplay.Scripts
         {
             if (humanPlayerCount < 0 || humanPlayerCount > TOTAL_PLAYERS)
             {
-                Debug.LogError($"[{nameof(SpawnManager)}] Invalid player count: {humanPlayerCount}. Must be between 0 and {TOTAL_PLAYERS}");
+                Debug.LogError($"[{nameof(SpawnManager)}] Invalid player count: {humanPlayerCount}");
                 return false;
             }
             return true;
@@ -136,7 +136,7 @@ namespace _Gameplay.Scripts
             
             if (prefabToSpawn == null)
             {
-                Debug.LogError($"[{nameof(SpawnManager)}] Cannot respawn - no prefab found for tag: {playerTag}");
+                Debug.LogError($"[{nameof(SpawnManager)}] Cannot respawn - no prefab for tag: {playerTag}");
                 return;
             }
             
@@ -154,7 +154,6 @@ namespace _Gameplay.Scripts
         {
             yield return new WaitForSeconds(respawnDelay);
             
-            // Use furthest spawn point to avoid landing on top of living cars
             Transform spawnPoint = GetFurthestSpawnPoint();
             
             if (spawnPoint == null)
@@ -195,12 +194,18 @@ namespace _Gameplay.Scripts
             
             if (hasPlayerInput)
             {
-                wasEnabled           = prefabInput.enabled;
-                prefabInput.enabled  = false;
+                wasEnabled          = prefabInput.enabled;
+                prefabInput.enabled = false;
             }
             
             GameObject player = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
+
+            // Set identity FIRST so loaders can read the correct tag
             SetPlayerIdentity(player, playerTag);
+
+            // NOW load stats — tag is correct so per-player keys work
+            player.GetComponent<CarStatsLoader>()?.LoadForCurrentTag();
+            player.GetComponent<WeaponStatsLoader>()?.LoadForCurrentTag();
             
             if (hasPlayerInput)
                 RestorePlayerInput(player, prefabInput, wasEnabled);
@@ -224,9 +229,6 @@ namespace _Gameplay.Scripts
         //  SPAWN POINT SELECTION
         // ═══════════════════════════════════════════════
 
-        /// <summary>
-        /// Used at game start — guarantees no two players share a spawn point.
-        /// </summary>
         private Transform GetUniqueSpawnPoint()
         {
             if (spawnPoints.Length == 0)
@@ -244,10 +246,6 @@ namespace _Gameplay.Scripts
             return spawnPoints[randomIndex];
         }
 
-        /// <summary>
-        /// Used on respawn — picks the spawn point furthest from all living cars
-        /// so respawning players/bots never land on top of each other.
-        /// </summary>
         private Transform GetFurthestSpawnPoint()
         {
             if (spawnPoints.Length == 0)
@@ -258,7 +256,6 @@ namespace _Gameplay.Scripts
 
             var allCars = FindObjectsByType<CarHealth>(FindObjectsSortMode.None);
 
-            // If no living cars exist yet just pick randomly
             if (allCars.Length == 0)
                 return spawnPoints[Random.Range(0, spawnPoints.Length)];
 
@@ -267,7 +264,6 @@ namespace _Gameplay.Scripts
 
             foreach (var point in spawnPoints)
             {
-                // Sum of distances to all living cars — highest = most isolated
                 float totalDistance = 0f;
                 foreach (var car in allCars)
                 {
@@ -295,15 +291,9 @@ namespace _Gameplay.Scripts
             return spawnPoints[Random.Range(0, spawnPoints.Length)];
         }
 
-        public Transform GetRespawnPoint()
-        {
-            return GetFurthestSpawnPoint();
-        }
+        public Transform GetRespawnPoint() => GetFurthestSpawnPoint();
 
-        private bool AllSpawnPointsUsed()
-        {
-            return usedSpawnIndices.Count >= spawnPoints.Length;
-        }
+        private bool AllSpawnPointsUsed() => usedSpawnIndices.Count >= spawnPoints.Length;
         
         private int FindUnusedSpawnIndex()
         {
@@ -317,7 +307,7 @@ namespace _Gameplay.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  PLAYER TAG HELPERS
+        //  TAG HELPERS
         // ═══════════════════════════════════════════════
         
         private string GetPlayerTag(int playerNumber)
@@ -325,19 +315,16 @@ namespace _Gameplay.Scripts
             if (PlayerTagMap.TryGetValue(playerNumber, out string tag))
                 return tag;
             
-            Debug.LogWarning($"[{nameof(SpawnManager)}] Invalid player number: {playerNumber}, defaulting to PlayerOne");
+            Debug.LogWarning($"[{nameof(SpawnManager)}] Invalid player number: {playerNumber}");
             return "PlayerOne";
         }
         
         private int GetPlayerNumberFromTag(string playerTag)
         {
             foreach (var kvp in PlayerTagMap)
-            {
-                if (kvp.Value == playerTag)
-                    return kvp.Key;
-            }
+                if (kvp.Value == playerTag) return kvp.Key;
             
-            Debug.LogWarning($"[{nameof(SpawnManager)}] Unknown player tag: {playerTag}, defaulting to 1");
+            Debug.LogWarning($"[{nameof(SpawnManager)}] Unknown player tag: {playerTag}");
             return 1;
         }
         
@@ -346,7 +333,7 @@ namespace _Gameplay.Scripts
             if (BotTagMap.TryGetValue(botPosition, out string tag))
                 return tag;
             
-            Debug.LogWarning($"[{nameof(SpawnManager)}] Invalid bot position: {botPosition}, defaulting to BotOne");
+            Debug.LogWarning($"[{nameof(SpawnManager)}] Invalid bot position: {botPosition}");
             return "BotOne";
         }
 
@@ -423,14 +410,12 @@ namespace _Gameplay.Scripts
             bool shouldUseController = PlayerOneInputTracker.instance != null && 
                                        PlayerOneInputTracker.instance.IsPlayerOneUsingController();
             
-            Debug.Log($"[{nameof(SpawnManager)}] Setting PlayerOne control scheme to: {(shouldUseController ? "Controller" : "Keyboard")}");
-            
             if (shouldUseController)
             {
                 if (Gamepad.current != null)
                 {
                     playerInput.SwitchCurrentControlScheme("Controller", Gamepad.current);
-                    Debug.Log($"[{nameof(SpawnManager)}] ✓ PlayerOne using Controller (paired with {Gamepad.current.displayName})");
+                    Debug.Log($"[{nameof(SpawnManager)}] ✓ PlayerOne using Controller");
                 }
                 else
                 {

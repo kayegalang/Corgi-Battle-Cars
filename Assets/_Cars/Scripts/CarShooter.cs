@@ -34,27 +34,31 @@ namespace _Cars.Scripts
 
         private CooldownBarUI cooldownBar;
 
-        private PlayerInput playerInput;
-        private InputAction shootAction;
-        private InputAction aimAction;
-        private Rigidbody carRigidbody;
+        private PlayerInput     playerInput;
+        private InputAction     shootAction;
+        private InputAction     aimAction;
+        private Rigidbody       carRigidbody;
         private PauseController pauseController;
-        private Camera playerCamera; 
-        private Transform firePoint;
+        private Camera          playerCamera;
+        private Transform       firePoint;
         
         private Vector2 controllerAimInput;
         private Vector2 lastMousePosition;
-        private bool usingMouseForAiming = true;
-        private bool isFiring;
+        private bool    usingMouseForAiming = true;
+        private bool    isFiring;
         
-        // Charge system - all values driven by ProjectileObject SO
+        // Charge system
         private float currentCharge;
-        private const float MAX_CHARGE = 100f;
-        private const float CHARGE_PER_SHOT = 10f;  // Fixed: 10 shots before overheat
-        private float chargeRegenRate;               // Derived: MAX_CHARGE / CooldownDuration
-        private float fireRate;                      // From: ProjectileObject.FireRate
+        private const float MAX_CHARGE     = 100f;
+        private const float CHARGE_PER_SHOT = 10f;
+        private float chargeRegenRate;
+        private float fireRate;
         private float nextAllowedFireTime;
-        private bool isOverheated = false;
+        private bool  isOverheated = false;
+
+        // ═══════════════════════════════════════════════
+        //  LIFECYCLE
+        // ═══════════════════════════════════════════════
 
         private void Awake()
         {
@@ -68,7 +72,7 @@ namespace _Cars.Scripts
 
         private void Start()
         {
-            // Delay one frame to let HealthBarManager create PlayerHealthCanvas
+            // Wait one frame for HealthBarManager to create PlayerHealthCanvas
             StartCoroutine(FindCooldownBarDelayed());
         }
 
@@ -78,36 +82,23 @@ namespace _Cars.Scripts
             FindCooldownBar();
         }
 
-        /// <summary>
-        /// Reads shooting stats from the assigned ProjectileObject SO.
-        /// Call this again at runtime if the projectile type is swapped (e.g. tuning scene).
-        /// </summary>
         private void InitializeFromProjectile()
         {
-            if (projectileType == null)
-            {
-                return;
-            }
+            if (projectileType == null) return;
 
-            // FireRate: time between shots (lower = faster)
-            fireRate = projectileType.FireRate;
-
-            // CooldownDuration: how long full recharge takes after overheat
-            // regenRate = MAX_CHARGE / CooldownDuration
-            // e.g. CooldownDuration=2s → regenRate=50/s → takes exactly 2s to recharge
+            fireRate        = projectileType.FireRate;
             chargeRegenRate = MAX_CHARGE / Mathf.Max(projectileType.CooldownDuration, 0.1f);
 
             Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} initialized from {projectileType.ProjectileName}: " +
-                      $"FireRate={fireRate}s, CooldownDuration={projectileType.CooldownDuration}s, " +
-                      $"RegenRate={chargeRegenRate}/s");
+                      $"FireRate={fireRate}s, RegenRate={chargeRegenRate}/s");
         }
 
         private void CacheComponents()
         {
-            playerInput = GetComponent<PlayerInput>();
-            carRigidbody = GetComponent<Rigidbody>();
-            firePoint = transform.Find("FirePoint");
-            playerCamera = GetComponentInChildren<Camera>();
+            playerInput     = GetComponent<PlayerInput>();
+            carRigidbody    = GetComponent<Rigidbody>();
+            firePoint       = transform.Find("FirePoint");
+            playerCamera    = GetComponentInChildren<Camera>();
             pauseController = FindFirstObjectByType<PauseController>();
         }
 
@@ -115,7 +106,7 @@ namespace _Cars.Scripts
         {
             var actions = playerInput.actions;
             shootAction = actions.FindAction("Shoot", throwIfNotFound: true);
-            aimAction = actions.FindAction("Aim", throwIfNotFound: true);
+            aimAction   = actions.FindAction("Aim",   throwIfNotFound: true);
         }
 
         private void InitializeReticleState()
@@ -127,98 +118,41 @@ namespace _Cars.Scripts
         private void CaptureInitialMousePosition()
         {
             if (Mouse.current != null)
-            {
                 lastMousePosition = Mouse.current.position.ReadValue();
-            }
         }
 
         private void ValidateProjectileType()
         {
             if (projectileType == null)
-            {
                 Debug.LogError($"[{nameof(CarShooter)}] No projectile type assigned on {gameObject.name}!");
-            }
         }
 
         private void FindCooldownBar()
         {
-            if (cooldownBar != null)
-            {
-                Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} - Cooldown bar already assigned");
-                return;
-            }
+            if (cooldownBar != null) return;
 
-            Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} - Searching for CooldownBarUI under player...");
-            
-            Debug.Log($"[{nameof(CarShooter)}] === HIERARCHY DEBUG START ===");
-            Debug.Log($"[{nameof(CarShooter)}] Searching under: {gameObject.name}");
-            Debug.Log($"[{nameof(CarShooter)}] Child count: {transform.childCount}");
-            
-            for (int i = 0; i < transform.childCount; i++)
-            {
-                Transform child = transform.GetChild(i);
-                Debug.Log($"[{nameof(CarShooter)}]   Child {i}: {child.name} (children: {child.childCount})");
-                
-                for (int j = 0; j < child.childCount; j++)
-                {
-                    Transform grandchild = child.GetChild(j);
-                    Debug.Log($"[{nameof(CarShooter)}]     Grandchild {j}: {grandchild.name} (children: {grandchild.childCount})");
-                    
-                    for (int k = 0; k < grandchild.childCount; k++)
-                    {
-                        Transform greatGrandchild = grandchild.GetChild(k);
-                        Debug.Log($"[{nameof(CarShooter)}]       GreatGrandchild {k}: {greatGrandchild.name}");
-                        
-                        CooldownBarUI barUI = greatGrandchild.GetComponent<CooldownBarUI>();
-                        if (barUI != null)
-                        {
-                            Debug.Log($"[{nameof(CarShooter)}]       ^^^ HAS CooldownBarUI COMPONENT!");
-                        }
-                    }
-                }
-            }
-            Debug.Log($"[{nameof(CarShooter)}] === HIERARCHY DEBUG END ===");
-            
+            // Don't search in non-gameplay scenes — temp players spawned during
+            // character select won't have a HealthBarManager so the search fails.
+            string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (scene == "MainMenu" || scene == "DesignerTuning")
+                return;
+
             cooldownBar = GetComponentInChildren<CooldownBarUI>();
 
             if (cooldownBar != null)
-            {
-                Debug.Log($"[{nameof(CarShooter)}] ✓✓✓ {gameObject.name} - FOUND cooldown bar: {cooldownBar.gameObject.name}");
-            }
+                Debug.Log($"[{nameof(CarShooter)}] ✓ {gameObject.name} - CooldownBarUI found!");
             else
-            {
-                Debug.LogError($"[{nameof(CarShooter)}] ✗✗✗ {gameObject.name} - NO CooldownBarUI found under player! Cooldown bar will not display.");
-                
-                Transform healthBarContainer = transform.Find("HealthBarContainer");
-                if (healthBarContainer != null)
-                {
-                    Debug.Log($"[{nameof(CarShooter)}] DEBUG: Found HealthBarContainer with {healthBarContainer.childCount} children");
-                }
-                else
-                {
-                    Debug.LogError($"[{nameof(CarShooter)}] DEBUG: HealthBarContainer NOT FOUND!");
-                }
-            }
+                Debug.LogError($"[{nameof(CarShooter)}] ✗ {gameObject.name} - CooldownBarUI not found! Is HealthBarManager set up correctly?");
         }
+
+        // ═══════════════════════════════════════════════
+        //  ENABLE / DISABLE
+        // ═══════════════════════════════════════════════
 
         private void OnEnable()
         {
             EnableInputActions();
             SubscribeToInputEvents();
-        }
-
-        private void EnableInputActions()
-        {
-            shootAction.Enable();
-            aimAction.Enable();
-        }
-
-        private void SubscribeToInputEvents()
-        {
-            shootAction.performed += StartFiring;
-            shootAction.canceled += StopFiring;
-            aimAction.performed += UpdateControllerAim;
-            aimAction.canceled += ResetControllerAim;
         }
 
         private void OnDisable()
@@ -228,384 +162,302 @@ namespace _Cars.Scripts
             CleanupUIState();
         }
 
+        private void EnableInputActions()
+        {
+            shootAction.Enable();
+            aimAction.Enable();
+        }
+
         private void DisableInputActions()
         {
             shootAction.Disable();
             aimAction.Disable();
         }
 
+        private void SubscribeToInputEvents()
+        {
+            shootAction.performed += StartFiring;
+            shootAction.canceled  += StopFiring;
+            aimAction.performed   += UpdateControllerAim;
+            aimAction.canceled    += ResetControllerAim;
+        }
+
         private void UnsubscribeFromInputEvents()
         {
             shootAction.performed -= StartFiring;
-            shootAction.canceled -= StopFiring;
-            aimAction.performed -= UpdateControllerAim;
-            aimAction.canceled -= ResetControllerAim;
+            shootAction.canceled  -= StopFiring;
+            aimAction.performed   -= UpdateControllerAim;
+            aimAction.canceled    -= ResetControllerAim;
         }
 
         private void CleanupUIState()
         {
-            // Only restore cursor visibility for keyboard/mouse players.
-            // A gamepad player never owns the cursor, so touching it here
-            // would fight a dead keyboard player who needs it visible.
             if (IsKeyboardPlayer())
-            {
                 ShowAndUnlockCursor();
-            }
         }
 
-        private bool IsKeyboardPlayer()
-        {
-            return playerInput != null && playerInput.currentControlScheme == "Keyboard";
-        }
+        private bool IsKeyboardPlayer() =>
+            playerInput != null && playerInput.currentControlScheme == "Keyboard";
 
         private void ShowAndUnlockCursor()
         {
-            Cursor.visible = true;
+            Cursor.visible   = true;
             Cursor.lockState = CursorLockMode.None;
         }
 
-        private void StartFiring(InputAction.CallbackContext context)
-        {
-            isFiring = true;
-        }
-        
-        private void StopFiring(InputAction.CallbackContext context)
-        {
-            isFiring = false;
-        }
-        
+        // ═══════════════════════════════════════════════
+        //  INPUT CALLBACKS
+        // ═══════════════════════════════════════════════
+
+        private void StartFiring(InputAction.CallbackContext context) => isFiring = true;
+        private void StopFiring(InputAction.CallbackContext context)  => isFiring = false;
+
         private void UpdateControllerAim(InputAction.CallbackContext context)
         {
             controllerAimInput = context.ReadValue<Vector2>();
-            
-            if (ControllerStickIsBeingUsed())
-            {
-                SwitchToControllerAiming();
-            }
+            if (controllerAimInput.sqrMagnitude > 0.1f)
+                usingMouseForAiming = false;
         }
 
-        private bool ControllerStickIsBeingUsed()
-        {
-            return controllerAimInput.sqrMagnitude > 0.1f;
-        }
-
-        private void SwitchToControllerAiming()
-        {
-            usingMouseForAiming = false;
-        }
-        
-        private void ResetControllerAim(InputAction.CallbackContext context)
-        {
+        private void ResetControllerAim(InputAction.CallbackContext context) =>
             controllerAimInput = Vector2.zero;
-        }
+
+        // ═══════════════════════════════════════════════
+        //  UPDATE
+        // ═══════════════════════════════════════════════
 
         private void Update()
         {
             RegenerateCharge();
             UpdateCooldownBar();
-            
-            if (GameHasEnded())
+
+            if (GameHasEnded() || GameplayIsDisabled())
             {
                 ShowCursorAndHideReticle();
                 return;
             }
-            
+    
             if (GameIsPaused())
-            {
                 ShowCursorAndHideReticle();
-            }
             else
             {
                 HideCursorAndShowReticle();
                 UpdateReticlePosition();
             }
         }
-
         private void RegenerateCharge()
         {
-            if (currentCharge >= MAX_CHARGE)
-            {
-                return;
-            }
+            if (currentCharge >= MAX_CHARGE) return;
 
-            currentCharge += chargeRegenRate * Time.deltaTime;
-            currentCharge = Mathf.Min(currentCharge, MAX_CHARGE);
-            
+            currentCharge = Mathf.Min(currentCharge + chargeRegenRate * Time.deltaTime, MAX_CHARGE);
+
             if (currentCharge >= MAX_CHARGE && isOverheated)
             {
                 isOverheated = false;
-                Debug.Log($"<color=green>[{nameof(CarShooter)}] {gameObject.name} - ✓ COOLED DOWN! Weapon unlocked!</color>");
+                Debug.Log($"<color=green>[{nameof(CarShooter)}] {gameObject.name} - Cooled down!</color>");
             }
         }
 
-        private bool GameplayIsDisabled()
-        {
-            return !gameplayEnabled;
-        }
-
-        private bool GameHasEnded()
-        {
-            return GameplayManager.instance != null && GameplayManager.instance.IsGameEnded();
-        }
-
-        private bool GameIsPaused()
-        {
-            return pauseController != null && pauseController.GetIsPaused();
-        }
+        private bool GameplayIsDisabled() => !gameplayEnabled;
+        private bool GameHasEnded()       => GameplayManager.instance != null && GameplayManager.instance.IsGameEnded();
+        private bool GameIsPaused()       => pauseController != null && pauseController.GetIsPaused();
 
         private void UpdateCooldownBar()
         {
-            if (cooldownBar == null)
-            {
-                return;
-            }
-            
+            if (cooldownBar == null) return;
             cooldownBar.UpdateCooldown(currentCharge, MAX_CHARGE);
         }
 
+        // ═══════════════════════════════════════════════
+        //  FIXED UPDATE — SHOOTING
+        // ═══════════════════════════════════════════════
+
         private void FixedUpdate()
         {
-            if (GameplayIsDisabled())
-            {
-                return;
-            }
-            
+            if (GameplayIsDisabled()) return;
+
             if (PlayerPressingFireButton() && CanShootNow())
             {
-                float chargeAfterShot = currentCharge - CHARGE_PER_SHOT;
-                bool willOverheat = chargeAfterShot < CHARGE_PER_SHOT;
-                
+                bool willOverheat = (currentCharge - CHARGE_PER_SHOT) < CHARGE_PER_SHOT;
+
                 FireProjectile();
                 currentCharge -= CHARGE_PER_SHOT;
-                
+
                 if (willOverheat)
                 {
                     currentCharge = 0f;
-                    isOverheated = true;
+                    isOverheated  = true;
                 }
-                
+
                 nextAllowedFireTime = Time.time + fireRate;
             }
         }
 
-        private bool PlayerPressingFireButton()
-        {
-            return isFiring;
-        }
+        private bool PlayerPressingFireButton() => isFiring;
 
         private bool CanShootNow()
         {
-            if (projectileType == null)
-            {
-                return false;
-            }
-            
-            if (isOverheated)
-            {
-                return false;
-            }
-            
-            bool hasEnoughCharge = currentCharge >= CHARGE_PER_SHOT;
-            bool fireRateReady = Time.time >= nextAllowedFireTime;
-            
-            return hasEnoughCharge && fireRateReady;
+            if (projectileType == null) return false;
+            if (isOverheated)           return false;
+            return currentCharge >= CHARGE_PER_SHOT && Time.time >= nextAllowedFireTime;
         }
+
+        // ═══════════════════════════════════════════════
+        //  RETICLE
+        // ═══════════════════════════════════════════════
 
         private void UpdateReticlePosition()
         {
             DetectMouseMovementAndSwitch();
-            
+
             if (usingMouseForAiming)
-            {
                 MoveReticleWithMouseDelta();
-            }
             else
-            {
                 MoveReticleWithControllerStick();
-            }
         }
 
         private void DetectMouseMovementAndSwitch()
         {
-            if (Mouse.current == null)
-            {
-                return;
-            }
-            
-            Vector2 currentMousePosition = Mouse.current.position.ReadValue();
-            Vector2 mouseDelta = currentMousePosition - lastMousePosition;
-            
-            if (mouseDelta.sqrMagnitude > 0.1f)
-            {
-                SwitchToMouseAiming();
-            }
-        }
+            if (Mouse.current == null) return;
 
-        private void SwitchToMouseAiming()
-        {
-            usingMouseForAiming = true;
+            Vector2 delta = Mouse.current.position.ReadValue() - lastMousePosition;
+            if (delta.sqrMagnitude > 0.1f)
+                usingMouseForAiming = true;
         }
 
         private void MoveReticleWithMouseDelta()
         {
-            if (Mouse.current == null)
-            {
-                return;
-            }
-            
-            Vector2 currentMousePosition = Mouse.current.position.ReadValue();
-            Vector2 mouseDelta = currentMousePosition - lastMousePosition;
-            lastMousePosition = currentMousePosition;
-            
-            reticle.anchoredPosition += mouseDelta * mouseSensitivity;
-            reticle.anchoredPosition = ClampPositionToCanvas();
+            if (Mouse.current == null) return;
+
+            Vector2 currentPos = Mouse.current.position.ReadValue();
+            Vector2 delta      = currentPos - lastMousePosition;
+            lastMousePosition  = currentPos;
+
+            reticle.anchoredPosition += delta * mouseSensitivity;
+            reticle.anchoredPosition  = ClampPositionToCanvas();
         }
 
         private void MoveReticleWithControllerStick()
         {
             reticle.anchoredPosition += controllerAimInput * controllerSensitivity * Time.deltaTime;
-            reticle.anchoredPosition = ClampPositionToCanvas();
+            reticle.anchoredPosition  = ClampPositionToCanvas();
         }
 
         private Vector2 ClampPositionToCanvas()
         {
-            RectTransform canvasRect = reticleCanvas.transform as RectTransform;
-            Rect viewportRect = playerCamera.pixelRect;
-            
+            RectTransform canvasRect   = reticleCanvas.transform as RectTransform;
+            Rect          viewportRect = playerCamera.pixelRect;
+
             Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
-            
             screenPos.x = Mathf.Clamp(screenPos.x, viewportRect.xMin, viewportRect.xMax);
             screenPos.y = Mathf.Clamp(screenPos.y, viewportRect.yMin, viewportRect.yMax);
-            
+
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvasRect,
-                screenPos,
-                null,
-                out Vector2 localPoint
-            );
-            
+                canvasRect, screenPos, null, out Vector2 localPoint);
+
             return localPoint;
         }
 
+        // ═══════════════════════════════════════════════
+        //  FIRING
+        // ═══════════════════════════════════════════════
+
         private void FireProjectile()
         {
-            Vector3 shootDirection = CalculateShootDirectionFromReticle();
-            GameObject projectile = CreateProjectileAtFirePoint(shootDirection);
-            
+            Vector3    dir        = CalculateShootDirectionFromReticle();
+            GameObject projectile = CreateProjectileAtFirePoint(dir);
+
             ConfigureProjectileStats(projectile);
-            ApplyVelocityAndForceToProjectile(projectile, shootDirection);
-            ApplyRecoilToShooter(shootDirection);
+            ApplyVelocityAndForceToProjectile(projectile, dir);
+            ApplyRecoilToShooter(dir);
         }
 
         private Vector3 CalculateShootDirectionFromReticle()
         {
-            Vector2 reticleScreenPosition = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
-            Ray rayFromReticle = playerCamera.ScreenPointToRay(reticleScreenPosition);
+            Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
+            Ray     ray       = playerCamera.ScreenPointToRay(screenPos);
 
-            if (RayHitsSomething(rayFromReticle, out RaycastHit hit))
-            {
-                return CalculateDirectionToHitPoint(hit.point);
-            }
+            if (Physics.Raycast(ray, out RaycastHit hit))
+                return (hit.point - firePoint.position).normalized;
 
-            return CalculateDirectionToDefaultDistance(rayFromReticle);
+            return (ray.GetPoint(50f) - firePoint.position).normalized;
         }
 
-        private bool RayHitsSomething(Ray ray, out RaycastHit hit)
-        {
-            return Physics.Raycast(ray, out hit);
-        }
-
-        private Vector3 CalculateDirectionToHitPoint(Vector3 hitPoint)
-        {
-            return (hitPoint - firePoint.position).normalized;
-        }
-
-        private Vector3 CalculateDirectionToDefaultDistance(Ray ray)
-        {
-            const float DEFAULT_DISTANCE = 50f;
-            return (ray.GetPoint(DEFAULT_DISTANCE) - firePoint.position).normalized;
-        }
-
-        private GameObject CreateProjectileAtFirePoint(Vector3 direction)
-        {
-            Quaternion rotation = Quaternion.LookRotation(direction);
-            return Instantiate(projectileType.ProjectilePrefab, firePoint.position, rotation);
-        }
+        private GameObject CreateProjectileAtFirePoint(Vector3 direction) =>
+            Instantiate(projectileType.ProjectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
 
         private void ConfigureProjectileStats(GameObject projectile)
         {
-            Projectile projectileComponent = projectile.GetComponent<Projectile>();
-            
-            if (projectileComponent != null)
-            {
-                projectileComponent.ConfigureProjectile(
-                    gameObject,
-                    projectileType.Damage,
-                    projectileType.Lifetime
-                );
-            }
+            var comp = projectile.GetComponent<Projectile>();
+            if (comp != null)
+                comp.ConfigureProjectile(gameObject, projectileType.Damage, projectileType.Lifetime);
         }
 
         private void ApplyVelocityAndForceToProjectile(GameObject projectile, Vector3 direction)
         {
-            Rigidbody projectileRigidbody = projectile.GetComponent<Rigidbody>();
-            
-            if (projectileRigidbody != null)
-            {
-                InheritCarVelocity(projectileRigidbody);
-                ApplyShootingForce(projectileRigidbody, direction);
-            }
-        }
+            Rigidbody rb = projectile.GetComponent<Rigidbody>();
+            if (rb == null) return;
 
-        private void InheritCarVelocity(Rigidbody projectileRigidbody)
-        {
-            projectileRigidbody.linearVelocity = carRigidbody.linearVelocity;
-        }
-
-        private void ApplyShootingForce(Rigidbody projectileRigidbody, Vector3 direction)
-        {
-            projectileRigidbody.AddForce(direction * projectileType.FireForce, ForceMode.Impulse);
+            rb.linearVelocity = carRigidbody.linearVelocity;
+            rb.AddForce(direction * projectileType.FireForce, ForceMode.Impulse);
         }
 
         private void ApplyRecoilToShooter(Vector3 shootDirection)
         {
-            if (projectileType.RecoilForce <= 0f)
-            {
-                return;
-            }
-            
-            Vector3 horizontalShootDirection = new Vector3(shootDirection.x, 0f, shootDirection.z).normalized;
-            Vector3 recoilDirection = -horizontalShootDirection;
-            
-            Vector3 horizontalVelocity = new Vector3(carRigidbody.linearVelocity.x, 0f, carRigidbody.linearVelocity.z);
-            float velocityAlongRecoil = Vector3.Dot(horizontalVelocity, recoilDirection);
-            
-            float recoilScale = 1f;
-            if (velocityAlongRecoil < 0f)
-            {
-                recoilScale = 0.5f;
-            }
-            
-            Vector3 recoilForce = recoilDirection * projectileType.RecoilForce * recoilScale;
-            carRigidbody.AddForce(recoilForce, ForceMode.Impulse);
+            if (projectileType.RecoilForce <= 0f) return;
+
+            Vector3 horizontalDir   = new Vector3(shootDirection.x, 0f, shootDirection.z).normalized;
+            Vector3 recoilDir       = -horizontalDir;
+            Vector3 horizontalVel   = new Vector3(carRigidbody.linearVelocity.x, 0f, carRigidbody.linearVelocity.z);
+            float   velAlongRecoil  = Vector3.Dot(horizontalVel, recoilDir);
+            float   recoilScale     = velAlongRecoil < 0f ? 0.5f : 1f;
+
+            carRigidbody.AddForce(recoilDir * projectileType.RecoilForce * recoilScale, ForceMode.Impulse);
         }
+
+        // ═══════════════════════════════════════════════
+        //  GAMEPLAY ENABLE / DISABLE
+        // ═══════════════════════════════════════════════
 
         public void EnableGameplay()
         {
             gameplayEnabled = true;
             CenterReticleInViewport();
-            
+
             if (Mouse.current != null)
-            {
                 lastMousePosition = Mouse.current.position.ReadValue();
-            }
         }
 
-        private int GetPlayerCount()
+        public void DisableGameplay()
         {
-            return UnityEngine.InputSystem.PlayerInput.all.Count;
+            gameplayEnabled = false;
+            ShowCursorAndHideReticle();
         }
-        
+
+        public void DisableReticle() => ShowCursorAndHideReticle();
+
+        private void ShowCursorAndHideReticle() => SetCursorVisibility(visible: true);
+        private void HideCursorAndShowReticle()  => SetCursorVisibility(visible: false);
+
+        private void SetCursorVisibility(bool visible)
+        {
+            if (reticle != null)
+                reticle.gameObject.SetActive(!visible);
+
+            if (!IsKeyboardPlayer()) return;
+
+            Cursor.visible   = visible;
+            Cursor.lockState = visible ? CursorLockMode.None : CursorLockMode.Locked;
+        }
+
+        private void HideReticle()
+        {
+            if (reticle != null)
+                reticle.gameObject.SetActive(false);
+        }
+
+        private int GetPlayerCount() => UnityEngine.InputSystem.PlayerInput.all.Count;
+
         private void CenterReticleInViewport()
         {
             if (reticle == null || playerCamera == null || reticleCanvas == null)
@@ -613,92 +465,38 @@ namespace _Cars.Scripts
                 Debug.LogWarning($"[CarShooter] Cannot center reticle - missing components");
                 return;
             }
-            
-            int playerCount = GetPlayerCount();
-            
-            string tag = gameObject.tag;
+
+            int playerCount  = GetPlayerCount();
             int playerNumber = 1;
-            if (tag.Contains("One")) playerNumber = 1;
-            else if (tag.Contains("Two")) playerNumber = 2;
+            string tag       = gameObject.tag;
+
+            if      (tag.Contains("One"))   playerNumber = 1;
+            else if (tag.Contains("Two"))   playerNumber = 2;
             else if (tag.Contains("Three")) playerNumber = 3;
-            else if (tag.Contains("Four")) playerNumber = 4;
-            
+            else if (tag.Contains("Four"))  playerNumber = 4;
+
             Vector2 targetPosition = Vector2.zero;
 
             if (playerCount == 1)
-            {
                 targetPosition = new Vector2(0.5f, 0.5f);
-            }
             else if (playerCount == 2)
-            {
                 targetPosition = playerNumber == 1 ? new Vector2(-480, 0) : new Vector2(480, 0);
-            }
             else if (playerCount == 3 || playerCount == 4)
             {
-                if (playerNumber == 1)
-                    targetPosition = new Vector2(-480, 270);
-                else if (playerNumber == 2)
-                    targetPosition = new Vector2(480, 270);
-                else if (playerNumber == 3)
-                    targetPosition = new Vector2(-480, -270);
-                else
-                    targetPosition = new Vector2(480, -270);
+                if      (playerNumber == 1) targetPosition = new Vector2(-480,  270);
+                else if (playerNumber == 2) targetPosition = new Vector2( 480,  270);
+                else if (playerNumber == 3) targetPosition = new Vector2(-480, -270);
+                else                        targetPosition = new Vector2( 480, -270);
             }
 
             reticle.anchoredPosition = targetPosition;
-
-            Debug.Log($"[{gameObject.name}] playerCount={playerCount} playerNum={playerNumber} anchoredPosition={targetPosition}");
-        }
-        
-        public void DisableGameplay()
-        {
-            gameplayEnabled = false;
-            ShowCursorAndHideReticle();
+            Debug.Log($"[{gameObject.name}] playerCount={playerCount} playerNum={playerNumber} pos={targetPosition}");
         }
 
-        public void DisableReticle()
-        {
-            ShowCursorAndHideReticle();
-        }
-        
-        private void ShowCursorAndHideReticle()
-        {
-            SetCursorVisibility(visible: true);
-        }
+        // ═══════════════════════════════════════════════
+        //  SET PROJECTILE TYPE (runtime swap)
+        // ═══════════════════════════════════════════════
 
-        private void HideCursorAndShowReticle()
-        {
-            SetCursorVisibility(visible: false);
-        }
-        
-        private void SetCursorVisibility(bool visible)
-        {
-            if (reticle != null)
-            {
-                reticle.gameObject.SetActive(!visible);
-            }
-            
-            if (!IsKeyboardPlayer())
-            {
-                return;
-            }
-
-            Cursor.visible = visible;
-            Cursor.lockState = visible ? CursorLockMode.None : CursorLockMode.Locked;
-        }
-
-        private void HideReticle()
-        {
-            if (reticle != null)
-            {
-                reticle.gameObject.SetActive(false);
-            }
-        }
-
-        /// <summary>
-        /// Swap the projectile type at runtime (e.g. from TuningManager).
-        /// Immediately re-initializes all shooting stats from the new SO.
-        /// </summary>
         public void SetProjectileType(ProjectileObject newProjectile)
         {
             if (newProjectile == null)
@@ -707,14 +505,12 @@ namespace _Cars.Scripts
                 return;
             }
 
-            projectileType = newProjectile;
-            InitializeFromProjectile();
-            
-            // Reset charge state so new weapon starts fresh
-            currentCharge = MAX_CHARGE;
-            isOverheated = false;
+            projectileType      = newProjectile;
+            currentCharge       = MAX_CHARGE;
+            isOverheated        = false;
             nextAllowedFireTime = 0f;
 
+            InitializeFromProjectile();
             Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} swapped to {newProjectile.ProjectileName}");
         }
     }
