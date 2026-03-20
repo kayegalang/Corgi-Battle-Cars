@@ -141,11 +141,12 @@ namespace _Cars.Scripts
         
         private void HandlePlayerDeath()
         {
+            // Teleport far below the map so other players can't shoot the dead car
+            transform.position = new Vector3(0, -1000f, 0);
+
             if (healthBarManager != null)
-            {
                 healthBarManager.gameObject.SetActive(false);
-            }
-            
+    
             if (deathSpectateManager != null)
             {
                 deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY, RespawnPlayer);

@@ -352,6 +352,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CarHealth
   carStats: {fileID: 0}
   spawnManager: {fileID: 0}
+  carMeshRoot: {fileID: 852133240821571215}
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []
