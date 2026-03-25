@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 8302585009443550373}
   - component: {fileID: 8018927118157054044}
   - component: {fileID: 7158814439308873631}
-  - component: {fileID: 1985154468686639413}
   - component: {fileID: 1771357129616209622}
+  - component: {fileID: 7216777178773538093}
+  - component: {fileID: 6458760947441341121}
   m_Layer: 0
   m_Name: PoopPowerUp
   m_TagString: Untagged
@@ -30,9 +31,10 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -57.91331, y: 2.62, z: -16.09}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 785101428644291158}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8018927118157054044
@@ -42,7 +44,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 160457930260513772}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 0}
 --- !u!23 &7158814439308873631
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -91,8 +93,49 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &1985154468686639413
-SphereCollider:
+--- !u!114 &1771357129616209622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160457930260513772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf5a9d018fdbc4ad8a82ded664a7b43a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_PowerUps.Scripts.PowerUpPickup
+  powerUp: {fileID: 11400000, guid: edf3a1b9ef3904cc1a1ae83a415d9e74, type: 2}
+  treatVisual: {fileID: 121295075166583020}
+  smellTrailParticles: {fileID: 0}
+  collectEffectPrefab: {fileID: 0}
+  bobHeight: 0.3
+  bobSpeed: 2
+  rotateSpeed: 90
+  maxVibrationStrength: 0.8
+--- !u!114 &7216777178773538093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160457930260513772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a0ab8983af0943b08e2947366e8e98d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_PowerUps.Scripts.SmellTrailRenderer
+  smellDistance: 25
+  trailWidth: 0.15
+  scrollSpeed: 1.5
+  waveAmplitude: 0.3
+  waveFrequency: 2
+  segments: 20
+  trailColor: {r: 1, g: 0.85, b: 0.1, a: 0.6}
+  trailMaterial: {fileID: 2100000, guid: 92226a9dd57fa411190e682a459e9c5c, type: 2}
+  heightOffset: 0.5
+--- !u!65 &6458760947441341121
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -110,25 +153,81 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1771357129616209622
-MonoBehaviour:
+  m_Size: {x: 7.808983, y: 3.2960038, z: 2.9898186}
+  m_Center: {x: 0.11662674, y: 0.02840352, z: -0.15425682}
+--- !u!1001 &968138592046269885
+PrefabInstance:
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8302585009443550373}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -4683669308469848369, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a8ab65d6eafc94226ba5f2b1f15691bc, type: 2}
+    - target: {fileID: 919132149155446097, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: m_Name
+      value: TreatVisual
+      objectReference: {fileID: 0}
+    - target: {fileID: 5958438921693756439, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects:
+    - {fileID: 65702495048144492, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+--- !u!1 &121295075166583020 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+  m_PrefabInstance: {fileID: 968138592046269885}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 160457930260513772}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf5a9d018fdbc4ad8a82ded664a7b43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::_PowerUps.Scripts.PowerUpPickup
-  powerUp: {fileID: 11400000, guid: edf3a1b9ef3904cc1a1ae83a415d9e74, type: 2}
-  treatVisual: {fileID: 0}
-  smellTrailParticles: {fileID: 0}
-  collectEffectPrefab: {fileID: 0}
-  bobHeight: 0.3
-  bobSpeed: 2
-  rotateSpeed: 90
-  maxVibrationStrength: 0.8
+--- !u!4 &785101428644291158 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d16fbe97bed05486584bcb2378112e24, type: 3}
+  m_PrefabInstance: {fileID: 968138592046269885}
+  m_PrefabAsset: {fileID: 0}

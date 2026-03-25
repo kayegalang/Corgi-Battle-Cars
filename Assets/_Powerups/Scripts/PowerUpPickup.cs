@@ -66,13 +66,22 @@ namespace _PowerUps.Scripts
         
         private void UpdateProximityEffects()
         {
-            // Find all players in the scene
-            GameObject[] allPlayers = GameObject.FindGameObjectsWithTag("Player");
-            
+            // Find all players using their actual tags
+            var allPlayers = new List<GameObject>();
+    
+            string[] playerTags = { "PlayerOne", "PlayerTwo", "PlayerThree", "PlayerFour" };
+            foreach (string tag in playerTags)
+            {
+                try
+                {
+                    allPlayers.AddRange(GameObject.FindGameObjectsWithTag(tag));
+                }
+                catch { }
+            }
+
             foreach (GameObject player in allPlayers)
             {
                 float distance = Vector3.Distance(transform.position, player.transform.position);
-                
                 HandleSmellRange(player, distance);
                 HandleVibrationRange(player, distance);
                 HandleRevealRange(player, distance);

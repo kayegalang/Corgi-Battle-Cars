@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_PowerUps.Scripts.PowerUpPickup
   powerUp: {fileID: 11400000, guid: 724d7c9b00801457b9a81acb4cfe37b9, type: 2}
   treatVisual: {fileID: 0}
-  smellTrailParticles: {fileID: 0}
+  smellTrailParticles: {fileID: 2586943843324601214, guid: eb64f892c2d65474d9261aec69847ea4, type: 3}
   collectEffectPrefab: {fileID: 0}
   bobHeight: 0.3
   bobSpeed: 2

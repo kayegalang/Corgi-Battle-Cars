@@ -141,8 +141,8 @@ namespace _Cars.Scripts
 
             if (cooldownBar != null)
                 Debug.Log($"[{nameof(CarShooter)}] ✓ {gameObject.name} - CooldownBarUI found!");
-            else
-                Debug.LogError($"[{nameof(CarShooter)}] ✗ {gameObject.name} - CooldownBarUI not found! Is HealthBarManager set up correctly?");
+            //else
+            //  Debug.LogError($"[{nameof(CarShooter)}] ✗ {gameObject.name} - CooldownBarUI not found! Is HealthBarManager set up correctly?");
         }
 
         // ═══════════════════════════════════════════════
