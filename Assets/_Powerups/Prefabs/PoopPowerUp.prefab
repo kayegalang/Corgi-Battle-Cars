@@ -125,7 +125,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a0ab8983af0943b08e2947366e8e98d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_PowerUps.Scripts.SmellTrailRenderer
-  smellDistance: 25
+  smellDistance: 50
   trailWidth: 0.15
   scrollSpeed: 1.5
   waveAmplitude: 0.3
