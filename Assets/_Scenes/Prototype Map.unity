@@ -374,7 +374,7 @@ MonoBehaviour:
         m_Flags: 0
       m_Flags: 0
     m_Reference: {fileID: 0}
-  m_PlayerPrefab: {fileID: 2474133199045047173, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
+  m_PlayerPrefab: {fileID: 852133240821571215, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
   m_SplitScreen: 1
   m_MaintainAspectRatioInSplitScreen: 0
   m_FixedNumberOfSplitScreens: -1
@@ -526,6 +526,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1001 &685443505
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 308364315841694178, guid: b1094290085664423bb2f115325d126d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -57.937325
+      objectReference: {fileID: 0}
+    - target: {fileID: 308364315841694178, guid: b1094290085664423bb2f115325d126d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 308364315841694178, guid: b1094290085664423bb2f115325d126d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -10.124367
+      objectReference: {fileID: 0}
+    - target: {fileID: 308364315841694178, guid: b1094290085664423bb2f115325d126d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 308364315841694178, guid: b1094290085664423bb2f115325d126d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 308364315841694178, guid: b1094290085664423bb2f115325d126d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 308364315841694178, guid: b1094290085664423bb2f115325d126d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 308364315841694178, guid: b1094290085664423bb2f115325d126d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 308364315841694178, guid: b1094290085664423bb2f115325d126d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 308364315841694178, guid: b1094290085664423bb2f115325d126d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6877758537058637260, guid: b1094290085664423bb2f115325d126d, type: 3}
+      propertyPath: m_Name
+      value: SquirrelPowerUp
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b1094290085664423bb2f115325d126d, type: 3}
 --- !u!1 &762584167 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3216579825125446628, guid: fc5a676d2c90b3d4f8a22e369c35950d, type: 3}
@@ -847,3 +904,4 @@ SceneRoots:
   - {fileID: 2120315918}
   - {fileID: 341100649}
   - {fileID: 7158573470040914801}
+  - {fileID: 685443505}

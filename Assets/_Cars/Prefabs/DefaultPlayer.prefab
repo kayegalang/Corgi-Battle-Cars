@@ -352,6 +352,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CarHealth
   carStats: {fileID: 0}
   spawnManager: {fileID: 0}
+  spawnProtectionDuration: 3
+  flashSpeed: 8
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []

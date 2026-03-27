@@ -67,7 +67,7 @@ namespace _Gameplay.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  START GAME
+        //  START GAME — no spawn protection on initial spawn
         // ═══════════════════════════════════════════════
         
         public void StartGame(int humanPlayerCount)
@@ -97,6 +97,7 @@ namespace _Gameplay.Scripts
                 string    playerTag  = GetPlayerTag(i);
                 Transform spawnPoint = GetUniqueSpawnPoint();
                 
+                // Initial spawn — no spawn protection
                 GameObject player = SpawnPlayer(playerTag, spawnPoint, playerPrefab);
                 
                 if (player != null)
@@ -127,7 +128,7 @@ namespace _Gameplay.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  RESPAWN
+        //  RESPAWN — spawn protection activated here
         // ═══════════════════════════════════════════════
         
         public void Respawn(string playerTag)
@@ -176,6 +177,9 @@ namespace _Gameplay.Scripts
                 {
                     int playerNumber = GetPlayerNumberFromTag(playerTag);
                     RestorePlayerDevice(player, playerNumber);
+
+                    // Activate spawn protection ONLY on respawn, not initial spawn
+                    player.GetComponent<CarHealth>()?.ActivateSpawnProtection();
                 }
             }
             
@@ -203,7 +207,7 @@ namespace _Gameplay.Scripts
             // Set identity FIRST so loaders can read the correct tag
             SetPlayerIdentity(player, playerTag);
 
-            // NOW load stats — tag is correct so per-player keys work
+            // Load stats — tag is correct so per-player keys work
             player.GetComponent<CarStatsLoader>()?.LoadForCurrentTag();
             player.GetComponent<WeaponStatsLoader>()?.LoadForCurrentTag();
             
@@ -279,16 +283,6 @@ namespace _Gameplay.Scripts
             }
 
             return bestPoint;
-        }
-
-        private Transform GetRandomSpawnPoint()
-        {
-            if (spawnPoints.Length == 0)
-            {
-                Debug.LogError($"[{nameof(SpawnManager)}] No spawn points available!");
-                return null;
-            }
-            return spawnPoints[Random.Range(0, spawnPoints.Length)];
         }
 
         public Transform GetRespawnPoint() => GetFurthestSpawnPoint();

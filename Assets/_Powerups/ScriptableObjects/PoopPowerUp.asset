@@ -28,6 +28,6 @@ MonoBehaviour:
   dropInterval: 0.4
   poopLifetime: 10
   spinOutDuration: 2
-  poopPrefab: {fileID: 6513309076343673963, guid: 159eb0c4bc6ab48e481fb373ccc7c92b, type: 3}
+  poopPrefab: {fileID: 59757319126102034, guid: 159eb0c4bc6ab48e481fb373ccc7c92b, type: 3}
   minimumSpeedToDrop: 1
   spawnDistanceBehind: 3
