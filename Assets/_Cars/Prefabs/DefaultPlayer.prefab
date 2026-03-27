@@ -161,6 +161,7 @@ GameObject:
   - component: {fileID: 2842837332286627986}
   - component: {fileID: 901537145194330616}
   - component: {fileID: 5182652314794960398}
+  - component: {fileID: 5364044562323033635}
   m_Layer: 0
   m_Name: DefaultPlayer
   m_TagString: PlayerOne
@@ -518,6 +519,27 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e104ec775ead94f4eb9403e209f95daf, type: 2}
   - {fileID: 11400000, guid: 34193fc487c124ab08ba24caf24f31b7, type: 2}
   - {fileID: 11400000, guid: 3529a2bd0ba264e97afb032e1479f5f8, type: 2}
+--- !u!114 &5364044562323033635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852133240821571215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ce3c773c05b44c9288c10d62ec99078, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_PowerUps.Scripts.SuperJumpRingEffect
+  spawnInterval: 0.3
+  maxRadius: 3
+  startRadius: 0.3
+  ringDuration: 0.6
+  heightOffset: -0.5
+  lineWidth: 0.12
+  circlePoints: 32
+  ringColor: {r: 0.4, g: 0.8, b: 1, a: 1}
+  ringMaterial: {fileID: 2100000, guid: 92226a9dd57fa411190e682a459e9c5c, type: 2}
 --- !u!1 &1322768574714407466
 GameObject:
   m_ObjectHideFlags: 0
