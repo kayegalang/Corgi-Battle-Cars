@@ -2,6 +2,7 @@ using _Cars.ScriptableObjects;
 using _Cars.Scripts;
 using _Projectiles.ScriptableObjects;
 using _Projectiles.Scripts;
+using _UI.Scripts;
 using Bot.Scripts;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace _Bot.Scripts
         private BotController botController;
         private Rigidbody botRigidbody;
         private Transform firePoint;
+        private CooldownBarUI cooldownBar;
         
         private BotStates currentState = BotStates.Chase;
         private Transform target;
@@ -33,6 +35,14 @@ namespace _Bot.Scripts
         private const float STUCK_MOVEMENT_THRESHOLD = 1f;
         private const float REVERSE_DURATION = 1f;
         
+        // Charge / overheat system - mirrors CarShooter
+        private float currentCharge;
+        private const float MAX_CHARGE = 100f;
+        private const float CHARGE_PER_SHOT = 10f;
+        private float chargeRegenRate;   // Derived: MAX_CHARGE / CooldownDuration
+        private float fireRate;          // From: projectile.FireRate
+        private bool isOverheated = false;
+        
         private Vector3 lastPosition;
         private float stuckCheckTimer = 0f;
         private float reverseTimer = 0f;
@@ -41,11 +51,44 @@ namespace _Bot.Scripts
         private void Awake()
         {
             InitializeComponents();
+            InitializeFromProjectile();
+            currentCharge = MAX_CHARGE;
         }
         
         private void Start()
         {
             lastPosition = transform.position;
+            StartCoroutine(FindCooldownBarDelayed());
+        }
+
+        private System.Collections.IEnumerator FindCooldownBarDelayed()
+        {
+            yield return null; // Wait one frame for HealthBarManager to create canvas
+            cooldownBar = GetComponentInChildren<CooldownBarUI>();
+
+            if (cooldownBar != null)
+                Debug.Log($"[{nameof(BotAI)}] {gameObject.name} - Found CooldownBarUI!");
+            else
+                Debug.LogWarning($"[{nameof(BotAI)}] {gameObject.name} - No CooldownBarUI found. Bar won't display.");
+        }
+
+        /// <summary>
+        /// Reads shooting stats from ProjectileObject SO.
+        /// Call again if projectile is swapped at runtime.
+        /// </summary>
+        private void InitializeFromProjectile()
+        {
+            if (projectile == null)
+            {
+                return;
+            }
+
+            fireRate = projectile.FireRate;
+            chargeRegenRate = MAX_CHARGE / Mathf.Max(projectile.CooldownDuration, 0.1f);
+
+            Debug.Log($"[{nameof(BotAI)}] {gameObject.name} initialized from {projectile.ProjectileName}: " +
+                      $"FireRate={fireRate}s, CooldownDuration={projectile.CooldownDuration}s, " +
+                      $"RegenRate={chargeRegenRate}/s");
         }
         
         private void InitializeComponents()
@@ -60,35 +103,26 @@ namespace _Bot.Scripts
         private void ValidateComponents()
         {
             if (botController == null)
-            {
                 Debug.LogError($"[{nameof(BotAI)}] BotController not found on {gameObject.name}!");
-            }
             
             if (botRigidbody == null)
-            {
                 Debug.LogError($"[{nameof(BotAI)}] Rigidbody not found on {gameObject.name}!");
-            }
             
             if (firePoint == null)
-            {
                 Debug.LogError($"[{nameof(BotAI)}] FirePoint not found on {gameObject.name}!");
-            }
             
             if (carStats == null)
-            {
                 Debug.LogError($"[{nameof(BotAI)}] AICarStats not assigned on {gameObject.name}!");
-            }
             
             if (projectile == null)
-            {
                 Debug.LogError($"[{nameof(BotAI)}] ProjectileObject not assigned on {gameObject.name}!");
-            }
         }
         
         private void Update()
         {
             UpdateTargetSearch();
             CheckIfStuck();
+            UpdateCooldownBar();
             
             if (target == null)
             {
@@ -102,6 +136,16 @@ namespace _Bot.Scripts
         private void FixedUpdate()
         {
             HandleShooting();
+        }
+
+        private void UpdateCooldownBar()
+        {
+            if (cooldownBar == null)
+            {
+                return;
+            }
+
+            cooldownBar.UpdateCooldown(currentCharge, MAX_CHARGE);
         }
         
         private void UpdateTargetSearch()
@@ -201,16 +245,12 @@ namespace _Bot.Scripts
             {
                 case BotStates.Chase:
                     if (ReachedTarget())
-                    {
                         SetState(BotStates.Attack);
-                    }
                     break;
                     
                 case BotStates.Attack:
                     if (!ReachedTarget())
-                    {
                         SetState(BotStates.Chase);
-                    }
                     break;
             }
         }
@@ -347,14 +387,10 @@ namespace _Bot.Scripts
         private float DetermineTurnDirection(bool leftClear, bool rightClear)
         {
             if (leftClear && !rightClear)
-            {
                 return -carStats.AvoidanceTurnStrength;
-            }
             
             if (!leftClear && rightClear)
-            {
                 return carStats.AvoidanceTurnStrength;
-            }
             
             return Random.value > 0.5f ? carStats.AvoidanceTurnStrength : -carStats.AvoidanceTurnStrength;
         }
@@ -362,9 +398,7 @@ namespace _Bot.Scripts
         private float DetermineAvoidanceSpeed(bool leftClear, bool rightClear)
         {
             if (leftClear || rightClear)
-            {
                 return 0.5f;
-            }
             
             return -0.3f;
         }
@@ -415,18 +449,54 @@ namespace _Bot.Scripts
             }
         }
         
+        // ═══════════════════════════════════════════════
+        //  SHOOTING - mirrors CarShooter charge system
+        // ═══════════════════════════════════════════════
+        
         private void HandleShooting()
         {
+            RegenerateCharge();
+            
             if (currentState == BotStates.Attack && CanShoot())
             {
                 Shoot();
-                nextFireTime = Time.time + projectile.FireRate;
+                ConsumeCharge();
+                nextFireTime = Time.time + fireRate;
+            }
+        }
+        
+        private void RegenerateCharge()
+        {
+            if (currentCharge >= MAX_CHARGE)
+            {
+                return;
+            }
+            
+            currentCharge += chargeRegenRate * Time.fixedDeltaTime;
+            currentCharge = Mathf.Min(currentCharge, MAX_CHARGE);
+            
+            if (isOverheated && currentCharge >= MAX_CHARGE)
+            {
+                isOverheated = false;
+                Debug.Log($"[{nameof(BotAI)}] {gameObject.name} recovered from overheat!");
+            }
+        }
+        
+        private void ConsumeCharge()
+        {
+            currentCharge -= CHARGE_PER_SHOT;
+            
+            if (currentCharge <= 0f)
+            {
+                currentCharge = 0f;
+                isOverheated = true;
+                Debug.Log($"[{nameof(BotAI)}] {gameObject.name} overheated!");
             }
         }
         
         private bool CanShoot()
         {
-            return Time.time > nextFireTime;
+            return !isOverheated && Time.time > nextFireTime && currentCharge >= CHARGE_PER_SHOT;
         }
         
         private void Shoot()
@@ -551,6 +621,28 @@ namespace _Bot.Scripts
             lastAttacker = attacker;
             runAwayTimer = 0f;
             SetState(BotStates.RunAway);
+        }
+
+        /// <summary>
+        /// Swap projectile at runtime (e.g. from TuningManager).
+        /// Re-initializes all shooting stats from the new SO.
+        /// </summary>
+        public void SetProjectile(ProjectileObject newProjectile)
+        {
+            if (newProjectile == null)
+            {
+                Debug.LogWarning($"[{nameof(BotAI)}] Cannot set null projectile!");
+                return;
+            }
+
+            projectile = newProjectile;
+            InitializeFromProjectile();
+
+            currentCharge = MAX_CHARGE;
+            isOverheated = false;
+            nextFireTime = 0f;
+
+            Debug.Log($"[{nameof(BotAI)}] {gameObject.name} swapped to {newProjectile.ProjectileName}");
         }
     }
 }

@@ -50,6 +50,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Drift",
+                    "type": "Button",
+                    "id": "c42c176f-130a-47a0-9cfd-e6b55ff98507",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -248,6 +257,28 @@
                     "processors": "",
                     "groups": ";Controller",
                     "action": "UsePowerUp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b33d2326-bfed-4ae5-bde5-f9c2bf3ffdfe",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drift",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "64b9b966-1e47-49d9-a480-554059eb27d1",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drift",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

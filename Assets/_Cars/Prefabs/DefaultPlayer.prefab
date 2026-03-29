@@ -159,6 +159,9 @@ GameObject:
   - component: {fileID: 7598761647281353136}
   - component: {fileID: 7227054066109839993}
   - component: {fileID: 2842837332286627986}
+  - component: {fileID: 901537145194330616}
+  - component: {fileID: 5182652314794960398}
+  - component: {fileID: 5364044562323033635}
   m_Layer: 0
   m_Name: DefaultPlayer
   m_TagString: PlayerOne
@@ -312,6 +315,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CarController
   carStats: {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
   zoomiesParticles: {fileID: 4295368576151657587}
+  driftTurnMultiplier: 1
+  driftSpeedBoost: 8
+  minDriftSpeedBoost: 0.3
+  crashDamage: 5
+  crashMinSpeed: 3
+  crashCooldown: 0.5
 --- !u!114 &6153628573682526169
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,13 +334,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player.Scripts.CarShooter
   gameplayEnabled: 0
+  projectileType: {fileID: 11400000, guid: 4435cf7b253264ab8b2e1d0a877e40d6, type: 2}
   reticle: {fileID: 7300972525670497128}
   reticleCanvas: {fileID: 7913115902583245656}
   controllerSensitivity: 800
   mouseSensitivity: 1.5
-  projectilePrefab: {fileID: 5940751187897929002, guid: a1cbf08f72ec94c2ca82033c3604a0d1, type: 3}
-  fireForce: 30
-  fireRate: 0.25
 --- !u!114 &6192070679033599830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -344,7 +351,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1f416d43a8ef49a4a279bdbe0a18fa2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarHealth
+  carStats: {fileID: 0}
   spawnManager: {fileID: 0}
+  spawnProtectionDuration: 3
+  flashSpeed: 8
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -435,7 +445,7 @@ MonoBehaviour:
   scoreTransform: {fileID: 2082422597934522621}
   scoreOffset: {x: -20, y: 20}
   scoreFormat: 'Score: {0}'
-  gameplayEnabled: 0
+  gameplayEnabled: 1
 --- !u!114 &7227054066109839993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -475,6 +485,61 @@ MonoBehaviour:
   heldPowerUpUI: {fileID: 8464777712254893310}
   heldPowerUpNameText: {fileID: 467237460583731953}
   botAutoUseDelay: 1.5
+--- !u!114 &901537145194330616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852133240821571215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1470e3a425554ef3bd316a99095dcee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.CarStatsLoader
+  availableCarTypes:
+  - {fileID: 11400000, guid: 8b393014dfa57bc459d9f486e41fa716, type: 2}
+  - {fileID: 11400000, guid: b5e0b2a3e4bf5484aab8eb91cf10eab7, type: 2}
+  - {fileID: 11400000, guid: b426bf9d8a9ccd147af9464da20c052e, type: 2}
+  - {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
+--- !u!114 &5182652314794960398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852133240821571215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4805776d56eb42e386dd6d2350ad8bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.WeaponStatsLoader
+  availableWeaponTypes:
+  - {fileID: 11400000, guid: 4435cf7b253264ab8b2e1d0a877e40d6, type: 2}
+  - {fileID: 11400000, guid: e104ec775ead94f4eb9403e209f95daf, type: 2}
+  - {fileID: 11400000, guid: 34193fc487c124ab08ba24caf24f31b7, type: 2}
+  - {fileID: 11400000, guid: 3529a2bd0ba264e97afb032e1479f5f8, type: 2}
+--- !u!114 &5364044562323033635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852133240821571215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ce3c773c05b44c9288c10d62ec99078, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_PowerUps.Scripts.SuperJumpRingEffect
+  spawnInterval: 0.3
+  maxRadius: 3
+  startRadius: 0.3
+  ringDuration: 0.6
+  heightOffset: -0.5
+  lineWidth: 0.12
+  circlePoints: 32
+  ringColor: {r: 0.4, g: 0.8, b: 1, a: 1}
+  ringMaterial: {fileID: 2100000, guid: 92226a9dd57fa411190e682a459e9c5c, type: 2}
 --- !u!1 &1322768574714407466
 GameObject:
   m_ObjectHideFlags: 0
@@ -1559,6 +1624,7 @@ GameObject:
   - component: {fileID: 6800328568622001813}
   - component: {fileID: 8013411451074429082}
   - component: {fileID: 2800569553204235875}
+  - component: {fileID: 6551452173488453608}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: MainCamera
@@ -1708,6 +1774,20 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   CustomBlends: {fileID: 0}
+--- !u!114 &6551452173488453608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6404157675151543598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioListener
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 0}
 --- !u!1 &6468521244052527162
 GameObject:
   m_ObjectHideFlags: 0

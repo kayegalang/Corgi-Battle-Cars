@@ -16,7 +16,7 @@ namespace _UI.Scripts
         [SerializeField] private List<PlayerJoinSlot> playerSlots = new List<PlayerJoinSlot>();
         
         [Header("UI Text")]
-        [SerializeField] private string waitingText = "Waiting...";
+        [SerializeField] private string waitingText        = "Waiting...";
         [SerializeField] private string playerJoinedFormat = "Player {0} Joined!";
         
         [Header("Timing Settings")]
@@ -30,17 +30,21 @@ namespace _UI.Scripts
         private int joinedPlayerCount = 0;
         
         private const int FIRST_PLAYER_INDEX = 0;
-        private const int ANY_DEVICE = -1;
+        private const int ANY_DEVICE         = -1;
         
         [System.Serializable]
         public class PlayerJoinSlot
         {
-            public GameObject slotObject;
-            public TMP_Text statusText;
+            public GameObject  slotObject;
+            public TMP_Text    statusText;
             public UnityEngine.UI.RawImage slotImage;
             public Color waitingColor = Color.gray;
-            public Color joinedColor = Color.green;
+            public Color joinedColor  = Color.green;
         }
+
+        // ═══════════════════════════════════════════════
+        //  LIFECYCLE
+        // ═══════════════════════════════════════════════
         
         private void Awake()
         {
@@ -63,109 +67,198 @@ namespace _UI.Scripts
             playerInputManager = FindFirstObjectByType<PlayerInputManager>();
             
             if (playerInputManager == null)
-            {
                 Debug.LogError($"[{nameof(PlayerJoinScreen)}] PlayerInputManager not found in scene!");
-            }
         }
         
         private void HideJoinPanel()
         {
             if (joinPanel != null)
-            {
                 joinPanel.SetActive(false);
-            }
         }
         
         private void SubscribeToPlayerJoinedEvent()
         {
             if (playerInputManager != null)
-            {
                 playerInputManager.onPlayerJoined += OnPlayerJoined;
-            }
         }
         
         private void UnsubscribeFromPlayerJoinedEvent()
         {
             if (playerInputManager != null)
-            {
                 playerInputManager.onPlayerJoined -= OnPlayerJoined;
-            }
         }
+
+        // ═══════════════════════════════════════════════
+        //  SHOW / HIDE
+        // ═══════════════════════════════════════════════
         
         public void ShowJoinScreen(int playerCount)
         {
-            if (!ValidatePlayerCount(playerCount))
-            {
-                return;
-            }
+            if (!ValidatePlayerCount(playerCount)) return;
             
             CleanupExistingPlayers();
-            
             ResetJoinState(playerCount);
             ShowJoinPanel();
             InitializeSlots();
+
+            // Allow all gamepads so every player can press to join
+            var guard = FindFirstObjectByType<PlayerOneUIGuard>();
+            guard?.SetAllowAllDevices(true);
             
             StartCoroutine(EnableJoiningAfterButtonRelease());
         }
+        
+        public void HideJoinScreen()
+        {
+            HideJoinPanel();
+            DisablePlayerJoining();
+
+            // Restore Player 1 only restriction
+            var guard = FindFirstObjectByType<PlayerOneUIGuard>();
+            guard?.SetAllowAllDevices(false);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  JOIN FLOW
+        // ═══════════════════════════════════════════════
         
         private IEnumerator EnableJoiningAfterButtonRelease()
         {
             Debug.Log($"[{nameof(PlayerJoinScreen)}] Waiting for button release...");
             
-            // Wait for all gamepad buttons to be released
             if (Gamepad.current != null)
             {
                 while (IsAnyGamepadButtonPressed())
-                {
                     yield return null;
-                }
             }
             
-            // Wait for keyboard keys to be released
             if (Keyboard.current != null)
             {
                 while (Keyboard.current.anyKey.isPressed)
-                {
                     yield return null;
-                }
             }
             
-            // Wait one more frame to ensure input is fully processed
             yield return null;
-            
-            // Wait a bit longer to be safe (prevents assertion)
             yield return new WaitForSeconds(0.2f);
             
-            Debug.Log($"[{nameof(PlayerJoinScreen)}] Button released, enabling joining");
-            
-            // Now it's safe to enable joining
+            Debug.Log($"[{nameof(PlayerJoinScreen)}] Auto-joining Player 1 first...");
+
+            // Auto-join Player 1 BEFORE enabling joining for everyone else
+            // This guarantees Player 1 is always index 0
+            yield return StartCoroutine(AutoJoinFirstPlayer());
+
+            // Now safe to let other players join
             EnablePlayerJoining();
-            
-            // Auto-join first player
-            StartCoroutine(AutoJoinFirstPlayer());
+            Debug.Log($"[{nameof(PlayerJoinScreen)}] Joining enabled for remaining players");
         }
         
         private bool IsAnyGamepadButtonPressed()
         {
-            if (Gamepad.current == null)
-                return false;
+            if (Gamepad.current == null) return false;
 
             return Gamepad.current.buttonSouth.isPressed ||
                    Gamepad.current.buttonNorth.isPressed ||
-                   Gamepad.current.buttonEast.isPressed ||
-                   Gamepad.current.buttonWest.isPressed ||
+                   Gamepad.current.buttonEast.isPressed  ||
+                   Gamepad.current.buttonWest.isPressed  ||
                    Gamepad.current.startButton.isPressed ||
                    Gamepad.current.selectButton.isPressed ||
                    Gamepad.current.leftShoulder.isPressed ||
                    Gamepad.current.rightShoulder.isPressed;
         }
         
-        private void CleanupExistingPlayers()
+        private IEnumerator AutoJoinFirstPlayer()
         {
+            Debug.Log($"[{nameof(PlayerJoinScreen)}] AutoJoinFirstPlayer - joined: {joinedPlayerCount}");
+            
+            if (joinedPlayerCount > 0)
+            {
+                Debug.Log($"[{nameof(PlayerJoinScreen)}] Player already joined, skipping auto-join");
+                yield break;
+            }
+            
             if (playerInputManager == null)
             {
-                return;
+                Debug.LogError($"[{nameof(PlayerJoinScreen)}] PlayerInputManager is null!");
+                yield break;
             }
+            
+            string      controlScheme   = GetPlayerOneControlScheme();
+            InputDevice playerOneDevice = _Player.Scripts.PlayerOneInputTracker.instance?.GetPlayerOneDevice();
+
+            try
+            {
+                PlayerInput joinedPlayer;
+
+                if (playerOneDevice != null)
+                {
+                    // Join with the EXACT device Player 1 used on the start screen
+                    joinedPlayer = playerInputManager.JoinPlayer(
+                        playerIndex:      FIRST_PLAYER_INDEX,
+                        splitScreenIndex: ANY_DEVICE,
+                        controlScheme:    controlScheme,
+                        pairWithDevice:   playerOneDevice
+                    );
+                }
+                else
+                {
+                    joinedPlayer = playerInputManager.JoinPlayer(
+                        playerIndex:      FIRST_PLAYER_INDEX,
+                        splitScreenIndex: ANY_DEVICE,
+                        controlScheme:    controlScheme
+                    );
+                }
+
+                if (joinedPlayer != null)
+                {
+                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Auto-joined PlayerOne");
+                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Control scheme: {joinedPlayer.currentControlScheme}");
+                }
+                else
+                {
+                    Debug.LogError($"[{nameof(PlayerJoinScreen)}] JoinPlayer returned null!");
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[{nameof(PlayerJoinScreen)}] Failed to auto-join player: {e.Message}");
+            }
+        }
+        
+        private string GetPlayerOneControlScheme()
+        {
+            if (_Player.Scripts.PlayerOneInputTracker.instance != null &&
+                _Player.Scripts.PlayerOneInputTracker.instance.IsPlayerOneUsingController())
+                return "Controller";
+
+            return "Keyboard";
+        }
+
+        // ═══════════════════════════════════════════════
+        //  PLAYER INPUT MANAGER
+        // ═══════════════════════════════════════════════
+        
+        private void EnablePlayerJoining()
+        {
+            if (playerInputManager != null)
+            {
+                playerInputManager.EnableJoining();
+                Debug.Log($"[{nameof(PlayerJoinScreen)}] Joining enabled");
+            }
+        }
+        
+        private void DisablePlayerJoining()
+        {
+            if (playerInputManager != null)
+                playerInputManager.DisableJoining();
+        }
+
+        // ═══════════════════════════════════════════════
+        //  CLEANUP
+        // ═══════════════════════════════════════════════
+        
+        private void CleanupExistingPlayers()
+        {
+            if (playerInputManager == null) return;
             
             List<PlayerInput> playersToRemove = new List<PlayerInput>();
             
@@ -173,19 +266,19 @@ namespace _UI.Scripts
             {
                 PlayerInput player = PlayerInput.GetPlayerByIndex(i);
                 if (player != null)
-                {
                     playersToRemove.Add(player);
-                }
             }
             
             foreach (PlayerInput player in playersToRemove)
             {
                 if (player != null && player.gameObject != null)
-                {
                     Destroy(player.gameObject);
-                }
             }
         }
+
+        // ═══════════════════════════════════════════════
+        //  VALIDATION
+        // ═══════════════════════════════════════════════
         
         private bool ValidatePlayerCount(int playerCount)
         {
@@ -209,138 +302,40 @@ namespace _UI.Scripts
             targetPlayerCount = playerCount;
             joinedPlayerCount = 0;
         }
+
+        // ═══════════════════════════════════════════════
+        //  SLOTS
+        // ═══════════════════════════════════════════════
         
         private void ShowJoinPanel()
         {
             if (joinPanel != null)
-            {
                 joinPanel.SetActive(true);
-            }
-        }
-        
-        private void EnablePlayerJoining()
-        {
-            if (playerInputManager != null)
-            {
-                playerInputManager.EnableJoining();
-                Debug.Log($"[{nameof(PlayerJoinScreen)}] Joining enabled");
-            }
-        }
-        
-        private IEnumerator AutoJoinFirstPlayer()
-        {
-            Debug.Log($"[{nameof(PlayerJoinScreen)}] AutoJoinFirstPlayer - Current joined count: {joinedPlayerCount}");
-            
-            if (joinedPlayerCount > 0)
-            {
-                Debug.Log($"[{nameof(PlayerJoinScreen)}] Player already joined, skipping auto-join");
-                yield break;
-            }
-            
-            if (playerInputManager == null)
-            {
-                Debug.LogError($"[{nameof(PlayerJoinScreen)}] PlayerInputManager is null!");
-                yield break;
-            }
-            
-            // Get the correct control scheme from tracker
-            string controlScheme = GetPlayerOneControlScheme();
-            
-            try
-            {
-                Debug.Log($"[{nameof(PlayerJoinScreen)}] Calling JoinPlayer with control scheme: {controlScheme}");
-                
-                // Join PlayerOne with EXPLICIT control scheme (not auto-detect!)
-                PlayerInput joinedPlayer = playerInputManager.JoinPlayer(
-                    playerIndex: FIRST_PLAYER_INDEX,
-                    splitScreenIndex: ANY_DEVICE,
-                    controlScheme: controlScheme  // EXPLICIT scheme based on Start Screen choice!
-                );
-                
-                if (joinedPlayer != null)
-                {
-                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Successfully auto-joined PlayerOne");
-                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Control scheme: {joinedPlayer.currentControlScheme}");
-                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Devices: {string.Join(", ", System.Array.ConvertAll(joinedPlayer.devices.ToArray(), d => d.displayName))}");
-                }
-                else
-                {
-                    Debug.LogError($"[{nameof(PlayerJoinScreen)}] JoinPlayer returned null!");
-                    Debug.LogError($"  Check PlayerInputManager has player prefab assigned!");
-                }
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"[{nameof(PlayerJoinScreen)}] Failed to auto-join player: {e.Message}");
-            }
-        }
-        
-        private string GetPlayerOneControlScheme()
-        {
-            // Check tracker to see what PlayerOne used on Start Screen
-            if (_Player.Scripts.PlayerOneInputTracker.instance != null && 
-                _Player.Scripts.PlayerOneInputTracker.instance.IsPlayerOneUsingController())
-            {
-                return "Controller";
-            }
-            else
-            {
-                return "Keyboard";
-            }
-        }
-        
-        public void HideJoinScreen()
-        {
-            HideJoinPanel();
-            DisablePlayerJoining();
-        }
-        
-        private void DisablePlayerJoining()
-        {
-            if (playerInputManager != null)
-            {
-                playerInputManager.DisableJoining();
-            }
         }
         
         private void InitializeSlots()
         {
             for (int i = 0; i < playerSlots.Count; i++)
             {
-                if (i < targetPlayerCount)
-                {
-                    ShowSlot(i);
-                }
-                else
-                {
-                    HideSlot(i);
-                }
+                if (i < targetPlayerCount) ShowSlot(i);
+                else                       HideSlot(i);
             }
         }
         
         private void ShowSlot(int index)
         {
-            if (!IsValidSlotIndex(index))
-            {
-                return;
-            }
-            
+            if (!IsValidSlotIndex(index)) return;
+
             playerSlots[index].slotObject.SetActive(true);
             playerSlots[index].statusText.text = waitingText;
             
             if (playerSlots[index].slotImage != null)
-            {
                 playerSlots[index].slotImage.color = playerSlots[index].waitingColor;
-            }
         }
         
         private void HideSlot(int index)
         {
-            if (!IsValidSlotIndex(index))
-            {
-                return;
-            }
-            
+            if (!IsValidSlotIndex(index)) return;
             playerSlots[index].slotObject.SetActive(false);
         }
         
@@ -351,87 +346,78 @@ namespace _UI.Scripts
                 Debug.LogError($"[{nameof(PlayerJoinScreen)}] Invalid slot index: {index}");
                 return false;
             }
-            
             return true;
         }
+
+        // ═══════════════════════════════════════════════
+        //  ON PLAYER JOINED
+        // ═══════════════════════════════════════════════
         
         private void OnPlayerJoined(PlayerInput playerInput)
         {
-            Debug.Log($"[{nameof(PlayerJoinScreen)}] OnPlayerJoined called - Player: {playerInput.gameObject.name}");
+            Debug.Log($"[{nameof(PlayerJoinScreen)}] OnPlayerJoined - {playerInput.gameObject.name}");
             
             joinedPlayerCount++;
             
-            // TRACK DEVICE: Record which device this player used
+            // Track which device this player used
             if (playerInput.devices.Count > 0)
             {
-                InputDevice device = playerInput.devices[0];
-                string playerTag = GetPlayerTag(joinedPlayerCount);
+                InputDevice device    = playerInput.devices[0];
+                string      playerTag = GetPlayerTag(joinedPlayerCount);
                 _Player.Scripts.PlayerDeviceTracker.instance?.RecordPlayerDevice(playerTag, device);
             }
             
-            Debug.Log($"[{nameof(PlayerJoinScreen)}] Total joined players: {joinedPlayerCount}/{targetPlayerCount}");
+            Debug.Log($"[{nameof(PlayerJoinScreen)}] Total: {joinedPlayerCount}/{targetPlayerCount}");
             
             UpdateSlotForJoinedPlayer();
             
             if (AllPlayersHaveJoined())
-            {
                 OnAllPlayersJoined();
-            }
         }
         
         private string GetPlayerTag(int playerNumber)
         {
             switch (playerNumber)
             {
-                case 1: return "PlayerOne";
-                case 2: return "PlayerTwo";
-                case 3: return "PlayerThree";
-                case 4: return "PlayerFour";
+                case 1:  return "PlayerOne";
+                case 2:  return "PlayerTwo";
+                case 3:  return "PlayerThree";
+                case 4:  return "PlayerFour";
                 default: return "PlayerOne";
             }
         }
         
-        private bool AllPlayersHaveJoined()
-        {
-            return joinedPlayerCount >= targetPlayerCount;
-        }
+        private bool AllPlayersHaveJoined() => joinedPlayerCount >= targetPlayerCount;
         
         private void UpdateSlotForJoinedPlayer()
         {
             if (joinedPlayerCount > playerSlots.Count)
             {
-                Debug.LogWarning($"[{nameof(PlayerJoinScreen)}] More players joined than available slots!");
+                Debug.LogWarning($"[{nameof(PlayerJoinScreen)}] More players joined than slots!");
                 return;
             }
             
             int slotIndex = joinedPlayerCount - 1;
-            
             UpdateSlotText(slotIndex);
             UpdateSlotColor(slotIndex);
         }
         
         private void UpdateSlotText(int slotIndex)
         {
-            if (!IsValidSlotIndex(slotIndex))
-            {
-                return;
-            }
-            
+            if (!IsValidSlotIndex(slotIndex)) return;
             playerSlots[slotIndex].statusText.text = string.Format(playerJoinedFormat, joinedPlayerCount);
         }
         
         private void UpdateSlotColor(int slotIndex)
         {
-            if (!IsValidSlotIndex(slotIndex))
-            {
-                return;
-            }
-            
+            if (!IsValidSlotIndex(slotIndex)) return;
             if (playerSlots[slotIndex].slotImage != null)
-            {
                 playerSlots[slotIndex].slotImage.color = playerSlots[slotIndex].joinedColor;
-            }
         }
+
+        // ═══════════════════════════════════════════════
+        //  ALL PLAYERS JOINED
+        // ═══════════════════════════════════════════════
         
         private void OnAllPlayersJoined()
         {
@@ -449,9 +435,7 @@ namespace _UI.Scripts
         private void NotifyGameplayManager()
         {
             if (GameplayManager.instance != null)
-            {
                 GameplayManager.instance.SetMultiplayerPlayerCount(joinedPlayerCount);
-            }
         }
         
         private IEnumerator TransitionToCharacterSelection()

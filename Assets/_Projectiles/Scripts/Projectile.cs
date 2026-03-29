@@ -6,80 +6,103 @@ namespace _Projectiles.Scripts
 {
     public class Projectile : MonoBehaviour
     {
-        [Header("Projectile Settings")]
-        [SerializeField] private float lifetime = 5f;
-        [SerializeField] private float damageDelay = 0.01f;
+        [Header("Configuration")]
+        [Tooltip("Damage amount (set by ProjectileObject)")]
         [SerializeField] private int damageAmount = 10;
         
+        [Tooltip("How long projectile exists before auto-destroying")]
+        [SerializeField] private float lifetime = 5f;
+        
+        [Tooltip("Small delay before projectile can damage (prevents self-damage)")]
+        [SerializeField] private float damageDelay = 0.01f;
+        
         private GameObject shooter;
-        private bool canDoDamage = false;
+        private bool       canDealDamage;
+        private bool       hasHit = false; // prevents multiple colliders triggering multiple hits
+
+        // ═══════════════════════════════════════════════
+        //  LIFECYCLE
+        // ═══════════════════════════════════════════════
         
         private void Start()
         {
-            ScheduleDestruction();
-            StartCoroutine(EnableDamageAfterDelay());
+            ScheduleAutoDestruction();
+            StartCoroutine(EnableDamageAfterShortDelay());
         }
         
-        private void ScheduleDestruction()
+        private void ScheduleAutoDestruction()
         {
             Destroy(gameObject, lifetime);
         }
         
-        private IEnumerator EnableDamageAfterDelay()
+        private IEnumerator EnableDamageAfterShortDelay()
         {
             yield return new WaitForSeconds(damageDelay);
-            canDoDamage = true;
+            canDealDamage = true;
         }
+
+        // ═══════════════════════════════════════════════
+        //  COLLISION
+        // ═══════════════════════════════════════════════
         
         private void OnTriggerEnter(Collider other)
         {
-            if (!CanDamageTarget(other))
-            {
-                return;
-            }
-            
-            DamageTarget(other);
-            DestroyProjectile();
+            // Already dealt damage this frame — ignore all further collisions
+            if (hasHit) return;
+
+            if (ShouldIgnoreCollision(other)) return;
+
+            // Mark as hit immediately before anything else so no second collision
+            // can sneak through even in the same physics step
+            hasHit = true;
+
+            ApplyDamageToTarget(other);
+            DestroyThisProjectile();
         }
         
-        private bool CanDamageTarget(Collider other)
+        private bool ShouldIgnoreCollision(Collider other)
         {
-            if (!canDoDamage)
-            {
-                return false;
-            }
-            
-            if (IsShooter(other))
-            {
-                return false;
-            }
-            
-            return true;
+            if (!CanDealDamageYet()) return true;
+            if (HitOwnShooter(other)) return true;
+            return false;
         }
         
-        private bool IsShooter(Collider other)
+        private bool CanDealDamageYet() => canDealDamage;
+        
+        private bool HitOwnShooter(Collider other)
         {
-            if (shooter == null)
-            {
-                return false;
-            }
+            if (shooter == null) return false;
             
-            return other.CompareTag(shooter.tag);
+            // Check both the collider's tag and its root tag
+            // in case the collider is on a child object
+            return other.CompareTag(shooter.tag) ||
+                   other.transform.root.CompareTag(shooter.tag);
         }
         
-        private void DamageTarget(Collider other)
+        private void ApplyDamageToTarget(Collider other)
         {
-            CarHealth health = other.GetComponent<CarHealth>();
+            // Walk up to root to find CarHealth in case collider is on a child
+            CarHealth targetHealth = other.GetComponent<CarHealth>()
+                                  ?? other.transform.root.GetComponent<CarHealth>();
             
-            if (health != null)
-            {
-                health.TakeDamage(damageAmount, shooter);
-            }
+            if (targetHealth != null)
+                targetHealth.TakeDamage(damageAmount, shooter);
         }
         
-        private void DestroyProjectile()
+        private void DestroyThisProjectile()
         {
             Destroy(gameObject);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  CONFIGURATION
+        // ═══════════════════════════════════════════════
+        
+        public void ConfigureProjectile(GameObject shooterObject, int damage, float projectileLifetime)
+        {
+            SetShooter(shooterObject);
+            SetDamage(damage);
+            SetLifetime(projectileLifetime);
         }
         
         public void SetShooter(GameObject shooterObject)
@@ -89,13 +112,11 @@ namespace _Projectiles.Scripts
                 Debug.LogWarning($"[{nameof(Projectile)}] Trying to set null shooter!");
                 return;
             }
-            
             shooter = shooterObject;
         }
         
-        public GameObject GetShooter()
-        {
-            return shooter;
-        }
+        public void SetDamage(int damage)              => damageAmount = damage;
+        public void SetLifetime(float projectileLifetime) => lifetime  = projectileLifetime;
+        public GameObject GetShooter()                 => shooter;
     }
 }
