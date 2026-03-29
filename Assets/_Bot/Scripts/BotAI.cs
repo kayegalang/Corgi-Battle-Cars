@@ -15,43 +15,51 @@ namespace _Bot.Scripts
         [SerializeField] private ProjectileObject projectile;
         
         private BotController botController;
-        private Rigidbody botRigidbody;
-        private Transform firePoint;
+        private Rigidbody     botRigidbody;
+        private Transform     firePoint;
         private CooldownBarUI cooldownBar;
         
-        private BotStates currentState = BotStates.Chase;
+        private BotStates currentState  = BotStates.Chase;
         private Transform target;
         private Transform lastAttacker;
         
-        private float nextFireTime = 0f;
+        private float nextFireTime     = 0f;
         private float targetCheckTimer = 0f;
-        private float runAwayTimer = 0f;
+        private float runAwayTimer     = 0f;
         
-        private const float TARGET_CHECK_INTERVAL  = 2f;
-        private const float RUN_AWAY_DURATION      = 3f;
-        private const float RAYCAST_ORIGIN_HEIGHT  = 0.5f;
-        private const float TURN_ANGLE_DIVISOR     = 45f;
+        private const float TARGET_CHECK_INTERVAL = 2f;
+        private const float RUN_AWAY_DURATION     = 3f;
+        private const float RAYCAST_ORIGIN_HEIGHT = 0.5f;
+        private const float TURN_ANGLE_DIVISOR    = 45f;
 
-        // ── Improved stuck detection ──
-        private const float STUCK_CHECK_INTERVAL      = 0.5f;  // check more frequently
-        private const float STUCK_MOVEMENT_THRESHOLD  = 0.5f;  // lower threshold
-        private const float STUCK_SPEED_THRESHOLD     = 0.8f;  // speed threshold
-        private const float REVERSE_DURATION          = 1.2f;
-        private const float UNSTUCK_TURN_STRENGTH     = 0.8f;  // turn while reversing
+        // Stuck detection
+        private const float STUCK_CHECK_INTERVAL     = 0.5f;
+        private const float STUCK_MOVEMENT_THRESHOLD = 0.5f;
+        private const float STUCK_SPEED_THRESHOLD    = 0.8f;
+        private const float REVERSE_DURATION         = 1.2f;
+        private const float UNSTUCK_TURN_STRENGTH    = 0.8f;
 
+        // Rear check distance when reversing
+        private const float REAR_CHECK_DISTANCE = 2f;
+
+        // Charge / overheat
         private float currentCharge;
-        private const float MAX_CHARGE    = 100f;
+        private const float MAX_CHARGE      = 100f;
         private const float CHARGE_PER_SHOT = 10f;
         private float chargeRegenRate;
         private float fireRate;
-        private bool isOverheated = false;
+        private bool  isOverheated = false;
         
-        private Vector3   lastPosition;
-        private float     stuckCheckTimer = 0f;
-        private float     reverseTimer    = 0f;
-        private bool      isReversing     = false;
-        private float     unstuckTurnDir  = 1f; // which way to turn when unstucking
-        private int       stuckCount      = 0;  // how many times stuck in a row
+        private Vector3 lastPosition;
+        private float   stuckCheckTimer = 0f;
+        private float   reverseTimer    = 0f;
+        private bool    isReversing     = false;
+        private float   unstuckTurnDir  = 1f;
+        private int     stuckCount      = 0;
+
+        // ═══════════════════════════════════════════════
+        //  LIFECYCLE
+        // ═══════════════════════════════════════════════
 
         private void Awake()
         {
@@ -70,6 +78,10 @@ namespace _Bot.Scripts
         {
             yield return null;
             cooldownBar = GetComponentInChildren<CooldownBarUI>();
+            if (cooldownBar != null)
+                Debug.Log($"[{nameof(BotAI)}] {gameObject.name} - Found CooldownBarUI!");
+            else
+                Debug.LogWarning($"[{nameof(BotAI)}] {gameObject.name} - No CooldownBarUI found.");
         }
 
         private void InitializeFromProjectile()
@@ -77,13 +89,14 @@ namespace _Bot.Scripts
             if (projectile == null) return;
             fireRate        = projectile.FireRate;
             chargeRegenRate = MAX_CHARGE / Mathf.Max(projectile.CooldownDuration, 0.1f);
+            Debug.Log($"[{nameof(BotAI)}] {gameObject.name} initialized: FireRate={fireRate}s, RegenRate={chargeRegenRate}/s");
         }
         
         private void InitializeComponents()
         {
-            botController  = GetComponent<BotController>();
-            botRigidbody   = GetComponent<Rigidbody>();
-            firePoint      = transform.Find("FirePoint");
+            botController = GetComponent<BotController>();
+            botRigidbody  = GetComponent<Rigidbody>();
+            firePoint     = transform.Find("FirePoint");
             ValidateComponents();
         }
         
@@ -95,6 +108,10 @@ namespace _Bot.Scripts
             if (carStats      == null) Debug.LogError($"[{nameof(BotAI)}] AICarStats not assigned on {gameObject.name}!");
             if (projectile    == null) Debug.LogError($"[{nameof(BotAI)}] ProjectileObject not assigned on {gameObject.name}!");
         }
+
+        // ═══════════════════════════════════════════════
+        //  UPDATE
+        // ═══════════════════════════════════════════════
         
         private void Update()
         {
@@ -130,7 +147,7 @@ namespace _Bot.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  IMPROVED STUCK DETECTION
+        //  STUCK DETECTION
         // ═══════════════════════════════════════════════
         
         private void CheckIfStuck()
@@ -146,7 +163,7 @@ namespace _Bot.Scripts
                 }
                 else if (!IsStuck())
                 {
-                    stuckCount = 0; // reset if moving freely
+                    stuckCount = 0;
                 }
 
                 lastPosition    = transform.position;
@@ -169,25 +186,21 @@ namespace _Bot.Scripts
             isReversing  = true;
             reverseTimer = 0f;
 
-            // Alternate turn direction each time stuck to avoid getting trapped in loops
-            // If stuck multiple times in a row, turn more aggressively
-            unstuckTurnDir = (stuckCount % 2 == 0) ? 1f : -1f;
+            // Check which side has more space for turning
+            Vector3 origin     = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
+            bool    leftClear  = !Physics.Raycast(origin, -transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
+            bool    rightClear = !Physics.Raycast(origin,  transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
 
-            // Also check which side has more space and prefer that direction
-            Vector3 origin = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
-            bool leftClear  = !Physics.Raycast(origin, -transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
-            bool rightClear = !Physics.Raycast(origin,  transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
+            if      (leftClear  && !rightClear) unstuckTurnDir = -1f;
+            else if (!leftClear && rightClear)  unstuckTurnDir =  1f;
+            else                                unstuckTurnDir =  (stuckCount % 2 == 0) ? 1f : -1f;
 
-            if (leftClear && !rightClear)  unstuckTurnDir = -1f;
-            if (!leftClear && rightClear)  unstuckTurnDir =  1f;
-
-            Debug.Log($"[BotAI] {gameObject.name} stuck! Reversing with turn {unstuckTurnDir} (stuck count: {stuckCount})");
+            Debug.Log($"[BotAI] {gameObject.name} stuck! Reversing turn={unstuckTurnDir} (count={stuckCount})");
         }
         
         private void HandleReverseTimer()
         {
             reverseTimer += Time.deltaTime;
-            
             if (reverseTimer >= REVERSE_DURATION)
             {
                 isReversing  = false;
@@ -221,8 +234,31 @@ namespace _Bot.Scripts
         
         private void ExecuteUnstuckRoutine()
         {
-            // Reverse AND turn — much better at getting unstuck than just reversing
-            botController.SetInputs(unstuckTurnDir * UNSTUCK_TURN_STRENGTH, -1f);
+            Vector3 origin      = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
+            Vector3 rearCenter  = -transform.forward;
+            Vector3 rearLeft    = (-transform.forward - transform.right * 0.5f).normalized;
+            Vector3 rearRight   = (-transform.forward + transform.right * 0.5f).normalized;
+
+            bool rearCenterBlocked = Physics.Raycast(origin, rearCenter,  REAR_CHECK_DISTANCE, carStats.ObstacleMask);
+            bool rearLeftBlocked   = Physics.Raycast(origin, rearLeft,    REAR_CHECK_DISTANCE, carStats.ObstacleMask);
+            bool rearRightBlocked  = Physics.Raycast(origin, rearRight,   REAR_CHECK_DISTANCE, carStats.ObstacleMask);
+
+            Debug.DrawRay(origin, rearCenter * REAR_CHECK_DISTANCE, rearCenterBlocked ? Color.red : Color.cyan);
+            Debug.DrawRay(origin, rearLeft   * REAR_CHECK_DISTANCE, rearLeftBlocked   ? Color.red : Color.cyan);
+            Debug.DrawRay(origin, rearRight  * REAR_CHECK_DISTANCE, rearRightBlocked  ? Color.red : Color.cyan);
+
+            bool canReverse = !rearCenterBlocked && !rearLeftBlocked && !rearRightBlocked;
+
+            if (canReverse)
+            {
+                // Clear behind — reverse and turn
+                botController.SetInputs(unstuckTurnDir * UNSTUCK_TURN_STRENGTH, -1f);
+            }
+            else
+            {
+                // Blocked behind too — just turn in place to find a gap
+                botController.SetInputs(unstuckTurnDir, 0f);
+            }
         }
         
         private void HandleStateTransitions()
@@ -278,15 +314,19 @@ namespace _Bot.Scripts
         
         private float CalculateMoveInput()
         {
-            if (ReachedTarget()) return 0f;
+            if (ReachedTarget())    return 0f;
             if (!IsTargetInFront()) return 0f;
-            if (ShouldBrake()) return -1f;
+            if (ShouldBrake())      return -1f;
             return 1f;
         }
         
         private bool ShouldBrake() =>
             GetDistanceFromTarget() < carStats.StoppingDistance &&
             botController.GetSpeed() > carStats.StoppingSpeed;
+
+        // ═══════════════════════════════════════════════
+        //  OBSTACLE DETECTION — front dual raycasts
+        // ═══════════════════════════════════════════════
         
         private struct ObstacleAvoidanceResult
         {
@@ -297,26 +337,43 @@ namespace _Bot.Scripts
         
         private ObstacleAvoidanceResult HandleObstacleDetection()
         {
-            Vector3 origin    = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
-            Vector3 direction = transform.forward;
-            
-            if (!Physics.Raycast(origin, direction, out RaycastHit hit, carStats.ObstacleCheckDistance, carStats.ObstacleMask))
-            {
-                Debug.DrawRay(origin, direction * carStats.ObstacleCheckDistance, Color.blue);
+            Vector3 centerOrigin = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
+            Vector3 footOrigin   = transform.position + Vector3.up * 0.1f;
+            Vector3 direction    = transform.forward;
+
+            // Centre ray — catches walls and tall obstacles
+            bool centerHit = Physics.Raycast(centerOrigin, direction,
+                                 out RaycastHit centerRayHit,
+                                 carStats.ObstacleCheckDistance,
+                                 carStats.ObstacleMask);
+
+            // Foot ray — angled slightly upward to catch low jumpable obstacles
+            Vector3 footDirection = (direction + Vector3.up * 0.3f).normalized;
+            bool footHit = Physics.Raycast(footOrigin, footDirection,
+                               out RaycastHit footRayHit,
+                               carStats.ObstacleCheckDistance * 0.7f,
+                               carStats.ObstacleMask);
+
+            Debug.DrawRay(centerOrigin, direction * carStats.ObstacleCheckDistance,
+                          centerHit ? Color.red : Color.blue);
+            Debug.DrawRay(footOrigin, footDirection * carStats.ObstacleCheckDistance * 0.7f,
+                          footHit ? Color.red : Color.green);
+
+            bool       didHit = centerHit || footHit;
+            RaycastHit hit    = centerHit ? centerRayHit : footRayHit;
+
+            if (!didHit)
                 return new ObstacleAvoidanceResult { isAvoiding = false };
-            }
-            
-            Debug.DrawRay(origin, direction * carStats.ObstacleCheckDistance, Color.red);
-            
+
             float obstacleHeight = hit.point.y - transform.position.y;
-            
+
             if (CanJumpOver(obstacleHeight))
             {
                 botController.Jump();
                 return new ObstacleAvoidanceResult { isAvoiding = false };
             }
-            
-            return NavigateAroundObstacle(origin);
+
+            return NavigateAroundObstacle(centerOrigin);
         }
         
         private bool CanJumpOver(float obstacleHeight) =>
@@ -330,8 +387,8 @@ namespace _Bot.Scripts
             Debug.DrawRay(origin, -transform.right * carStats.SideCheckDistance, leftClear  ? Color.green : Color.red);
             Debug.DrawRay(origin,  transform.right * carStats.SideCheckDistance, rightClear ? Color.green : Color.red);
             
-            float turnInput  = DetermineTurnDirection(leftClear, rightClear);
-            float moveInput  = DetermineAvoidanceSpeed(leftClear, rightClear);
+            float turnInput = DetermineTurnDirection(leftClear, rightClear);
+            float moveInput = DetermineAvoidanceSpeed(leftClear, rightClear);
             
             return new ObstacleAvoidanceResult { isAvoiding = true, turnInput = turnInput, moveInput = moveInput };
         }
@@ -414,11 +471,10 @@ namespace _Bot.Scripts
         
         private void Shoot()
         {
-            Vector3 shootDirection = GetShootDirection();
-            if (shootDirection == Vector3.zero) return;
-
-            GameObject bullet = InstantiateBullet(shootDirection);
-            ConfigureBullet(bullet, shootDirection);
+            Vector3 dir = GetShootDirection();
+            if (dir == Vector3.zero) return;
+            GameObject bullet = InstantiateBullet(dir);
+            ConfigureBullet(bullet, dir);
         }
         
         private Vector3 GetShootDirection()
@@ -427,10 +483,10 @@ namespace _Bot.Scripts
             return (target.position - firePoint.position).normalized;
         }
         
-        private GameObject InstantiateBullet(Vector3 shootDirection) =>
-            Instantiate(projectile.ProjectilePrefab, firePoint.position, Quaternion.LookRotation(shootDirection));
+        private GameObject InstantiateBullet(Vector3 dir) =>
+            Instantiate(projectile.ProjectilePrefab, firePoint.position, Quaternion.LookRotation(dir));
         
-        private void ConfigureBullet(GameObject bullet, Vector3 shootDirection)
+        private void ConfigureBullet(GameObject bullet, Vector3 dir)
         {
             var proj = bullet.GetComponent<Projectile>();
             if (proj != null) proj.SetShooter(gameObject);
@@ -439,7 +495,7 @@ namespace _Bot.Scripts
             if (bulletRb != null && botRigidbody != null)
             {
                 bulletRb.linearVelocity = botRigidbody.linearVelocity;
-                bulletRb.AddForce(shootDirection * projectile.FireForce, ForceMode.Impulse);
+                bulletRb.AddForce(dir * projectile.FireForce, ForceMode.Impulse);
             }
         }
 
@@ -447,9 +503,9 @@ namespace _Bot.Scripts
         //  HELPERS
         // ═══════════════════════════════════════════════
         
-        private bool IsTargetToTheRight()  => GetTurnAngle() > 0;
-        private float GetTurnAngle()        => Vector3.SignedAngle(transform.forward, GetTargetDirection(), Vector3.up);
-        private bool IsTargetInFront()     => Vector3.Dot(transform.forward, GetTargetDirection()) > 0;
+        private bool    IsTargetToTheRight() => GetTurnAngle() > 0;
+        private float   GetTurnAngle()       => Vector3.SignedAngle(transform.forward, GetTargetDirection(), Vector3.up);
+        private bool    IsTargetInFront()    => Vector3.Dot(transform.forward, GetTargetDirection()) > 0;
         
         private Vector3 GetTargetDirection()
         {
@@ -473,7 +529,6 @@ namespace _Bot.Scripts
             foreach (CarHealth car in allCars)
             {
                 if (car.gameObject == gameObject) continue;
-                
                 float distance = Vector3.Distance(transform.position, car.transform.position);
                 if (distance < closestDistance)
                 {
@@ -503,6 +558,7 @@ namespace _Bot.Scripts
             isOverheated  = false;
             nextFireTime  = 0f;
             InitializeFromProjectile();
+            Debug.Log($"[{nameof(BotAI)}] {gameObject.name} swapped to {newProjectile.ProjectileName}");
         }
     }
 }
