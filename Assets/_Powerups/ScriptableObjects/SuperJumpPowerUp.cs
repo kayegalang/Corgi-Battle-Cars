@@ -1,5 +1,6 @@
 using _Bot.Scripts;
 using _Cars.Scripts;
+using _PowerUps.Scripts;
 using UnityEngine;
 
 namespace _PowerUps.ScriptableObjects
@@ -18,7 +19,9 @@ namespace _PowerUps.ScriptableObjects
         
         public override void Apply(GameObject player)
         {
-            // Works for both human players and bots
+            // Activate expanding ring VFX
+            player.GetComponent<SuperJumpRingEffect>()?.Activate();
+
             CarController controller = player.GetComponent<CarController>();
             if (controller != null)
             {
@@ -39,6 +42,9 @@ namespace _PowerUps.ScriptableObjects
         public override void Remove(GameObject player)
         {
             if (player == null) return;
+
+            // Deactivate ring VFX
+            player.GetComponent<SuperJumpRingEffect>()?.Deactivate();
             
             CarController controller = player.GetComponent<CarController>();
             if (controller != null)
