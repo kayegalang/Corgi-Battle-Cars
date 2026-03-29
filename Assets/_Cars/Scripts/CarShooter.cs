@@ -131,18 +131,18 @@ namespace _Cars.Scripts
         {
             if (cooldownBar != null) return;
 
-            // Only skip in MainMenu where temp players spawn during character select
-            // DesignerTuning is a real gameplay scene so we DO want the cooldown bar
+            // Don't search in non-gameplay scenes — temp players spawned during
+            // character select won't have a HealthBarManager so the search fails.
             string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-            if (scene == "MainMenu")
+            if (scene == "MainMenu" || scene == "DesignerTuning")
                 return;
 
             cooldownBar = GetComponentInChildren<CooldownBarUI>();
 
             if (cooldownBar != null)
                 Debug.Log($"[{nameof(CarShooter)}] ✓ {gameObject.name} - CooldownBarUI found!");
-            else
-                Debug.LogError($"[{nameof(CarShooter)}] ✗ {gameObject.name} - CooldownBarUI not found!");
+            //else
+            //  Debug.LogError($"[{nameof(CarShooter)}] ✗ {gameObject.name} - CooldownBarUI not found! Is HealthBarManager set up correctly?");
         }
 
         // ═══════════════════════════════════════════════

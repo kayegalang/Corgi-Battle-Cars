@@ -538,7 +538,6 @@ MonoBehaviour:
   heightOffset: -0.5
   lineWidth: 0.12
   circlePoints: 32
-  minUpwardVelocity: 0.5
   ringColor: {r: 0.4, g: 0.8, b: 1, a: 1}
   ringMaterial: {fileID: 2100000, guid: 92226a9dd57fa411190e682a459e9c5c, type: 2}
 --- !u!1 &1322768574714407466
@@ -563,7 +562,6 @@ GameObject:
   - component: {fileID: 5318306423533893095}
   - component: {fileID: 4419713350480467197}
   - component: {fileID: 9109426544211698891}
-  - component: {fileID: 4419713350480467197}
   - component: {fileID: 5947794796372150299}
   - component: {fileID: 7284718791162860464}
   - component: {fileID: 9156072069682759136}
@@ -594,20 +592,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &4419713350480467197
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1322768574714407466}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioListener
-  nonRigidbodyVelocity: 0
-  attenuationObject: {fileID: 0}
 --- !u!223 &5947794796372150299
 Canvas:
   m_ObjectHideFlags: 0
@@ -800,7 +784,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1970263815813793900}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 2.14, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2624,7 +2608,7 @@ MonoBehaviour:
       Size: {x: 0.2, y: 0.2}
     HardLimits:
       Enabled: 0
-      Size: {x: 3, y: 2.6851852}
+      Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
   TargetOffset: {x: 0, y: 0, z: 0}
