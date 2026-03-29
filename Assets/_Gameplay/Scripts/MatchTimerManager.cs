@@ -11,11 +11,11 @@ namespace _Gameplay.Scripts
         
         [Header("Timer Settings")]
         [SerializeField] private int matchCountdownSeconds = 3;
-        [SerializeField] private int gameDurationSeconds = 60;
+        [SerializeField] private int gameDurationSeconds = 300; 
         
         [Header("Timer Text")]
         [SerializeField] private string countdownGoText = "Go!";
-        [SerializeField] private string gameTimerFormat = "Time: {0}";
+        [SerializeField] private string gameTimerFormat = "Time: {0}"; 
         
         [Header("Events")]
         public UnityEvent onMatchStart;
@@ -157,7 +157,12 @@ namespace _Gameplay.Scripts
         
         private void UpdateGameTimerDisplay(int timeRemaining)
         {
-            gameTimerText.text = string.Format(gameTimerFormat, timeRemaining);
+            int minutes = timeRemaining / 60;
+            int seconds = timeRemaining % 60;
+            
+            string timeString = string.Format("{0}:{1:00}", minutes, seconds);
+            
+            gameTimerText.text = string.Format(gameTimerFormat, timeString);
         }
         
         private void OnGameEnd()
