@@ -11,7 +11,7 @@ namespace _UI.Scripts
     public class PanelScaler : MonoBehaviour
     {
         [Tooltip("The resolution this panel was designed for")]
-        [SerializeField] private Vector2 referenceResolution = new Vector2(1920, 1080);
+        [SerializeField] private Vector2 referenceResolution = new Vector2(720, 1080);
 
         private RectTransform rectTransform;
         private Transform contentRoot;

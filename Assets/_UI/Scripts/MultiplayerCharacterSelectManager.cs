@@ -68,6 +68,7 @@ namespace _UI.Scripts
 
         private void OnEnable()
         {
+            Debug.Log($"[CharSelectManager] Mode={GameplayManager.instance?.GetCurrentGameMode()}, Players={PlayerInput.all.Count}, isMulti={isMultiplayer}");
             panels.Clear();
             readyPlayers.Clear();
 

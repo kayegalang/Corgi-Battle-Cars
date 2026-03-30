@@ -1,0 +1,82 @@
+using _Bot.Scripts;
+using TMPro;
+using UnityEngine;
+
+namespace _UI.Scripts
+{
+    /// <summary>
+    /// Sets the player name tag label (P1, P2, P3, P4) based on the player's tag.
+    /// Hides the name tag entirely for bots.
+    /// Add to the player prefab root. Assign the NameTagCanvas root and the PlayerLabel text.
+    /// </summary>
+    public class PlayerNameTag : MonoBehaviour
+    {
+        [Header("References")]
+        [Tooltip("The root GameObject of the name tag — the whole collar. Gets hidden for bots.")]
+        [SerializeField] private GameObject nameTagRoot;
+
+        [Tooltip("The TextMeshPro text showing P1, P2 etc.")]
+        [SerializeField] private TextMeshProUGUI playerLabelText;
+
+        [Header("Per-Player Colors (optional)")]
+        [Tooltip("Tint the collar a different color per player. Leave empty to skip.")]
+        [SerializeField] private UnityEngine.UI.Image collarImage;
+
+        [SerializeField] private Color playerOneColor   = new Color(0.8f, 0.2f, 0.2f); // red
+        [SerializeField] private Color playerTwoColor   = new Color(0.2f, 0.4f, 0.9f); // blue
+        [SerializeField] private Color playerThreeColor = new Color(0.2f, 0.7f, 0.2f); // green
+        [SerializeField] private Color playerFourColor  = new Color(0.8f, 0.6f, 0.1f); // gold
+
+        // ═══════════════════════════════════════════════
+        //  LIFECYCLE
+        // ═══════════════════════════════════════════════
+
+        private void Start()
+        {
+            // Hide entirely for bots — they don't get a name tag
+            if (GetComponent<BotAI>() != null)
+            {
+                if (nameTagRoot != null)
+                    nameTagRoot.SetActive(false);
+                return;
+            }
+
+            SetLabel();
+            SetColor();
+        }
+
+        // ═══════════════════════════════════════════════
+        //  LABEL
+        // ═══════════════════════════════════════════════
+
+        private void SetLabel()
+        {
+            if (playerLabelText == null) return;
+
+            string tag   = gameObject.tag;
+            string label = tag.Contains("One")   ? "P1" :
+                           tag.Contains("Two")   ? "P2" :
+                           tag.Contains("Three") ? "P3" :
+                           tag.Contains("Four")  ? "P4" : "??";
+
+            playerLabelText.text = label;
+        }
+
+        // ═══════════════════════════════════════════════
+        //  COLOR
+        // ═══════════════════════════════════════════════
+
+        private void SetColor()
+        {
+            if (collarImage == null) return;
+
+            string tag = gameObject.tag;
+
+            collarImage.color = tag.Contains("One")   ? playerOneColor   :
+                                tag.Contains("Two")   ? playerTwoColor   :
+                                tag.Contains("Three") ? playerThreeColor :
+                                tag.Contains("Four")  ? playerFourColor  :
+                                collarImage.color; // unchanged if no match
+        }
+    }
+}

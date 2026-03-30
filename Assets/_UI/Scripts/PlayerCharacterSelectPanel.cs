@@ -26,11 +26,11 @@ namespace _UI.Scripts
         [SerializeField] private TextMeshProUGUI weaponNameText;
 
         [Header("Stats Panel")]
-        [SerializeField] private Text  statsHeaderText;
-        [SerializeField] private Text  statLabel1;
-        [SerializeField] private Text  statLabel2;
-        [SerializeField] private Text  statLabel3;
-        [SerializeField] private Text  statLabel4;
+        [SerializeField] private TextMeshProUGUI  statsHeaderText;
+        [SerializeField] private TextMeshProUGUI  statLabel1;
+        [SerializeField] private TextMeshProUGUI  statLabel2;
+        [SerializeField] private TextMeshProUGUI  statLabel3;
+        [SerializeField] private TextMeshProUGUI  statLabel4;
         [SerializeField] private Image statBar1;
         [SerializeField] private Image statBar2;
         [SerializeField] private Image statBar3;
@@ -417,7 +417,7 @@ namespace _UI.Scripts
             SetBar(statLabel4, statBar4, "RCOL", recoil);
         }
 
-        private void SetBar(Text label, Image bar, string labelText, float fill)
+        private void SetBar(TextMeshProUGUI label, Image bar, string labelText, float fill)
         {
             if (label != null) label.text = labelText;
             if (bar   != null) bar.fillAmount = Mathf.Clamp01(fill);
