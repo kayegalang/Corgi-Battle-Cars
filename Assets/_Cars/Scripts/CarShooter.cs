@@ -49,12 +49,16 @@ namespace _Cars.Scripts
         
         // Charge system
         private float currentCharge;
-        private const float MAX_CHARGE     = 100f;
+        private const float MAX_CHARGE      = 100f;
         private const float CHARGE_PER_SHOT = 10f;
-        private float chargeRegenRate;
-        private float fireRate;
         private float nextAllowedFireTime;
         private bool  isOverheated = false;
+
+        // NOTE: fireRate and chargeRegenRate are read directly from projectileType
+        // every frame so TuningManager changes take effect immediately without needing
+        // to call InitializeFromProjectile() again.
+        private float FireRate        => projectileType != null ? projectileType.FireRate        : 0.5f;
+        private float ChargeRegenRate => projectileType != null ? MAX_CHARGE / Mathf.Max(projectileType.CooldownDuration, 0.1f) : 10f;
 
         // ═══════════════════════════════════════════════
         //  LIFECYCLE
@@ -67,12 +71,10 @@ namespace _Cars.Scripts
             InitializeReticleState();
             CaptureInitialMousePosition();
             ValidateProjectileType();
-            InitializeFromProjectile();
         }
 
         private void Start()
         {
-            // Wait one frame for HealthBarManager to create PlayerHealthCanvas
             StartCoroutine(FindCooldownBarDelayed());
         }
 
@@ -80,17 +82,6 @@ namespace _Cars.Scripts
         {
             yield return null;
             FindCooldownBar();
-        }
-
-        private void InitializeFromProjectile()
-        {
-            if (projectileType == null) return;
-
-            fireRate        = projectileType.FireRate;
-            chargeRegenRate = MAX_CHARGE / Mathf.Max(projectileType.CooldownDuration, 0.1f);
-
-            Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} initialized from {projectileType.ProjectileName}: " +
-                      $"FireRate={fireRate}s, RegenRate={chargeRegenRate}/s");
         }
 
         private void CacheComponents()
@@ -131,8 +122,6 @@ namespace _Cars.Scripts
         {
             if (cooldownBar != null) return;
 
-            // Only skip in MainMenu where temp players spawn during character select
-            // DesignerTuning is a real gameplay scene so we DO want the cooldown bar
             string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
             if (scene == "MainMenu")
                 return;
@@ -154,7 +143,7 @@ namespace _Cars.Scripts
             EnableInputActions();
             SubscribeToInputEvents();
         }
-
+        
         private void OnDisable()
         {
             DisableInputActions();
@@ -245,11 +234,13 @@ namespace _Cars.Scripts
                 UpdateReticlePosition();
             }
         }
+
         private void RegenerateCharge()
         {
             if (currentCharge >= MAX_CHARGE) return;
 
-            currentCharge = Mathf.Min(currentCharge + chargeRegenRate * Time.deltaTime, MAX_CHARGE);
+            // Read ChargeRegenRate live from projectileType so tuning changes apply immediately
+            currentCharge = Mathf.Min(currentCharge + ChargeRegenRate * Time.deltaTime, MAX_CHARGE);
 
             if (currentCharge >= MAX_CHARGE && isOverheated)
             {
@@ -289,7 +280,8 @@ namespace _Cars.Scripts
                     isOverheated  = true;
                 }
 
-                nextAllowedFireTime = Time.time + fireRate;
+                // Read FireRate live — so TuningManager changes apply immediately
+                nextAllowedFireTime = Time.time + FireRate;
             }
         }
 
@@ -406,11 +398,11 @@ namespace _Cars.Scripts
         {
             if (projectileType.RecoilForce <= 0f) return;
 
-            Vector3 horizontalDir   = new Vector3(shootDirection.x, 0f, shootDirection.z).normalized;
-            Vector3 recoilDir       = -horizontalDir;
-            Vector3 horizontalVel   = new Vector3(carRigidbody.linearVelocity.x, 0f, carRigidbody.linearVelocity.z);
-            float   velAlongRecoil  = Vector3.Dot(horizontalVel, recoilDir);
-            float   recoilScale     = velAlongRecoil < 0f ? 0.5f : 1f;
+            Vector3 horizontalDir  = new Vector3(shootDirection.x, 0f, shootDirection.z).normalized;
+            Vector3 recoilDir      = -horizontalDir;
+            Vector3 horizontalVel  = new Vector3(carRigidbody.linearVelocity.x, 0f, carRigidbody.linearVelocity.z);
+            float   velAlongRecoil = Vector3.Dot(horizontalVel, recoilDir);
+            float   recoilScale    = velAlongRecoil < 0f ? 0.5f : 1f;
 
             carRigidbody.AddForce(recoilDir * projectileType.RecoilForce * recoilScale, ForceMode.Impulse);
         }
@@ -490,7 +482,6 @@ namespace _Cars.Scripts
             }
 
             reticle.anchoredPosition = targetPosition;
-            Debug.Log($"[{gameObject.name}] playerCount={playerCount} playerNum={playerNumber} pos={targetPosition}");
         }
 
         // ═══════════════════════════════════════════════
@@ -510,7 +501,6 @@ namespace _Cars.Scripts
             isOverheated        = false;
             nextAllowedFireTime = 0f;
 
-            InitializeFromProjectile();
             Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} swapped to {newProjectile.ProjectileName}");
         }
     }
