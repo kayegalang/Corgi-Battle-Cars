@@ -82,9 +82,9 @@ public class CharacterSelectUI : MonoBehaviour
         isControllerMode = false;
 
         // ── Hide buttons immediately before the player sees them ──
+        // Only trust PlayerOneInputTracker — never assume controller just because one is connected
         bool controllerConnected =
-            (PlayerOneInputTracker.instance != null && PlayerOneInputTracker.instance.IsPlayerOneUsingController())
-            || Gamepad.current != null;
+            PlayerOneInputTracker.instance != null && PlayerOneInputTracker.instance.IsPlayerOneUsingController();
 
         if (backButton         != null) backButton.SetActive(!controllerConnected);
         if (mapSelectionButton != null) mapSelectionButton.SetActive(!controllerConnected);
@@ -120,13 +120,10 @@ public class CharacterSelectUI : MonoBehaviour
 
     private void DetectInputMode()
     {
-        bool usingController = false;
-
-        if (PlayerOneInputTracker.instance != null)
-            usingController = PlayerOneInputTracker.instance.IsPlayerOneUsingController();
-
-        if (!usingController && Gamepad.current != null)
-            usingController = true;
+        // Only trust PlayerOneInputTracker — what the player chose on the start screen
+        // Never fall back to Gamepad.current, that would override keyboard players who have a controller connected
+        bool usingController = PlayerOneInputTracker.instance != null
+            && PlayerOneInputTracker.instance.IsPlayerOneUsingController();
 
         Debug.Log($"[CharacterSelectUI] Controller mode: {usingController}");
         SetControllerMode(usingController);
