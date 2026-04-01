@@ -118,6 +118,9 @@ namespace _PowerUps.Scripts
             // Apply the force
             Vector3 force = pushDirection * pushForce + Vector3.up * upwardForce;
             targetRb.AddForce(force, ForceMode.Impulse);
+
+            // Shake the hit target's camera
+            target.GetComponent<CameraShaker>()?.ShakeBarkHit();
             
             Debug.Log($"[BarkWave] 💨 PUSHED {target.name} back! Force: {force}");
         }

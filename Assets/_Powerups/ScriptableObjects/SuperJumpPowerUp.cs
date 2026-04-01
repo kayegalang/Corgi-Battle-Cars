@@ -21,6 +21,7 @@ namespace _PowerUps.ScriptableObjects
         {
             // Activate expanding ring VFX
             player.GetComponent<SuperJumpRingEffect>()?.Activate();
+            player.GetComponent<CameraShaker>()?.ShakeSuperJump();
 
             CarController controller = player.GetComponent<CarController>();
             if (controller != null)

@@ -359,6 +359,8 @@ namespace _Cars.Scripts
             ConfigureProjectileStats(projectile);
             ApplyVelocityAndForceToProjectile(projectile, dir);
             ApplyRecoilToShooter(dir);
+
+            GetComponent<CameraShaker>()?.ShakeShoot();
         }
 
         private Vector3 CalculateShootDirectionFromReticle()
