@@ -78,9 +78,7 @@ namespace _Bot.Scripts
         {
             yield return null;
             cooldownBar = GetComponentInChildren<CooldownBarUI>();
-            if (cooldownBar != null)
-                Debug.Log($"[{nameof(BotAI)}] {gameObject.name} - Found CooldownBarUI!");
-            else
+            if (cooldownBar == null)
                 Debug.LogWarning($"[{nameof(BotAI)}] {gameObject.name} - No CooldownBarUI found.");
         }
 
@@ -89,7 +87,6 @@ namespace _Bot.Scripts
             if (projectile == null) return;
             fireRate        = projectile.FireRate;
             chargeRegenRate = MAX_CHARGE / Mathf.Max(projectile.CooldownDuration, 0.1f);
-            Debug.Log($"[{nameof(BotAI)}] {gameObject.name} initialized: FireRate={fireRate}s, RegenRate={chargeRegenRate}/s");
         }
         
         private void InitializeComponents()
@@ -195,7 +192,6 @@ namespace _Bot.Scripts
             else if (!leftClear && rightClear)  unstuckTurnDir =  1f;
             else                                unstuckTurnDir =  (stuckCount % 2 == 0) ? 1f : -1f;
 
-            Debug.Log($"[BotAI] {gameObject.name} stuck! Reversing turn={unstuckTurnDir} (count={stuckCount})");
         }
         
         private void HandleReverseTimer()

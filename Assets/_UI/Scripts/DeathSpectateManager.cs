@@ -80,10 +80,18 @@ namespace _UI.Scripts
                 return;
             }
 
-            originalViewportRect          = playerCamera.rect;
-            originalCameraParent          = playerCamera.transform.parent;
-            originalCameraLocalPosition   = playerCamera.transform.localPosition;
-            originalCameraLocalRotation   = playerCamera.transform.localRotation;
+            originalViewportRect = playerCamera.rect;
+            originalCameraParent = playerCamera.transform.parent;
+
+            // Camera is now on ShakePivot (child of PlayerCamera).
+            // For spectating bots we need the offset from the car root —
+            // use CinemachineBrain (PlayerCamera) position which has the real offset.
+            Transform offsetSource = cinemachineBrain != null
+                ? cinemachineBrain.transform
+                : playerCamera.transform;
+
+            originalCameraLocalPosition = offsetSource.localPosition;
+            originalCameraLocalRotation = offsetSource.localRotation;
         }
 
         private void ConstrainPanelToViewport()

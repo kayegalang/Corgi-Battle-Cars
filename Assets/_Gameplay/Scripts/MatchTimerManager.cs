@@ -84,7 +84,6 @@ namespace _Gameplay.Scripts
         
         private void OnMatchStart()
         {
-            Debug.Log($"[{nameof(MatchTimerManager)}] Match started!");
             onMatchStart?.Invoke();
         }
 
@@ -150,7 +149,6 @@ namespace _Gameplay.Scripts
         
         private void OnGameEnd()
         {
-            Debug.Log($"[{nameof(MatchTimerManager)}] Time's up!");
             onGameEnd?.Invoke();
         }
         

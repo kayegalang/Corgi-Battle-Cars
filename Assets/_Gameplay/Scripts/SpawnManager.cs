@@ -74,8 +74,6 @@ namespace _Gameplay.Scripts
         {
             if (!ValidatePlayerCount(humanPlayerCount)) return;
             
-            Debug.Log($"[{nameof(SpawnManager)}] Starting game with {humanPlayerCount} human players");
-            
             SpawnHumanPlayers(humanPlayerCount);
             SpawnBots(humanPlayerCount);
         }
@@ -360,7 +358,6 @@ namespace _Gameplay.Scripts
             }
             
             string controlScheme = device is Gamepad ? "Controller" : "Keyboard";
-            Debug.Log($"[{nameof(SpawnManager)}] Restoring {playerTag} → {device.displayName} ({controlScheme})");
             
             try
             {
@@ -369,7 +366,6 @@ namespace _Gameplay.Scripts
                 else
                     playerInput.SwitchCurrentControlScheme(controlScheme, device);
                 
-                Debug.Log($"[{nameof(SpawnManager)}] ✓ {playerTag} restored with {device.displayName}");
             }
             catch (System.Exception e)
             {
@@ -383,7 +379,6 @@ namespace _Gameplay.Scripts
             {
                 Gamepad gamepad = Gamepad.all[playerNumber - 1];
                 playerInput.SwitchCurrentControlScheme("Controller", gamepad);
-                Debug.Log($"[{nameof(SpawnManager)}] Player {playerNumber} using fallback gamepad: {gamepad.displayName}");
             }
             else
             {
@@ -409,7 +404,6 @@ namespace _Gameplay.Scripts
                 if (Gamepad.current != null)
                 {
                     playerInput.SwitchCurrentControlScheme("Controller", Gamepad.current);
-                    Debug.Log($"[{nameof(SpawnManager)}] ✓ PlayerOne using Controller");
                 }
                 else
                 {
@@ -421,7 +415,6 @@ namespace _Gameplay.Scripts
                 if (Keyboard.current != null && Mouse.current != null)
                 {
                     playerInput.SwitchCurrentControlScheme("Keyboard", Keyboard.current, Mouse.current);
-                    Debug.Log($"[{nameof(SpawnManager)}] ✓ PlayerOne using Keyboard + Mouse");
                 }
                 else
                 {
@@ -465,8 +458,12 @@ namespace _Gameplay.Scripts
         {
             PlayerInput instanceInput = player.GetComponent<PlayerInput>();
             if (instanceInput != null)
+            {
+                // Manually assign camera so split-screen works even if Camera is on a child
+                instanceInput.camera = player.GetComponentInChildren<Camera>();
                 instanceInput.enabled = true;
-            
+            }
+    
             prefabInput.enabled = wasEnabled;
         }
     }

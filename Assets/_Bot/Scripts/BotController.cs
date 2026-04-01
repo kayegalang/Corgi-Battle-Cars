@@ -243,7 +243,6 @@ namespace _Bot.Scripts
             speedMultiplier        = speedMult;
             accelerationMultiplier = accelMult;
             if (zoomiesParticles != null) zoomiesParticles.Play();
-            Debug.Log($"[BotController] {gameObject.name} got ZOOMIES! Speed x{speedMult}, Accel x{accelMult} ⚡");
         }
         
         public void RemoveSpeedMultiplier()
@@ -252,7 +251,6 @@ namespace _Bot.Scripts
             speedMultiplier        = 1f;
             accelerationMultiplier = 1f;
             if (zoomiesParticles != null) zoomiesParticles.Stop();
-            Debug.Log($"[BotController] {gameObject.name}'s zoomies wore off!");
         }
 
         // ═══════════════════════════════════════════════
@@ -264,7 +262,6 @@ namespace _Bot.Scripts
             hasSuperJump           = true;
             jumpMultiplier         = jumpMult;
             jumpHeightCapMultiplier = jumpHeightCapMult;
-            Debug.Log($"[BotController] {gameObject.name} got SUPER JUMP! Jump x{jumpMult}, Height Cap x{jumpHeightCapMult} 🚀");
         }
     
         public void RemoveJumpMultiplier()
@@ -272,7 +269,6 @@ namespace _Bot.Scripts
             hasSuperJump           = false;
             jumpMultiplier         = 1f;
             jumpHeightCapMultiplier = 1f;
-            Debug.Log($"[BotController] {gameObject.name}'s super jump wore off!");
         }
 
         // ═══════════════════════════════════════════════
@@ -289,11 +285,9 @@ namespace _Bot.Scripts
         private IEnumerator SlipRoutine(float duration, float spinForce)
         {
             isSlipping = true;
-            Debug.Log($"[BotController] {gameObject.name} is slipping! 💩💨");
             SpinPlayer(spinForce);
             yield return new WaitForSeconds(duration);
             isSlipping = false;
-            Debug.Log($"[BotController] {gameObject.name} regained control!");
         }
 
         private void SpinPlayer(float spinForce)

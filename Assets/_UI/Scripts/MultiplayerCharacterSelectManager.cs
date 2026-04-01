@@ -68,7 +68,6 @@ namespace _UI.Scripts
 
         private void OnEnable()
         {
-            Debug.Log($"[CharSelectManager] Mode={GameplayManager.instance?.GetCurrentGameMode()}, Players={PlayerInput.all.Count}, isMulti={isMultiplayer}");
             panels.Clear();
             readyPlayers.Clear();
 
@@ -190,7 +189,6 @@ namespace _UI.Scripts
         private void OnPlayerReady(int playerIndex)
         {
             readyPlayers.Add(playerIndex);
-            Debug.Log($"[MultiplayerCharacterSelectManager] Player {playerIndex + 1} ready! ({readyPlayers.Count}/{totalPlayers})");
 
             if (readyPlayers.Count >= totalPlayers)
                 AdvanceToMapSelection();
@@ -199,7 +197,6 @@ namespace _UI.Scripts
         private void OnPlayerUnready(int playerIndex)
         {
             readyPlayers.Remove(playerIndex);
-            Debug.Log($"[MultiplayerCharacterSelectManager] Player {playerIndex + 1} un-readied. ({readyPlayers.Count}/{totalPlayers})");
         }
 
         // ═══════════════════════════════════════════════
@@ -208,8 +205,6 @@ namespace _UI.Scripts
 
         private void AdvanceToMapSelection()
         {
-            Debug.Log("[MultiplayerCharacterSelectManager] All players ready! Advancing to map selection.");
-
             DestroyMultiplayerPanels();
 
             // Restore Player 1 restriction before map selection

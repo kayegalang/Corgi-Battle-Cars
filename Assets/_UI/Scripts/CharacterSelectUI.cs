@@ -105,7 +105,6 @@ public class CharacterSelectUI : MonoBehaviour
 
         yield return null;
         DetectInputMode();
-        Debug.Log("[CharacterSelectUI] Controller input enabled!");
     }
 
     private void Update()
@@ -124,8 +123,7 @@ public class CharacterSelectUI : MonoBehaviour
         // Never fall back to Gamepad.current, that would override keyboard players who have a controller connected
         bool usingController = PlayerOneInputTracker.instance != null
             && PlayerOneInputTracker.instance.IsPlayerOneUsingController();
-
-        Debug.Log($"[CharacterSelectUI] Controller mode: {usingController}");
+        
         SetControllerMode(usingController);
     }
 
@@ -136,7 +134,6 @@ public class CharacterSelectUI : MonoBehaviour
         if (backButton         != null) backButton.SetActive(!controller);
         if (mapSelectionButton != null) mapSelectionButton.SetActive(!controller);
 
-        Debug.Log($"[CharacterSelectUI] Buttons hidden: {controller}");
         UpdateHighlights();
     }
 

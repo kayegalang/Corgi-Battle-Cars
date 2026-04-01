@@ -1,5 +1,6 @@
 using _Bot.Scripts;
 using _Cars.ScriptableObjects;
+using _Effects.Scripts;
 using _Gameplay.Scripts;
 using _UI.Scripts;
 using UnityEngine;
@@ -24,6 +25,10 @@ namespace _Cars.Scripts
         
         private HealthBarManager     healthBarManager;
         private DeathSpectateManager deathSpectateManager;
+        
+        [Header("Effects")]
+        [SerializeField] CameraShaker cameraShaker;
+        [SerializeField] HitEffects hitEffects;
         
         private int  maxHealth;
         private int  currentHealth;
@@ -52,7 +57,7 @@ namespace _Cars.Scripts
                 spawnManager = FindFirstObjectByType<SpawnManager>();
             
             healthBarManager = GetComponentInChildren<HealthBarManager>();
-            
+
             if (healthBarManager == null)
                 Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
             
@@ -101,14 +106,12 @@ namespace _Cars.Scripts
         {
             spawnProtectionTimer = spawnProtectionDuration;
             isSpawnProtected     = true;
-            Debug.Log($"[CarHealth] {gameObject.name} spawn protected for {spawnProtectionDuration}s!");
         }
 
         private void DeactivateSpawnProtection()
         {
             isSpawnProtected = false;
             SetRenderersVisible(true);
-            Debug.Log($"[CarHealth] {gameObject.name} spawn protection ended!");
         }
 
         private void SetRenderersVisible(bool visible)
@@ -135,8 +138,6 @@ namespace _Cars.Scripts
         {
             if (carStats == null)
                 Debug.LogWarning($"{gameObject.name}: No CarStats assigned!");
-            else
-                Debug.Log($"[CarHealth] {gameObject.name} using CarStats: {carStats.name} (Max Health: {maxHealth})");
         }
 
         public void TakeDamage(int amount, GameObject shooter)
@@ -146,13 +147,17 @@ namespace _Cars.Scripts
             // Block all damage during spawn protection
             if (isSpawnProtected)
             {
-                Debug.Log($"[CarHealth] {gameObject.name} is spawn protected — damage blocked!");
                 return;
             }
             
             currentHealth -= amount;
             UpdateHealthBar();
-    
+
+            // Hit feedback
+            Debug.Log($"[CarHealth] TakeDamage called on {gameObject.name} — cameraShaker={cameraShaker != null}");
+            cameraShaker?.ShakeTakeDamage();
+            hitEffects?.PlayHitEffect();
+
             if (currentHealth <= 0)
                 Die(shooter);
 
@@ -169,7 +174,11 @@ namespace _Cars.Scripts
             if (isDead) return;
             
             isDead = true;
-            
+
+            // Death feedback
+            cameraShaker?.ShakeDeath();
+            hitEffects?.PlayDeathEffect();
+
             if (shooter != null)
                 PointsManager.instance.AddPoint(shooter.tag);
             else

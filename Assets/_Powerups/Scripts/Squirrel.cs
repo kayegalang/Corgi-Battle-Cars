@@ -39,8 +39,6 @@ namespace _PowerUps.Scripts
             
             // Destroy after lifetime
             Destroy(gameObject, lifetime);
-            
-            Debug.Log($"[Squirrel] Squirrel spawned! Will run in direction: {runDirection}");
         }
         
         private void Update()
@@ -67,8 +65,6 @@ namespace _PowerUps.Scripts
             if (!hasLanded)
             {
                 hasLanded = true;
-                
-                Debug.Log($"[Squirrel] Squirrel landed! Now running and charming! 🐿️✨");
             }
         }
         
@@ -113,7 +109,6 @@ namespace _PowerUps.Scripts
         public void Initialize(GameObject ownerObject)
         {
             owner = ownerObject;
-            Debug.Log($"[Squirrel] Owner set to: {owner.name}");
         }
         
         private void UpdateCharmedCars()
@@ -151,12 +146,6 @@ namespace _PowerUps.Scripts
                     if (!newCharmedCars.Contains(car))
                     {
                         newCharmedCars.Add(car);
-                        
-                        // If this is a newly charmed car, log it
-                        if (!charmedCars.Contains(car))
-                        {
-                            Debug.Log($"[Squirrel] 🐿️ CHARMED {car.name}! They must chase the running squirrel!");
-                        }
                     }
                 }
             }
@@ -227,8 +216,6 @@ namespace _PowerUps.Scripts
         {
             if (car == null) return;
             
-            Debug.Log($"[Squirrel] Released {car.name} from squirrel charm");
-            
             // Reset inputs to neutral
             CarController carController = car.GetComponent<CarController>();
             BotController botController = car.GetComponent<BotController>();
@@ -252,8 +239,6 @@ namespace _PowerUps.Scripts
             }
             
             charmedCars.Clear();
-            
-            Debug.Log($"[Squirrel] Squirrel ran away! 🐿️💨");
         }
         
         private void OnDrawGizmosSelected()

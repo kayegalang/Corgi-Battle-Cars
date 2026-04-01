@@ -147,8 +147,6 @@ namespace _PowerUps.Scripts
 
             // Small offset from the corner so it's not right on the edge
             heldPowerUpRect.anchoredPosition = new Vector2(20f, -20f);
-
-            Debug.Log($"[PowerUpHandler] {gameObject.name} anchored at {anchorPosition}");
         }
 
         // ═══════════════════════════════════════════════
@@ -174,7 +172,6 @@ namespace _PowerUps.Scripts
         {
             if (hasPowerUp)
             {
-                Debug.Log($"[PowerUpHandler] {gameObject.name} already has a power-up! Can't pick up another.");
                 return false;
             }
 
@@ -182,9 +179,7 @@ namespace _PowerUps.Scripts
             hasPowerUp  = true;
 
             ShowHeldPowerUpUI();
-
-            Debug.Log($"[PowerUpHandler] {gameObject.name} picked up: {powerUp.powerUpName}! Press button to use!");
-
+            
             if (IsBot)
                 UseHeldPowerUp();
 
@@ -200,12 +195,9 @@ namespace _PowerUps.Scripts
         {
             if (!hasPowerUp || heldPowerUp == null)
             {
-                Debug.Log($"[PowerUpHandler] {gameObject.name} has no power-up to use!");
                 return;
             }
-
-            Debug.Log($"[PowerUpHandler] {gameObject.name} is using: {heldPowerUp.powerUpName}!");
-
+            
             ActivatePowerUp(heldPowerUp);
             ClearHeldPowerUp();
         }
@@ -243,8 +235,6 @@ namespace _PowerUps.Scripts
 
             if (IsBot)
                 StartCoroutine(BotAutoUse());
-
-            Debug.Log($"[PowerUpHandler] {gameObject.name} activated {powerUp.powerUpName}!");
         }
 
         private IEnumerator BotAutoUse()
@@ -304,7 +294,6 @@ namespace _PowerUps.Scripts
             if (activePowerUp == null) return;
 
             activePowerUp.Remove(gameObject);
-            Debug.Log($"[PowerUpHandler] {gameObject.name}'s {activePowerUp.powerUpName} expired!");
 
             activePowerUp     = null;
             isPowerUpActive   = false;
@@ -362,9 +351,7 @@ namespace _PowerUps.Scripts
 
             superBarkData.ExecuteBark(gameObject);
             barkCharges--;
-
-            Debug.Log($"[PowerUpHandler] {gameObject.name} barked! {barkCharges} charges left");
-
+            
             if (barkCharges <= 0)
                 RemoveActivePowerUp();
         }
@@ -384,8 +371,6 @@ namespace _PowerUps.Scripts
             squirrelData.ThrowSquirrel(gameObject, transform.forward);
             hasThrowable = false;
             RemoveActivePowerUp();
-
-            Debug.Log($"[PowerUpHandler] {gameObject.name} threw the squirrel!");
         }
 
         // ═══════════════════════════════════════════════
