@@ -16,13 +16,13 @@ MonoBehaviour:
   projectileDescription: Medium
   projectileID: Rapid Fire
   projectilePrefab: {fileID: 5940751187897929002, guid: a1cbf08f72ec94c2ca82033c3604a0d1, type: 3}
-  damageStat: 50
+  damageStat: 40
   minDamage: 5
   maxDamage: 50
-  fireRateStat: 50
+  fireRateStat: 61
   maxFireRate: 2
   minFireRate: 0.1
-  cooldownStat: 50
+  cooldownStat: 32
   maxCooldownDuration: 8
   minCooldownDuration: 1
   recoilStat: 50
