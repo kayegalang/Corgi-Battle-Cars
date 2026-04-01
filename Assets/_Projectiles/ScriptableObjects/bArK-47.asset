@@ -19,14 +19,14 @@ MonoBehaviour:
   damageStat: 50
   minDamage: 5
   maxDamage: 50
-  fireRateStat: 100
+  fireRateStat: 80
   maxFireRate: 2
   minFireRate: 0.1
-  cooldownStat: 50
+  cooldownStat: 20
   maxCooldownDuration: 8
   minCooldownDuration: 1
-  recoilStat: 50
+  recoilStat: 70
   minRecoilForce: 0
-  maxRecoilForce: 30
+  maxRecoilForce: 15
   fireForce: 30
   lifetime: 5

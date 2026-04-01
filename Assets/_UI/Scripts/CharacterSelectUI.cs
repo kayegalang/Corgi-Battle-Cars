@@ -356,15 +356,10 @@ public class CharacterSelectUI : MonoBehaviour
         var w = weaponTypes[weaponIndex];
         if (statsHeaderText != null) statsHeaderText.text = $"{w.ProjectileName} Stats";
 
-        float damage    = Mathf.InverseLerp(1f,    100f, w.Damage);
-        float fireRate  = 1f - Mathf.InverseLerp(0.05f, 5f, w.FireRate);
-        float fireForce = Mathf.InverseLerp(1f,    100f, w.FireForce);
-        float recoil    = Mathf.InverseLerp(0f,    50f,  w.RecoilForce);
-
-        SetBar(statLabel1, statBar1, "DMG",  damage);
-        SetBar(statLabel2, statBar2, "RATE", fireRate);
-        SetBar(statLabel3, statBar3, "SPD",  fireForce);
-        SetBar(statLabel4, statBar4, "RCOL", recoil);
+        SetBar(statLabel1, statBar1, "DMG",  w.DamageStat   / 100f);
+        SetBar(statLabel2, statBar2, "RATE", w.FireRateStat  / 100f);
+        SetBar(statLabel3, statBar3, "COOL", w.CooldownStat  / 100f);
+        SetBar(statLabel4, statBar4, "RCOL", w.RecoilStat    / 100f);
     }
 
     private void SetBar(TextMeshProUGUI label, Image bar, string labelText, float fill)

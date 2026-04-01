@@ -18,9 +18,9 @@ namespace _PowerUps.Scripts
     public class PowerUpHandler : MonoBehaviour
     {
         [Header("Held Power-Up UI")]
-        [SerializeField] private GameObject      heldPowerUpUI;
-        [SerializeField] private TextMeshProUGUI heldPowerUpNameText;
-        [SerializeField] private RectTransform   heldPowerUpRect;
+        [SerializeField] private GameObject heldPowerUpUI;
+        [SerializeField] private Image      heldPowerUpIcon;  // assign the Image component that shows the icon
+        [SerializeField] private RectTransform heldPowerUpRect;
 
         [Header("Bot Settings")]
         [SerializeField] private float botAutoUseDelay = 1.5f;
@@ -334,8 +334,12 @@ namespace _PowerUps.Scripts
             if (heldPowerUpUI != null)
                 heldPowerUpUI.SetActive(true);
 
-            if (heldPowerUpNameText != null && heldPowerUp != null)
-                heldPowerUpNameText.text = heldPowerUp.powerUpName;
+            // Show the icon sprite from the PowerUpObject
+            if (heldPowerUpIcon != null && heldPowerUp != null)
+            {
+                heldPowerUpIcon.sprite  = heldPowerUp.icon;
+                heldPowerUpIcon.enabled = heldPowerUp.icon != null;
+            }
         }
 
         private void HideHeldPowerUpUI()
