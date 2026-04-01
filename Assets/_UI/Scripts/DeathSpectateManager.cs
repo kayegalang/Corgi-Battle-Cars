@@ -12,43 +12,49 @@ namespace _UI.Scripts
     public class DeathSpectateManager : MonoBehaviour
     {
         [Header("UI References")]
-        [SerializeField] private GameObject deathScreenPanel;
-        [SerializeField] private TextMeshProUGUI respawnCountdownText;
-        [SerializeField] private TextMeshProUGUI spectatingText;
-        [SerializeField] private Button previousPlayerButton;
-        [SerializeField] private Button nextPlayerButton;
+        [SerializeField] private GameObject       deathScreenPanel;
+        [SerializeField] private TextMeshProUGUI  respawnCountdownText;
+        [SerializeField] private TextMeshProUGUI  spectatingText;
+        [SerializeField] private Button           previousPlayerButton;
+        [SerializeField] private Button           nextPlayerButton;
 
         [Header("UI Text")]
-        [SerializeField] private string respawnCountdownFormat = "Respawning in {0}";
-        [SerializeField] private string spectatingFormat = "Spectating: {0}";
+        [SerializeField] private string respawnCountdownFormat  = "Respawning in {0}";
+        [SerializeField] private string spectatingFormat        = "Spectating: {0}";
         [SerializeField] private string noPlayersToSpectateText = "No players to spectate";
 
-        private Camera playerCamera;
-        private CinemachineBrain cinemachineBrain;
-        private PlayerInput playerInput;
-        private string playerTag;
-        private bool isDead = false;
+        private Camera            playerCamera;
+        private CinemachineBrain  cinemachineBrain;
+        private PlayerInput       playerInput;
+        private string            playerTag;
+        private bool              isDead = false;
 
-        private float respawnTimer = 0f;
-        private float respawnDuration = 3f;
+        private float  respawnTimer    = 0f;
+        private float  respawnDuration = 3f;
         private Action onRespawnCallback;
 
-        private List<GameObject> alivePlayersCache = new List<GameObject>();
-        private int currentSpectateIndex = 0;
+        private List<GameObject> alivePlayersCache   = new List<GameObject>();
+        private int              currentSpectateIndex = 0;
 
-        // Bookmarks so we can restore the camera when the player respawns
-        private Transform originalCameraParent;
-        private Vector3 originalCameraLocalPosition;
+        // Camera bookmarks — restored on respawn
+        private Transform  originalCameraParent;
+        private Vector3    originalCameraLocalPosition;
         private Quaternion originalCameraLocalRotation;
+        private Rect       originalViewportRect;
 
-        private Rect originalViewportRect;
+        // ── FIX: Track spectate target by Transform reference only.
+        // We NEVER call SetParent on the spectated player's hierarchy.
+        // If that player gets destroyed, our camera is safe in its own hierarchy.
+        // LateUpdate copies their camera's world position/rotation each frame instead.
+        private Transform spectateFollowTarget = null;
+        private bool      isSpectatingBot      = false; // bots have no Camera child
 
         private const float ALIVE_CHECK_INTERVAL = 0.5f;
         private float aliveCheckTimer = 0f;
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  STARTUP
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         private void Awake()
         {
@@ -64,9 +70,9 @@ namespace _UI.Scripts
 
         private void InitializeCamera()
         {
-            playerCamera = GetComponentInChildren<Camera>();
+            playerCamera     = GetComponentInChildren<Camera>();
             cinemachineBrain = GetComponentInChildren<CinemachineBrain>();
-            playerInput = GetComponent<PlayerInput>();
+            playerInput      = GetComponent<PlayerInput>();
 
             if (playerCamera == null)
             {
@@ -74,12 +80,10 @@ namespace _UI.Scripts
                 return;
             }
 
-            originalViewportRect = playerCamera.rect;
-
-            // Bookmark the camera's original transform so we can restore it on respawn
-            originalCameraParent = playerCamera.transform.parent;
-            originalCameraLocalPosition = playerCamera.transform.localPosition;
-            originalCameraLocalRotation = playerCamera.transform.localRotation;
+            originalViewportRect          = playerCamera.rect;
+            originalCameraParent          = playerCamera.transform.parent;
+            originalCameraLocalPosition   = playerCamera.transform.localPosition;
+            originalCameraLocalRotation   = playerCamera.transform.localRotation;
         }
 
         private void ConstrainPanelToViewport()
@@ -89,7 +93,7 @@ namespace _UI.Scripts
             RectTransform panelRect = deathScreenPanel.GetComponent<RectTransform>();
             if (panelRect == null) return;
 
-            panelRect.anchorMin = new Vector2(originalViewportRect.x, originalViewportRect.y);
+            panelRect.anchorMin = new Vector2(originalViewportRect.x,    originalViewportRect.y);
             panelRect.anchorMax = new Vector2(originalViewportRect.xMax, originalViewportRect.yMax);
             panelRect.offsetMin = Vector2.zero;
             panelRect.offsetMax = Vector2.zero;
@@ -104,94 +108,121 @@ namespace _UI.Scripts
                 nextPlayerButton.onClick.AddListener(SpectateNextPlayer);
         }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  UPDATE
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
+
+        private bool spectateInputConsumed = false;
 
         private void Update()
         {
             if (!isDead) return;
-            if (playerCamera == null) return;
 
             UpdateRespawnTimer();
             CheckAlivePlayersCache();
-            HandleControllerSpectateInput(); // ← add this
+            HandleSpectateInput();
         }
 
-        private void HandleControllerSpectateInput()
+        private void HandleSpectateInput()
         {
-            Gamepad pad = Gamepad.current;
+            if (alivePlayersCache.Count <= 1) return;
+
+            Gamepad pad = null;
+            if (playerInput != null)
+            {
+                foreach (var device in playerInput.devices)
+                    if (device is Gamepad gp) { pad = gp; break; }
+            }
+            if (pad == null) pad = Gamepad.current;
             if (pad == null) return;
 
-            if (pad.leftTrigger.wasPressedThisFrame)
-                SpectatePreviousPlayer();
+            bool leftPressed  = pad.leftStick.x.ReadValue() < -0.5f || pad.dpad.left.isPressed;
+            bool rightPressed = pad.leftStick.x.ReadValue() >  0.5f || pad.dpad.right.isPressed;
 
-            if (pad.rightTrigger.wasPressedThisFrame)
-                SpectateNextPlayer();
+            if (!leftPressed && !rightPressed)
+            {
+                spectateInputConsumed = false;
+                return;
+            }
+
+            if (spectateInputConsumed) return;
+            spectateInputConsumed = true;
+
+            if (leftPressed) SpectatePreviousPlayer();
+            else             SpectateNextPlayer();
         }
 
         private void LateUpdate()
         {
-            if (!isDead) return;
-            if (playerCamera == null) return; // ← add this
+            if (!isDead || playerCamera == null) return;
 
+            // Always lock viewport rect to our split-screen slice
             playerCamera.rect = originalViewportRect;
 
-            if (IsKeyboardPlayer())
+            // Follow the spectate target by copying world position/rotation —
+            // NO SetParent so our camera can never be destroyed by the target dying
+            if (spectateFollowTarget != null)
             {
-                ConfineCursorToViewport();
+                if (isSpectatingBot)
+                {
+                    // Bot: follow bot root with original camera offset
+                    playerCamera.transform.position = spectateFollowTarget.TransformPoint(originalCameraLocalPosition);
+                    playerCamera.transform.rotation = spectateFollowTarget.rotation * originalCameraLocalRotation;
+                }
+                else
+                {
+                    // Human: mirror their camera's world transform exactly
+                    playerCamera.transform.position = spectateFollowTarget.position;
+                    playerCamera.transform.rotation = spectateFollowTarget.rotation;
+                }
             }
+
+            if (IsKeyboardPlayer())
+                ConfineCursorToViewport();
         }
 
-        private bool IsKeyboardPlayer()
-        {
-            return playerInput != null && playerInput.currentControlScheme == "Keyboard";
-        }
+        private bool IsKeyboardPlayer() =>
+            playerInput != null && playerInput.currentControlScheme == "Keyboard";
 
         private void ConfineCursorToViewport()
         {
             if (Mouse.current == null) return;
 
-            // Convert normalised viewport rect to actual screen pixels
-            float minX = originalViewportRect.x * Screen.width;
-            float maxX = originalViewportRect.xMax * Screen.width;
-            float minY = originalViewportRect.y * Screen.height;
-            float maxY = originalViewportRect.yMax * Screen.height;
-
+            float  minX     = originalViewportRect.x    * Screen.width;
+            float  maxX     = originalViewportRect.xMax * Screen.width;
+            float  minY     = originalViewportRect.y    * Screen.height;
+            float  maxY     = originalViewportRect.yMax * Screen.height;
             Vector2 mousePos = Mouse.current.position.ReadValue();
-            Vector2 clamped = new Vector2(
+            Vector2 clamped  = new Vector2(
                 Mathf.Clamp(mousePos.x, minX, maxX),
-                Mathf.Clamp(mousePos.y, minY, maxY)
-            );
+                Mathf.Clamp(mousePos.y, minY, maxY));
 
             if (clamped != mousePos)
                 Mouse.current.WarpCursorPosition(clamped);
         }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  DEATH ENTRY POINT
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         public void OnPlayerDeath(string tag, float respawnDelay, Action onRespawn)
         {
-            playerTag = tag;
-            respawnDuration = respawnDelay;
-            respawnTimer = respawnDuration;
+            playerTag        = tag;
+            respawnDuration  = respawnDelay;
+            respawnTimer     = respawnDuration;
             onRespawnCallback = onRespawn;
-            isDead = true;
+            isDead           = true;
 
             ShowDeathScreen();
             DisablePlayerControls();
 
-            // Show cursor for keyboard players so they can click the spectate buttons.
-            // Gamepad players have no cursor so we leave it untouched.
             if (IsKeyboardPlayer())
             {
-                Cursor.visible = true;
+                Cursor.visible   = true;
                 Cursor.lockState = CursorLockMode.None;
             }
 
-            // Stop Cinemachine fighting us when we reparent the camera
+            // Stop Cinemachine fighting us while we manually position the camera
             if (cinemachineBrain != null)
                 cinemachineBrain.enabled = false;
 
@@ -215,42 +246,40 @@ namespace _UI.Scripts
 
         private void DisablePlayerControls()
         {
-            CarController carController = GetComponent<CarController>();
-            if (carController != null)
-                carController.enabled = false;
+            var carController = GetComponent<CarController>();
+            if (carController != null) carController.enabled = false;
 
-            CarShooter carShooter = GetComponent<CarShooter>();
-            if (carShooter != null)
-                carShooter.enabled = false;
+            var carShooter = GetComponent<CarShooter>();
+            if (carShooter != null) carShooter.enabled = false;
         }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  SPECTATING
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         private void FindAlivePlayersToSpectate()
         {
             alivePlayersCache.Clear();
 
-            CarHealth[] allCars = FindObjectsByType<CarHealth>(FindObjectsSortMode.None);
-
-            foreach (CarHealth car in allCars)
+            foreach (CarHealth car in FindObjectsByType<CarHealth>(FindObjectsSortMode.None))
             {
                 if (car.gameObject.CompareTag(playerTag)) continue;
                 if (car.IsDead()) continue;
-
                 alivePlayersCache.Add(car.gameObject);
             }
 
-            Debug.Log($"[{nameof(DeathSpectateManager)}] {playerTag} found {alivePlayersCache.Count} targets to spectate");
+            Debug.Log($"[{nameof(DeathSpectateManager)}] {playerTag} found {alivePlayersCache.Count} targets");
         }
 
         private void StartSpectating()
         {
             if (alivePlayersCache.Count == 0)
             {
+                // ── FIX: All players dead — park camera in place, show message
+                spectateFollowTarget = null;
                 UpdateSpectatingDisplay(noPlayersToSpectateText);
                 UpdateNavigationButtons(false);
+                Debug.Log($"[{nameof(DeathSpectateManager)}] {playerTag}: no alive players — camera parked in place.");
                 return;
             }
 
@@ -272,30 +301,26 @@ namespace _UI.Scripts
                 return;
             }
 
-            AttachCameraToPlayer(target);
+            SetSpectateTarget(target);
             UpdateSpectatingDisplay(target.tag);
         }
 
-        private void AttachCameraToPlayer(GameObject target)
+        private void SetSpectateTarget(GameObject target)
         {
-            if (playerCamera == null) return;
+            // Try to find a Camera child (human players have one, bots don't)
+            Camera targetCam = target.GetComponentInChildren<Camera>();
 
-            Camera targetCamera = target.GetComponentInChildren<Camera>();
-
-            if (targetCamera != null)
+            if (targetCam != null)
             {
-                // Human player: sit in exactly the same local slot as their camera
-                playerCamera.transform.SetParent(targetCamera.transform.parent);
-                playerCamera.transform.localPosition = targetCamera.transform.localPosition;
-                playerCamera.transform.localRotation = targetCamera.transform.localRotation;
+                // Human: follow their camera's Transform world position in LateUpdate
+                spectateFollowTarget = targetCam.transform;
+                isSpectatingBot      = false;
             }
             else
             {
-                // Bot (no camera): parent to the bot's root and use original offset
-                // The camera just rides along as a child — same trick that worked before
-                playerCamera.transform.SetParent(target.transform);
-                playerCamera.transform.localPosition = originalCameraLocalPosition;
-                playerCamera.transform.localRotation = originalCameraLocalRotation;
+                // Bot: follow the bot root and use our original local offset
+                spectateFollowTarget = target.transform;
+                isSpectatingBot      = true;
             }
         }
 
@@ -303,14 +328,15 @@ namespace _UI.Scripts
         {
             aliveCheckTimer += Time.deltaTime;
             if (aliveCheckTimer < ALIVE_CHECK_INTERVAL) return;
-
             aliveCheckTimer = 0f;
 
-            bool currentTargetGone = alivePlayersCache.Count == 0
+            // If spectate target was destroyed or died, refresh
+            bool targetGone = spectateFollowTarget == null
+                || alivePlayersCache.Count == 0
                 || currentSpectateIndex >= alivePlayersCache.Count
                 || alivePlayersCache[currentSpectateIndex] == null;
 
-            if (currentTargetGone)
+            if (targetGone)
             {
                 FindAlivePlayersToSpectate();
                 StartSpectating();
@@ -356,9 +382,9 @@ namespace _UI.Scripts
                 nextPlayerButton.interactable = interactable && moreThanOne;
         }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  TIMER
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         private void UpdateRespawnTimer()
         {
@@ -377,13 +403,14 @@ namespace _UI.Scripts
             respawnCountdownText.text = string.Format(respawnCountdownFormat, seconds);
         }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  RESPAWN
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         private void OnRespawn()
         {
-            isDead = false;
+            isDead               = false;
+            spectateFollowTarget = null;
 
             HideDeathScreen();
             RestoreCamera();
@@ -391,12 +418,13 @@ namespace _UI.Scripts
             onRespawnCallback?.Invoke();
             onRespawnCallback = null;
         }
-        
+
         public void ForceHide()
         {
             if (!isDead) return;
 
-            isDead = false;
+            isDead               = false;
+            spectateFollowTarget = null;
             StopAllCoroutines();
             HideDeathScreen();
         }
@@ -405,20 +433,19 @@ namespace _UI.Scripts
         {
             if (playerCamera == null || originalCameraParent == null) return;
 
-            // Undo the SetParent from spectating
+            // Camera was never reparented, so just reset local transform and re-enable Cinemachine
             playerCamera.transform.SetParent(originalCameraParent);
             playerCamera.transform.localPosition = originalCameraLocalPosition;
             playerCamera.transform.localRotation = originalCameraLocalRotation;
-            playerCamera.rect = originalViewportRect;
+            playerCamera.rect                    = originalViewportRect;
 
-            // Hand control back to Cinemachine
             if (cinemachineBrain != null)
                 cinemachineBrain.enabled = true;
         }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  CLEANUP
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         private void OnDestroy()
         {

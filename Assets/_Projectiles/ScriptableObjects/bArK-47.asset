@@ -25,8 +25,8 @@ MonoBehaviour:
   cooldownStat: 50
   maxCooldownDuration: 8
   minCooldownDuration: 1
-  recoilStat: 20
+  recoilStat: 50
   minRecoilForce: 0
-  maxRecoilForce: 19.68254
+  maxRecoilForce: 30
   fireForce: 30
   lifetime: 5

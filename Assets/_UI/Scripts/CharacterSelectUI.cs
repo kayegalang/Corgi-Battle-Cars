@@ -82,9 +82,9 @@ public class CharacterSelectUI : MonoBehaviour
         isControllerMode = false;
 
         // ── Hide buttons immediately before the player sees them ──
+        // Only trust PlayerOneInputTracker — never assume controller just because one is connected
         bool controllerConnected =
-            (PlayerOneInputTracker.instance != null && PlayerOneInputTracker.instance.IsPlayerOneUsingController())
-            || Gamepad.current != null;
+            PlayerOneInputTracker.instance != null && PlayerOneInputTracker.instance.IsPlayerOneUsingController();
 
         if (backButton         != null) backButton.SetActive(!controllerConnected);
         if (mapSelectionButton != null) mapSelectionButton.SetActive(!controllerConnected);
@@ -120,13 +120,10 @@ public class CharacterSelectUI : MonoBehaviour
 
     private void DetectInputMode()
     {
-        bool usingController = false;
-
-        if (PlayerOneInputTracker.instance != null)
-            usingController = PlayerOneInputTracker.instance.IsPlayerOneUsingController();
-
-        if (!usingController && Gamepad.current != null)
-            usingController = true;
+        // Only trust PlayerOneInputTracker — what the player chose on the start screen
+        // Never fall back to Gamepad.current, that would override keyboard players who have a controller connected
+        bool usingController = PlayerOneInputTracker.instance != null
+            && PlayerOneInputTracker.instance.IsPlayerOneUsingController();
 
         Debug.Log($"[CharacterSelectUI] Controller mode: {usingController}");
         SetControllerMode(usingController);
@@ -359,15 +356,10 @@ public class CharacterSelectUI : MonoBehaviour
         var w = weaponTypes[weaponIndex];
         if (statsHeaderText != null) statsHeaderText.text = $"{w.ProjectileName} Stats";
 
-        float damage    = Mathf.InverseLerp(1f,    100f, w.Damage);
-        float fireRate  = 1f - Mathf.InverseLerp(0.05f, 5f, w.FireRate);
-        float fireForce = Mathf.InverseLerp(1f,    100f, w.FireForce);
-        float recoil    = Mathf.InverseLerp(0f,    50f,  w.RecoilForce);
-
-        SetBar(statLabel1, statBar1, "DMG",  damage);
-        SetBar(statLabel2, statBar2, "RATE", fireRate);
-        SetBar(statLabel3, statBar3, "SPD",  fireForce);
-        SetBar(statLabel4, statBar4, "RCOL", recoil);
+        SetBar(statLabel1, statBar1, "DMG",  w.DamageStat   / 100f);
+        SetBar(statLabel2, statBar2, "RATE", w.FireRateStat  / 100f);
+        SetBar(statLabel3, statBar3, "COOL", w.CooldownStat  / 100f);
+        SetBar(statLabel4, statBar4, "RCOL", w.RecoilStat    / 100f);
     }
 
     private void SetBar(TextMeshProUGUI label, Image bar, string labelText, float fill)
