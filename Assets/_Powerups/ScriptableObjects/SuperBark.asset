@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_PowerUps.ScriptableObjects.SuperBarkPowerUp
   powerUpName: Super Bark
   description: Blast away opponents with a powerful bark
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: f51e229008eff4712844d7625630cf68, type: 3}
   type: 2
   duration: 5
   revealDistance: 5

@@ -11,22 +11,24 @@ namespace _Gameplay.Scripts
         
         [Header("Timer Settings")]
         [SerializeField] private int matchCountdownSeconds = 3;
-        [SerializeField] private int gameDurationSeconds = 300; 
+        [SerializeField] private int gameDurationSeconds   = 300; 
         
         [Header("Timer Text")]
-        [SerializeField] private string countdownGoText = "Go!";
-        [SerializeField] private string gameTimerFormat = "Time: {0}"; 
+        [SerializeField] private string countdownGoText  = "GO!";
+        [SerializeField] private string gameTimerFormat  = "Time: {0}"; 
         
         [Header("Events")]
         public UnityEvent onMatchStart;
         public UnityEvent onGameEnd;
         
-        private TextMeshProUGUI matchTimerText;
         private TextMeshProUGUI gameTimerText;
         
-        private const string MATCH_TIMER_OBJECT_NAME = "MatchTimerText";
         private const string GAME_TIMER_OBJECT_NAME = "GameTimerText";
         
+        // ═══════════════════════════════════════════════
+        //  LIFECYCLE
+        // ═══════════════════════════════════════════════
+
         private void Awake()
         {
             InitializeSingleton();
@@ -35,95 +37,64 @@ namespace _Gameplay.Scripts
         private void InitializeSingleton()
         {
             if (instance == null)
-            {
                 instance = this;
-            }
             else if (instance != this)
-            {
                 Destroy(this);
-            }
         }
+
+        // ═══════════════════════════════════════════════
+        //  COUNTDOWN
+        // ═══════════════════════════════════════════════
         
         public void StartMatchCountdown()
         {
-            if (!FindTimerTextComponents())
-            {
-                return;
-            }
-            
             StartCoroutine(MatchCountdown());
-        }
-        
-        private bool FindTimerTextComponents()
-        {
-            matchTimerText = GameObject.Find(MATCH_TIMER_OBJECT_NAME)?.GetComponent<TextMeshProUGUI>();
-            
-            if (matchTimerText == null)
-            {
-                Debug.LogError($"[{nameof(MatchTimerManager)}] {MATCH_TIMER_OBJECT_NAME} not found!");
-                return false;
-            }
-            
-            return true;
         }
         
         private IEnumerator MatchCountdown()
         {
             Time.timeScale = 0;
             HideCursor();
-            
-            int timeRemaining = matchCountdownSeconds;
-            
-            while (timeRemaining >= 0)
+
+            // Count down 3, 2, 1
+            for (int i = matchCountdownSeconds; i >= 1; i--)
             {
-                UpdateMatchTimerDisplay(timeRemaining);
-                yield return new WaitForSecondsRealtime(1);
-                timeRemaining--;
+                if (CountdownUI.instance != null)
+                    yield return StartCoroutine(CountdownUI.instance.ShowNumber(i));
+                else
+                    yield return new WaitForSecondsRealtime(1f);
             }
-            
-            ClearMatchTimerDisplay();
+
+            // GO!
+            if (CountdownUI.instance != null)
+                yield return StartCoroutine(CountdownUI.instance.ShowGo(countdownGoText));
+            else
+                yield return new WaitForSecondsRealtime(0.5f);
+
             Time.timeScale = 1;
-            
             OnMatchStart();
             StartGameDurationTimer();
         }
         
         private void HideCursor()
         {
-            Cursor.visible = false;
+            Cursor.visible   = false;
             Cursor.lockState = CursorLockMode.Locked;
-        }
-        
-        private void UpdateMatchTimerDisplay(int timeRemaining)
-        {
-            if (timeRemaining == 0)
-            {
-                matchTimerText.text = countdownGoText;
-            }
-            else
-            {
-                matchTimerText.text = timeRemaining.ToString();
-            }
-        }
-        
-        private void ClearMatchTimerDisplay()
-        {
-            matchTimerText.text = "";
         }
         
         private void OnMatchStart()
         {
-            Debug.Log($"[{nameof(MatchTimerManager)}] Match started - invoking onMatchStart event");
+            Debug.Log($"[{nameof(MatchTimerManager)}] Match started!");
             onMatchStart?.Invoke();
         }
+
+        // ═══════════════════════════════════════════════
+        //  GAME TIMER
+        // ═══════════════════════════════════════════════
         
         private void StartGameDurationTimer()
         {
-            if (!FindGameTimerText())
-            {
-                return;
-            }
-            
+            if (!FindGameTimerText()) return;
             StartCoroutine(GameDurationTimer(gameDurationSeconds));
         }
         
@@ -136,38 +107,50 @@ namespace _Gameplay.Scripts
                 Debug.LogError($"[{nameof(MatchTimerManager)}] {GAME_TIMER_OBJECT_NAME} not found!");
                 return false;
             }
-            
             return true;
         }
         
         private IEnumerator GameDurationTimer(int duration)
         {
+            // Tell GameTimerUI the total so it can calculate vignette/color thresholds
+            if (GameTimerUI.instance != null)
+            {
+                GameTimerUI.instance.SetTotalDuration(duration);
+                GameTimerUI.instance.StartTimer();
+            }
+
             int timeRemaining = duration;
-            
+
             while (timeRemaining > 0)
             {
                 UpdateGameTimerDisplay(timeRemaining);
+                if (GameTimerUI.instance != null)
+                    GameTimerUI.instance.UpdateTimer(timeRemaining);
+
                 yield return new WaitForSeconds(1);
                 timeRemaining--;
             }
-            
+
             UpdateGameTimerDisplay(0);
+            if (GameTimerUI.instance != null)
+                GameTimerUI.instance.UpdateTimer(0);
+
             OnGameEnd();
         }
-        
+
         private void UpdateGameTimerDisplay(int timeRemaining)
         {
+            if (gameTimerText == null) return;
+
             int minutes = timeRemaining / 60;
             int seconds = timeRemaining % 60;
-            
-            string timeString = string.Format("{0}:{1:00}", minutes, seconds);
-            
-            gameTimerText.text = string.Format(gameTimerFormat, timeString);
+            gameTimerText.text = string.Format(gameTimerFormat,
+                string.Format("{0}:{1:00}", minutes, seconds));
         }
         
         private void OnGameEnd()
         {
-            Debug.Log($"[{nameof(MatchTimerManager)}] Time's up - invoking onGameEnd event");
+            Debug.Log($"[{nameof(MatchTimerManager)}] Time's up!");
             onGameEnd?.Invoke();
         }
         
