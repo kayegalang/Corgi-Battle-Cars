@@ -287,7 +287,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CarController
   carStats: {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
   zoomiesParticles: {fileID: 4295368576151657587}
-  driftTurnMultiplier: 1
+  driftTurnMultiplier: 1.5
   driftSpeedBoost: 8
   minDriftSpeedBoost: 0.3
   crashDamage: 5
@@ -403,7 +403,7 @@ MonoBehaviour:
   m_DefaultControlScheme: Keyboard
   m_DefaultActionMap: Gameplay
   m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 6851379202247732706}
 --- !u!114 &7598761647281353136
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -259,7 +259,8 @@ namespace _PowerUps.Scripts
             }
             
             Debug.Log($"[PowerUpPickup] {player.name} collected {powerUp.powerUpName}!");
-            Destroy(gameObject);
+            if (gameObject != null) 
+                Destroy(gameObject);
         }
         
         private void StopAllVibrations()
