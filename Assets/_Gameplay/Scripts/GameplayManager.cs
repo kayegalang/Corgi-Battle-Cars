@@ -82,8 +82,6 @@ namespace _Gameplay.Scripts
         
         private void OnMatchStart()
         {
-            Debug.Log($"[{nameof(GameplayManager)}] Match started - enabling gameplay");
-            
             if (GameFlowController.instance != null)
             {
                 GameFlowController.instance.EnableGameplayForAllPlayers();
@@ -92,8 +90,6 @@ namespace _Gameplay.Scripts
         
         private void OnGameEnd()
         {
-            Debug.Log($"[{nameof(GameplayManager)}] Game ended");
-            
             if (GameFlowController.instance != null)
             {
                 GameFlowController.instance.EndGame();
@@ -102,8 +98,6 @@ namespace _Gameplay.Scripts
         
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            Debug.Log($"[{nameof(GameplayManager)}] Scene loaded: {scene.name}");
-            
             if (IsMainMenuScene(scene.name))
             {
                 HandleMainMenuLoad();
@@ -128,8 +122,6 @@ namespace _Gameplay.Scripts
         
         private void HandleMainMenuLoad()
         {
-            Debug.Log($"[{nameof(GameplayManager)}] Resetting for main menu");
-            
             ResetGameConfiguration();
             ResetManagers();
             StartCoroutine(ResubscribeToMapEventsDelayed());
@@ -163,21 +155,16 @@ namespace _Gameplay.Scripts
         {
             yield return null;
             SubscribeToMapEvents();
-            Debug.Log($"[{nameof(GameplayManager)}] Re-subscribed to map events");
         }
         
         private void HandleGameplaySceneLoad()
         {
-            Debug.Log($"[{nameof(GameplayManager)}] Setting up gameplay scene");
-            
             ResetManagers();
             StartGameBasedOnMode();
         }
         
         private void StartGameBasedOnMode()
         {
-            Debug.Log($"[{nameof(GameplayManager)}] Starting game: Mode={currentGameMode}");
-            
             SpawnManager spawnManager = FindFirstObjectByType<SpawnManager>();
             
             if (spawnManager == null)
@@ -203,19 +190,16 @@ namespace _Gameplay.Scripts
         public void SetGameMode(GameMode mode)
         {
             currentGameMode = mode;
-            Debug.Log($"[{nameof(GameplayManager)}] Game mode set to: {mode}");
         }
         
         public void SetMultiplayerPlayerCount(int count)
         {
             multiplayerPlayerCount = count;
-            Debug.Log($"[{nameof(GameplayManager)}] Player count set to: {count}");
         }
         
         public void SetMap(string mapName)
         {
             mapChosen = mapName;
-            Debug.Log($"[{nameof(GameplayManager)}] Map selected: {mapName}");
         }
         
         public void StartGame()
@@ -224,8 +208,6 @@ namespace _Gameplay.Scripts
             {
                 return;
             }
-            
-            Debug.Log($"[{nameof(GameplayManager)}] Starting game: Mode={currentGameMode}, Map={mapChosen}, Players={multiplayerPlayerCount}");
             
             LoadingManager.instance.LoadScene(mapChosen);
         }
@@ -282,7 +264,6 @@ namespace _Gameplay.Scripts
             if (PlayerRegistry.instance != null)
             {
                 bool isComplete = PlayerRegistry.instance.HasPlayers();
-                Debug.Log($"[{nameof(GameplayManager)}] IsGameSetupComplete: {isComplete}");
                 return isComplete;
             }
             

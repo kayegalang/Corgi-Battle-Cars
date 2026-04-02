@@ -1,5 +1,7 @@
+using System.Collections;
 using _Bot.Scripts;
 using _Cars.ScriptableObjects;
+using _Effects.Scripts;
 using _Gameplay.Scripts;
 using _UI.Scripts;
 using UnityEngine;
@@ -24,6 +26,9 @@ namespace _Cars.Scripts
         
         private HealthBarManager     healthBarManager;
         private DeathSpectateManager deathSpectateManager;
+        private CameraShaker         cameraShaker;
+        private HitEffects           hitEffects;
+        private CarDeathEffects      deathEffects;
         
         private int  maxHealth;
         private int  currentHealth;
@@ -52,7 +57,10 @@ namespace _Cars.Scripts
                 spawnManager = FindFirstObjectByType<SpawnManager>();
             
             healthBarManager = GetComponentInChildren<HealthBarManager>();
-            
+            cameraShaker     = GetComponent<CameraShaker>();
+            hitEffects       = GetComponent<HitEffects>();
+            deathEffects     = GetComponent<CarDeathEffects>();
+
             if (healthBarManager == null)
                 Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
             
@@ -152,7 +160,11 @@ namespace _Cars.Scripts
             
             currentHealth -= amount;
             UpdateHealthBar();
-    
+
+            // Hit feedback
+            cameraShaker?.ShakeTakeDamage();
+            hitEffects?.PlayHitEffect();
+
             if (currentHealth <= 0)
                 Die(shooter);
 
@@ -169,7 +181,12 @@ namespace _Cars.Scripts
             if (isDead) return;
             
             isDead = true;
-            
+
+            // Death feedback
+            cameraShaker?.ShakeDeath();
+            hitEffects?.PlayDeathEffect();
+            deathEffects?.OnDeath();
+
             if (shooter != null)
                 PointsManager.instance.AddPoint(shooter.tag);
             else
@@ -189,19 +206,29 @@ namespace _Cars.Scripts
         
         private void HandlePlayerDeath()
         {
-            // Teleport far below the map so other players can't shoot the dead car
+            StartCoroutine(DelayedPlayerDeath());
+        }
+
+        private IEnumerator DelayedPlayerDeath()
+        {
+            // Hide car immediately but stay in place for explosion
+            SetRenderersVisible(false);
+
+            // Wait for explosion to be visible
+            yield return new WaitForSeconds(0.8f);
+
+            // Now teleport away
             transform.position = new Vector3(0, -1000f, 0);
+            SetRenderersVisible(true); // restore for spectating
 
             if (healthBarManager != null)
                 healthBarManager.gameObject.SetActive(false);
-    
+
             if (deathSpectateManager != null)
-            {
                 deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY, RespawnPlayer);
-            }
             else
             {
-                Debug.LogWarning($"[{nameof(CarHealth)}] No DeathSpectateManager found! Falling back to immediate respawn");
+                Debug.LogWarning($"[{nameof(CarHealth)}] No DeathSpectateManager found!");
                 HandleBotDeath();
             }
         }
@@ -221,6 +248,7 @@ namespace _Cars.Scripts
             float healthPercent = GetHealthPercent();
             healthBarManager?.UpdateAllHealthBars(healthPercent);
             OnHealthChanged?.Invoke(healthPercent);
+            deathEffects?.OnHealthChanged(healthPercent);
         }
 
         // ═══════════════════════════════════════════════

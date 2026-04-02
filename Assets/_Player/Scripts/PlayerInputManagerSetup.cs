@@ -22,7 +22,6 @@ namespace _Player.Scripts
             if (playerInputManager != null)
             {
                 playerInputManager.DisableJoining();
-                Debug.Log("[PlayerInputManagerSetup] Joining DISABLED by default");
             }
         }
     }

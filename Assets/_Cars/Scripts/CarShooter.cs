@@ -128,9 +128,7 @@ namespace _Cars.Scripts
 
             cooldownBar = GetComponentInChildren<CooldownBarUI>();
 
-            if (cooldownBar != null)
-                Debug.Log($"[{nameof(CarShooter)}] ✓ {gameObject.name} - CooldownBarUI found!");
-            else
+            if (cooldownBar == null)
                 Debug.LogError($"[{nameof(CarShooter)}] ✗ {gameObject.name} - CooldownBarUI not found!");
         }
 
@@ -245,7 +243,6 @@ namespace _Cars.Scripts
             if (currentCharge >= MAX_CHARGE && isOverheated)
             {
                 isOverheated = false;
-                Debug.Log($"<color=green>[{nameof(CarShooter)}] {gameObject.name} - Cooled down!</color>");
             }
         }
 
@@ -362,6 +359,8 @@ namespace _Cars.Scripts
             ConfigureProjectileStats(projectile);
             ApplyVelocityAndForceToProjectile(projectile, dir);
             ApplyRecoilToShooter(dir);
+
+            GetComponent<CameraShaker>()?.ShakeShoot();
         }
 
         private Vector3 CalculateShootDirectionFromReticle()
@@ -500,8 +499,6 @@ namespace _Cars.Scripts
             currentCharge       = MAX_CHARGE;
             isOverheated        = false;
             nextAllowedFireTime = 0f;
-
-            Debug.Log($"[{nameof(CarShooter)}] {gameObject.name} swapped to {newProjectile.ProjectileName}");
         }
     }
 }

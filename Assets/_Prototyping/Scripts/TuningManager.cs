@@ -161,7 +161,6 @@ namespace _Prototyping.Scripts
                 playerCarIndices.Add(0);
                 playerWeaponIndices.Add(0);
             }
-            Debug.Log($"[TuningManager] Found {h} human(s) and {b} bot(s)");
         }
 
         // ═══════════════════════════════════════════════
@@ -250,8 +249,6 @@ namespace _Prototyping.Scripts
                         player.botAI?.SetProjectile(proj);
                 }
             }
-
-            Debug.Log("[TuningManager] Loadouts re-applied after respawn.");
         }
 
         // ═══════════════════════════════════════════════
@@ -629,7 +626,6 @@ namespace _Prototyping.Scripts
             foreach (var proj in projectileList)  if (proj != null) UnityEditor.EditorUtility.SetDirty(proj);
             foreach (var pu   in powerUpList)    if (pu   != null) UnityEditor.EditorUtility.SetDirty(pu);
             UnityEditor.AssetDatabase.SaveAssets();
-            Debug.Log("<color=green>[TuningManager] ✓ Saved!</color>");
 #endif
         }
 
