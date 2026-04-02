@@ -17,7 +17,7 @@ namespace _Cars.Scripts
         [SerializeField] private ParticleSystem zoomiesParticles;
 
         [Header("Drift Settings")]
-        [SerializeField] private float driftTurnMultiplier  = 1.5f;
+        [SerializeField] private float driftTurnMultiplier  = 3f;
         [SerializeField] private float driftSpeedBoost      = 8f;
         [SerializeField] private float minDriftSpeedBoost   = 0.3f;
 
@@ -41,6 +41,9 @@ namespace _Cars.Scripts
         private Rigidbody carRb;
         private PauseController pauseController;
         
+        // Landing detection
+        private bool wasGrounded = false;
+
         // Zoomies power-up state
         private bool  hasZoomies             = false;
         private float speedMultiplier        = 1f;
@@ -61,6 +64,9 @@ namespace _Cars.Scripts
 
         // Crash cooldown
         private float lastCrashTime = -999f;
+
+        // Drift effects
+        private DriftEffects driftEffects;
         
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
         private const float AIRBORNE_ANGULAR_DAMPING = 5f;
@@ -75,6 +81,7 @@ namespace _Cars.Scripts
         private void Awake()
         {
             InitializeComponents();
+            driftEffects = GetComponent<DriftEffects>();
         }
         
         private void Update()
@@ -155,7 +162,8 @@ namespace _Cars.Scripts
         {
             bool driftHeld = driftAction != null && driftAction.IsPressed();
 
-            if (driftHeld && IsGrounded() && moveInput.y != 0)
+            float forwardSpeed = transform.InverseTransformDirection(carRb.linearVelocity).z;
+            if (driftHeld && IsGrounded() && forwardSpeed > 1f)
             {
                 if (!isDrifting)
                     isDrifting = true;
@@ -170,6 +178,9 @@ namespace _Cars.Scripts
                 isDrifting = false;
                 driftTimer = 0f;
             }
+
+            // Update drift visual effects
+            driftEffects?.SetDrifting(isDrifting, moveInput.x);
         }
 
         private void ApplyDriftBoost()
@@ -365,6 +376,7 @@ namespace _Cars.Scripts
             Turn();
             ApplyAngularDamping();
             LevelRotationInAir();
+            CheckLanding();
         }
         
         private void ApplyMovementLimits()
@@ -430,6 +442,14 @@ namespace _Cars.Scripts
         private void ApplyAngularDamping()
         {
             carRb.angularDamping = IsGrounded() ? GROUNDED_ANGULAR_DAMPING : AIRBORNE_ANGULAR_DAMPING;
+        }
+
+        private void CheckLanding()
+        {
+            bool grounded = IsGrounded();
+            if (grounded && !wasGrounded)
+                GetComponent<CameraShaker>()?.ShakeLand();
+            wasGrounded = grounded;
         }
         
         private void LevelRotationInAir()
@@ -540,6 +560,8 @@ namespace _Cars.Scripts
             {
                 return;
             }
+
+            GetComponent<CameraShaker>()?.ShakePoopSlip();
             
             if (carRb == null)
             {
@@ -578,5 +600,7 @@ namespace _Cars.Scripts
             moveInput.x = Mathf.Clamp(turnAmount, -1f, 1f);
             moveInput.y = Mathf.Clamp(moveAmount, -1f, 1f);
         }
+
+        public Vector2 GetMoveInput() => moveInput;
     }
 }

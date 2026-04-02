@@ -41,6 +41,12 @@ namespace _Cars.Scripts
         private bool    isDrifting       = false;
         private float   driftDirection   = 0f; // -1 left, +1 right
 
+        // ── Public getters for WheelVisuals ──────────────
+        public bool  IsDrifting       => isDrifting;
+        public float CurrentTiltAngle => currentTiltAngle;
+        public float MaxTiltAngle     => maxTiltAngle;
+        public float DriftDirection   => driftDirection;
+
         // ═══════════════════════════════════════════════
         //  LIFECYCLE
         // ═══════════════════════════════════════════════
@@ -65,13 +71,23 @@ namespace _Cars.Scripts
         /// </summary>
         public void SetDrifting(bool drifting, float driftDir)
         {
-            isDrifting      = drifting;
+            if (drifting && !isDrifting)
+            {
+                // Capture direction ONCE when drift starts — never changes mid-drift
+                driftDirection = Mathf.Sign(driftDir);
+            }
+            else if (!drifting)
+            {
+                driftDirection = 0f;
+            }
+
+            isDrifting = drifting;
             driftDirection  = driftDir;
 
             if (drifting)
             {
-                // Tilt OPPOSITE to drift direction — like the car leans into the turn
-                targetTiltAngle = -driftDir * maxTiltAngle;
+                // Rear swings opposite to turn direction — classic drift sliding look
+                targetTiltAngle = driftDir * maxTiltAngle;
                 PlayDust();
             }
             else
@@ -92,12 +108,9 @@ namespace _Cars.Scripts
             float speed = isDrifting ? tiltSpeed : returnSpeed;
             currentTiltAngle = Mathf.Lerp(currentTiltAngle, targetTiltAngle, speed * Time.deltaTime);
 
-            // Apply tilt on Z axis only — preserves car's Y rotation from physics
-            Vector3 currentEuler = carBodyRoot.localEulerAngles;
-            carBodyRoot.localEulerAngles = new Vector3(
-                currentEuler.x,
-                currentEuler.y,
-                currentTiltAngle);
+            // Apply on Y axis — car body visually rotates like rear is sliding out
+            // X and Z stay 0 so it doesn't fight with physics rotation
+            carBodyRoot.localEulerAngles = new Vector3(0f, currentTiltAngle, 0f);
         }
 
         // ═══════════════════════════════════════════════
