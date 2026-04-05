@@ -1,7 +1,9 @@
 using _Player.Scripts;
 using UnityEngine;
+using _Audio.scripts;
 using UnityEngine.InputSystem;
 using TMPro;
+using FMODUnity;
 
 namespace _UI.Scripts
 {
@@ -15,6 +17,9 @@ namespace _UI.Scripts
         [SerializeField] private TextMeshProUGUI startScreenText;
         [SerializeField] private string keyboardPrompt   = "PRESS ANYWHERE TO START";
         [SerializeField] private string controllerPrompt = "PRESS ANY BUTTON TO START";
+        
+        [Header("FMOD Audio")]
+        [SerializeField] private EventReference clicksound;
 
         private static bool hasSeenStartScreen = false;
         private bool waitingForInput = false;
@@ -65,6 +70,8 @@ namespace _UI.Scripts
 
         private bool WasAnyButtonPressed(Gamepad gamepad)
         {
+            AudioManager.instance.PlayOneShot(clicksound, this.transform.position);
+            
             return gamepad.buttonSouth.wasPressedThisFrame ||
                    gamepad.buttonNorth.wasPressedThisFrame ||
                    gamepad.buttonEast.wasPressedThisFrame  ||

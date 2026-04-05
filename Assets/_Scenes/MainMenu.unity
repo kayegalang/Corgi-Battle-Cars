@@ -1839,7 +1839,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioListener
   nonRigidbodyVelocity: 0
-  attenuationObject: {fileID: 0}
+  attenuationObject: {fileID: 330585543}
 --- !u!1 &347440872
 GameObject:
   m_ObjectHideFlags: 0
@@ -3021,6 +3021,8 @@ GameObject:
   - component: {fileID: 698459245}
   - component: {fileID: 698459244}
   - component: {fileID: 698459243}
+  - component: {fileID: 698459247}
+  - component: {fileID: 698459248}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -3113,6 +3115,58 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9413780716b14a02a4c3969f30cdd61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Gameplay.Scripts.GameplayManager
+--- !u!114 &698459247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 698459240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dcab616f4b950d4aa61c227837cd672, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Audio.scripts.AudioManager
+--- !u!114 &698459248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 698459240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 957747d6678ae2b47b17a44a6b5a8811, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FMODEvents
+  <bark3sound>k__BackingField:
+    Guid:
+      Data1: -1346768095
+      Data2: 1179543949
+      Data3: -1807967605
+      Data4: 234077998
+    Path: event:/Music/BarkCountdown/Bark 3
+  <bark2sound>k__BackingField:
+    Guid:
+      Data1: 1671092813
+      Data2: 1312906767
+      Data3: -180489048
+      Data4: 44268773
+    Path: event:/Music/BarkCountdown/Bark 2
+  <bark1sound>k__BackingField:
+    Guid:
+      Data1: 1146122849
+      Data2: 1101948036
+      Data3: -119903577
+      Data4: 133773032
+    Path: event:/Music/BarkCountdown/Bark 1
+  <clicksound>k__BackingField:
+    Guid:
+      Data1: 1195967630
+      Data2: 1163925222
+      Data3: -487128652
+      Data4: -99941290
+    Path: event:/UI/ClickSelect
 --- !u!1 &719948772
 GameObject:
   m_ObjectHideFlags: 0
@@ -5643,6 +5697,13 @@ MonoBehaviour:
   startScreenText: {fileID: 1201900538}
   keyboardPrompt: PRESS ANYWHERE TO START
   controllerPrompt: PRESS ANY BUTTON TO START
+  clicksound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!1 &1168241046
 GameObject:
   m_ObjectHideFlags: 0

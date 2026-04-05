@@ -461,10 +461,10 @@ MonoBehaviour:
   m_Name: FMODStudioSettings
   m_EditorClassIdentifier: FMODUnity::FMODUnity.Settings
   switchSettingsMigration: 1
-  HasSourceProject: 0
-  HasPlatforms: 0
-  sourceProjectPath: 
-  sourceBankPath: FMOD/Desktop
+  HasSourceProject: 1
+  HasPlatforms: 1
+  sourceProjectPath: D:/CorgiBattleCarsFMOD/CorgiBattleCarsFMOD.fspro
+  sourceBankPath: D:/CorgiBattleCarsFMOD/Build
   sourceBankPathUnformatted: 
   BankRefreshCooldown: 5
   ShowBankRefreshWindow: 1
@@ -489,7 +489,9 @@ MonoBehaviour:
   MasterBanks:
   - Master
   Banks:
-  - DogPark
+  - Gameplay
+  - Music
+  - UI
   BanksToLoad: []
   LiveUpdatePort: 9264
   EnableMemoryTracking: 0
