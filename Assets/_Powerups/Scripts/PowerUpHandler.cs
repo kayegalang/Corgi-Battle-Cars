@@ -12,23 +12,19 @@ namespace _PowerUps.Scripts
     /// <summary>
     /// Sits on the player. Receives power-ups from PowerUpPickup and manages
     /// activating, ticking, and removing effects.
+    /// Power-up UI sits on the existing PlayerUICanvas (Screen Space - Overlay)
+    /// and is positioned exactly like the reticle — using player tag + count.
     /// </summary>
     public class PowerUpHandler : MonoBehaviour
     {
-        [Header("Active Power-Up UI")]
-        [SerializeField] private GameObject      powerUpUI;
-        [SerializeField] private Image           powerUpIcon;
-        [SerializeField] private TextMeshProUGUI powerUpNameText;
-        [SerializeField] private Image           timerBar;
-
         [Header("Held Power-Up UI")]
-        [SerializeField] private GameObject      heldPowerUpUI;
-        [SerializeField] private TextMeshProUGUI heldPowerUpNameText;
+        [SerializeField] private GameObject heldPowerUpUI;
+        [SerializeField] private Image      heldPowerUpIcon;  // assign the Image component that shows the icon
+        [SerializeField] private RectTransform heldPowerUpRect;
 
         [Header("Bot Settings")]
         [SerializeField] private float botAutoUseDelay = 1.5f;
 
-        [Header("Input")]
         private PlayerInput playerInput;
         private InputAction usePowerUpAction;
 
@@ -46,7 +42,7 @@ namespace _PowerUps.Scripts
         private SuperBarkPowerUp superBarkData;
 
         // Squirrel state
-        private bool         hasThrowable = false;
+        private bool            hasThrowable = false;
         private SquirrelPowerUp squirrelData;
 
         // Pause
@@ -54,15 +50,14 @@ namespace _PowerUps.Scripts
 
         public bool IsBot { get; private set; }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  LIFECYCLE
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         private void Awake()
         {
             IsBot = GetComponent<BotAI>() != null;
             InitializeInput();
-            HidePowerUpUI();
             HideHeldPowerUpUI();
         }
 
@@ -74,6 +69,15 @@ namespace _PowerUps.Scripts
                 pauseController.onPaused.AddListener(OnPaused);
                 pauseController.onUnpaused.AddListener(OnUnpaused);
             }
+
+            // Wait one frame for all players to spawn before positioning
+            StartCoroutine(PositionDelayed());
+        }
+
+        private IEnumerator PositionDelayed()
+        {
+            yield return null;
+            PositionPowerUpUI();
         }
 
         private void OnEnable()
@@ -119,39 +123,55 @@ namespace _PowerUps.Scripts
             if (!isPowerUpActive) return;
 
             TickActivePowerUp();
-            UpdateTimerBar();
             activePowerUp?.OnUpdate(gameObject);
         }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
+        //  POSITIONING — same approach as reticle
+        // ═══════════════════════════════════════════════
+
+        private void PositionPowerUpUI()
+        {
+            if (heldPowerUpRect == null) return;
+
+            // Use playerCamera.rect exactly like PlayerUIManager does for score text
+            Camera playerCam = GetComponentInChildren<Camera>();
+            if (playerCam == null) return;
+
+            Rect viewportRect = playerCam.rect;
+
+            // Anchor to top-left of this player's viewport slice
+            Vector2 anchorPosition = new Vector2(viewportRect.xMin, viewportRect.yMax);
+            heldPowerUpRect.anchorMin = anchorPosition;
+            heldPowerUpRect.anchorMax = anchorPosition;
+
+            // Small offset from the corner so it's not right on the edge
+            heldPowerUpRect.anchoredPosition = new Vector2(20f, -20f);
+        }
+
+        // ═══════════════════════════════════════════════
         //  PAUSE HANDLING
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         private void OnPaused()
         {
-            HidePowerUpUI();
             HideHeldPowerUpUI();
         }
 
         private void OnUnpaused()
         {
-            // Restore UI state based on what's currently active
-            if (isPowerUpActive && activePowerUp != null)
-                ShowPowerUpUI(activePowerUp);
-
             if (hasPowerUp && heldPowerUp != null)
                 ShowHeldPowerUpUI();
         }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  HOLD AND USE
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         public bool TryPickUpPowerUp(PowerUpObject powerUp)
         {
             if (hasPowerUp)
             {
-                Debug.Log($"[PowerUpHandler] {gameObject.name} already has a power-up! Can't pick up another.");
                 return false;
             }
 
@@ -159,9 +179,7 @@ namespace _PowerUps.Scripts
             hasPowerUp  = true;
 
             ShowHeldPowerUpUI();
-
-            Debug.Log($"[PowerUpHandler] {gameObject.name} picked up: {powerUp.powerUpName}! Press button to use!");
-
+            
             if (IsBot)
                 UseHeldPowerUp();
 
@@ -177,12 +195,9 @@ namespace _PowerUps.Scripts
         {
             if (!hasPowerUp || heldPowerUp == null)
             {
-                Debug.Log($"[PowerUpHandler] {gameObject.name} has no power-up to use!");
                 return;
             }
-
-            Debug.Log($"[PowerUpHandler] {gameObject.name} is using: {heldPowerUp.powerUpName}!");
-
+            
             ActivatePowerUp(heldPowerUp);
             ClearHeldPowerUp();
         }
@@ -192,15 +207,14 @@ namespace _PowerUps.Scripts
             heldPowerUp = null;
             hasPowerUp  = false;
             HideHeldPowerUpUI();
-            Debug.Log($"[PowerUpHandler] {gameObject.name} used their held power-up!");
         }
 
-        public bool          HasHeldPowerUp()  => hasPowerUp;
-        public PowerUpObject GetHeldPowerUp()  => heldPowerUp;
+        public bool          HasHeldPowerUp() => hasPowerUp;
+        public PowerUpObject GetHeldPowerUp() => heldPowerUp;
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  ACTIVATION
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         public void ActivatePowerUp(PowerUpObject powerUp)
         {
@@ -212,7 +226,6 @@ namespace _PowerUps.Scripts
             isPowerUpActive   = true;
 
             powerUp.Apply(gameObject);
-            ShowPowerUpUI(powerUp);
 
             if (powerUp.duration <= 0f)
             {
@@ -222,8 +235,6 @@ namespace _PowerUps.Scripts
 
             if (IsBot)
                 StartCoroutine(BotAutoUse());
-
-            Debug.Log($"[PowerUpHandler] {gameObject.name} activated {powerUp.powerUpName}!");
         }
 
         private IEnumerator BotAutoUse()
@@ -249,8 +260,7 @@ namespace _PowerUps.Scripts
             float      closestDist   = Mathf.Infinity;
             GameObject closestTarget = null;
 
-            PowerUpHandler[] allHandlers = FindObjectsByType<PowerUpHandler>(FindObjectsSortMode.None);
-            foreach (PowerUpHandler handler in allHandlers)
+            foreach (PowerUpHandler handler in FindObjectsByType<PowerUpHandler>(FindObjectsSortMode.None))
             {
                 if (handler.gameObject == gameObject) continue;
                 if (handler.IsBot) continue;
@@ -284,18 +294,15 @@ namespace _PowerUps.Scripts
             if (activePowerUp == null) return;
 
             activePowerUp.Remove(gameObject);
-            Debug.Log($"[PowerUpHandler] {gameObject.name}'s {activePowerUp.powerUpName} expired!");
 
             activePowerUp     = null;
             isPowerUpActive   = false;
             remainingDuration = 0f;
-
-            HidePowerUpUI();
         }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  END GAME
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         public void OnGameEnd()
         {
@@ -304,44 +311,24 @@ namespace _PowerUps.Scripts
             heldPowerUp     = null;
             activePowerUp   = null;
 
-            HidePowerUpUI();
             HideHeldPowerUpUI();
         }
 
-        // ──────────────────────────────────────────────
-        //  UI — ACTIVE POWER-UP
-        // ──────────────────────────────────────────────
-
-        private void ShowPowerUpUI(PowerUpObject powerUp)
-        {
-            if (powerUpUI       != null) powerUpUI.SetActive(true);
-            if (powerUpIcon     != null) powerUpIcon.sprite = powerUp.icon;
-            if (powerUpNameText != null) powerUpNameText.text = powerUp.powerUpName;
-            if (timerBar        != null) timerBar.fillAmount = 1f;
-        }
-
-        private void HidePowerUpUI()
-        {
-            if (powerUpUI != null) powerUpUI.SetActive(false);
-        }
-
-        private void UpdateTimerBar()
-        {
-            if (timerBar == null || activePowerUp == null) return;
-            timerBar.fillAmount = remainingDuration / activePowerUp.duration;
-        }
-
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  UI — HELD POWER-UP
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         private void ShowHeldPowerUpUI()
         {
             if (heldPowerUpUI != null)
                 heldPowerUpUI.SetActive(true);
 
-            if (heldPowerUpNameText != null && heldPowerUp != null)
-                heldPowerUpNameText.text = heldPowerUp.powerUpName;
+            // Show the icon sprite from the PowerUpObject
+            if (heldPowerUpIcon != null && heldPowerUp != null)
+            {
+                heldPowerUpIcon.sprite  = heldPowerUp.icon;
+                heldPowerUpIcon.enabled = heldPowerUp.icon != null;
+            }
         }
 
         private void HideHeldPowerUpUI()
@@ -350,9 +337,9 @@ namespace _PowerUps.Scripts
                 heldPowerUpUI.SetActive(false);
         }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  SUPER BARK
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         public void SetBarkCharges(int charges)             => barkCharges  = charges;
         public void SetSuperBarkData(SuperBarkPowerUp data) => superBarkData = data;
@@ -364,16 +351,14 @@ namespace _PowerUps.Scripts
 
             superBarkData.ExecuteBark(gameObject);
             barkCharges--;
-
-            Debug.Log($"[PowerUpHandler] {gameObject.name} barked! {barkCharges} charges left");
-
+            
             if (barkCharges <= 0)
                 RemoveActivePowerUp();
         }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  SQUIRREL
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         public void SetSquirrelData(SquirrelPowerUp data) => squirrelData = data;
         public void SetHasThrowable(bool value)           => hasThrowable = value;
@@ -386,13 +371,11 @@ namespace _PowerUps.Scripts
             squirrelData.ThrowSquirrel(gameObject, transform.forward);
             hasThrowable = false;
             RemoveActivePowerUp();
-
-            Debug.Log($"[PowerUpHandler] {gameObject.name} threw the squirrel!");
         }
 
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
         //  GETTERS
-        // ──────────────────────────────────────────────
+        // ═══════════════════════════════════════════════
 
         public bool          IsPowerUpActive()      => isPowerUpActive;
         public PowerUpObject GetActivePowerUp()     => activePowerUp;

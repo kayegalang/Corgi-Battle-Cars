@@ -101,7 +101,6 @@ namespace _UI.Scripts
             ShowJoinPanel();
             InitializeSlots();
 
-            // Allow all gamepads so every player can press to join
             var guard = FindFirstObjectByType<PlayerOneUIGuard>();
             guard?.SetAllowAllDevices(true);
             
@@ -113,7 +112,6 @@ namespace _UI.Scripts
             HideJoinPanel();
             DisablePlayerJoining();
 
-            // Restore Player 1 only restriction
             var guard = FindFirstObjectByType<PlayerOneUIGuard>();
             guard?.SetAllowAllDevices(false);
         }
@@ -124,8 +122,6 @@ namespace _UI.Scripts
         
         private IEnumerator EnableJoiningAfterButtonRelease()
         {
-            Debug.Log($"[{nameof(PlayerJoinScreen)}] Waiting for button release...");
-            
             if (Gamepad.current != null)
             {
                 while (IsAnyGamepadButtonPressed())
@@ -141,15 +137,8 @@ namespace _UI.Scripts
             yield return null;
             yield return new WaitForSeconds(0.2f);
             
-            Debug.Log($"[{nameof(PlayerJoinScreen)}] Auto-joining Player 1 first...");
-
-            // Auto-join Player 1 BEFORE enabling joining for everyone else
-            // This guarantees Player 1 is always index 0
             yield return StartCoroutine(AutoJoinFirstPlayer());
-
-            // Now safe to let other players join
             EnablePlayerJoining();
-            Debug.Log($"[{nameof(PlayerJoinScreen)}] Joining enabled for remaining players");
         }
         
         private bool IsAnyGamepadButtonPressed()
@@ -168,13 +157,7 @@ namespace _UI.Scripts
         
         private IEnumerator AutoJoinFirstPlayer()
         {
-            Debug.Log($"[{nameof(PlayerJoinScreen)}] AutoJoinFirstPlayer - joined: {joinedPlayerCount}");
-            
-            if (joinedPlayerCount > 0)
-            {
-                Debug.Log($"[{nameof(PlayerJoinScreen)}] Player already joined, skipping auto-join");
-                yield break;
-            }
+            if (joinedPlayerCount > 0) yield break;
             
             if (playerInputManager == null)
             {
@@ -191,7 +174,6 @@ namespace _UI.Scripts
 
                 if (playerOneDevice != null)
                 {
-                    // Join with the EXACT device Player 1 used on the start screen
                     joinedPlayer = playerInputManager.JoinPlayer(
                         playerIndex:      FIRST_PLAYER_INDEX,
                         splitScreenIndex: ANY_DEVICE,
@@ -208,14 +190,16 @@ namespace _UI.Scripts
                     );
                 }
 
-                if (joinedPlayer != null)
+                if (joinedPlayer == null)
                 {
-                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Auto-joined PlayerOne");
-                    Debug.Log($"[{nameof(PlayerJoinScreen)}] ✓ Control scheme: {joinedPlayer.currentControlScheme}");
+                    Debug.LogError($"[{nameof(PlayerJoinScreen)}] JoinPlayer returned null!");
                 }
                 else
                 {
-                    Debug.LogError($"[{nameof(PlayerJoinScreen)}] JoinPlayer returned null!");
+                    // Camera lives on ShakePivot (child of PlayerCamera) not directly on root
+                    // Unity can't find it automatically so we assign it manually
+                    joinedPlayer.camera = joinedPlayer.GetComponentInChildren<Camera>();
+                    Debug.Log($"[PlayerJoinScreen] PlayerOne camera assigned: {joinedPlayer.camera != null}");
                 }
             }
             catch (System.Exception e)
@@ -240,10 +224,7 @@ namespace _UI.Scripts
         private void EnablePlayerJoining()
         {
             if (playerInputManager != null)
-            {
                 playerInputManager.EnableJoining();
-                Debug.Log($"[{nameof(PlayerJoinScreen)}] Joining enabled");
-            }
         }
         
         private void DisablePlayerJoining()
@@ -355,10 +336,11 @@ namespace _UI.Scripts
         
         private void OnPlayerJoined(PlayerInput playerInput)
         {
-            Debug.Log($"[{nameof(PlayerJoinScreen)}] OnPlayerJoined - {playerInput.gameObject.name}");
-            
             joinedPlayerCount++;
-            
+
+            // Camera is on ShakePivot child — assign manually for split-screen
+            playerInput.camera = playerInput.GetComponentInChildren<Camera>();
+
             // Track which device this player used
             if (playerInput.devices.Count > 0)
             {
@@ -366,8 +348,6 @@ namespace _UI.Scripts
                 string      playerTag = GetPlayerTag(joinedPlayerCount);
                 _Player.Scripts.PlayerDeviceTracker.instance?.RecordPlayerDevice(playerTag, device);
             }
-            
-            Debug.Log($"[{nameof(PlayerJoinScreen)}] Total: {joinedPlayerCount}/{targetPlayerCount}");
             
             UpdateSlotForJoinedPlayer();
             

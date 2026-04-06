@@ -1,120 +1,226 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using _Gameplay.Scripts;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace _UI.Scripts
 {
     public class EndGameManager : MonoBehaviour
     {
-        [Header("UI References")]
+        // ═══════════════════════════════════════════════
+        //  INSPECTOR REFERENCES
+        // ═══════════════════════════════════════════════
+
+        [Header("Panels")]
         [SerializeField] private GameObject endScreen;
-        [SerializeField] private TextMeshProUGUI resultsText;
-        
+
+        [Header("Winner Section")]
+        [SerializeField] private TextMeshProUGUI winnerTitleText;   // "TOP DOG!"
+        [SerializeField] private TextMeshProUGUI winnerNameText;    // "P1"
+        [SerializeField] private TextMeshProUGUI winnerScoreText;   // "500 points"
+        [SerializeField] private GameObject      crownObject;       // crown image or emoji text
+
+        [Header("Scoreboard — assign up to 3 loser rows")]
+        [SerializeField] private List<PlayerResultRow> loserRows;
+
+        [Header("Buttons")]
+        [SerializeField] private Button playAgainButton;
+        [SerializeField] private Button mainMenuButton;
+
         [Header("Scene Names")]
         [SerializeField] private string mainMenuSceneName = "MainMenu";
-        
-        [Header("UI Text")]
-        [SerializeField] private string noPlayersText = "No players found!";
-        [SerializeField] private string resultLineFormat = "{0} - {1} ({2} points)";
-        [SerializeField] private string unknownPlayerName = "Unknown";
-        
+
+        [Header("Rank Titles")]
+        [SerializeField] private string rank1Title = "TOP DOG! 👑";
+        [SerializeField] private string rank2Title = "GOOD BOY! 🐾";
+        [SerializeField] private string rank3Title = "ALMOST! 🦴";
+        [SerializeField] private string rank4Title = "STILL LEARNING TO SIT 😅";
+
+        [Header("Points Label")]
+        [SerializeField] private string pointsFormat = "{0} pts";
+
+        [Header("Animation")]
+        [SerializeField] private float revealDelay      = 0.3f; // delay before showing winner
+        [SerializeField] private float loserRowDelay    = 0.2f; // stagger between loser rows
+
         [Header("Events")]
         public UnityEvent onPlayAgain;
         public UnityEvent onReturnToMenu;
 
+        // ═══════════════════════════════════════════════
+        //  NESTED CLASS — one loser row in the scoreboard
+        // ═══════════════════════════════════════════════
+
+        [System.Serializable]
+        public class PlayerResultRow
+        {
+            public GameObject        rowRoot;
+            public TextMeshProUGUI   titleText;
+            public TextMeshProUGUI   nameText;
+            public TextMeshProUGUI   scoreText;
+        }
+
+        // ═══════════════════════════════════════════════
+        //  LIFECYCLE
+        // ═══════════════════════════════════════════════
+
+        private void Awake()
+        {
+            if (endScreen != null) endScreen.SetActive(false);
+            HideAllLoserRows();
+
+            if (playAgainButton != null)
+                playAgainButton.onClick.AddListener(OnPlayAgainButtonClicked);
+
+            if (mainMenuButton != null)
+                mainMenuButton.onClick.AddListener(OnMainMenuButtonClicked);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  GAME END
+        // ═══════════════════════════════════════════════
+
         public void OnGameEnd()
         {
-            Time.timeScale = 0;
-            endScreen.SetActive(true);
+            Time.timeScale = 0f;
+            if (endScreen != null) endScreen.SetActive(true);
         }
 
-        public void OnMainMenuButtonClicked()
-        {
-            ResetTimeScale();
-            
-            onReturnToMenu?.Invoke();
-            
-            SceneManager.LoadScene(mainMenuSceneName);
-        }
+        // ═══════════════════════════════════════════════
+        //  DISPLAY RESULTS
+        // ═══════════════════════════════════════════════
 
-        public void OnPlayAgainButtonClicked()
-        {
-            ResetTimeScale();
-            
-            onPlayAgain?.Invoke();
-            
-            GameplayManager.instance?.StartGame();
-        }
-        
-        private void ResetTimeScale()
-        {
-            Time.timeScale = 1;
-        }
-        
         public void DisplayResults(List<(string tag, int points)> sorted)
         {
             if (sorted == null || sorted.Count == 0)
             {
-                resultsText.text = noPlayersText;
+                Debug.LogWarning("[EndGameManager] No results to display!");
                 return;
             }
 
-            StringBuilder results = new StringBuilder();
-            int currentRank = 1;
-            int playersWithSameScore = 1;
-
-            for (int i = 0; i < sorted.Count; i++)
-            {
-                string playerName = GetPlayerDisplayName(sorted[i].tag);
-                int playerPoints = sorted[i].points;
-                string rankText = GetOrdinal(currentRank);
-                
-                string line = string.Format(resultLineFormat, rankText, playerName, playerPoints);
-                results.AppendLine(line);
-
-                UpdateRankTracking(sorted, i, ref currentRank, ref playersWithSameScore);
-            }
-
-            resultsText.text = results.ToString();
+            OnGameEnd();
+            StartCoroutine(RevealResults(sorted));
         }
-        
-        private string GetPlayerDisplayName(string tag)
+
+        private IEnumerator RevealResults(List<(string tag, int points)> sorted)
         {
-            return string.IsNullOrEmpty(tag) ? unknownPlayerName : tag;
-        }
-        
-        private void UpdateRankTracking(List<(string tag, int points)> sorted, int currentIndex, 
-                                       ref int currentRank, ref int playersWithSameScore)
-        {
-            if (currentIndex >= sorted.Count - 1) return;
-            
-            if (sorted[currentIndex + 1].points == sorted[currentIndex].points)
+            // Hide everything first
+            SetWinnerVisible(false);
+            HideAllLoserRows();
+
+            yield return new WaitForSecondsRealtime(revealDelay);
+
+            // ── Show winner ──
+            var winner = sorted[0];
+            ShowWinner(winner.tag, winner.points);
+            SetWinnerVisible(true);
+
+            // ── Show losers with stagger ──
+            for (int i = 1; i < sorted.Count && i - 1 < loserRows.Count; i++)
             {
-                playersWithSameScore++;
-            }
-            else
-            {
-                currentRank += playersWithSameScore;
-                playersWithSameScore = 1;
+                yield return new WaitForSecondsRealtime(loserRowDelay);
+
+                var loser = sorted[i];
+                ShowLoserRow(i - 1, i + 1, loser.tag, loser.points);
             }
         }
 
-        private string GetOrdinal(int num)
+        // ═══════════════════════════════════════════════
+        //  WINNER
+        // ═══════════════════════════════════════════════
+
+        private void ShowWinner(string tag, int points)
         {
-            if (num % 100 >= 11 && num % 100 <= 13)
-                return num + "th";
-            
-            return (num % 10) switch
+            if (winnerTitleText != null)
+                winnerTitleText.text = rank1Title;
+
+            if (winnerNameText != null)
+                winnerNameText.text = GetDisplayName(tag);
+
+            if (winnerScoreText != null)
+                winnerScoreText.text = string.Format(pointsFormat, points);
+        }
+
+        private void SetWinnerVisible(bool visible)
+        {
+            if (winnerTitleText != null) winnerTitleText.gameObject.SetActive(visible);
+            if (winnerNameText  != null) winnerNameText.gameObject.SetActive(visible);
+            if (winnerScoreText != null) winnerScoreText.gameObject.SetActive(visible);
+            if (crownObject     != null) crownObject.SetActive(visible);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  LOSER ROWS
+        // ═══════════════════════════════════════════════
+
+        private void ShowLoserRow(int rowIndex, int rank, string tag, int points)
+        {
+            if (rowIndex >= loserRows.Count) return;
+
+            PlayerResultRow row = loserRows[rowIndex];
+            if (row == null || row.rowRoot == null) return;
+
+            if (row.titleText != null) row.titleText.text = GetRankTitle(rank);
+            if (row.nameText  != null) row.nameText.text  = GetDisplayName(tag);
+            if (row.scoreText != null) row.scoreText.text = string.Format(pointsFormat, points);
+
+            row.rowRoot.SetActive(true);
+        }
+
+        private void HideAllLoserRows()
+        {
+            if (loserRows == null) return;
+            foreach (var row in loserRows)
+                if (row?.rowRoot != null)
+                    row.rowRoot.SetActive(false);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  HELPERS
+        // ═══════════════════════════════════════════════
+
+        private string GetRankTitle(int rank)
+        {
+            return rank switch
             {
-                1 => num + "st",
-                2 => num + "nd",
-                3 => num + "rd",
-                _ => num + "th"
+                2 => rank2Title,
+                3 => rank3Title,
+                4 => rank4Title,
+                _ => rank4Title
             };
+        }
+
+        private string GetDisplayName(string tag)
+        {
+            if (string.IsNullOrEmpty(tag)) return "???";
+
+            return tag.Contains("One")   ? "P1" :
+                   tag.Contains("Two")   ? "P2" :
+                   tag.Contains("Three") ? "P3" :
+                   tag.Contains("Four")  ? "P4" :
+                   tag.Contains("Bot")   ? tag  : tag;
+        }
+
+        // ═══════════════════════════════════════════════
+        //  BUTTONS
+        // ═══════════════════════════════════════════════
+
+        public void OnPlayAgainButtonClicked()
+        {
+            Time.timeScale = 1f;
+            onPlayAgain?.Invoke();
+            GameplayManager.instance?.StartGame();
+        }
+
+        public void OnMainMenuButtonClicked()
+        {
+            Time.timeScale = 1f;
+            onReturnToMenu?.Invoke();
+            SceneManager.LoadScene(mainMenuSceneName);
         }
     }
 }

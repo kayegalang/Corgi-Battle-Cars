@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_PowerUps.ScriptableObjects.SuperJumpPowerUp
   powerUpName: Super Jump
   description: Jump to the sky!
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: cab0be874a4514f3fbcc0e221eb737cc, type: 3}
   type: 1
   duration: 10
   revealDistance: 5

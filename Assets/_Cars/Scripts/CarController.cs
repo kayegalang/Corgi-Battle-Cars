@@ -1,5 +1,6 @@
 using System.Collections;
 using _Cars.ScriptableObjects;
+using _Effects.Scripts;
 using _UI.Scripts;
 using _Gameplay.Scripts;
 using UnityEngine;
@@ -16,14 +17,19 @@ namespace _Cars.Scripts
         [SerializeField] private ParticleSystem zoomiesParticles;
 
         [Header("Drift Settings")]
-        [SerializeField] private float driftTurnMultiplier  = 1.5f;   // How much tighter turns are while drifting
-        [SerializeField] private float driftSpeedBoost      = 8f;     // Impulse force applied on drift release
-        [SerializeField] private float minDriftSpeedBoost   = 0.3f;   // Minimum drift duration to earn boost (seconds)
+        [SerializeField] private float driftTurnMultiplier  = 3f;
+        [SerializeField] private float driftSpeedBoost      = 8f;
+        [SerializeField] private float minDriftSpeedBoost   = 0.3f;
 
         [Header("Crash Settings")]
-        [SerializeField] private int   crashDamage          = 5;      // Damage per crash
-        [SerializeField] private float crashMinSpeed        = 3f;     // Minimum speed to register a crash
-        [SerializeField] private float crashCooldown        = 0.5f;   // Seconds between crash damage ticks
+        [SerializeField] private int   crashDamage          = 5;
+        [SerializeField] private float crashMinSpeed        = 3f;
+        [SerializeField] private float crashCooldown        = 0.5f;
+
+        [Header("Bounce Settings")]
+        [SerializeField] private float bounceForce          = 8f;   // how hard the bounce is
+        [SerializeField] private float bounceUpForce        = 2f;   // slight upward pop for cartoon feel
+        [SerializeField] private float bounceSpeedThreshold = 3f;   // min speed to trigger bounce
         
         private PlayerInput playerInput;
         private InputAction moveAction;
@@ -35,14 +41,17 @@ namespace _Cars.Scripts
         private Rigidbody carRb;
         private PauseController pauseController;
         
+        // Landing detection
+        private bool wasGrounded = false;
+
         // Zoomies power-up state
-        private bool  hasZoomies          = false;
-        private float speedMultiplier     = 1f;
+        private bool  hasZoomies             = false;
+        private float speedMultiplier        = 1f;
         private float accelerationMultiplier = 1f;
         
         // Super Jump power-up state
-        private bool  hasSuperJump           = false;
-        private float jumpMultiplier         = 1f;
+        private bool  hasSuperJump            = false;
+        private float jumpMultiplier          = 1f;
         private float jumpHeightCapMultiplier = 1f;
         
         // Poop power-up state
@@ -50,17 +59,20 @@ namespace _Cars.Scripts
         private Coroutine slipCoroutine;
 
         // Drift state
-        private bool  isDrifting       = false;
-        private float driftTimer       = 0f;   // how long we've been drifting this session
+        private bool  isDrifting = false;
+        private float driftTimer = 0f;
 
         // Crash cooldown
         private float lastCrashTime = -999f;
+
+        // Drift effects
+        private DriftEffects driftEffects;
         
-        private const float GROUNDED_ANGULAR_DAMPING  = 3f;
-        private const float AIRBORNE_ANGULAR_DAMPING  = 5f;
-        private const float AIRBORNE_ROTATION_SPEED   = 2f;
-        private const float MAX_JUMP_HEIGHT_VELOCITY  = 6f;
-        private const float AIR_CONTROL_FACTOR        = 0.3f;
+        private const float GROUNDED_ANGULAR_DAMPING = 3f;
+        private const float AIRBORNE_ANGULAR_DAMPING = 5f;
+        private const float AIRBORNE_ROTATION_SPEED  = 2f;
+        private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
+        private const float AIR_CONTROL_FACTOR       = 0.3f;
 
         // ═══════════════════════════════════════════════
         //  UNITY LIFECYCLE
@@ -68,8 +80,8 @@ namespace _Cars.Scripts
         
         private void Awake()
         {
-            Debug.Log($"[CarController] Awake called on {gameObject.name}");
             InitializeComponents();
+            driftEffects = GetComponent<DriftEffects>();
         }
         
         private void Update()
@@ -79,14 +91,12 @@ namespace _Cars.Scripts
         
         private void OnEnable()
         {
-            Debug.Log($"[CarController] OnEnable called on {gameObject.name}");
             EnableInputActions();
             SubscribeToInputEvents();
         }
         
         private void OnDisable()
         {
-            Debug.Log($"[CarController] OnDisable called on {gameObject.name}");
             DisableInputActions();
             UnsubscribeFromInputEvents();
         }
@@ -107,7 +117,7 @@ namespace _Cars.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  CRASH — OnCollisionEnter
+        //  CRASH
         // ═══════════════════════════════════════════════
 
         private void OnCollisionEnter(Collision collision)
@@ -115,8 +125,6 @@ namespace _Cars.Scripts
             if (!CanMove()) return;
             if (Time.time - lastCrashTime < crashCooldown) return;
 
-            // Ignore vertical impacts (landing from a jump)
-            // Only register if the collision is mostly horizontal
             Vector3 impactDirection = collision.GetContact(0).normal;
             if (Mathf.Abs(impactDirection.y) > 0.5f) return;
 
@@ -125,6 +133,19 @@ namespace _Cars.Scripts
 
             lastCrashTime = Time.time;
 
+            // ── Bounce ──────────────────────────────────────────
+            // Apply bounce force along the impact normal + a small upward pop
+            if (impactSpeed >= bounceSpeedThreshold)
+            {
+                Vector3 bounceDir = impactDirection + Vector3.up * bounceUpForce;
+                float   strength  = Mathf.Clamp01(impactSpeed / 20f) * bounceForce;
+                carRb.AddForce(bounceDir.normalized * strength, ForceMode.Impulse);
+
+                // Also shake the camera on crash
+                GetComponent<CameraShaker>()?.ShakeCrash(impactSpeed);
+            }
+
+            // ── Damage ──────────────────────────────────────────
             CarHealth myHealth = GetComponent<CarHealth>();
             myHealth?.TakeDamage(crashDamage, null);
 
@@ -141,7 +162,8 @@ namespace _Cars.Scripts
         {
             bool driftHeld = driftAction != null && driftAction.IsPressed();
 
-            if (driftHeld && IsGrounded() && moveInput.y != 0)
+            float forwardSpeed = transform.InverseTransformDirection(carRb.linearVelocity).z;
+            if (driftHeld && IsGrounded() && forwardSpeed > 1f)
             {
                 if (!isDrifting)
                     isDrifting = true;
@@ -150,18 +172,19 @@ namespace _Cars.Scripts
             }
             else if (isDrifting)
             {
-                // Released drift — apply boost if held long enough
                 if (driftTimer >= minDriftSpeedBoost)
                     ApplyDriftBoost();
 
                 isDrifting = false;
                 driftTimer = 0f;
             }
+
+            // Update drift visual effects
+            driftEffects?.SetDrifting(isDrifting, moveInput.x);
         }
 
         private void ApplyDriftBoost()
         {
-            // Boost in the direction the car is currently facing
             Vector3 boostDir = transform.forward * (moveInput.y >= 0 ? 1f : -1f);
             carRb.AddForce(boostDir * driftSpeedBoost, ForceMode.Impulse);
         }
@@ -183,7 +206,6 @@ namespace _Cars.Scripts
         
         private void InitializeComponents()
         {
-            Debug.Log($"[CarController] Initializing components on {gameObject.name}");
             InitializePlayerInput();
             InitializeRigidbody();
             InitializePauseController();
@@ -201,19 +223,12 @@ namespace _Cars.Scripts
                 jumpAction  = actions.FindAction("Jump",  true);
                 pauseAction = actions.FindAction("Pause", true);
                 driftAction = actions.FindAction("Drift", true);
-                Debug.Log($"[CarController] PlayerInput initialized successfully on {gameObject.name}");
             }
         }
         
         private void InitializeRigidbody()
         {
             carRb = GetComponent<Rigidbody>();
-            if (carRb != null)
-            {
-                Debug.Log($"[CarController] Rigidbody found on {gameObject.name}");
-                Debug.Log($"[CarController] Rigidbody IsKinematic: {carRb.isKinematic}");
-                Debug.Log($"[CarController] Rigidbody Constraints: {carRb.constraints}");
-            }
         }
         
         private void InitializePauseController()
@@ -234,8 +249,6 @@ namespace _Cars.Scripts
 
             if (driftAction == null)
                 Debug.LogWarning($"[{nameof(CarController)}] Drift action not found — add 'Drift' to PlayerControls asset!");
-            
-            Debug.Log($"[CarController] Component validation complete on {gameObject.name}");
         }
 
         // ═══════════════════════════════════════════════
@@ -316,6 +329,44 @@ namespace _Cars.Scripts
         private void OnJumpPerformed(InputAction.CallbackContext ctx) => Jump();
 
         // ═══════════════════════════════════════════════
+        //  CINEMATIC MODE — GAMEPAD ONLY
+        // ═══════════════════════════════════════════════
+
+        /// <summary>
+        /// Called by CinematicFreeCam to lock input to gamepad only,
+        /// preventing WASD from driving the car while the camera operator
+        /// uses the keyboard to fly the cinematic camera.
+        /// </summary>
+        public void SetGamepadOnly(bool gamepadOnly)
+        {
+            if (playerInput == null) return;
+
+            if (gamepadOnly)
+            {
+                // Switch to Gamepad scheme — keyboard WASD no longer drives the car
+                var gamepad = Gamepad.current;
+                if (gamepad != null)
+                {
+                    playerInput.SwitchCurrentControlScheme("Controller", gamepad);
+                }
+                else
+                {
+                    Debug.LogWarning($"[CarController] SetGamepadOnly: no gamepad found!");
+                }
+            }
+            else
+            {
+                // Restore keyboard+mouse control scheme
+                var keyboard = Keyboard.current;
+                var mouse    = Mouse.current;
+                if (keyboard != null && mouse != null)
+                {
+                    playerInput.SwitchCurrentControlScheme("Keyboard", keyboard, mouse);
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════
         //  PHYSICS
         // ═══════════════════════════════════════════════
         
@@ -325,6 +376,7 @@ namespace _Cars.Scripts
             Turn();
             ApplyAngularDamping();
             LevelRotationInAir();
+            CheckLanding();
         }
         
         private void ApplyMovementLimits()
@@ -344,17 +396,15 @@ namespace _Cars.Scripts
             ApplyAcceleration();
 
             if (isDrifting)
-                ApplyDriftLateralDamping(); // controlled slide instead of free spin
+                ApplyDriftLateralDamping();
             else
                 ConstrainLateralMovement();
         }
 
-        // Partially damps lateral velocity — lets the car slide sideways
-        // but doesn't let it spin freely like removing constraint entirely does
         private void ApplyDriftLateralDamping()
         {
             Vector3 localVelocity = transform.InverseTransformDirection(carRb.linearVelocity);
-            localVelocity.x *= 0.75f; // 25% lateral damping — slides but stays controlled
+            localVelocity.x *= 0.75f;
             carRb.linearVelocity = transform.TransformDirection(localVelocity);
         }
         
@@ -386,12 +436,20 @@ namespace _Cars.Scripts
             carRb.AddTorque(torque);
         }
         
-        private bool ShouldTurn()    => moveInput.x != 0;
+        private bool ShouldTurn()      => moveInput.x != 0;
         private bool IsMovingForward() => moveInput.y >= 0;
         
         private void ApplyAngularDamping()
         {
             carRb.angularDamping = IsGrounded() ? GROUNDED_ANGULAR_DAMPING : AIRBORNE_ANGULAR_DAMPING;
+        }
+
+        private void CheckLanding()
+        {
+            bool grounded = IsGrounded();
+            if (grounded && !wasGrounded)
+                GetComponent<CameraShaker>()?.ShakeLand();
+            wasGrounded = grounded;
         }
         
         private void LevelRotationInAir()
@@ -435,7 +493,7 @@ namespace _Cars.Scripts
             Vector3 velocity = carRb.linearVelocity;
             if (velocity.y > MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier)
             {
-                velocity.y = MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier;
+                velocity.y           = MAX_JUMP_HEIGHT_VELOCITY * jumpHeightCapMultiplier;
                 carRb.linearVelocity = velocity;
             }
         }
@@ -456,67 +514,54 @@ namespace _Cars.Scripts
         
         public void ApplySpeedMultiplier(float speedMult, float accelMult)
         {
-            hasZoomies            = true;
-            speedMultiplier       = speedMult;
+            hasZoomies             = true;
+            speedMultiplier        = speedMult;
             accelerationMultiplier = accelMult;
             
             if (zoomiesParticles != null)
-            {
                 zoomiesParticles.Play();
-                Debug.Log($"[CarController] Zoomies particles started on {gameObject.name}");
-            }
-            
-            Debug.Log($"[CarController] {gameObject.name} got ZOOMIES! Speed x{speedMult}, Accel x{accelMult} ⚡");
         }
         
         public void RemoveSpeedMultiplier()
         {
-            hasZoomies            = false;
-            speedMultiplier       = 1f;
+            hasZoomies             = false;
+            speedMultiplier        = 1f;
             accelerationMultiplier = 1f;
             
             if (zoomiesParticles != null)
-            {
                 zoomiesParticles.Stop();
-                Debug.Log($"[CarController] Zoomies particles stopped on {gameObject.name}");
-            }
-            
-            Debug.Log($"[CarController] {gameObject.name}'s zoomies wore off!");
         }
-        
+
         // ═══════════════════════════════════════════════
         //  SUPER JUMP POWER-UP
         // ═══════════════════════════════════════════════
         
         public void ApplyJumpMultiplier(float jumpMult, float jumpHeightCapMult)
         {
-            hasSuperJump           = true;
-            jumpMultiplier         = jumpMult;
+            hasSuperJump            = true;
+            jumpMultiplier          = jumpMult;
             jumpHeightCapMultiplier = jumpHeightCapMult;
-            Debug.Log($"[CarController] {gameObject.name} got SUPER JUMP! Jump x{jumpMult}, Height Cap x{jumpHeightCapMult} 🚀");
         }
         
         public void RemoveJumpMultiplier()
         {
-            hasSuperJump           = false;
-            jumpMultiplier         = 1f;
+            hasSuperJump            = false;
+            jumpMultiplier          = 1f;
             jumpHeightCapMultiplier = 1f;
-            Debug.Log($"[CarController] {gameObject.name}'s super jump wore off!");
         }
-        
+
         // ═══════════════════════════════════════════════
-        //  POOP POWER-UP - SLIP MECHANIC
+        //  POOP POWER-UP
         // ═══════════════════════════════════════════════
         
         public void TriggerSlip(float duration, float spinForce)
         {
-            Debug.Log($"[CarController] TriggerSlip called on {gameObject.name}! Duration: {duration}, SpinForce: {spinForce}");
-            
             if (isSlipping)
             {
-                Debug.Log($"[CarController] {gameObject.name} is already slipping - ignoring new slip trigger");
                 return;
             }
+
+            GetComponent<CameraShaker>()?.ShakePoopSlip();
             
             if (carRb == null)
             {
@@ -533,21 +578,19 @@ namespace _Cars.Scripts
         private IEnumerator SlipRoutine(float duration, float spinForce)
         {
             isSlipping = true;
-            Debug.Log($"[CarController] {gameObject.name} is slipping! 💩💨");
             SpinPlayer(spinForce);
             yield return new WaitForSeconds(duration);
             isSlipping = false;
-            Debug.Log($"[CarController] {gameObject.name} regained control!");
         }
 
         private void SpinPlayer(float spinForce)
         {
             if (carRb == null) return;
-            float randomDirection = Random.value > 0.5f ? 1f : -1f;
-            Vector3 spinTorque    = Vector3.up * spinForce * randomDirection;
+            float   randomDirection = Random.value > 0.5f ? 1f : -1f;
+            Vector3 spinTorque      = Vector3.up * spinForce * randomDirection;
             carRb.AddTorque(spinTorque, ForceMode.Impulse);
         }
-        
+
         // ═══════════════════════════════════════════════
         //  SQUIRREL POWER-UP
         // ═══════════════════════════════════════════════
@@ -557,5 +600,7 @@ namespace _Cars.Scripts
             moveInput.x = Mathf.Clamp(turnAmount, -1f, 1f);
             moveInput.y = Mathf.Clamp(moveAmount, -1f, 1f);
         }
+
+        public Vector2 GetMoveInput() => moveInput;
     }
 }

@@ -27,6 +27,10 @@ namespace _UI.Scripts
         [SerializeField] private GameObject playerPanelPrefab;
         [Tooltip("Transform to parent the player panels under — drag CharacterSelectionPanel itself here")]
         [SerializeField] private Transform  panelsParent;
+        [Tooltip("Panel to show when going back — same as CharacterSelectUI.previousPanel")]
+        [SerializeField] private GameObject previousPanel;
+        [Tooltip("The CharacterSelectionPanel itself — gets hidden when going back")]
+        [SerializeField] private GameObject characterSelectionPanel;
 
         [Header("Assets")]
         [SerializeField] private CarStats[]         carTypes;
@@ -156,6 +160,7 @@ namespace _UI.Scripts
                 panel.Initialize(i, PlayerTags[i], carTypes, weaponTypes, playerInput);
                 panel.OnPlayerReady   += OnPlayerReady;
                 panel.OnPlayerUnready += OnPlayerUnready;
+                if (i == 0) panel.OnPlayerOneBack += GoBackToJoinScreen;
 
                 panels.Add(panel);
             }
@@ -176,6 +181,7 @@ namespace _UI.Scripts
                 if (panel == null) continue;
                 panel.OnPlayerReady   -= OnPlayerReady;
                 panel.OnPlayerUnready -= OnPlayerUnready;
+                panel.OnPlayerOneBack -= GoBackToJoinScreen;
                 Destroy(panel.gameObject);
             }
             panels.Clear();
@@ -199,6 +205,25 @@ namespace _UI.Scripts
         {
             readyPlayers.Remove(playerIndex);
             Debug.Log($"[MultiplayerCharacterSelectManager] Player {playerIndex + 1} un-readied. ({readyPlayers.Count}/{totalPlayers})");
+        }
+
+        // ═══════════════════════════════════════════════
+        //  BACK TO JOIN SCREEN
+        // ═══════════════════════════════════════════════
+
+        private void GoBackToJoinScreen()
+        {
+            DestroyMultiplayerPanels();
+
+            var guard = FindFirstObjectByType<PlayerOneUIGuard>();
+            guard?.SetAllowAllDevices(false);
+
+            // Mirror exactly what CharacterSelectUI.GoBack() does
+            if (previousPanel != null)
+                previousPanel.SetActive(true);
+
+            if (characterSelectionPanel != null)
+                characterSelectionPanel.SetActive(false);
         }
 
         // ═══════════════════════════════════════════════

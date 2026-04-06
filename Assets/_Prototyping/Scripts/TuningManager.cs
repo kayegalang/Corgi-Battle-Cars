@@ -161,7 +161,6 @@ namespace _Prototyping.Scripts
                 playerCarIndices.Add(0);
                 playerWeaponIndices.Add(0);
             }
-            Debug.Log($"[TuningManager] Found {h} human(s) and {b} bot(s)");
         }
 
         // ═══════════════════════════════════════════════
@@ -250,8 +249,6 @@ namespace _Prototyping.Scripts
                         player.botAI?.SetProjectile(proj);
                 }
             }
-
-            Debug.Log("[TuningManager] Loadouts re-applied after respawn.");
         }
 
         // ═══════════════════════════════════════════════
@@ -507,11 +504,32 @@ namespace _Prototyping.Scripts
 
             var proj = projectileList[selectedWeaponIndex];
 
-            MakeSliderRow("Damage",             proj.Damage,           1f,    100f, weaponStatsContainer, (v) => SetPrivateField(proj, "damage",           Mathf.RoundToInt(v)), "F0");
-            MakeSliderRow("Fire Rate (sec)",    proj.FireRate,         0.05f,   5f, weaponStatsContainer, (v) => SetPrivateField(proj, "fireRate",          v));
-            MakeSliderRow("Cooldown (sec)",     proj.CooldownDuration, 0.1f,  10f, weaponStatsContainer, (v) => SetPrivateField(proj, "cooldownDuration",  v));
-            MakeSliderRow("Recoil Force",       proj.RecoilForce,      0f,    50f, weaponStatsContainer, (v) => SetPrivateField(proj, "recoilForce",       v));
-            MakeSliderRow("Fire Force (speed)", proj.FireForce,        1f,   100f, weaponStatsContainer, (v) => SetPrivateField(proj, "fireForce",         v));
+            // ── Stat sliders (0–100%) ──
+            MakeMiniHeader("Stat Sliders (0–100%)", weaponStatsContainer);
+            MakeSliderRow("Damage %",    proj.DamageStat,   0f, 100f, weaponStatsContainer, (v) => SetPrivateField(proj, "damageStat",   v), "F0");
+            MakeSliderRow("Fire Rate %", proj.FireRateStat, 0f, 100f, weaponStatsContainer, (v) => SetPrivateField(proj, "fireRateStat", v), "F0");
+            MakeSliderRow("Cooldown %",  proj.CooldownStat, 0f, 100f, weaponStatsContainer, (v) => SetPrivateField(proj, "cooldownStat", v), "F0");
+            MakeSliderRow("Recoil %",    proj.RecoilStat,   0f, 100f, weaponStatsContainer, (v) => SetPrivateField(proj, "recoilStat",   v), "F0");
+
+            // ── Damage range ──
+            MakeMiniHeader("Damage range:", weaponStatsContainer);
+            MakeSliderRow("Min Damage", proj.MinDamage, 1f, 200f, weaponStatsContainer, (v) => SetPrivateField(proj, "minDamage", Mathf.RoundToInt(v)), "F0");
+            MakeSliderRow("Max Damage", proj.MaxDamage, 1f, 200f, weaponStatsContainer, (v) => SetPrivateField(proj, "maxDamage", Mathf.RoundToInt(v)), "F0");
+
+            // ── Fire Rate range ──
+            MakeMiniHeader("Fire Rate range (seconds):", weaponStatsContainer);
+            MakeSliderRow("Fastest (min sec)", proj.MinFireRate, 0.05f, 5f, weaponStatsContainer, (v) => SetPrivateField(proj, "minFireRate", v));
+            MakeSliderRow("Slowest (max sec)", proj.MaxFireRate, 0.05f, 5f, weaponStatsContainer, (v) => SetPrivateField(proj, "maxFireRate", v));
+
+            // ── Cooldown range ──
+            MakeMiniHeader("Cooldown range (seconds):", weaponStatsContainer);
+            MakeSliderRow("Fastest (min sec)", proj.MinCooldownDuration, 0.1f, 20f, weaponStatsContainer, (v) => SetPrivateField(proj, "minCooldownDuration", v));
+            MakeSliderRow("Slowest (max sec)", proj.MaxCooldownDuration, 0.1f, 20f, weaponStatsContainer, (v) => SetPrivateField(proj, "maxCooldownDuration", v));
+
+            // ── Recoil range ──
+            MakeMiniHeader("Recoil range:", weaponStatsContainer);
+            MakeSliderRow("Min Recoil", proj.MinRecoilForce, 0f, 100f, weaponStatsContainer, (v) => SetPrivateField(proj, "minRecoilForce", v));
+            MakeSliderRow("Max Recoil", proj.MaxRecoilForce, 0f, 100f, weaponStatsContainer, (v) => SetPrivateField(proj, "maxRecoilForce", v));
         }
 
         // ═══════════════════════════════════════════════
@@ -608,7 +626,6 @@ namespace _Prototyping.Scripts
             foreach (var proj in projectileList)  if (proj != null) UnityEditor.EditorUtility.SetDirty(proj);
             foreach (var pu   in powerUpList)    if (pu   != null) UnityEditor.EditorUtility.SetDirty(pu);
             UnityEditor.AssetDatabase.SaveAssets();
-            Debug.Log("<color=green>[TuningManager] ✓ Saved!</color>");
 #endif
         }
 

@@ -16,9 +16,17 @@ MonoBehaviour:
   projectileDescription: Slow but accurate
   projectileID: Sniper
   projectilePrefab: {fileID: 5940751187897929002, guid: a1cbf08f72ec94c2ca82033c3604a0d1, type: 3}
-  damage: 100
-  fireRate: 5
-  cooldownDuration: 10
-  recoilForce: 5
+  damageStat: 100
+  minDamage: 5
+  maxDamage: 100
+  fireRateStat: 30
+  maxFireRate: 2
+  minFireRate: 0.1
+  cooldownStat: 100
+  maxCooldownDuration: 8
+  minCooldownDuration: 1
+  recoilStat: 100
+  minRecoilForce: 0
+  maxRecoilForce: 15
   fireForce: 30
   lifetime: 5
