@@ -15,10 +15,6 @@ namespace _UI.Scripts
     /// </summary>
     public class PlayerCharacterSelectPanel : MonoBehaviour
     {
-        // ═══════════════════════════════════════════════
-        //  INSPECTOR REFERENCES
-        // ═══════════════════════════════════════════════
-
         [Header("Car Selection")]
         [SerializeField] private TextMeshProUGUI carNameText;
 
@@ -60,6 +56,7 @@ namespace _UI.Scripts
         private PlayerInput        playerInput;
         private Gamepad            assignedGamepad;
         private bool               isKeyboard;
+        private bool               isPlayerOne;
 
         private int carIndex    = 0;
         private int weaponIndex = 0;
@@ -80,6 +77,12 @@ namespace _UI.Scripts
         public System.Action<int> OnPlayerReady;
         public System.Action<int> OnPlayerUnready;
 
+        /// <summary>
+        /// Fired when PlayerOne presses back on the first step (SelectingWeapon).
+        /// MultiplayerCharacterSelectManager listens to this to go back to join screen.
+        /// </summary>
+        public System.Action OnPlayerOneBack;
+
         // ═══════════════════════════════════════════════
         //  INITIALIZATION
         // ═══════════════════════════════════════════════
@@ -97,6 +100,7 @@ namespace _UI.Scripts
             weaponTypes = weapons;
             playerInput = input;
 
+            isPlayerOne     = playerIdx == 0;
             isKeyboard      = input != null && input.currentControlScheme == "Keyboard";
             assignedGamepad = null;
 
@@ -122,7 +126,6 @@ namespace _UI.Scripts
             currentStep = Step.SelectingWeapon;
             isReady     = false;
 
-            // Hide mouse-only buttons when using controller
             if (backButton         != null) backButton.SetActive(isKeyboard);
             if (mapSelectionButton != null) mapSelectionButton.SetActive(isKeyboard);
 
@@ -251,6 +254,12 @@ namespace _UI.Scripts
         {
             switch (currentStep)
             {
+                case Step.SelectingWeapon:
+                    // Only PlayerOne can go back to the previous screen
+                    if (isPlayerOne)
+                        OnPlayerOneBack?.Invoke();
+                    break;
+
                 case Step.SelectingCar:
                     currentStep = Step.SelectingWeapon;
                     statsMode   = StatsMode.Weapon;
@@ -333,8 +342,8 @@ namespace _UI.Scripts
             {
                 case Step.SelectingWeapon:
                     statusText.text = isKeyboard
-                        ? "← → Choose Weapon   Enter: Confirm"
-                        : "← → Choose Weapon   A: Confirm";
+                        ? "← → Choose Weapon   Enter: Confirm   Esc: Back"
+                        : "← → Choose Weapon   A: Confirm" + (isPlayerOne ? "   B: Back" : "");
                     break;
                 case Step.SelectingCar:
                     statusText.text = isKeyboard
@@ -406,15 +415,10 @@ namespace _UI.Scripts
             var w = weaponTypes[weaponIndex];
             if (statsHeaderText != null) statsHeaderText.text = $"{w.ProjectileName} Stats";
 
-            float damage    = Mathf.InverseLerp(1f,    100f, w.Damage);
-            float fireRate  = 1f - Mathf.InverseLerp(0.05f, 5f, w.FireRate);
-            float fireForce = Mathf.InverseLerp(1f,    100f, w.FireForce);
-            float recoil    = Mathf.InverseLerp(0f,    50f,  w.RecoilForce);
-
-            SetBar(statLabel1, statBar1, "DMG",  damage);
-            SetBar(statLabel2, statBar2, "RATE", fireRate);
-            SetBar(statLabel3, statBar3, "SPD",  fireForce);
-            SetBar(statLabel4, statBar4, "RCOL", recoil);
+            SetBar(statLabel1, statBar1, "DMG",  w.DamageStat   / 100f);
+            SetBar(statLabel2, statBar2, "RATE", w.FireRateStat  / 100f);
+            SetBar(statLabel3, statBar3, "COOL", w.CooldownStat  / 100f);
+            SetBar(statLabel4, statBar4, "RCOL", w.RecoilStat    / 100f);
         }
 
         private void SetBar(TextMeshProUGUI label, Image bar, string labelText, float fill)

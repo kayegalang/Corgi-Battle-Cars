@@ -43,6 +43,7 @@ public class CharacterSelectUI : MonoBehaviour
     [Header("Navigation")]
     [SerializeField] private GameObject mapSelectionPanel;
     [SerializeField] private GameObject previousPanel;
+    [SerializeField] private GameObject characterSelectionPanel;
 
     // ═══════════════════════════════════════════════
     //  PLAYER PREFS KEYS
@@ -301,6 +302,7 @@ public class CharacterSelectUI : MonoBehaviour
         {
             previousPanel.SetActive(true);
             gameObject.SetActive(false);
+            characterSelectionPanel.SetActive(false);
         }
         else
         {
