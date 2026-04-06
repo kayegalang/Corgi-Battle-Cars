@@ -16,16 +16,16 @@ MonoBehaviour:
   projectileDescription: No cooldown
   projectileID: Machine Gun
   projectilePrefab: {fileID: 5940751187897929002, guid: a1cbf08f72ec94c2ca82033c3604a0d1, type: 3}
-  damageStat: 60
-  minDamage: 5
-  maxDamage: 50
+  damageStat: 8
+  minDamage: 1
+  maxDamage: 100
   fireRateStat: 100
   maxFireRate: 2
   minFireRate: 0.1
   cooldownStat: 0
   maxCooldownDuration: 8
   minCooldownDuration: 1
-  recoilStat: 75
+  recoilStat: 10
   minRecoilForce: 0
   maxRecoilForce: 15
   fireForce: 30

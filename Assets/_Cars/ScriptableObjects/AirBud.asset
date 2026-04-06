@@ -15,18 +15,18 @@ MonoBehaviour:
   carName: Air Bud
   carDescription: 'Jump higher, less health '
   carID: Aerial
-  speedStat: 35.449734
+  speedStat: 71.164024
   accelerationStat: 63.492065
   jumpForceStat: 100
-  healthStat: 45
+  healthStat: 100
   minMaxSpeed: 25
   maxMaxSpeed: 50
   minAcceleration: 12
   maxAcceleration: 30
   minJumpForce: 40
-  maxJumpForce: 100
-  minMaxHealth: 75
-  maxMaxHealth: 125
+  maxJumpForce: 90.833336
+  minMaxHealth: 76
+  maxMaxHealth: 81
   minTurnSpeed: 20
   maxTurnSpeed: 35
   groundCheckOffset: {x: 0, y: 0.26, z: 0}

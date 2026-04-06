@@ -15,18 +15,18 @@ MonoBehaviour:
   carName: Fetch
   carDescription: Fast, zippy but fragile (harder to control)
   carID: Speedy
-  speedStat: 70.978836
+  speedStat: 76.53439
   accelerationStat: 90
   jumpForceStat: 50
-  healthStat: 30
+  healthStat: 100
   minMaxSpeed: 25
   maxMaxSpeed: 50
   minAcceleration: 12
   maxAcceleration: 30
   minJumpForce: 40
   maxJumpForce: 50
-  minMaxHealth: 75
-  maxMaxHealth: 125
+  minMaxHealth: 10
+  maxMaxHealth: 71
   minTurnSpeed: 20
   maxTurnSpeed: 35
   groundCheckOffset: {x: 0, y: 0.26, z: 0}
