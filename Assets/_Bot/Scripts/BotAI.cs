@@ -130,7 +130,7 @@ namespace _Bot.Scripts
         private void UpdateCooldownBar()
         {
             if (cooldownBar == null) return;
-            cooldownBar.UpdateCooldown(currentCharge, MAX_CHARGE);
+            cooldownBar.SetCooldown(currentCharge, MAX_CHARGE);
         }
         
         private void UpdateTargetSearch()
