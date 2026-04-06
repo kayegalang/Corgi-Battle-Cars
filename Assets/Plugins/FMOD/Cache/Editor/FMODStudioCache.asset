@@ -1,33 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-6132359786765122469
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Gameplay/Shoot
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Gameplay/Shoot
-  Guid:
-    Data1: -1157410978
-    Data2: 1083807063
-    Data3: 2044705720
-    Data4: -1961419844
-  Banks:
-  - {fileID: 577585029698903683}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
---- !u!114 &-4323524883452994276
+--- !u!114 &-3396054629252720881
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -37,137 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Music.bank
+  m_Name: bank:/Master.strings.bank
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: D:/CorgiBattleCarsFMOD/Build/Desktop/Music.bank
-  Name: Music
-  StudioPath: bank:/Music
-  lastModified: 639109780019014941
+  Path: FMOD/Desktop/Master.strings.bank
+  Name: Master.strings
+  StudioPath: bank:/Master.strings
+  lastModified: 639086699562978613
   FileSizes:
-  - Name: Desktop
-    Value: 3081920
+  - Name: 
+    Value: 820
   Exists: 1
---- !u!114 &-3569067195440951775
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Music/DogPark
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Music/DogPark
-  Guid:
-    Data1: 1642054377
-    Data2: 1335479926
-    Data3: -1630542939
-    Data4: 1193363955
-  Banks:
-  - {fileID: -4323524883452994276}
-  IsStream: 1
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
---- !u!114 &-2519491480937427776
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Master.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: D:/CorgiBattleCarsFMOD/Build/Desktop/Master.bank
-  Name: Master
-  StudioPath: bank:/Master
-  lastModified: 639109780018478939
-  FileSizes:
-  - Name: Desktop
-    Value: 1074
-  Exists: 1
---- !u!114 &-1924439597713926544
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Music/BarkCountdown/Bark 1
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Music/BarkCountdown/Bark 1
-  Guid:
-    Data1: 1146122849
-    Data2: 1101948036
-    Data3: -119903577
-    Data4: 133773032
-  Banks:
-  - {fileID: -4323524883452994276}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
---- !u!114 &-531886272223592686
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/UI.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: D:/CorgiBattleCarsFMOD/Build/Desktop/UI.bank
-  Name: UI
-  StudioPath: bank:/UI
-  lastModified: 639109807549893989
-  FileSizes:
-  - Name: Desktop
-    Value: 120928
-  Exists: 1
---- !u!114 &-380500016006206163
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Music/BarkCountdown/Bark 3
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Music/BarkCountdown/Bark 3
-  Guid:
-    Data1: -1346768095
-    Data2: 1179543949
-    Data3: -1807967605
-    Data4: 234077998
-  Banks:
-  - {fileID: -4323524883452994276}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,79 +33,22 @@ MonoBehaviour:
   m_Name: FMODStudioCache
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EventCache
   EditorBanks:
-  - {fileID: 3528668031732744386}
-  - {fileID: -2519491480937427776}
-  - {fileID: -4323524883452994276}
-  - {fileID: 577585029698903683}
-  - {fileID: -531886272223592686}
+  - {fileID: -3396054629252720881}
+  - {fileID: 8854605082587072753}
+  - {fileID: 7441286191164668791}
   EditorEvents:
-  - {fileID: -3569067195440951775}
-  - {fileID: -6132359786765122469}
-  - {fileID: -380500016006206163}
-  - {fileID: 7416214017895902302}
-  - {fileID: -1924439597713926544}
-  - {fileID: 7172656390489870630}
+  - {fileID: 6539370651737156617}
   EditorParameters: []
   MasterBanks:
-  - {fileID: -2519491480937427776}
+  - {fileID: 7441286191164668791}
   StringsBanks:
-  - {fileID: 3528668031732744386}
+  - {fileID: -3396054629252720881}
   cacheVersion: 131858
-  cacheTime: 639109807549893989
+  cacheTime: 639086699562978613
   SerializableEventsDict:
-  - key: event:/Music/DogPark
+  - key: event:/New Event
     index: 0
-  - key: event:/Gameplay/Shoot
-    index: 1
-  - key: event:/Music/BarkCountdown/Bark 3
-    index: 2
-  - key: event:/Music/BarkCountdown/Bark 2
-    index: 3
-  - key: event:/Music/BarkCountdown/Bark 1
-    index: 4
-  - key: event:/UI/ClickSelect
-    index: 5
---- !u!114 &577585029698903683
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Gameplay.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: D:/CorgiBattleCarsFMOD/Build/Desktop/Gameplay.bank
-  Name: Gameplay
-  StudioPath: bank:/Gameplay
-  lastModified: 639109688514772645
-  FileSizes:
-  - Name: Desktop
-    Value: 4416
-  Exists: 1
---- !u!114 &3528668031732744386
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Master.strings.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: D:/CorgiBattleCarsFMOD/Build/Desktop/Master.strings.bank
-  Name: Master.strings
-  StudioPath: bank:/Master.strings
-  lastModified: 639109780018487278
-  FileSizes:
-  - Name: Desktop
-    Value: 1146
-  Exists: 1
---- !u!114 &7172656390489870630
+--- !u!114 &6539370651737156617
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -263,24 +58,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/UI/ClickSelect
+  m_Name: event:/New Event
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/UI/ClickSelect
+  Path: event:/New Event
   Guid:
-    Data1: 1195967630
-    Data2: 1163925222
-    Data3: -487128652
-    Data4: -99941290
+    Data1: 1642054377
+    Data2: 1335479926
+    Data3: -1630542939
+    Data4: 1193363955
   Banks:
-  - {fileID: -531886272223592686}
-  IsStream: 0
+  - {fileID: 8854605082587072753}
+  IsStream: 1
   Is3D: 0
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
   Length: 0
---- !u!114 &7416214017895902302
+--- !u!114 &7441286191164668791
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -289,21 +84,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Music/BarkCountdown/Bark 2
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Music/BarkCountdown/Bark 2
-  Guid:
-    Data1: 1671092813
-    Data2: 1312906767
-    Data3: -180489048
-    Data4: 44268773
-  Banks:
-  - {fileID: -4323524883452994276}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Master.bank
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
+  Path: FMOD/Desktop/Master.bank
+  Name: Master
+  StudioPath: bank:/Master
+  lastModified: 639086699562976899
+  FileSizes: []
+  Exists: 1
+--- !u!114 &8854605082587072753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/DogPark.bank
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
+  Path: FMOD/Desktop/DogPark.bank
+  Name: DogPark
+  StudioPath: bank:/DogPark
+  lastModified: 639086699562964825
+  FileSizes: []
+  Exists: 1
