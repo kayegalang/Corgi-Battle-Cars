@@ -219,7 +219,6 @@ Transform:
   - {fileID: 8221956652164158615}
   - {fileID: 2524215442213149595}
   - {fileID: 2707655647561594508}
-  - {fileID: 5081407335465092163}
   - {fileID: 9109426544211698891}
   - {fileID: 9219807728876741465}
   - {fileID: 3633988402931388808}
@@ -529,15 +528,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7013eb543c5a34e9282189cecb57ce52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_UI.Scripts.PlayerNameTag
-  nameTagRoot: {fileID: 1691266498582253194}
-  playerLabelText: {fileID: 7078017889202192112}
-  collarImage: {fileID: 3735256788737133098}
+  nameTagRoot: {fileID: 1120085027354544427}
+  playerLabelText: {fileID: 6735947932468928140}
+  collarImage: {fileID: 3850001337810220691}
   additionalImages: []
   playerOneColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}
   playerTwoColor: {r: 0.2, g: 0.4, b: 0.9, a: 1}
   playerThreeColor: {r: 0.2, g: 0.7, b: 0.2, a: 1}
   playerFourColor: {r: 0.8, g: 0.6, b: 0.1, a: 1}
-  nameTagAlpha: 0.6
+  nameTagAlpha: 1
 --- !u!114 &1223193666988152097
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1346,7 +1345,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Player
+  m_text: Player1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f3ebcb0b654e64fb2bd2a5cb204730fe, type: 2}
   m_sharedMaterial: {fileID: 153796944699633917, guid: f3ebcb0b654e64fb2bd2a5cb204730fe, type: 2}
@@ -1355,8 +1354,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1567,7 +1566,6 @@ GameObject:
   - component: {fileID: 6525807844871073121}
   - component: {fileID: 131471883007843486}
   - component: {fileID: 9004743707693004843}
-  - component: {fileID: 149435648848372639}
   m_Layer: 0
   m_Name: NameTagCanvas
   m_TagString: Untagged
@@ -1583,13 +1581,13 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3066006495886516714}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1.79}
+  m_LocalPosition: {x: 0, y: 0, z: -1.7900009}
   m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8409287714741830604}
   - {fileID: 3130600744669950825}
-  m_Father: {fileID: 5864814094004449654}
+  m_Father: {fileID: 803083373476531330}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1659,20 +1657,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &149435648848372639
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3066006495886516714}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a847bde8bf2104562999f66988cd0116, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::_UI.Scripts.Billboard
-  lockXAxis: 1
-  followTarget: {fileID: 0}
 --- !u!1 &3388453349005125851
 GameObject:
   m_ObjectHideFlags: 0
@@ -2446,6 +2430,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4534456595911367848}
+  - {fileID: 5081407335465092163}
   m_Father: {fileID: 5864814094004449654}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &944674238663988758
