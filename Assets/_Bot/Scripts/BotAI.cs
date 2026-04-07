@@ -183,7 +183,6 @@ namespace _Bot.Scripts
             isReversing  = true;
             reverseTimer = 0f;
 
-            // Check which side has more space for turning
             Vector3 origin     = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
             bool    leftClear  = !Physics.Raycast(origin, -transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
             bool    rightClear = !Physics.Raycast(origin,  transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
@@ -191,7 +190,6 @@ namespace _Bot.Scripts
             if      (leftClear  && !rightClear) unstuckTurnDir = -1f;
             else if (!leftClear && rightClear)  unstuckTurnDir =  1f;
             else                                unstuckTurnDir =  (stuckCount % 2 == 0) ? 1f : -1f;
-
         }
         
         private void HandleReverseTimer()
@@ -246,15 +244,9 @@ namespace _Bot.Scripts
             bool canReverse = !rearCenterBlocked && !rearLeftBlocked && !rearRightBlocked;
 
             if (canReverse)
-            {
-                // Clear behind — reverse and turn
                 botController.SetInputs(unstuckTurnDir * UNSTUCK_TURN_STRENGTH, -1f);
-            }
             else
-            {
-                // Blocked behind too — just turn in place to find a gap
                 botController.SetInputs(unstuckTurnDir, 0f);
-            }
         }
         
         private void HandleStateTransitions()
@@ -337,13 +329,11 @@ namespace _Bot.Scripts
             Vector3 footOrigin   = transform.position + Vector3.up * 0.1f;
             Vector3 direction    = transform.forward;
 
-            // Centre ray — catches walls and tall obstacles
             bool centerHit = Physics.Raycast(centerOrigin, direction,
                                  out RaycastHit centerRayHit,
                                  carStats.ObstacleCheckDistance,
                                  carStats.ObstacleMask);
 
-            // Foot ray — angled slightly upward to catch low jumpable obstacles
             Vector3 footDirection = (direction + Vector3.up * 0.3f).normalized;
             bool footHit = Physics.Raycast(footOrigin, footDirection,
                                out RaycastHit footRayHit,
@@ -556,5 +546,13 @@ namespace _Bot.Scripts
             InitializeFromProjectile();
             Debug.Log($"[{nameof(BotAI)}] {gameObject.name} swapped to {newProjectile.ProjectileName}");
         }
+
+        public Vector3 GetAimDirection()
+        {
+            if (target == null || firePoint == null) return Vector3.zero;
+            return (target.position - firePoint.position).normalized;
+        }
+
+        public bool IsFiring() => currentState == BotStates.Attack && CanShoot();
     }
 }
