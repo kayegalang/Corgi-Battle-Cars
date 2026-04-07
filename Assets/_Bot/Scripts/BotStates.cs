@@ -4,6 +4,7 @@ namespace Bot.Scripts
     {
         Chase,
         Attack,
-        RunAway
+        RunAway,
+        ChasePickup
     }
 }

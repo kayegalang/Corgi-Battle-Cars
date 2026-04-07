@@ -1,82 +1,107 @@
 using System.Collections.Generic;
-using UnityEngine;
-using Unity.Cinemachine;
-using _UI.Scripts;
-using _Cars.Scripts;
-using _Player.Scripts;
 using _PowerUps.Scripts;
+using UnityEngine;
 
-namespace _Utilities.Scripts
+namespace _Gameplay.Scripts
 {
     /// <summary>
-    /// Standalone free roam camera for capturing cinematic trailer footage.
-    /// Add to a new Camera GameObject in the scene (not on the player prefab).
+    /// Cinematic free camera for trailer recording.
     ///
-    /// Disables ONLY the Camera + CinemachineBrain components on PlayerOne's cameras
-    /// so PlayerOne can still be controlled by a controller while you fly the cinematic cam.
-    /// Switches PlayerOne to Gamepad-only input so WASD doesn't drive the car.
+    /// ═══ MODES ═══════════════════════════════════════
     ///
-    /// Hierarchy expected:
-    ///   PlayerOne
-    ///     -- PlayerCamera       (has Camera + CinemachineBrain)
-    ///     -- CinemachineCamera  (has CinemachineCamera component)
+    /// FREE CAM (default)
+    ///   WASD          Move
+    ///   Q / E         Down / Up
+    ///   Mouse         Look
+    ///   Scroll        Adjust speed
+    ///   Left Shift    Fast move
     ///
-    /// Controls:
-    ///   F1               = toggle cinematic mode on/off
-    ///   H                = toggle HUD on/off (hidden by default for clean recordings)
-    ///   WASD             = move forward/back/left/right
-    ///   Q / E            = move down / up
-    ///   Right-click drag = look around
-    ///   Shift            = cycle speed: Normal → Fast → Slow → Normal
-    ///   Scroll wheel     = adjust base move speed
-    ///   F                = toggle slow motion
-    ///   R                = reset to original position
+    /// FOLLOW MODE  (press F2)
+    ///   Locks onto a car and smoothly tracks it.
+    ///   F2            Cycle to next target
+    ///   Scroll        Adjust follow distance
+    ///   Mouse         Orbit around target
+    ///   Hold Alt      Temporarily unlock to reframe
+    ///
+    /// DOLLY MODE  (press F3)
+    ///   Camera moves along a fixed path at a set speed.
+    ///   F3            Toggle dolly playback on/off
+    ///   P             Add a waypoint at the current camera position/rotation
+    ///   Backspace     Remove the last waypoint
+    ///   Scroll        Adjust dolly speed
+    ///   Hold Space    Pause dolly mid-path
+    ///   R             Reset to start of path
+    ///
+    /// GLOBAL
+    ///   F1            Toggle cinematic cam on/off
+    ///                 PlayerOne is hidden while cinematic cam is active.
+    ///                 Power-ups and smell trails are always visible while active.
+    ///
+    /// ═════════════════════════════════════════════════
     /// </summary>
     public class CinematicFreeCam : MonoBehaviour
     {
-        [Header("Settings")]
-        [Tooltip("Name of PlayerOne's Camera GameObject (has Camera + CinemachineBrain)")]
-        [SerializeField] private string playerCameraName      = "PlayerCamera";
+        // ═══════════════════════════════════════════════
+        //  INSPECTOR
+        // ═══════════════════════════════════════════════
 
-        [Tooltip("Name of PlayerOne's CinemachineCamera GameObject (sibling of PlayerCamera)")]
-        [SerializeField] private string cinemachineCameraName = "CinemachineCamera";
-
-        [Tooltip("Key to toggle cinematic mode on/off")]
+        [Header("Global")]
         [SerializeField] private KeyCode toggleKey = KeyCode.F1;
+        [SerializeField] private KeyCode followKey = KeyCode.F2;
+        [SerializeField] private KeyCode dollyKey  = KeyCode.F3;
 
-        [Header("Movement")]
-        [SerializeField] private float moveSpeed      = 10f;
-        [SerializeField] private float fastMultiplier = 3f;
-        [SerializeField] private float slowMultiplier = 0.25f;
+        [Header("Free Cam — Movement")]
+        [SerializeField] private float moveSpeed       = 10f;
+        [SerializeField] private float fastMultiplier  = 3f;
+        [SerializeField] private float scrollSpeedStep = 2f;
+        [SerializeField] private float minSpeed        = 1f;
+        [SerializeField] private float maxSpeed        = 50f;
 
-        [Header("Look")]
-        [SerializeField] private float mouseSensitivity = 2f;
-        [SerializeField] private float smoothing        = 2f;
+        [Header("Free Cam — Look")]
+        [SerializeField] private float lookSensitivity = 2f;
+        [SerializeField] private float smoothTime      = 0.05f;
 
-        [Header("Slow Motion")]
-        [SerializeField] private float slowMotionScale = 0.3f;
+        [Header("Follow Mode")]
+        [SerializeField] private float followDistance    = 8f;
+        [SerializeField] private float followHeight      = 3f;
+        [SerializeField] private float followSmoothSpeed = 5f;
+        [SerializeField] private float orbitSensitivity  = 2f;
+        [SerializeField] private float minFollowDistance = 2f;
+        [SerializeField] private float maxFollowDistance = 30f;
 
-        private enum SpeedMode { Normal, Fast, Slow }
+        [Header("Dolly Mode")]
+        [SerializeField] private float dollySpeed     = 3f;
+        [SerializeField] private float minDollySpeed  = 0.5f;
+        [SerializeField] private float maxDollySpeed  = 20f;
+        [SerializeField] private float dollyRotSmooth = 3f;
+        [SerializeField] private bool  dollyLoop      = false;
 
-        private Camera            cam;
-        private Camera            playerCam;
-        private CinemachineBrain  playerBrain;
-        private CinemachineCamera cinemachineCam;
+        // ═══════════════════════════════════════════════
+        //  STATE
+        // ═══════════════════════════════════════════════
 
-        private Vector3    originalPosition;
-        private Quaternion originalRotation;
-        private Vector2    currentMouseDelta;
-        private float      yaw;
-        private float      pitch;
-        private bool       isSlowMotion    = false;
-        private bool       isCinematicMode = false;
-        private bool       showHUD         = false;
-        private SpeedMode  speedMode       = SpeedMode.Normal;
+        private enum Mode { Free, Follow, Dolly }
+        private Mode currentMode = Mode.Free;
 
-        // UI components to hide/show
-        private List<PlayerUIManager> playerUIs   = new List<PlayerUIManager>();
-        private List<PowerUpHandler>  powerUpUIs  = new List<PowerUpHandler>();
-        private List<CarShooter>      carShooters = new List<CarShooter>();
+        private Camera cinemaCam;
+        private bool   isActive = false;
+
+        // Free cam
+        private float   yaw, pitch;
+        private Vector3 smoothVel   = Vector3.zero;
+        private Vector3 currentMove = Vector3.zero;
+
+        // Follow mode
+        private List<Transform> followTargets = new List<Transform>();
+        private int             followIndex   = 0;
+        private float           orbitYaw      = 0f;
+        private float           orbitPitch    = 20f;
+
+        // Dolly mode
+        private struct Waypoint { public Vector3 position; public Quaternion rotation; }
+        private List<Waypoint> waypoints     = new List<Waypoint>();
+        private float          dollyProgress = 0f;
+        private bool           dollyPlaying  = false;
 
         // ═══════════════════════════════════════════════
         //  LIFECYCLE
@@ -84,336 +109,373 @@ namespace _Utilities.Scripts
 
         private void Awake()
         {
-            cam = GetComponent<Camera>();
-
-            originalPosition = transform.position;
-            originalRotation = transform.rotation;
+            cinemaCam = GetComponent<Camera>();
+            if (cinemaCam == null)
+            {
+                Debug.LogError("[CinematicFreeCam] No Camera component found!");
+                return;
+            }
 
             yaw   = transform.eulerAngles.y;
             pitch = transform.eulerAngles.x;
 
-            if (cam != null)
-            {
-                cam.cullingMask = ~0;
-                cam.enabled     = false;
-            }
-        }
-
-        private void Start()
-        {
-            // PlayerOne spawns at runtime — we always retry on toggle anyway
-            FindPlayerCameraComponents();
-        }
-
-        private void FindPlayerCameraComponents()
-        {
-            // Find PlayerCamera — has Camera + CinemachineBrain
-            GameObject playerCameraGO = GameObject.Find(playerCameraName);
-            if (playerCameraGO != null)
-            {
-                playerCam   = playerCameraGO.GetComponent<Camera>();
-                playerBrain = playerCameraGO.GetComponent<CinemachineBrain>();
-                Debug.Log($"[CinematicFreeCam] Found {playerCameraName} — " +
-                          $"Camera: {playerCam != null}, Brain: {playerBrain != null}");
-            }
-            else
-            {
-                Debug.LogWarning($"[CinematicFreeCam] Could not find '{playerCameraName}'!");
-            }
-
-            // Find CinemachineCamera sibling — has CinemachineCamera component
-            GameObject cinemachineGO = GameObject.Find(cinemachineCameraName);
-            if (cinemachineGO != null)
-            {
-                cinemachineCam = cinemachineGO.GetComponent<CinemachineCamera>();
-                Debug.Log($"[CinematicFreeCam] Found {cinemachineCameraName} — " +
-                          $"CinemachineCamera: {cinemachineCam != null}");
-            }
-            else
-            {
-                Debug.LogWarning($"[CinematicFreeCam] Could not find '{cinemachineCameraName}'!");
-            }
-        }
-
-        private void FindAllPlayerUI()
-        {
-            playerUIs   = new List<PlayerUIManager>(FindObjectsByType<PlayerUIManager>(FindObjectsSortMode.None));
-            powerUpUIs  = new List<PowerUpHandler>(FindObjectsByType<PowerUpHandler>(FindObjectsSortMode.None));
-            carShooters = new List<CarShooter>(FindObjectsByType<CarShooter>(FindObjectsSortMode.None));
+            cinemaCam.enabled = false;
         }
 
         private void Update()
         {
-            if (Input.GetKeyDown(toggleKey))
-                ToggleCinematicMode();
+            HandleGlobalToggle();
+            if (!isActive) return;
 
-            if (Input.GetKeyDown(KeyCode.H))
-                showHUD = !showHUD;
+            HandleModeSwitch();
 
-            if (!isCinematicMode) return;
-
-            HandleLook();
-            HandleMovement();
-            HandleSpeedCycle();
-            HandleSlowMotion();
-            HandleReset();
-            HandleSpeedScroll();
+            switch (currentMode)
+            {
+                case Mode.Free:   UpdateFreeCam();    break;
+                case Mode.Follow: UpdateFollowMode(); break;
+                case Mode.Dolly:  UpdateDollyMode();  break;
+            }
         }
 
         // ═══════════════════════════════════════════════
-        //  TOGGLE
+        //  GLOBAL TOGGLE
         // ═══════════════════════════════════════════════
 
-        private void ToggleCinematicMode()
+        private void HandleGlobalToggle()
         {
-            isCinematicMode = !isCinematicMode;
+            if (!Input.GetKeyDown(toggleKey)) return;
 
-            if (isCinematicMode)
-                EnableCinematicMode();
+            isActive          = !isActive;
+            cinemaCam.enabled = isActive;
+
+            GameObject player = GameObject.FindWithTag("PlayerOne");
+
+            if (isActive)
+            {
+                yaw   = transform.eulerAngles.y;
+                pitch = transform.eulerAngles.x;
+                LockCursor();
+                RefreshFollowTargets();
+
+                if (player != null) player.SetActive(false);
+                SetPowerUpsAlwaysVisible(true);
+
+                Debug.Log("[CinematicFreeCam] ON  |  F1=off  F2=follow  F3=dolly");
+            }
             else
-                DisableCinematicMode();
-        }
-
-        private void EnableCinematicMode()
-        {
-            // Always re-find since PlayerOne spawns at runtime after Start()
-            FindPlayerCameraComponents();
-
-            // Disable ONLY the Camera and CinemachineBrain components —
-            // PlayerOne's GameObject stays active so controller input still works!
-            if (playerCam      != null) playerCam.enabled      = false;
-            if (playerBrain    != null) playerBrain.enabled    = false;
-            if (cinemachineCam != null) cinemachineCam.enabled = false;
-
-            // Enable our cinematic camera
-            if (cam != null) cam.enabled = true;
-
-            // Allow all devices so friend's controller can drive PlayerOne
-            SetAllDevices(true);
-
-            // Find all player UI and car components
-            FindAllPlayerUI();
-            HideAllPlayerUI();
-
-            // Lock PlayerOne to gamepad only — keyboard drives the cinematic cam, not the car
-            SetCarControllersGamepadOnly(true);
-
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible   = true;
-
-            yaw       = transform.eulerAngles.y;
-            pitch     = transform.eulerAngles.x;
-            speedMode = SpeedMode.Normal;
-
-            Debug.Log("[CinematicFreeCam] 🎬 Cinematic mode ON — friend can drive with controller! [H] for controls");
-        }
-
-        private void DisableCinematicMode()
-        {
-            // Re-enable PlayerOne's camera components
-            if (playerCam      != null) playerCam.enabled      = true;
-            if (playerBrain    != null) playerBrain.enabled    = true;
-            if (cinemachineCam != null) cinemachineCam.enabled = true;
-
-            // Disable our cinematic camera
-            if (cam != null) cam.enabled = false;
-
-            // Restore device restrictions
-            SetAllDevices(false);
-
-            // Restore all player UI
-            ShowAllPlayerUI();
-
-            // Restore keyboard+mouse control scheme for PlayerOne
-            SetCarControllersGamepadOnly(false);
-
-            if (isSlowMotion)
             {
-                isSlowMotion   = false;
-                Time.timeScale = 1f;
-            }
+                dollyPlaying = false;
+                UnlockCursor();
 
-            speedMode = SpeedMode.Normal;
+                if (player != null) player.SetActive(true);
+                SetPowerUpsAlwaysVisible(false);
 
-            Debug.Log("[CinematicFreeCam] 🎬 Cinematic mode OFF — PlayerOne camera restored.");
-        }
-
-        private void OnDisable()
-        {
-            if (isCinematicMode)
-                DisableCinematicMode();
-        }
-
-        // ═══════════════════════════════════════════════
-        //  DEVICE HELPER
-        // ═══════════════════════════════════════════════
-
-        private void SetAllDevices(bool allow)
-        {
-            var guards = FindObjectsByType<PlayerOneUIGuard>(FindObjectsSortMode.None);
-            if (guards.Length > 0)
-                guards[0].SetAllowAllDevices(allow);
-            // No warning — PlayerOneUIGuard won't exist in DesignerTuning
-        }
-
-        private void SetCarControllersGamepadOnly(bool gamepadOnly)
-        {
-            foreach (var shooter in carShooters)
-            {
-                if (shooter == null) continue;
-                var controller = shooter.GetComponent<CarController>();
-                controller?.SetGamepadOnly(gamepadOnly);
+                Debug.Log("[CinematicFreeCam] OFF");
             }
         }
 
         // ═══════════════════════════════════════════════
-        //  UI HIDE / SHOW
-        //  Disables Canvas components rather than GameObjects
-        //  to avoid disabling the PlayerOne car itself!
+        //  POWER-UP VISIBILITY
         // ═══════════════════════════════════════════════
 
-        private void HideAllPlayerUI()
+        private void SetPowerUpsAlwaysVisible(bool alwaysVisible)
         {
-            foreach (var ui in playerUIs)
-            {
-                if (ui == null) continue;
-                // Disable the Canvas — NOT the GameObject (which would disable the whole car!)
-                var canvas = ui.GetComponentInChildren<Canvas>();
-                if (canvas != null) canvas.enabled = false;
-                else                ui.enabled     = false;
-            }
-
-            foreach (var handler in powerUpUIs)
-                if (handler != null) handler.OnGameEnd();
-
-            foreach (var shooter in carShooters)
-                if (shooter != null) shooter.DisableReticle();
-        }
-
-        private void ShowAllPlayerUI()
-        {
-            foreach (var ui in playerUIs)
-            {
-                if (ui == null) continue;
-                var canvas = ui.GetComponentInChildren<Canvas>();
-                if (canvas != null) canvas.enabled = true;
-                else                ui.enabled     = true;
-            }
-
-            foreach (var shooter in carShooters)
-                if (shooter != null) shooter.EnableGameplay();
+            foreach (var pickup in FindObjectsByType<PowerUpPickup>(FindObjectsSortMode.None))
+                pickup.SetCinematicVisible(alwaysVisible);
         }
 
         // ═══════════════════════════════════════════════
-        //  LOOK
+        //  MODE SWITCHING
         // ═══════════════════════════════════════════════
 
-        private void HandleLook()
+        private void HandleModeSwitch()
         {
-            if (!Input.GetMouseButton(1))
+            if (Input.GetKeyDown(followKey))
             {
-                Cursor.lockState = CursorLockMode.None;
+                if (currentMode == Mode.Follow)
+                    CycleFollowTarget();
+                else
+                    EnterFollowMode();
+            }
+
+            if (Input.GetKeyDown(dollyKey))
+            {
+                if (currentMode == Mode.Dolly)
+                    ExitDollyMode();
+                else
+                    EnterDollyMode();
+            }
+        }
+
+        // ═══════════════════════════════════════════════
+        //  FREE CAM
+        // ═══════════════════════════════════════════════
+
+        private void UpdateFreeCam()
+        {
+            HandleFreeLook();
+            HandleFreeMove();
+            HandleFreeScrollSpeed();
+        }
+
+        private void HandleFreeLook()
+        {
+            yaw   += Input.GetAxis("Mouse X") * lookSensitivity;
+            pitch -= Input.GetAxis("Mouse Y") * lookSensitivity;
+            pitch  = Mathf.Clamp(pitch, -89f, 89f);
+            transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+        }
+
+        private void HandleFreeMove()
+        {
+            float speed = moveSpeed * (Input.GetKey(KeyCode.LeftShift) ? fastMultiplier : 1f);
+
+            Vector3 input = new Vector3(
+                Input.GetAxisRaw("Horizontal"),
+                (Input.GetKey(KeyCode.E) ? 1f : 0f) - (Input.GetKey(KeyCode.Q) ? 1f : 0f),
+                Input.GetAxisRaw("Vertical")
+            );
+
+            Vector3 target = transform.TransformDirection(input.normalized) * speed;
+            currentMove = Vector3.SmoothDamp(currentMove, target, ref smoothVel, smoothTime);
+            transform.position += currentMove * Time.deltaTime;
+        }
+
+        private void HandleFreeScrollSpeed()
+        {
+            float scroll = Input.GetAxis("Mouse ScrollWheel");
+            if (Mathf.Abs(scroll) < 0.01f) return;
+            moveSpeed = Mathf.Clamp(moveSpeed + scroll * scrollSpeedStep * 10f, minSpeed, maxSpeed);
+            Debug.Log($"[CinematicFreeCam] Speed: {moveSpeed:F1}");
+        }
+
+        // ═══════════════════════════════════════════════
+        //  FOLLOW MODE
+        // ═══════════════════════════════════════════════
+
+        private void EnterFollowMode()
+        {
+            RefreshFollowTargets();
+            if (followTargets.Count == 0)
+            {
+                Debug.LogWarning("[CinematicFreeCam] No cars found to follow!");
                 return;
             }
 
-            Cursor.lockState = CursorLockMode.Locked;
-
-            float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivity;
-            float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSensitivity;
-
-            currentMouseDelta = Vector2.Lerp(currentMouseDelta,
-                new Vector2(mouseX, mouseY), 1f / smoothing);
-
-            yaw   += currentMouseDelta.x;
-            pitch -= currentMouseDelta.y;
-            pitch  = Mathf.Clamp(pitch, -89f, 89f);
-
-            transform.eulerAngles = new Vector3(pitch, yaw, 0f);
+            currentMode = Mode.Follow;
+            followIndex = 0;
+            InitOrbitFromCurrentAngle();
+            Debug.Log($"[CinematicFreeCam] FOLLOW MODE — tracking {followTargets[followIndex].name}  |  F2=next target");
         }
 
-        // ═══════════════════════════════════════════════
-        //  MOVEMENT
-        // ═══════════════════════════════════════════════
-
-        private void HandleMovement()
+        private void CycleFollowTarget()
         {
-            float speed = moveSpeed;
+            if (followTargets.Count == 0) return;
+            followIndex = (followIndex + 1) % followTargets.Count;
+            InitOrbitFromCurrentAngle();
+            Debug.Log($"[CinematicFreeCam] Now following: {followTargets[followIndex].name}");
+        }
 
-            switch (speedMode)
+        private void InitOrbitFromCurrentAngle()
+        {
+            if (followTargets.Count == 0) return;
+            Vector3 offset = transform.position - followTargets[followIndex].position;
+            orbitYaw   = Mathf.Atan2(offset.x, offset.z) * Mathf.Rad2Deg;
+            orbitPitch = Mathf.Clamp(
+                Mathf.Atan2(offset.y, new Vector2(offset.x, offset.z).magnitude) * Mathf.Rad2Deg,
+                -30f, 80f);
+        }
+
+        private void UpdateFollowMode()
+        {
+            followTargets.RemoveAll(t => t == null);
+            if (followTargets.Count == 0) { currentMode = Mode.Free; return; }
+            followIndex = Mathf.Clamp(followIndex, 0, followTargets.Count - 1);
+
+            Transform target = followTargets[followIndex];
+
+            bool altHeld = Input.GetKey(KeyCode.LeftAlt);
+            if (!altHeld)
             {
-                case SpeedMode.Fast: speed *= fastMultiplier; break;
-                case SpeedMode.Slow: speed *= slowMultiplier; break;
+                orbitYaw   += Input.GetAxis("Mouse X") * orbitSensitivity;
+                orbitPitch -= Input.GetAxis("Mouse Y") * orbitSensitivity;
+                orbitPitch  = Mathf.Clamp(orbitPitch, -20f, 80f);
             }
 
-            Vector3 move = Vector3.zero;
-
-            if (Input.GetKey(KeyCode.W)) move += transform.forward;
-            if (Input.GetKey(KeyCode.S)) move -= transform.forward;
-            if (Input.GetKey(KeyCode.A)) move -= transform.right;
-            if (Input.GetKey(KeyCode.D)) move += transform.right;
-            if (Input.GetKey(KeyCode.E)) move += Vector3.up;
-            if (Input.GetKey(KeyCode.Q)) move -= Vector3.up;
-
-            transform.position += move * speed * Time.unscaledDeltaTime;
-        }
-
-        // ═══════════════════════════════════════════════
-        //  SPEED CYCLE
-        // ═══════════════════════════════════════════════
-
-        private void HandleSpeedCycle()
-        {
-            if (!Input.GetKeyDown(KeyCode.LeftShift)) return;
-
-            speedMode = speedMode switch
-            {
-                SpeedMode.Normal => SpeedMode.Fast,
-                SpeedMode.Fast   => SpeedMode.Slow,
-                SpeedMode.Slow   => SpeedMode.Normal,
-                _                => SpeedMode.Normal
-            };
-
-            Debug.Log($"[CinematicFreeCam] Speed: {speedMode}");
-        }
-
-        // ═══════════════════════════════════════════════
-        //  SLOW MOTION
-        // ═══════════════════════════════════════════════
-
-        private void HandleSlowMotion()
-        {
-            if (!Input.GetKeyDown(KeyCode.F)) return;
-
-            isSlowMotion   = !isSlowMotion;
-            Time.timeScale = isSlowMotion ? slowMotionScale : 1f;
-            Debug.Log($"[CinematicFreeCam] Slow motion: {isSlowMotion}");
-        }
-
-        // ═══════════════════════════════════════════════
-        //  RESET
-        // ═══════════════════════════════════════════════
-
-        private void HandleReset()
-        {
-            if (!Input.GetKeyDown(KeyCode.R)) return;
-
-            transform.position = originalPosition;
-            transform.rotation = originalRotation;
-            yaw   = originalRotation.eulerAngles.y;
-            pitch = originalRotation.eulerAngles.x;
-            Debug.Log("[CinematicFreeCam] Reset!");
-        }
-
-        // ═══════════════════════════════════════════════
-        //  SPEED SCROLL
-        // ═══════════════════════════════════════════════
-
-        private void HandleSpeedScroll()
-        {
             float scroll = Input.GetAxis("Mouse ScrollWheel");
-            if (Mathf.Abs(scroll) < 0.001f) return;
+            if (Mathf.Abs(scroll) > 0.01f)
+                followDistance = Mathf.Clamp(followDistance - scroll * 10f, minFollowDistance, maxFollowDistance);
 
-            moveSpeed = Mathf.Clamp(moveSpeed + scroll * 10f, 1f, 100f);
+            Quaternion orbitRot   = Quaternion.Euler(orbitPitch, orbitYaw, 0f);
+            Vector3    desiredPos = target.position + orbitRot * new Vector3(0f, followHeight, -followDistance);
+
+            transform.position = Vector3.Lerp(transform.position, desiredPos, followSmoothSpeed * Time.deltaTime);
+            transform.LookAt(target.position + Vector3.up * followHeight * 0.5f);
+        }
+
+        private void RefreshFollowTargets()
+        {
+            followTargets.Clear();
+
+            string[] tags = { "PlayerOne", "PlayerTwo", "PlayerThree", "PlayerFour",
+                               "BotOne",    "BotTwo",    "BotThree",    "BotFour" };
+
+            foreach (string tag in tags)
+            {
+                GameObject go = GameObject.FindWithTag(tag);
+                if (go != null) followTargets.Add(go.transform);
+            }
+
+            Debug.Log($"[CinematicFreeCam] Found {followTargets.Count} follow targets.");
+        }
+
+        // ═══════════════════════════════════════════════
+        //  DOLLY MODE
+        // ═══════════════════════════════════════════════
+
+        private void EnterDollyMode()
+        {
+            currentMode   = Mode.Dolly;
+            dollyPlaying  = false;
+            dollyProgress = 0f;
+            Debug.Log("[CinematicFreeCam] DOLLY MODE  |  P=add waypoint  Backspace=remove last  F3=play/stop  R=reset  Scroll=speed  Space=pause");
+        }
+
+        private void ExitDollyMode()
+        {
+            dollyPlaying = false;
+            currentMode  = Mode.Free;
+            yaw   = transform.eulerAngles.y;
+            pitch = transform.eulerAngles.x;
+            Debug.Log("[CinematicFreeCam] FREE CAM MODE");
+        }
+
+        private void UpdateDollyMode()
+        {
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                waypoints.Add(new Waypoint { position = transform.position, rotation = transform.rotation });
+                Debug.Log($"[CinematicFreeCam] Waypoint {waypoints.Count} added.");
+            }
+
+            if (Input.GetKeyDown(KeyCode.Backspace) && waypoints.Count > 0)
+            {
+                waypoints.RemoveAt(waypoints.Count - 1);
+                Debug.Log($"[CinematicFreeCam] Waypoint removed. Remaining: {waypoints.Count}");
+            }
+
+            if (Input.GetKeyDown(dollyKey))
+            {
+                if (waypoints.Count < 2)
+                {
+                    Debug.LogWarning("[CinematicFreeCam] Need at least 2 waypoints to play dolly!");
+                    return;
+                }
+                dollyPlaying = !dollyPlaying;
+                Debug.Log(dollyPlaying ? "[CinematicFreeCam] Dolly PLAYING" : "[CinematicFreeCam] Dolly PAUSED");
+            }
+
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                dollyProgress = 0f;
+                dollyPlaying  = false;
+                if (waypoints.Count > 0)
+                    transform.SetPositionAndRotation(waypoints[0].position, waypoints[0].rotation);
+                Debug.Log("[CinematicFreeCam] Dolly RESET");
+            }
+
+            float scroll = Input.GetAxis("Mouse ScrollWheel");
+            if (Mathf.Abs(scroll) > 0.01f)
+            {
+                dollySpeed = Mathf.Clamp(dollySpeed + scroll * 5f, minDollySpeed, maxDollySpeed);
+                Debug.Log($"[CinematicFreeCam] Dolly speed: {dollySpeed:F1}");
+            }
+
+            bool paused = Input.GetKey(KeyCode.Space);
+            if (dollyPlaying && !paused && waypoints.Count >= 2)
+                AdvanceDolly();
+
+            if (!dollyPlaying)
+            {
+                HandleFreeLook();
+                HandleFreeMove();
+            }
+
+            DrawDollyPath();
+        }
+
+        private void AdvanceDolly()
+        {
+            float totalSegments = waypoints.Count - 1;
+
+            dollyProgress += (dollySpeed * Time.deltaTime) / GetApproxPathLength();
+            dollyProgress  = dollyLoop ? dollyProgress % 1f : Mathf.Clamp01(dollyProgress);
+
+            float scaled   = dollyProgress * totalSegments;
+            int   segIndex = Mathf.Min(Mathf.FloorToInt(scaled), waypoints.Count - 2);
+            float segT     = scaled - segIndex;
+
+            Vector3    pos       = CatmullRomPosition(segIndex, segT);
+            Quaternion targetRot = Quaternion.Slerp(waypoints[segIndex].rotation, waypoints[segIndex + 1].rotation, segT);
+            Quaternion smoothRot = Quaternion.Slerp(transform.rotation, targetRot, dollyRotSmooth * Time.deltaTime * 10f);
+
+            transform.position = pos;
+            transform.rotation = smoothRot;
+
+            if (!dollyLoop && dollyProgress >= 1f)
+            {
+                dollyPlaying = false;
+                Debug.Log("[CinematicFreeCam] Dolly path complete.");
+            }
+        }
+
+        private Vector3 CatmullRomPosition(int segIndex, float t)
+        {
+            Vector3 p0 = waypoints[Mathf.Max(segIndex - 1, 0)].position;
+            Vector3 p1 = waypoints[segIndex].position;
+            Vector3 p2 = waypoints[Mathf.Min(segIndex + 1, waypoints.Count - 1)].position;
+            Vector3 p3 = waypoints[Mathf.Min(segIndex + 2, waypoints.Count - 1)].position;
+
+            float t2 = t * t;
+            float t3 = t2 * t;
+
+            return 0.5f * (
+                2f * p1 +
+                (-p0 + p2) * t +
+                (2f * p0 - 5f * p1 + 4f * p2 - p3) * t2 +
+                (-p0 + 3f * p1 - 3f * p2 + p3) * t3
+            );
+        }
+
+        private float GetApproxPathLength()
+        {
+            float length = 0f;
+            for (int i = 0; i < waypoints.Count - 1; i++)
+                length += Vector3.Distance(waypoints[i].position, waypoints[i + 1].position);
+            return Mathf.Max(length, 0.1f);
+        }
+
+        private void DrawDollyPath()
+        {
+            if (waypoints.Count < 2) return;
+            for (int i = 0; i < waypoints.Count - 1; i++)
+                Debug.DrawLine(waypoints[i].position, waypoints[i + 1].position, Color.cyan);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  CURSOR HELPERS
+        // ═══════════════════════════════════════════════
+
+        private void LockCursor()
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible   = false;
+        }
+
+        private void UnlockCursor()
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible   = true;
         }
     }
 }

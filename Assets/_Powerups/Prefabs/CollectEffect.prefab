@@ -4990,7 +4990,7 @@ GameObject:
   - component: {fileID: 5880797563141035887}
   - component: {fileID: 2073871345444748666}
   m_Layer: 0
-  m_Name: CFXR Hit D 3D (Yellow)
+  m_Name: CollectEffect
   m_TagString: FxTemporaire
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

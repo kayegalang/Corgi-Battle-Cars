@@ -1,5 +1,6 @@
 using _Cars.ScriptableObjects;
 using _Cars.Scripts;
+using _PowerUps.Scripts;
 using _Projectiles.ScriptableObjects;
 using _Projectiles.Scripts;
 using _UI.Scripts;
@@ -11,22 +12,34 @@ namespace _Bot.Scripts
     public class BotAI : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private AICarStats carStats;
+        [SerializeField] private AICarStats     carStats;
         [SerializeField] private ProjectileObject projectile;
-        
+
+        [Header("Power-Up Seeking")]
+        [Tooltip("Chance (0-1) per check interval that the bot will seek a nearby power-up")]
+        [SerializeField] [Range(0f, 1f)] private float powerUpSeekChance = 0.3f;
+        [Tooltip("Only seek power-ups within this distance")]
+        [SerializeField] private float powerUpSeekRadius = 20f;
+        [Tooltip("How long the bot will chase a power-up before giving up")]
+        [SerializeField] private float powerUpChaseTimeout = 5f;
+
         private BotController botController;
         private Rigidbody     botRigidbody;
         private Transform     firePoint;
         private CooldownBarUI cooldownBar;
-        
+
         private BotStates currentState  = BotStates.Chase;
         private Transform target;
         private Transform lastAttacker;
-        
+
+        // Power-up seeking state
+        private Transform powerUpTarget      = null;
+        private float     powerUpChaseTimer  = 0f;
+
         private float nextFireTime     = 0f;
         private float targetCheckTimer = 0f;
         private float runAwayTimer     = 0f;
-        
+
         private const float TARGET_CHECK_INTERVAL = 2f;
         private const float RUN_AWAY_DURATION     = 3f;
         private const float RAYCAST_ORIGIN_HEIGHT = 0.5f;
@@ -38,9 +51,7 @@ namespace _Bot.Scripts
         private const float STUCK_SPEED_THRESHOLD    = 0.8f;
         private const float REVERSE_DURATION         = 1.2f;
         private const float UNSTUCK_TURN_STRENGTH    = 0.8f;
-
-        // Rear check distance when reversing
-        private const float REAR_CHECK_DISTANCE = 2f;
+        private const float REAR_CHECK_DISTANCE      = 2f;
 
         // Charge / overheat
         private float currentCharge;
@@ -49,7 +60,7 @@ namespace _Bot.Scripts
         private float chargeRegenRate;
         private float fireRate;
         private bool  isOverheated = false;
-        
+
         private Vector3 lastPosition;
         private float   stuckCheckTimer = 0f;
         private float   reverseTimer    = 0f;
@@ -67,7 +78,7 @@ namespace _Bot.Scripts
             InitializeFromProjectile();
             currentCharge = MAX_CHARGE;
         }
-        
+
         private void Start()
         {
             lastPosition = transform.position;
@@ -88,7 +99,7 @@ namespace _Bot.Scripts
             fireRate        = projectile.FireRate;
             chargeRegenRate = MAX_CHARGE / Mathf.Max(projectile.CooldownDuration, 0.1f);
         }
-        
+
         private void InitializeComponents()
         {
             botController = GetComponent<BotController>();
@@ -96,7 +107,7 @@ namespace _Bot.Scripts
             firePoint     = transform.Find("FirePoint");
             ValidateComponents();
         }
-        
+
         private void ValidateComponents()
         {
             if (botController == null) Debug.LogError($"[{nameof(BotAI)}] BotController not found on {gameObject.name}!");
@@ -109,19 +120,27 @@ namespace _Bot.Scripts
         // ═══════════════════════════════════════════════
         //  UPDATE
         // ═══════════════════════════════════════════════
-        
+
         private void Update()
         {
             UpdateTargetSearch();
             CheckIfStuck();
             UpdateCooldownBar();
-            
-            if (target == null) return;
-            
+
+            // Power-up chase timeout
+            if (currentState == BotStates.ChasePickup)
+            {
+                powerUpChaseTimer += Time.deltaTime;
+                if (powerUpTarget == null || powerUpChaseTimer >= powerUpChaseTimeout)
+                    AbandonPowerUpChase();
+            }
+
+            if (currentState != BotStates.ChasePickup && target == null) return;
+
             ExecuteCurrentState();
             HandleStateTransitions();
         }
-        
+
         private void FixedUpdate()
         {
             HandleShooting();
@@ -132,25 +151,95 @@ namespace _Bot.Scripts
             if (cooldownBar == null) return;
             cooldownBar.SetCooldown(currentCharge, MAX_CHARGE);
         }
-        
+
         private void UpdateTargetSearch()
         {
             targetCheckTimer += Time.deltaTime;
-            if (targetCheckTimer >= TARGET_CHECK_INTERVAL)
+            if (targetCheckTimer < TARGET_CHECK_INTERVAL) return;
+
+            targetCheckTimer = 0f;
+            FindClosestTarget();
+
+            // Only consider seeking a power-up if not already chasing one and not running away
+            if (currentState != BotStates.ChasePickup && currentState != BotStates.RunAway)
+                TrySeekPowerUp();
+        }
+
+        // ═══════════════════════════════════════════════
+        //  POWER-UP SEEKING
+        // ═══════════════════════════════════════════════
+
+        private void TrySeekPowerUp()
+        {
+            // Random roll — don't always go for power-ups
+            if (Random.value > powerUpSeekChance) return;
+
+            PowerUpPickup nearest = FindNearestPowerUp();
+            if (nearest == null) return;
+
+            powerUpTarget     = nearest.transform;
+            powerUpChaseTimer = 0f;
+            SetState(BotStates.ChasePickup);
+
+            Debug.Log($"[{nameof(BotAI)}] {gameObject.name} is going for a power-up!");
+        }
+
+        private PowerUpPickup FindNearestPowerUp()
+        {
+            PowerUpPickup[] pickups = FindObjectsByType<PowerUpPickup>(FindObjectsSortMode.None);
+
+            PowerUpPickup nearest  = null;
+            float         bestDist = powerUpSeekRadius;
+
+            foreach (PowerUpPickup pickup in pickups)
             {
-                FindClosestTarget();
-                targetCheckTimer = 0f;
+                float dist = Vector3.Distance(transform.position, pickup.transform.position);
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    nearest  = pickup;
+                }
             }
+
+            return nearest;
+        }
+
+        private void ChasePickup()
+        {
+            if (powerUpTarget == null) { AbandonPowerUpChase(); return; }
+
+            ObstacleAvoidanceResult avoidance = HandleObstacleDetection();
+
+            if (avoidance.isAvoiding)
+            {
+                botController.SetInputs(avoidance.turnInput, avoidance.moveInput);
+                return;
+            }
+
+            // Navigate toward power-up
+            Vector3 dirToPickup = (powerUpTarget.position - transform.position).normalized;
+            float   angle       = Vector3.SignedAngle(transform.forward, dirToPickup, Vector3.up);
+            float   turnInput   = Mathf.Clamp(angle / TURN_ANGLE_DIVISOR, -1f, 1f);
+
+            botController.SetInputs(turnInput, 1f);
+        }
+
+        private void AbandonPowerUpChase()
+        {
+            powerUpTarget     = null;
+            powerUpChaseTimer = 0f;
+            SetState(BotStates.Chase);
+            Debug.Log($"[{nameof(BotAI)}] {gameObject.name} gave up on power-up, back to chasing.");
         }
 
         // ═══════════════════════════════════════════════
         //  STUCK DETECTION
         // ═══════════════════════════════════════════════
-        
+
         private void CheckIfStuck()
         {
             stuckCheckTimer += Time.deltaTime;
-            
+
             if (stuckCheckTimer >= STUCK_CHECK_INTERVAL)
             {
                 if (!isReversing && IsStuck())
@@ -166,18 +255,18 @@ namespace _Bot.Scripts
                 lastPosition    = transform.position;
                 stuckCheckTimer = 0f;
             }
-            
+
             if (isReversing)
                 HandleReverseTimer();
         }
-        
+
         private bool IsStuck()
         {
             float distanceMoved = Vector3.Distance(transform.position, lastPosition);
             float speed         = botController.GetSpeed();
             return distanceMoved < STUCK_MOVEMENT_THRESHOLD && speed < STUCK_SPEED_THRESHOLD;
         }
-        
+
         private void StartUnstuckRoutine()
         {
             isReversing  = true;
@@ -189,9 +278,9 @@ namespace _Bot.Scripts
 
             if      (leftClear  && !rightClear) unstuckTurnDir = -1f;
             else if (!leftClear && rightClear)  unstuckTurnDir =  1f;
-            else                                unstuckTurnDir =  (stuckCount % 2 == 0) ? 1f : -1f;
+            else                                unstuckTurnDir  = (stuckCount % 2 == 0) ? 1f : -1f;
         }
-        
+
         private void HandleReverseTimer()
         {
             reverseTimer += Time.deltaTime;
@@ -205,7 +294,7 @@ namespace _Bot.Scripts
         // ═══════════════════════════════════════════════
         //  STATE EXECUTION
         // ═══════════════════════════════════════════════
-        
+
         private void ExecuteCurrentState()
         {
             if (isReversing)
@@ -213,7 +302,7 @@ namespace _Bot.Scripts
                 ExecuteUnstuckRoutine();
                 return;
             }
-            
+
             switch (currentState)
             {
                 case BotStates.Chase:
@@ -223,19 +312,22 @@ namespace _Bot.Scripts
                 case BotStates.RunAway:
                     RunAway();
                     break;
+                case BotStates.ChasePickup:
+                    ChasePickup();
+                    break;
             }
         }
-        
+
         private void ExecuteUnstuckRoutine()
         {
-            Vector3 origin      = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
-            Vector3 rearCenter  = -transform.forward;
-            Vector3 rearLeft    = (-transform.forward - transform.right * 0.5f).normalized;
-            Vector3 rearRight   = (-transform.forward + transform.right * 0.5f).normalized;
+            Vector3 origin     = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
+            Vector3 rearCenter = -transform.forward;
+            Vector3 rearLeft   = (-transform.forward - transform.right * 0.5f).normalized;
+            Vector3 rearRight  = (-transform.forward + transform.right * 0.5f).normalized;
 
-            bool rearCenterBlocked = Physics.Raycast(origin, rearCenter,  REAR_CHECK_DISTANCE, carStats.ObstacleMask);
-            bool rearLeftBlocked   = Physics.Raycast(origin, rearLeft,    REAR_CHECK_DISTANCE, carStats.ObstacleMask);
-            bool rearRightBlocked  = Physics.Raycast(origin, rearRight,   REAR_CHECK_DISTANCE, carStats.ObstacleMask);
+            bool rearCenterBlocked = Physics.Raycast(origin, rearCenter, REAR_CHECK_DISTANCE, carStats.ObstacleMask);
+            bool rearLeftBlocked   = Physics.Raycast(origin, rearLeft,   REAR_CHECK_DISTANCE, carStats.ObstacleMask);
+            bool rearRightBlocked  = Physics.Raycast(origin, rearRight,  REAR_CHECK_DISTANCE, carStats.ObstacleMask);
 
             Debug.DrawRay(origin, rearCenter * REAR_CHECK_DISTANCE, rearCenterBlocked ? Color.red : Color.cyan);
             Debug.DrawRay(origin, rearLeft   * REAR_CHECK_DISTANCE, rearLeftBlocked   ? Color.red : Color.cyan);
@@ -248,12 +340,12 @@ namespace _Bot.Scripts
             else
                 botController.SetInputs(unstuckTurnDir, 0f);
         }
-        
+
         private void HandleStateTransitions()
         {
             if (currentState == BotStates.RunAway && runAwayTimer >= RUN_AWAY_DURATION)
                 TransitionToChase();
-            
+
             switch (currentState)
             {
                 case BotStates.Chase:
@@ -262,44 +354,45 @@ namespace _Bot.Scripts
                 case BotStates.Attack:
                     if (!ReachedTarget()) SetState(BotStates.Chase);
                     break;
+                // ChasePickup handled in Update via timeout + null check
             }
         }
-        
+
         private void TransitionToChase()
         {
             runAwayTimer = 0f;
             SetState(BotStates.Chase);
         }
-        
+
         private bool ReachedTarget() => GetDistanceFromTarget() <= carStats.ReachedTargetDistance;
 
         // ═══════════════════════════════════════════════
         //  CHASE / RUN AWAY
         // ═══════════════════════════════════════════════
-        
+
         private void Chase()
         {
             ObstacleAvoidanceResult avoidance = HandleObstacleDetection();
-            
+
             if (avoidance.isAvoiding)
                 botController.SetInputs(avoidance.turnInput, avoidance.moveInput);
             else
                 NavigateToTarget();
         }
-        
+
         private void NavigateToTarget()
         {
             float turnInput = CalculateTurnInput();
             float moveInput = CalculateMoveInput();
             botController.SetInputs(turnInput, moveInput);
         }
-        
+
         private float CalculateTurnInput()
         {
             if (ReachedTarget()) return 0f;
             return IsTargetToTheRight() ? 1f : -1f;
         }
-        
+
         private float CalculateMoveInput()
         {
             if (ReachedTarget())    return 0f;
@@ -307,22 +400,22 @@ namespace _Bot.Scripts
             if (ShouldBrake())      return -1f;
             return 1f;
         }
-        
+
         private bool ShouldBrake() =>
             GetDistanceFromTarget() < carStats.StoppingDistance &&
             botController.GetSpeed() > carStats.StoppingSpeed;
 
         // ═══════════════════════════════════════════════
-        //  OBSTACLE DETECTION — front dual raycasts
+        //  OBSTACLE DETECTION
         // ═══════════════════════════════════════════════
-        
+
         private struct ObstacleAvoidanceResult
         {
             public bool  isAvoiding;
             public float turnInput;
             public float moveInput;
         }
-        
+
         private ObstacleAvoidanceResult HandleObstacleDetection()
         {
             Vector3 centerOrigin = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
@@ -361,60 +454,60 @@ namespace _Bot.Scripts
 
             return NavigateAroundObstacle(centerOrigin);
         }
-        
+
         private bool CanJumpOver(float obstacleHeight) =>
             obstacleHeight <= carStats.JumpableHeight && botController.IsGrounded();
-        
+
         private ObstacleAvoidanceResult NavigateAroundObstacle(Vector3 origin)
         {
             bool leftClear  = !Physics.Raycast(origin, -transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
             bool rightClear = !Physics.Raycast(origin,  transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
-            
+
             Debug.DrawRay(origin, -transform.right * carStats.SideCheckDistance, leftClear  ? Color.green : Color.red);
             Debug.DrawRay(origin,  transform.right * carStats.SideCheckDistance, rightClear ? Color.green : Color.red);
-            
+
             float turnInput = DetermineTurnDirection(leftClear, rightClear);
             float moveInput = DetermineAvoidanceSpeed(leftClear, rightClear);
-            
+
             return new ObstacleAvoidanceResult { isAvoiding = true, turnInput = turnInput, moveInput = moveInput };
         }
-        
+
         private float DetermineTurnDirection(bool leftClear, bool rightClear)
         {
             if (leftClear  && !rightClear) return -carStats.AvoidanceTurnStrength;
             if (!leftClear && rightClear)  return  carStats.AvoidanceTurnStrength;
             return Random.value > 0.5f ? carStats.AvoidanceTurnStrength : -carStats.AvoidanceTurnStrength;
         }
-        
+
         private float DetermineAvoidanceSpeed(bool leftClear, bool rightClear)
         {
             if (leftClear || rightClear) return 0.5f;
             return -0.3f;
         }
-        
+
         private void RunAway()
         {
             if (lastAttacker == null) { TransitionToChase(); return; }
-            
+
             ObstacleAvoidanceResult avoidance = HandleObstacleDetection();
-            
+
             if (avoidance.isAvoiding)
                 botController.SetInputs(avoidance.turnInput, avoidance.moveInput);
             else
                 NavigateAwayFromAttacker();
-            
+
             runAwayTimer += Time.deltaTime;
             if (runAwayTimer >= RUN_AWAY_DURATION)
                 TransitionToChase();
         }
-        
+
         private void NavigateAwayFromAttacker()
         {
             Vector3 awayDirection = (transform.position - lastAttacker.position).normalized;
             float   turnAmount    = CalculateRunAwayTurnAmount(awayDirection);
             botController.SetInputs(turnAmount, 1f);
         }
-        
+
         private float CalculateRunAwayTurnAmount(Vector3 awayDirection)
         {
             float angle = Vector3.SignedAngle(transform.forward, awayDirection, Vector3.up);
@@ -424,11 +517,14 @@ namespace _Bot.Scripts
         // ═══════════════════════════════════════════════
         //  SHOOTING
         // ═══════════════════════════════════════════════
-        
+
         private void HandleShooting()
         {
             RegenerateCharge();
-            
+
+            // Don't shoot while chasing a power-up
+            if (currentState == BotStates.ChasePickup) return;
+
             if (currentState == BotStates.Attack && CanShoot())
             {
                 Shoot();
@@ -436,7 +532,7 @@ namespace _Bot.Scripts
                 nextFireTime = Time.time + fireRate;
             }
         }
-        
+
         private void RegenerateCharge()
         {
             if (currentCharge >= MAX_CHARGE) return;
@@ -445,16 +541,16 @@ namespace _Bot.Scripts
             if (isOverheated && currentCharge >= MAX_CHARGE)
                 isOverheated = false;
         }
-        
+
         private void ConsumeCharge()
         {
             currentCharge -= CHARGE_PER_SHOT;
             if (currentCharge <= 0f) { currentCharge = 0f; isOverheated = true; }
         }
-        
+
         private bool CanShoot() =>
             !isOverheated && Time.time > nextFireTime && currentCharge >= CHARGE_PER_SHOT;
-        
+
         private void Shoot()
         {
             Vector3 dir = GetShootDirection();
@@ -462,21 +558,21 @@ namespace _Bot.Scripts
             GameObject bullet = InstantiateBullet(dir);
             ConfigureBullet(bullet, dir);
         }
-        
+
         private Vector3 GetShootDirection()
         {
             if (target == null || firePoint == null) return Vector3.zero;
             return (target.position - firePoint.position).normalized;
         }
-        
+
         private GameObject InstantiateBullet(Vector3 dir) =>
             Instantiate(projectile.ProjectilePrefab, firePoint.position, Quaternion.LookRotation(dir));
-        
+
         private void ConfigureBullet(GameObject bullet, Vector3 dir)
         {
             var proj = bullet.GetComponent<Projectile>();
             if (proj != null) proj.SetShooter(gameObject);
-            
+
             var bulletRb = bullet.GetComponent<Rigidbody>();
             if (bulletRb != null && botRigidbody != null)
             {
@@ -488,30 +584,30 @@ namespace _Bot.Scripts
         // ═══════════════════════════════════════════════
         //  HELPERS
         // ═══════════════════════════════════════════════
-        
+
         private bool    IsTargetToTheRight() => GetTurnAngle() > 0;
         private float   GetTurnAngle()       => Vector3.SignedAngle(transform.forward, GetTargetDirection(), Vector3.up);
         private bool    IsTargetInFront()    => Vector3.Dot(transform.forward, GetTargetDirection()) > 0;
-        
+
         private Vector3 GetTargetDirection()
         {
             if (target == null) return transform.forward;
             return (target.position - transform.position).normalized;
         }
-        
+
         private float GetDistanceFromTarget()
         {
             if (target == null) return Mathf.Infinity;
             return Vector3.Distance(target.position, transform.position);
         }
-        
+
         private void FindClosestTarget()
         {
             float     closestDistance = Mathf.Infinity;
             Transform closestTarget   = null;
-            
+
             CarHealth[] allCars = FindObjectsByType<CarHealth>(FindObjectsSortMode.None);
-            
+
             foreach (CarHealth car in allCars)
             {
                 if (car.gameObject == gameObject) continue;
@@ -522,15 +618,19 @@ namespace _Bot.Scripts
                     closestTarget   = car.transform;
                 }
             }
-            
+
             if (closestTarget != null)
                 target = closestTarget;
         }
-        
+
         private void SetState(BotStates newState) => currentState = newState;
-        
+
         public void OnHit(Transform attacker)
         {
+            // If hit while chasing a power-up, abandon it and run
+            if (currentState == BotStates.ChasePickup)
+                AbandonPowerUpChase();
+
             lastAttacker = attacker;
             runAwayTimer = 0f;
             SetState(BotStates.RunAway);

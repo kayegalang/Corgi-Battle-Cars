@@ -205,5 +205,13 @@ namespace _Gameplay.Scripts
             screenFlash.color = Color.clear;
             screenFlash.gameObject.SetActive(false);
         }
+        
+        public IEnumerator PlayCountdown()
+        {
+            yield return StartCoroutine(ShowNumber(3));
+            yield return StartCoroutine(ShowNumber(2));
+            yield return StartCoroutine(ShowNumber(1));
+            yield return StartCoroutine(ShowGo());
+        }
     }
 }

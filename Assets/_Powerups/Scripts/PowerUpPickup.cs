@@ -25,12 +25,13 @@ namespace _PowerUps.Scripts
         [SerializeField] private float maxVibrationStrength = 0.8f;
         
         private Vector3 startPosition;
-        private bool    isCollected = false;
+        private bool    isCollected     = false;
+        private bool    isCinematicMode = false;
         
-        private readonly List<GameObject>            playersInSmellRange     = new List<GameObject>();
-        private readonly List<GameObject>            playersInVibrationRange = new List<GameObject>();
-        private readonly List<GameObject>            playersInRevealRange    = new List<GameObject>();
-        private readonly Dictionary<GameObject, bool> playerVibrating        = new Dictionary<GameObject, bool>();
+        private readonly List<GameObject>             playersInSmellRange     = new List<GameObject>();
+        private readonly List<GameObject>             playersInVibrationRange = new List<GameObject>();
+        private readonly List<GameObject>             playersInRevealRange    = new List<GameObject>();
+        private readonly Dictionary<GameObject, bool> playerVibrating         = new Dictionary<GameObject, bool>();
 
         // ═══════════════════════════════════════════════
         //  LIFECYCLE
@@ -52,7 +53,31 @@ namespace _PowerUps.Scripts
         {
             if (isCollected) return;
             BobAndRotate();
-            UpdateProximityEffects();
+
+            // Skip proximity checks in cinematic mode — everything is forced visible
+            if (!isCinematicMode)
+                UpdateProximityEffects();
+        }
+
+        // ═══════════════════════════════════════════════
+        //  CINEMATIC MODE
+        // ═══════════════════════════════════════════════
+
+        /// <summary>
+        /// Called by CinematicFreeCam when toggling on/off.
+        /// Forces treat and smell trail visible for filming.
+        /// </summary>
+        public void SetCinematicVisible(bool visible)
+        {
+            isCinematicMode = visible;
+
+            SetTreatVisible(visible);
+
+            if (smellTrailParticles != null)
+            {
+                if (visible) smellTrailParticles.Play();
+                else         smellTrailParticles.Stop();
+            }
         }
 
         // ═══════════════════════════════════════════════
@@ -213,7 +238,6 @@ namespace _PowerUps.Scripts
         {
             if (isCollected) return;
             
-            // Walk up to root so we always get the player root even if collider is on a child
             GameObject root = other.transform.root.gameObject;
 
             if (!root.CompareTag("PlayerOne")   &&
@@ -227,7 +251,6 @@ namespace _PowerUps.Scripts
         
         private void Collect(GameObject player)
         {
-            // Don't collect if the player is dead
             CarHealth health = player.GetComponent<CarHealth>();
             if (health != null && health.IsDead()) return;
 
