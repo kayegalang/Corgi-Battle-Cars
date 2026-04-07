@@ -1673,7 +1673,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c0476f0d414e4a75bcdc3be96d7539c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Gameplay.Scripts.TrailerSceneBootstrapper
-  humanPlayerCount: 1
+  humanPlayerCount: 0
   countdownUI: {fileID: 1278564185}
   fallbackDelay: 1
 --- !u!4 &556869792

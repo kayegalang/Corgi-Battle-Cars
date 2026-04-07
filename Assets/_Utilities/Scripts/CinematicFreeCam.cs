@@ -26,16 +26,20 @@ namespace _Gameplay.Scripts
     /// DOLLY MODE  (press F3)
     ///   Camera moves along a fixed path at a set speed.
     ///   F3            Toggle dolly playback on/off
-    ///   P             Add a waypoint at the current camera position/rotation
+    ///   P             Add a waypoint at current position/rotation
     ///   Backspace     Remove the last waypoint
     ///   Scroll        Adjust dolly speed
     ///   Hold Space    Pause dolly mid-path
     ///   R             Reset to start of path
     ///
+    /// SLOW MOTION  (press F4)
+    ///   F4            Toggle slow motion on/off
+    ///   Adjustable slowMoScale in Inspector (default 0.3x)
+    ///
     /// GLOBAL
     ///   F1            Toggle cinematic cam on/off
-    ///                 PlayerOne is hidden while cinematic cam is active.
-    ///                 Power-ups and smell trails are always visible while active.
+    ///                 PlayerOne hidden while active.
+    ///                 Power-ups always visible while active.
     ///
     /// ═════════════════════════════════════════════════
     /// </summary>
@@ -46,9 +50,10 @@ namespace _Gameplay.Scripts
         // ═══════════════════════════════════════════════
 
         [Header("Global")]
-        [SerializeField] private KeyCode toggleKey = KeyCode.F1;
-        [SerializeField] private KeyCode followKey = KeyCode.F2;
-        [SerializeField] private KeyCode dollyKey  = KeyCode.F3;
+        [SerializeField] private KeyCode toggleKey  = KeyCode.F1;
+        [SerializeField] private KeyCode followKey  = KeyCode.F2;
+        [SerializeField] private KeyCode dollyKey   = KeyCode.F3;
+        [SerializeField] private KeyCode slowMoKey  = KeyCode.F4;
 
         [Header("Free Cam — Movement")]
         [SerializeField] private float moveSpeed       = 10f;
@@ -76,6 +81,9 @@ namespace _Gameplay.Scripts
         [SerializeField] private float dollyRotSmooth = 3f;
         [SerializeField] private bool  dollyLoop      = false;
 
+        [Header("Slow Motion")]
+        [SerializeField] [Range(0.05f, 0.9f)] private float slowMoScale = 0.3f;
+
         // ═══════════════════════════════════════════════
         //  STATE
         // ═══════════════════════════════════════════════
@@ -84,7 +92,8 @@ namespace _Gameplay.Scripts
         private Mode currentMode = Mode.Free;
 
         private Camera cinemaCam;
-        private bool   isActive = false;
+        private bool   isActive  = false;
+        private bool   isSlowMo  = false;
 
         // Free cam
         private float   yaw, pitch;
@@ -128,6 +137,7 @@ namespace _Gameplay.Scripts
             if (!isActive) return;
 
             HandleModeSwitch();
+            HandleSlowMo();
 
             switch (currentMode)
             {
@@ -160,11 +170,13 @@ namespace _Gameplay.Scripts
                 if (player != null) player.SetActive(false);
                 SetPowerUpsAlwaysVisible(true);
 
-                Debug.Log("[CinematicFreeCam] ON  |  F1=off  F2=follow  F3=dolly");
+                Debug.Log("[CinematicFreeCam] ON  |  F1=off  F2=follow  F3=dolly  F4=slowmo");
             }
             else
             {
-                dollyPlaying = false;
+                dollyPlaying   = false;
+                isSlowMo       = false;
+                Time.timeScale = 1f;
                 UnlockCursor();
 
                 if (player != null) player.SetActive(true);
@@ -172,6 +184,21 @@ namespace _Gameplay.Scripts
 
                 Debug.Log("[CinematicFreeCam] OFF");
             }
+        }
+
+        // ═══════════════════════════════════════════════
+        //  SLOW MOTION
+        // ═══════════════════════════════════════════════
+
+        private void HandleSlowMo()
+        {
+            if (!Input.GetKeyDown(slowMoKey)) return;
+
+            isSlowMo       = !isSlowMo;
+            Time.timeScale = isSlowMo ? slowMoScale : 1f;
+            Debug.Log(isSlowMo
+                ? $"[CinematicFreeCam] SLOW MO ON ({slowMoScale}x)"
+                : "[CinematicFreeCam] SLOW MO OFF (1x)");
         }
 
         // ═══════════════════════════════════════════════
@@ -238,7 +265,7 @@ namespace _Gameplay.Scripts
 
             Vector3 target = transform.TransformDirection(input.normalized) * speed;
             currentMove = Vector3.SmoothDamp(currentMove, target, ref smoothVel, smoothTime);
-            transform.position += currentMove * Time.deltaTime;
+            transform.position += currentMove * Time.unscaledDeltaTime;
         }
 
         private void HandleFreeScrollSpeed()
@@ -309,7 +336,7 @@ namespace _Gameplay.Scripts
             Quaternion orbitRot   = Quaternion.Euler(orbitPitch, orbitYaw, 0f);
             Vector3    desiredPos = target.position + orbitRot * new Vector3(0f, followHeight, -followDistance);
 
-            transform.position = Vector3.Lerp(transform.position, desiredPos, followSmoothSpeed * Time.deltaTime);
+            transform.position = Vector3.Lerp(transform.position, desiredPos, followSmoothSpeed * Time.unscaledDeltaTime);
             transform.LookAt(target.position + Vector3.up * followHeight * 0.5f);
         }
 
@@ -408,7 +435,7 @@ namespace _Gameplay.Scripts
         {
             float totalSegments = waypoints.Count - 1;
 
-            dollyProgress += (dollySpeed * Time.deltaTime) / GetApproxPathLength();
+            dollyProgress += (dollySpeed * Time.unscaledDeltaTime) / GetApproxPathLength();
             dollyProgress  = dollyLoop ? dollyProgress % 1f : Mathf.Clamp01(dollyProgress);
 
             float scaled   = dollyProgress * totalSegments;
@@ -417,7 +444,7 @@ namespace _Gameplay.Scripts
 
             Vector3    pos       = CatmullRomPosition(segIndex, segT);
             Quaternion targetRot = Quaternion.Slerp(waypoints[segIndex].rotation, waypoints[segIndex + 1].rotation, segT);
-            Quaternion smoothRot = Quaternion.Slerp(transform.rotation, targetRot, dollyRotSmooth * Time.deltaTime * 10f);
+            Quaternion smoothRot = Quaternion.Slerp(transform.rotation, targetRot, dollyRotSmooth * Time.unscaledDeltaTime * 10f);
 
             transform.position = pos;
             transform.rotation = smoothRot;

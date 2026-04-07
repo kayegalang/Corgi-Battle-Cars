@@ -12,33 +12,40 @@ namespace _Bot.Scripts
     public class BotAI : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private AICarStats     carStats;
+        [SerializeField] private AICarStats       carStats;
         [SerializeField] private ProjectileObject projectile;
 
         [Header("Power-Up Seeking")]
         [Tooltip("Chance (0-1) per check interval that the bot will seek a nearby power-up")]
-        [SerializeField] [Range(0f, 1f)] private float powerUpSeekChance = 0.3f;
+        [SerializeField] [Range(0f, 1f)] private float powerUpSeekChance   = 0.3f;
         [Tooltip("Only seek power-ups within this distance")]
-        [SerializeField] private float powerUpSeekRadius = 20f;
+        [SerializeField] private float powerUpSeekRadius    = 20f;
         [Tooltip("How long the bot will chase a power-up before giving up")]
-        [SerializeField] private float powerUpChaseTimeout = 5f;
+        [SerializeField] private float powerUpChaseTimeout  = 5f;
+
+        [Header("Random Jump")]
+        [Tooltip("How often (seconds) the bot considers jumping")]
+        [SerializeField] private float randomJumpInterval   = 3f;
+        [Tooltip("Chance (0-1) the bot will jump each interval")]
+        [SerializeField] [Range(0f, 1f)] private float randomJumpChance = 0.4f;
 
         private BotController botController;
         private Rigidbody     botRigidbody;
         private Transform     firePoint;
         private CooldownBarUI cooldownBar;
 
-        private BotStates currentState  = BotStates.Chase;
+        private BotStates currentState = BotStates.Chase;
         private Transform target;
         private Transform lastAttacker;
 
         // Power-up seeking state
-        private Transform powerUpTarget      = null;
-        private float     powerUpChaseTimer  = 0f;
+        private Transform powerUpTarget     = null;
+        private float     powerUpChaseTimer = 0f;
 
         private float nextFireTime     = 0f;
         private float targetCheckTimer = 0f;
         private float runAwayTimer     = 0f;
+        private float randomJumpTimer  = 0f;
 
         private const float TARGET_CHECK_INTERVAL = 2f;
         private const float RUN_AWAY_DURATION     = 3f;
@@ -126,6 +133,7 @@ namespace _Bot.Scripts
             UpdateTargetSearch();
             CheckIfStuck();
             UpdateCooldownBar();
+            HandleRandomJump();
 
             // Power-up chase timeout
             if (currentState == BotStates.ChasePickup)
@@ -160,9 +168,23 @@ namespace _Bot.Scripts
             targetCheckTimer = 0f;
             FindClosestTarget();
 
-            // Only consider seeking a power-up if not already chasing one and not running away
             if (currentState != BotStates.ChasePickup && currentState != BotStates.RunAway)
                 TrySeekPowerUp();
+        }
+
+        // ═══════════════════════════════════════════════
+        //  RANDOM JUMP
+        // ═══════════════════════════════════════════════
+
+        private void HandleRandomJump()
+        {
+            randomJumpTimer += Time.deltaTime;
+            if (randomJumpTimer < randomJumpInterval) return;
+
+            randomJumpTimer = 0f;
+
+            if (Random.value < randomJumpChance)
+                botController.Jump();
         }
 
         // ═══════════════════════════════════════════════
@@ -171,7 +193,6 @@ namespace _Bot.Scripts
 
         private void TrySeekPowerUp()
         {
-            // Random roll — don't always go for power-ups
             if (Random.value > powerUpSeekChance) return;
 
             PowerUpPickup nearest = FindNearestPowerUp();
@@ -216,7 +237,6 @@ namespace _Bot.Scripts
                 return;
             }
 
-            // Navigate toward power-up
             Vector3 dirToPickup = (powerUpTarget.position - transform.position).normalized;
             float   angle       = Vector3.SignedAngle(transform.forward, dirToPickup, Vector3.up);
             float   turnInput   = Mathf.Clamp(angle / TURN_ANGLE_DIVISOR, -1f, 1f);
@@ -354,7 +374,6 @@ namespace _Bot.Scripts
                 case BotStates.Attack:
                     if (!ReachedTarget()) SetState(BotStates.Chase);
                     break;
-                // ChasePickup handled in Update via timeout + null check
             }
         }
 
@@ -522,7 +541,6 @@ namespace _Bot.Scripts
         {
             RegenerateCharge();
 
-            // Don't shoot while chasing a power-up
             if (currentState == BotStates.ChasePickup) return;
 
             if (currentState == BotStates.Attack && CanShoot())
@@ -627,7 +645,6 @@ namespace _Bot.Scripts
 
         public void OnHit(Transform attacker)
         {
-            // If hit while chasing a power-up, abandon it and run
             if (currentState == BotStates.ChasePickup)
                 AbandonPowerUpChase();
 
