@@ -252,10 +252,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55a3d00a7c77a4279a9aa54168af19f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_UI.Scripts.CooldownBarUI
-  cooldownFillImage: {fileID: 2459333492355076337}
-  weaponReadyColor: {r: 0.30980393, g: 0.58431375, b: 0.81960785, a: 1}
-  onCooldownColor: {r: 1, g: 0.2, b: 0.2, a: 1}
-  backgroundImage: {fileID: 3353608071545738442}
+  cooldownSprites:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  cooldownImage: {fileID: 0}
 --- !u!1 &5141252764789444302
 GameObject:
   m_ObjectHideFlags: 0
@@ -541,7 +545,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &1756344707276884545
 MonoBehaviour:
   m_ObjectHideFlags: 0
