@@ -463,7 +463,9 @@ namespace _Cars.Scripts
         // ═══════════════════════════════════════════════
         //  SET PROJECTILE TYPE (runtime swap)
         // ═══════════════════════════════════════════════
-
+        
+        public bool IsFiring() => isFiring;
+        
         public void SetProjectileType(ProjectileObject newProjectile)
         {
             if (newProjectile == null)
@@ -476,6 +478,16 @@ namespace _Cars.Scripts
             currentCharge       = MAX_CHARGE;
             isOverheated        = false;
             nextAllowedFireTime = 0f;
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  AIM DIRECTION (used by TurretVisuals)
+        // ═══════════════════════════════════════════════
+
+        public Vector3 GetAimDirection()
+        {
+            if (reticle == null || playerCamera == null || firePoint == null) return Vector3.zero;
+            return CalculateShootDirectionFromReticle();
         }
     }
 }

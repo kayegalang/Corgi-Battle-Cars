@@ -760,6 +760,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DefaultPlayer
       objectReference: {fileID: 0}
+    - target: {fileID: 2990045376355868320, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 5864814094004449654, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
       propertyPath: m_LocalPosition.x
       value: -57.913315
@@ -860,6 +864,10 @@ PrefabInstance:
     - target: {fileID: 4603156116648498359, guid: fc5a676d2c90b3d4f8a22e369c35950d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4603156116648498359, guid: fc5a676d2c90b3d4f8a22e369c35950d, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5779683763510339645, guid: fc5a676d2c90b3d4f8a22e369c35950d, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
