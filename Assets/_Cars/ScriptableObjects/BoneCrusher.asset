@@ -15,8 +15,8 @@ MonoBehaviour:
   carName: Bone Crusher
   carDescription: Slow, more health, bumping hurts more
   carID: Tank
-  speedStat: 20.37037
-  accelerationStat: 25
+  speedStat: 37.56614
+  accelerationStat: 28.703705
   jumpForceStat: 17.56614
   healthStat: 100
   minMaxSpeed: 24.748678
