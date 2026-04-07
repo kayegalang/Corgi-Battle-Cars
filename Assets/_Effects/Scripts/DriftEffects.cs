@@ -16,7 +16,7 @@ namespace _Cars.Scripts
         [Tooltip("The visual mesh root of the car — this gets tilted, NOT the physics root")]
         [SerializeField] private Transform carBodyRoot;
 
-        [Tooltip("Max Z-axis tilt angle in degrees — exaggerated cartoon feel")]
+        [Tooltip("Max Y-axis tilt angle in degrees — exaggerated cartoon feel")]
         [SerializeField] private float maxTiltAngle = 25f;
 
         [Tooltip("How fast the body tilts into the drift")]
@@ -36,10 +36,11 @@ namespace _Cars.Scripts
         [SerializeField] private float dustEmissionRate = 25f;
 
         // Runtime state
-        private float   currentTiltAngle = 0f;
-        private float   targetTiltAngle  = 0f;
-        private bool    isDrifting       = false;
-        private float   driftDirection   = 0f; // -1 left, +1 right
+        private float     currentTiltAngle = 0f;
+        private float     targetTiltAngle  = 0f;
+        private bool      isDrifting       = false;
+        private float     driftDirection   = 0f;
+        private Quaternion initialRotation;
 
         // ── Public getters for WheelVisuals ──────────────
         public bool  IsDrifting       => isDrifting;
@@ -54,6 +55,11 @@ namespace _Cars.Scripts
         private void Awake()
         {
             StopDust();
+
+            // Cache the model's original rotation so drift tilt is applied on top of it
+            // This preserves any rotation offset needed to align the model correctly
+            if (carBodyRoot != null)
+                initialRotation = carBodyRoot.localRotation;
         }
 
         private void Update()
@@ -65,28 +71,13 @@ namespace _Cars.Scripts
         //  PUBLIC API — called from CarController
         // ═══════════════════════════════════════════════
 
-        /// <summary>
-        /// Call from CarController every FixedUpdate with current drift state.
-        /// driftDir: negative = drifting left, positive = drifting right, 0 = not drifting
-        /// </summary>
         public void SetDrifting(bool drifting, float driftDir)
         {
-            if (drifting && !isDrifting)
-            {
-                // Capture direction ONCE when drift starts — never changes mid-drift
-                driftDirection = Mathf.Sign(driftDir);
-            }
-            else if (!drifting)
-            {
-                driftDirection = 0f;
-            }
-
-            isDrifting = drifting;
-            driftDirection  = driftDir;
+            isDrifting     = drifting;
+            driftDirection = driftDir;
 
             if (drifting)
             {
-                // Rear swings opposite to turn direction — classic drift sliding look
                 targetTiltAngle = driftDir * maxTiltAngle;
                 PlayDust();
             }
@@ -108,9 +99,9 @@ namespace _Cars.Scripts
             float speed = isDrifting ? tiltSpeed : returnSpeed;
             currentTiltAngle = Mathf.Lerp(currentTiltAngle, targetTiltAngle, speed * Time.deltaTime);
 
-            // Apply on Y axis — car body visually rotates like rear is sliding out
-            // X and Z stay 0 so it doesn't fight with physics rotation
-            carBodyRoot.localEulerAngles = new Vector3(0f, currentTiltAngle, 0f);
+            // Apply drift Y rotation on top of the model's original rotation
+            // so any rotation offset needed to align the mesh is preserved
+            carBodyRoot.localRotation = initialRotation * Quaternion.Euler(0f, currentTiltAngle, 0f);
         }
 
         // ═══════════════════════════════════════════════
@@ -137,8 +128,8 @@ namespace _Cars.Scripts
 
             if (active)
             {
-                emission.enabled          = true;
-                emission.rateOverTime     = dustEmissionRate;
+                emission.enabled      = true;
+                emission.rateOverTime = dustEmissionRate;
                 if (!ps.isPlaying) ps.Play();
             }
             else

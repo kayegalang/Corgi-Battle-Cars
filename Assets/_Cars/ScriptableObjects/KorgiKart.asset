@@ -29,5 +29,5 @@ MonoBehaviour:
   maxMaxHealth: 125
   minTurnSpeed: 20
   maxTurnSpeed: 35
-  groundCheckOffset: {x: 0, y: 0.26, z: 0}
+  groundCheckOffset: {x: 0, y: 0, z: 0}
   groundCheckDistance: 0.26

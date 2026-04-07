@@ -128,8 +128,8 @@ namespace _Cars.Scripts
 
             cooldownBar = GetComponentInChildren<CooldownBarUI>();
 
-            if (cooldownBar == null)
-                Debug.LogError($"[{nameof(CarShooter)}] ✗ {gameObject.name} - CooldownBarUI not found!");
+            // if (cooldownBar == null)
+            //     Debug.LogError($"[{nameof(CarShooter)}] ✗ {gameObject.name} - CooldownBarUI not found!");
         }
 
         // ═══════════════════════════════════════════════

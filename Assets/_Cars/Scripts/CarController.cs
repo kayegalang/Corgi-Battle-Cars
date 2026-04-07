@@ -17,7 +17,7 @@ namespace _Cars.Scripts
         [SerializeField] private ParticleSystem zoomiesParticles;
 
         [Header("Drift Settings")]
-        [SerializeField] private float driftTurnMultiplier  = 3f;
+        [SerializeField] private float driftTurnMultiplier  = 1.5f;
         [SerializeField] private float driftSpeedBoost      = 8f;
         [SerializeField] private float minDriftSpeedBoost   = 0.3f;
 
@@ -27,9 +27,15 @@ namespace _Cars.Scripts
         [SerializeField] private float crashCooldown        = 0.5f;
 
         [Header("Bounce Settings")]
-        [SerializeField] private float bounceForce          = 8f;   // how hard the bounce is
-        [SerializeField] private float bounceUpForce        = 2f;   // slight upward pop for cartoon feel
-        [SerializeField] private float bounceSpeedThreshold = 3f;   // min speed to trigger bounce
+        [SerializeField] private float bounceForce          = 8f;
+        [SerializeField] private float bounceUpForce        = 2f;
+        [SerializeField] private float bounceSpeedThreshold = 3f;
+
+        [Header("Ground Check Override")]
+        [Tooltip("Override ground check offset — useful when collider size changes")]
+        [SerializeField] private bool  overrideGroundCheck     = false;
+        [SerializeField] private Vector3 groundCheckOffset     = new Vector3(0f, 0f, 0f);
+        [SerializeField] private float   groundCheckDistance   = 1.5f;
         
         private PlayerInput playerInput;
         private InputAction moveAction;
@@ -64,9 +70,6 @@ namespace _Cars.Scripts
 
         // Crash cooldown
         private float lastCrashTime = -999f;
-
-        // Drift effects
-        private DriftEffects driftEffects;
         
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
         private const float AIRBORNE_ANGULAR_DAMPING = 5f;
@@ -81,7 +84,6 @@ namespace _Cars.Scripts
         private void Awake()
         {
             InitializeComponents();
-            driftEffects = GetComponent<DriftEffects>();
         }
         
         private void Update()
@@ -162,8 +164,7 @@ namespace _Cars.Scripts
         {
             bool driftHeld = driftAction != null && driftAction.IsPressed();
 
-            float forwardSpeed = transform.InverseTransformDirection(carRb.linearVelocity).z;
-            if (driftHeld && IsGrounded() && forwardSpeed > 1f)
+            if (driftHeld && IsGrounded() && moveInput.y != 0)
             {
                 if (!isDrifting)
                     isDrifting = true;
@@ -178,9 +179,6 @@ namespace _Cars.Scripts
                 isDrifting = false;
                 driftTimer = 0f;
             }
-
-            // Update drift visual effects
-            driftEffects?.SetDrifting(isDrifting, moveInput.x);
         }
 
         private void ApplyDriftBoost()
@@ -468,13 +466,13 @@ namespace _Cars.Scripts
         public bool IsGrounded()
         {
             if (carStats == null) return false;
-            
-            Vector3 origin    = transform.position + carStats.GroundCheckOffset;
-            Vector3 direction = -transform.up;
-            float   distance  = carStats.GroundCheckDistance;
-            
-            Debug.DrawRay(origin, direction * distance, Color.red);
-            return Physics.Raycast(origin, direction, out RaycastHit hit, distance);
+
+            // Use override values if enabled, otherwise fall back to CarStats
+            Vector3 origin   = transform.position + (overrideGroundCheck ? groundCheckOffset : carStats.GroundCheckOffset);
+            float   distance = overrideGroundCheck ? groundCheckDistance : carStats.GroundCheckDistance;
+
+            Debug.DrawRay(origin, -transform.up * distance, Color.red);
+            return Physics.Raycast(origin, -transform.up, out RaycastHit hit, distance);
         }
         
         private void Jump()
@@ -600,7 +598,5 @@ namespace _Cars.Scripts
             moveInput.x = Mathf.Clamp(turnAmount, -1f, 1f);
             moveInput.y = Mathf.Clamp(moveAmount, -1f, 1f);
         }
-
-        public Vector2 GetMoveInput() => moveInput;
     }
 }
