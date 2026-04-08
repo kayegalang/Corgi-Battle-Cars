@@ -119,6 +119,9 @@ namespace _Gameplay.Scripts
             StartCoroutine(FlashScreen());
             
             AudioManager.instance.PlayOneShot(FMODEvents.instance.barkGoSound, this.transform.position);
+            
+            if (MusicController.instance != null)
+                MusicController.instance.StartMusic();
 
             yield return StartCoroutine(PunchAnimate(goText, colorGo, true));
         }
