@@ -88,15 +88,12 @@ namespace _Gameplay.Scripts
             {
                 case 3:
                     AudioManager.instance.PlayOneShot(FMODEvents.instance.bark3Sound, this.transform.position);
-                    Debug.Log("bark 3");
                     break;
                 case 2:
                     AudioManager.instance.PlayOneShot(FMODEvents.instance.bark2Sound, this.transform.position);
-                    Debug.Log("bark 2");
                     break;
                 case 1:
                     AudioManager.instance.PlayOneShot(FMODEvents.instance.bark1Sound, this.transform.position);
-                    Debug.Log("bark 1");
                     break;
             }
 

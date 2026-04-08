@@ -14,8 +14,11 @@ public class FMODEvents : MonoBehaviour
     [field: SerializeField] public EventReference bark1Sound { get; private set; }
     [field: SerializeField] public EventReference barkGoSound { get; private set; }
 
-    [field: Header("Selection Click")]
+    [field: Header("UI")]
     [field: SerializeField] public EventReference clicksound { get; private set; }
+    
+    [field: Header("PowerUps")]
+    [field: SerializeField] public EventReference shootsound { get; private set; }
     public static FMODEvents instance { get; private set; }
 
     private void Awake()

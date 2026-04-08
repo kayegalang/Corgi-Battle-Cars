@@ -7001,6 +7001,13 @@ MonoBehaviour:
       Data3: -487128652
       Data4: -99941290
     Path: event:/UI/ClickSelect
+  <shootsound>k__BackingField:
+    Guid:
+      Data1: -1157410978
+      Data2: 1083807063
+      Data3: 2044705720
+      Data4: -1961419844
+    Path: event:/Gameplay/Shoot
 --- !u!1 &1465564545
 GameObject:
   m_ObjectHideFlags: 0

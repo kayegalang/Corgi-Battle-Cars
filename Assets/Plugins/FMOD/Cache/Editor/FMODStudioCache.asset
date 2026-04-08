@@ -87,7 +87,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: 8877521199452435746}
   cacheVersion: 131858
-  cacheTime: 639112156539570773
+  cacheTime: 639112178033075886
   SerializableEventsDict:
   - key: event:/Gameplay/Shoot
     index: 0
@@ -172,10 +172,10 @@ MonoBehaviour:
   Path: D:/CorgiBattleCarsFMOD/Build/Desktop/Gameplay.bank
   Name: Gameplay
   StudioPath: bank:/Gameplay
-  lastModified: 639109688514772645
+  lastModified: 639112178033075886
   FileSizes:
   - Name: Desktop
-    Value: 4416
+    Value: 7040
   Exists: 1
 --- !u!114 &4092548037083574775
 MonoBehaviour:
