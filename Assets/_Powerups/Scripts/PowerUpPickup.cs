@@ -12,9 +12,9 @@ namespace _PowerUps.Scripts
         [SerializeField] private PowerUpObject powerUp;
         
         [Header("Visuals")]
-        [SerializeField] private GameObject    treatVisual;
+        [SerializeField] private GameObject     treatVisual;
         [SerializeField] private ParticleSystem smellTrailParticles;
-        [SerializeField] private GameObject    collectEffectPrefab;
+        [SerializeField] private GameObject     collectEffectPrefab;
         
         [Header("Bobbing Animation")]
         [SerializeField] private float bobHeight   = 0.3f;
@@ -28,10 +28,14 @@ namespace _PowerUps.Scripts
         private bool    isCollected     = false;
         private bool    isCinematicMode = false;
         
-        private readonly List<GameObject>             playersInSmellRange     = new List<GameObject>();
-        private readonly List<GameObject>             playersInVibrationRange = new List<GameObject>();
-        private readonly List<GameObject>             playersInRevealRange    = new List<GameObject>();
-        private readonly Dictionary<GameObject, bool> playerVibrating         = new Dictionary<GameObject, bool>();
+        // Track proximity for both players and bots
+        private readonly List<GameObject>             allInSmellRange     = new List<GameObject>();
+        private readonly List<GameObject>             allInVibrationRange = new List<GameObject>();
+        private readonly List<GameObject>             allInRevealRange    = new List<GameObject>();
+        private readonly Dictionary<GameObject, bool> playerVibrating     = new Dictionary<GameObject, bool>();
+
+        private static readonly string[] PlayerTags = { "PlayerOne", "PlayerTwo", "PlayerThree", "PlayerFour" };
+        private static readonly string[] BotTags    = { "BotOne", "BotTwo", "BotThree", "BotFour" };
 
         // ═══════════════════════════════════════════════
         //  LIFECYCLE
@@ -54,7 +58,6 @@ namespace _PowerUps.Scripts
             if (isCollected) return;
             BobAndRotate();
 
-            // Skip proximity checks in cinematic mode — everything is forced visible
             if (!isCinematicMode)
                 UpdateProximityEffects();
         }
@@ -63,14 +66,9 @@ namespace _PowerUps.Scripts
         //  CINEMATIC MODE
         // ═══════════════════════════════════════════════
 
-        /// <summary>
-        /// Called by CinematicFreeCam when toggling on/off.
-        /// Forces treat and smell trail visible for filming.
-        /// </summary>
         public void SetCinematicVisible(bool visible)
         {
             isCinematicMode = visible;
-
             SetTreatVisible(visible);
 
             if (smellTrailParticles != null)
@@ -79,6 +77,31 @@ namespace _PowerUps.Scripts
                 else         smellTrailParticles.Stop();
             }
         }
+
+        // ═══════════════════════════════════════════════
+        //  PUBLIC API — for BotAI to query
+        // ═══════════════════════════════════════════════
+
+        /// <summary>
+        /// Returns true if this pickup is within smell range of the given position.
+        /// BotAI uses this to "sniff" for nearby power-ups.
+        /// </summary>
+        public bool IsWithinSmellRange(Vector3 position)
+        {
+            if (powerUp == null) return false;
+            return Vector3.Distance(transform.position, position) <= powerUp.smellDistance;
+        }
+
+        /// <summary>
+        /// Returns true if this pickup is within reveal range of the given position.
+        /// </summary>
+        public bool IsWithinRevealRange(Vector3 position)
+        {
+            if (powerUp == null) return false;
+            return Vector3.Distance(transform.position, position) <= powerUp.revealDistance;
+        }
+
+        public PowerUpObject GetPowerUp() => powerUp;
 
         // ═══════════════════════════════════════════════
         //  VISUALS
@@ -94,68 +117,92 @@ namespace _PowerUps.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  PROXIMITY EFFECTS
+        //  PROXIMITY EFFECTS — players AND bots
         // ═══════════════════════════════════════════════
         
         private void UpdateProximityEffects()
         {
-            var allPlayers = new List<GameObject>();
-            string[] playerTags = { "PlayerOne", "PlayerTwo", "PlayerThree", "PlayerFour" };
+            var allEntities = new List<GameObject>();
 
-            foreach (string tag in playerTags)
+            // Collect players
+            foreach (string tag in PlayerTags)
             {
-                try { allPlayers.AddRange(GameObject.FindGameObjectsWithTag(tag)); }
+                try { allEntities.AddRange(GameObject.FindGameObjectsWithTag(tag)); }
                 catch { }
             }
 
-            foreach (GameObject player in allPlayers)
+            // Collect bots
+            foreach (string tag in BotTags)
             {
-                float distance = Vector3.Distance(transform.position, player.transform.position);
-                HandleSmellRange(player, distance);
-                HandleVibrationRange(player, distance);
-                HandleRevealRange(player, distance);
+                try { allEntities.AddRange(GameObject.FindGameObjectsWithTag(tag)); }
+                catch { }
+            }
+
+            foreach (GameObject entity in allEntities)
+            {
+                float distance = Vector3.Distance(transform.position, entity.transform.position);
+                HandleSmellRange(entity, distance);
+                HandleRevealRange(entity, distance);
+
+                // Only vibrate human players
+                if (IsPlayer(entity))
+                    HandleVibrationRange(entity, distance);
             }
         }
+
+        private bool IsPlayer(GameObject entity)
+        {
+            foreach (string tag in PlayerTags)
+                if (entity.CompareTag(tag)) return true;
+            return false;
+        }
+
+        private bool IsBot(GameObject entity)
+        {
+            foreach (string tag in BotTags)
+                if (entity.CompareTag(tag)) return true;
+            return false;
+        }
         
-        private void HandleSmellRange(GameObject player, float distance)
+        private void HandleSmellRange(GameObject entity, float distance)
         {
             bool inRange    = distance <= powerUp.smellDistance;
-            bool wasInRange = playersInSmellRange.Contains(player);
+            bool wasInRange = allInSmellRange.Contains(entity);
             
             if (inRange && !wasInRange)
             {
-                playersInSmellRange.Add(player);
-                OnPlayerEnterSmellRange(player);
+                allInSmellRange.Add(entity);
+                OnEntityEnterSmellRange();
             }
             else if (!inRange && wasInRange)
             {
-                playersInSmellRange.Remove(player);
-                OnPlayerExitSmellRange(player);
+                allInSmellRange.Remove(entity);
+                OnEntityExitSmellRange();
             }
         }
         
-        private void OnPlayerEnterSmellRange(GameObject player)
+        private void OnEntityEnterSmellRange()
         {
             if (smellTrailParticles != null && !smellTrailParticles.isPlaying)
                 smellTrailParticles.Play();
         }
         
-        private void OnPlayerExitSmellRange(GameObject player)
+        private void OnEntityExitSmellRange()
         {
-            if (playersInSmellRange.Count == 0 && smellTrailParticles != null)
+            if (allInSmellRange.Count == 0 && smellTrailParticles != null)
                 smellTrailParticles.Stop();
         }
         
         private void HandleVibrationRange(GameObject player, float distance)
         {
             bool inRange    = distance <= powerUp.vibrationDistance;
-            bool wasInRange = playersInVibrationRange.Contains(player);
+            bool wasInRange = allInVibrationRange.Contains(player);
             
             if (inRange && !wasInRange)
-                playersInVibrationRange.Add(player);
+                allInVibrationRange.Add(player);
             else if (!inRange && wasInRange)
             {
-                playersInVibrationRange.Remove(player);
+                allInVibrationRange.Remove(player);
                 StopVibration(player);
             }
             
@@ -198,31 +245,26 @@ namespace _PowerUps.Scripts
             playerVibrating[player] = false;
         }
         
-        private void HandleRevealRange(GameObject player, float distance)
+        private void HandleRevealRange(GameObject entity, float distance)
         {
             bool inRange    = distance <= powerUp.revealDistance;
-            bool wasInRange = playersInRevealRange.Contains(player);
+            bool wasInRange = allInRevealRange.Contains(entity);
             
             if (inRange && !wasInRange)
             {
-                playersInRevealRange.Add(player);
+                allInRevealRange.Add(entity);
                 RevealTreat();
             }
             else if (!inRange && wasInRange)
             {
-                playersInRevealRange.Remove(player);
-                if (playersInRevealRange.Count == 0)
+                allInRevealRange.Remove(entity);
+                if (allInRevealRange.Count == 0)
                     HideTreat();
             }
         }
         
-        private void RevealTreat()
-        {
-            SetTreatVisible(true);
-            Debug.Log($"[PowerUpPickup] {powerUp.powerUpName} treat revealed!");
-        }
-        
-        private void HideTreat()       => SetTreatVisible(false);
+        private void RevealTreat()   => SetTreatVisible(true);
+        private void HideTreat()     => SetTreatVisible(false);
         
         private void SetTreatVisible(bool visible)
         {
@@ -231,7 +273,7 @@ namespace _PowerUps.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  COLLECTION
+        //  COLLECTION — players AND bots
         // ═══════════════════════════════════════════════
         
         private void OnTriggerEnter(Collider other)
@@ -240,24 +282,24 @@ namespace _PowerUps.Scripts
             
             GameObject root = other.transform.root.gameObject;
 
-            if (!root.CompareTag("PlayerOne")   &&
-                !root.CompareTag("PlayerTwo")   &&
-                !root.CompareTag("PlayerThree") &&
-                !root.CompareTag("PlayerFour"))
-                return;
+            bool isPlayer = IsPlayer(root);
+            bool isBot    = IsBot(root);
+
+            if (!isPlayer && !isBot) return;
             
-            Collect(root);
+            Collect(root, isBot);
         }
         
-        private void Collect(GameObject player)
+        private void Collect(GameObject collector, bool isBot)
         {
-            CarHealth health = player.GetComponent<CarHealth>();
+            // Don't collect if dead
+            CarHealth health = collector.GetComponent<CarHealth>();
             if (health != null && health.IsDead()) return;
 
-            PowerUpHandler handler = player.GetComponent<PowerUpHandler>();
+            PowerUpHandler handler = collector.GetComponent<PowerUpHandler>();
             if (handler == null)
             {
-                Debug.LogWarning($"[PowerUpPickup] {player.name} has no PowerUpHandler!");
+                Debug.LogWarning($"[PowerUpPickup] {collector.name} has no PowerUpHandler!");
                 return;
             }
             
@@ -265,7 +307,7 @@ namespace _PowerUps.Scripts
             
             if (!pickedUp)
             {
-                Debug.Log($"[PowerUpPickup] {player.name} already has a power-up! Can't pick up another.");
+                Debug.Log($"[PowerUpPickup] {collector.name} already has a power-up!");
                 return;
             }
             
@@ -281,14 +323,14 @@ namespace _PowerUps.Scripts
                 Destroy(effect, 2f);
             }
             
-            Debug.Log($"[PowerUpPickup] {player.name} collected {powerUp.powerUpName}!");
+            Debug.Log($"[PowerUpPickup] {collector.name} collected {powerUp.powerUpName}!");
             if (gameObject != null) 
                 Destroy(gameObject);
         }
         
         private void StopAllVibrations()
         {
-            foreach (GameObject player in playersInVibrationRange)
+            foreach (GameObject player in allInVibrationRange)
                 StopVibration(player);
         }
         

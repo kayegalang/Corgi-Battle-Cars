@@ -16,16 +16,14 @@ namespace _Bot.Scripts
         [SerializeField] private ProjectileObject projectile;
 
         [Header("Power-Up Seeking")]
-        [Tooltip("Chance (0-1) per check interval that the bot will seek a nearby power-up")]
-        [SerializeField] [Range(0f, 1f)] private float powerUpSeekChance   = 0.3f;
-        [Tooltip("Only seek power-ups within this distance")]
-        [SerializeField] private float powerUpSeekRadius    = 20f;
+        [Tooltip("Chance (0-1) per check interval that the bot will seek a power-up it can smell")]
+        [SerializeField] [Range(0f, 1f)] private float powerUpSeekChance  = 0.3f;
         [Tooltip("How long the bot will chase a power-up before giving up")]
-        [SerializeField] private float powerUpChaseTimeout  = 5f;
+        [SerializeField] private float powerUpChaseTimeout = 5f;
 
         [Header("Random Jump")]
         [Tooltip("How often (seconds) the bot considers jumping")]
-        [SerializeField] private float randomJumpInterval   = 3f;
+        [SerializeField] private float randomJumpInterval  = 3f;
         [Tooltip("Chance (0-1) the bot will jump each interval")]
         [SerializeField] [Range(0f, 1f)] private float randomJumpChance = 0.4f;
 
@@ -135,7 +133,6 @@ namespace _Bot.Scripts
             UpdateCooldownBar();
             HandleRandomJump();
 
-            // Power-up chase timeout
             if (currentState == BotStates.ChasePickup)
             {
                 powerUpChaseTimer += Time.deltaTime;
@@ -169,7 +166,7 @@ namespace _Bot.Scripts
             FindClosestTarget();
 
             if (currentState != BotStates.ChasePickup && currentState != BotStates.RunAway)
-                TrySeekPowerUp();
+                TrySniffPowerUp();
         }
 
         // ═══════════════════════════════════════════════
@@ -188,29 +185,55 @@ namespace _Bot.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  POWER-UP SEEKING
+        //  POWER-UP SNIFFING
         // ═══════════════════════════════════════════════
 
-        private void TrySeekPowerUp()
+        private void TrySniffPowerUp()
         {
             if (Random.value > powerUpSeekChance) return;
 
-            PowerUpPickup nearest = FindNearestPowerUp();
-            if (nearest == null) return;
+            PowerUpPickup smelled = FindSmellablePowerUp();
+            if (smelled == null) return;
 
-            powerUpTarget     = nearest.transform;
+            powerUpTarget     = smelled.transform;
             powerUpChaseTimer = 0f;
             SetState(BotStates.ChasePickup);
 
-            Debug.Log($"[{nameof(BotAI)}] {gameObject.name} is going for a power-up!");
+            Debug.Log($"[{nameof(BotAI)}] {gameObject.name} sniffed a power-up!");
         }
 
-        private PowerUpPickup FindNearestPowerUp()
+        private PowerUpPickup FindSmellablePowerUp()
         {
             PowerUpPickup[] pickups = FindObjectsByType<PowerUpPickup>(FindObjectsSortMode.None);
 
             PowerUpPickup nearest  = null;
-            float         bestDist = powerUpSeekRadius;
+            float         bestDist = Mathf.Infinity;
+
+            foreach (PowerUpPickup pickup in pickups)
+            {
+                if (!pickup.IsWithinSmellRange(transform.position)) continue;
+
+                float dist = Vector3.Distance(transform.position, pickup.transform.position);
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    nearest  = pickup;
+                }
+            }
+
+            return nearest;
+        }
+
+        /// <summary>
+        /// Called by TrailerDirector (key 1) to force this bot to chase the nearest power-up
+        /// regardless of smell range. Returns true if a pickup was found.
+        /// </summary>
+        public bool ForceChaseNearestPowerUp()
+        {
+            PowerUpPickup[] pickups = FindObjectsByType<PowerUpPickup>(FindObjectsSortMode.None);
+
+            PowerUpPickup nearest  = null;
+            float         bestDist = Mathf.Infinity;
 
             foreach (PowerUpPickup pickup in pickups)
             {
@@ -222,7 +245,12 @@ namespace _Bot.Scripts
                 }
             }
 
-            return nearest;
+            if (nearest == null) return false;
+
+            powerUpTarget     = nearest.transform;
+            powerUpChaseTimer = 0f;
+            SetState(BotStates.ChasePickup);
+            return true;
         }
 
         private void ChasePickup()
@@ -249,7 +277,7 @@ namespace _Bot.Scripts
             powerUpTarget     = null;
             powerUpChaseTimer = 0f;
             SetState(BotStates.Chase);
-            Debug.Log($"[{nameof(BotAI)}] {gameObject.name} gave up on power-up, back to chasing.");
+            Debug.Log($"[{nameof(BotAI)}] {gameObject.name} gave up on power-up.");
         }
 
         // ═══════════════════════════════════════════════
