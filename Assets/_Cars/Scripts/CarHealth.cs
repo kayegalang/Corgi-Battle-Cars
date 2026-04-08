@@ -23,6 +23,12 @@ namespace _Cars.Scripts
         
         [Header("Events")]
         public UnityEvent<float> OnHealthChanged;
+
+        /// <summary>
+        /// Fired when this car dies. Parameters: (victim, killer).
+        /// killer may be null if the car died without a shooter.
+        /// </summary>
+        public event System.Action<GameObject, GameObject> OnDeath;
         
         private HealthBarManager     healthBarManager;
         private DeathSpectateManager deathSpectateManager;
@@ -75,10 +81,7 @@ namespace _Cars.Scripts
             ValidateCarStats();
             UpdateHealthBar();
 
-            // Cache all renderers for flashing effect
             carRenderers = GetComponentsInChildren<Renderer>();
-
-            // NOTE: No ActivateSpawnProtection() here — only called on respawn by SpawnManager
         }
 
         private void Update()
@@ -93,7 +96,6 @@ namespace _Cars.Scripts
                 return;
             }
 
-            // Flash the car by toggling renderer visibility
             bool visible = Mathf.Sin(Time.time * flashSpeed) > 0f;
             SetRenderersVisible(visible);
         }
@@ -102,9 +104,6 @@ namespace _Cars.Scripts
         //  SPAWN PROTECTION
         // ═══════════════════════════════════════════════
 
-        /// <summary>
-        /// Called by SpawnManager after a respawn (not on initial spawn).
-        /// </summary>
         public void ActivateSpawnProtection()
         {
             spawnProtectionTimer = spawnProtectionDuration;
@@ -151,7 +150,6 @@ namespace _Cars.Scripts
         {
             if (isDead) return;
 
-            // Block all damage during spawn protection
             if (isSpawnProtected)
             {
                 Debug.Log($"[CarHealth] {gameObject.name} is spawn protected — damage blocked!");
@@ -161,7 +159,6 @@ namespace _Cars.Scripts
             currentHealth -= amount;
             UpdateHealthBar();
 
-            // Hit feedback
             cameraShaker?.ShakeTakeDamage();
             hitEffects?.PlayHitEffect();
 
@@ -182,7 +179,9 @@ namespace _Cars.Scripts
             
             isDead = true;
 
-            // Death feedback
+            // Fire OnDeath event — used by FakeMultiplayerDirector and any other listeners
+            OnDeath?.Invoke(gameObject, shooter);
+
             cameraShaker?.ShakeDeath();
             hitEffects?.PlayDeathEffect();
             deathEffects?.OnDeath();
@@ -211,15 +210,12 @@ namespace _Cars.Scripts
 
         private IEnumerator DelayedPlayerDeath()
         {
-            // Hide car immediately but stay in place for explosion
             SetRenderersVisible(false);
 
-            // Wait for explosion to be visible
             yield return new WaitForSeconds(0.8f);
 
-            // Now teleport away
             transform.position = new Vector3(0, -1000f, 0);
-            SetRenderersVisible(true); // restore for spectating
+            SetRenderersVisible(true);
 
             if (healthBarManager != null)
                 healthBarManager.gameObject.SetActive(false);
