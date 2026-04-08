@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c9eccc9430a7e447bb08164ea6c7c79d
+guid: 902b5f50d1499462382fe4f7dd7596f9
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -8,7 +8,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Corgi Battle Car GATLING GUN MAT
-    second: {fileID: 2100000, guid: 20ac39cebaf234bbc9e058c4c676c010, type: 2}
+    second: {fileID: 2100000, guid: 99c554415e651417186da0d1f0ce7c83, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

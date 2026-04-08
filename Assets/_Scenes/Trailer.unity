@@ -607,6 +607,7 @@ MonoBehaviour:
   toggleKey: 282
   followKey: 283
   dollyKey: 284
+  slowMoKey: 285
   moveSpeed: 10
   fastMultiplier: 3
   scrollSpeedStep: 2
@@ -625,6 +626,7 @@ MonoBehaviour:
   maxDollySpeed: 20
   dollyRotSmooth: 3
   dollyLoop: 0
+  slowMoScale: 0.3
 --- !u!1 &193038868
 GameObject:
   m_ObjectHideFlags: 0
@@ -7112,7 +7114,7 @@ MonoBehaviour:
   - {fileID: 564686714}
   - {fileID: 2082242893}
   playerPrefab: {fileID: 852133240821571215, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-  botPrefab: {fileID: 852133240821571215, guid: 4bb64b156fede41c4b9ddab3c162c609, type: 3}
+  botPrefab: {fileID: 852133240821571215, guid: 3a75215b082db48f0970ecc5a91efa3e, type: 3}
   respawnDelay: 0
 --- !u!1 &2059097956
 GameObject:
