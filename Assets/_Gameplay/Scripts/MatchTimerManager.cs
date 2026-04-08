@@ -1,4 +1,5 @@
 using System.Collections;
+using _Audio.scripts;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -70,6 +71,12 @@ namespace _Gameplay.Scripts
                 yield return StartCoroutine(CountdownUI.instance.ShowGo(countdownGoText));
             else
                 yield return new WaitForSecondsRealtime(0.5f);
+            
+            // Start background music after countdown finishes
+            if (MusicController.instance != null)
+                MusicController.instance.StartMusic();
+            else
+                Debug.LogWarning("MusicController instance not found.");
 
             Time.timeScale = 1;
             OnMatchStart();
