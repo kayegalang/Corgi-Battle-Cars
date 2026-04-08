@@ -29,7 +29,7 @@ namespace _Cars.Scripts
             if (carController != null)      steerInput = carController.GetMoveInput().x;
             else if (botController != null) steerInput = botController.GetMoveInput().x;
 
-            float targetLean  = steerInput * maxLeanAngle;
+            float targetLean  = -steerInput * maxLeanAngle;
             currentLean       = Mathf.Lerp(currentLean, targetLean, leanSpeed * Time.deltaTime);
 
             Vector3 euler     = transform.localEulerAngles;
