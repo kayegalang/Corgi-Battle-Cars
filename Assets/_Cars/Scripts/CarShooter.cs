@@ -2,6 +2,7 @@ using _Projectiles.Scripts;
 using _Projectiles.ScriptableObjects;
 using _Gameplay.Scripts;
 using _UI.Scripts;
+using _Effects.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -53,9 +54,6 @@ namespace _Cars.Scripts
         private float nextAllowedFireTime;
         private bool  isOverheated = false;
 
-        // NOTE: fireRate and chargeRegenRate are read directly from projectileType
-        // every frame so TuningManager changes take effect immediately without needing
-        // to call InitializeFromProjectile() again.
         private float FireRate        => projectileType != null ? projectileType.FireRate        : 0.5f;
         private float ChargeRegenRate => projectileType != null ? MAX_CHARGE / Mathf.Max(projectileType.CooldownDuration, 0.1f) : 10f;
 
@@ -211,13 +209,10 @@ namespace _Cars.Scripts
         {
             if (currentCharge >= MAX_CHARGE) return;
 
-            // Read ChargeRegenRate live from projectileType so tuning changes apply immediately
             currentCharge = Mathf.Min(currentCharge + ChargeRegenRate * Time.deltaTime, MAX_CHARGE);
 
             if (currentCharge >= MAX_CHARGE && isOverheated)
-            {
                 isOverheated = false;
-            }
         }
 
         private bool GameplayIsDisabled() => !gameplayEnabled;
@@ -254,7 +249,6 @@ namespace _Cars.Scripts
                     isOverheated  = true;
                 }
 
-                // Read FireRate live — so TuningManager changes apply immediately
                 nextAllowedFireTime = Time.time + FireRate;
             }
         }
@@ -338,6 +332,7 @@ namespace _Cars.Scripts
             ApplyRecoilToShooter(dir);
 
             GetComponent<CameraShaker>()?.ShakeShoot();
+            GetComponent<ControllerRumbler>()?.RumbleShoot();  // ← vibration
         }
 
         private Vector3 CalculateShootDirectionFromReticle()

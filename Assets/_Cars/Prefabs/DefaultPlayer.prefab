@@ -192,6 +192,7 @@ GameObject:
   - component: {fileID: 8010217095824698214}
   - component: {fileID: 4293571453736889084}
   - component: {fileID: 365574728547902581}
+  - component: {fileID: 1772843789950174776}
   m_Layer: 0
   m_Name: DefaultPlayer
   m_TagString: PlayerOne
@@ -664,6 +665,42 @@ MonoBehaviour:
   rotationSpeed: 15
   instantRotation: 0
   maxTiltAngle: 5
+--- !u!114 &1772843789950174776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852133240821571215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36ecb104aa7ef43f7ac562c78969cf89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Effects.Scripts.ControllerRumbler
+  shootLow: 0
+  shootHigh: 0.6
+  shootDuration: 0.08
+  damageLow: 0.5
+  damageHigh: 0.8
+  damageDuration: 0.25
+  deathLow: 1
+  deathHigh: 1
+  deathDuration: 0.8
+  crashMaxStrength: 0.9
+  crashMaxSpeed: 20
+  crashDuration: 0.2
+  landLow: 0.2
+  landHigh: 0.3
+  landDuration: 0.1
+  slipLow: 0.3
+  slipHigh: 0.5
+  slipDuration: 1.5
+  slipFrequency: 8
+  collectLow: 0
+  collectHigh: 1
+  collectDuration: 0.15
+  zoomiesLow: 0.15
+  zoomiesHigh: 0.05
 --- !u!1 &974924005986492713
 GameObject:
   m_ObjectHideFlags: 0
