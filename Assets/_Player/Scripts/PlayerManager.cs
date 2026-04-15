@@ -117,20 +117,21 @@ namespace _Player.Scripts
             
             AssignPlayerLayer(player, existingPlayerIndex);
         }
-        
+
         private void HandleNewPlayer(PlayerInput player)
         {
             players.Add(player);
-            
+
             int playerIndex = players.Count - 1;
-            
+
             if (!ValidatePlayerLayerExists(playerIndex))
             {
                 return;
             }
-            
+
             AssignPlayerTag(player, playerIndex);
             AssignPlayerLayer(player, playerIndex);
+            FindFirstObjectByType<RebindUI>()?.SetPlayer(player);
         }
         
         private bool ValidatePlayerLayerExists(int playerIndex)
