@@ -35,6 +35,7 @@ namespace _Cars.Scripts
         private ControllerRumbler    controllerRumbler;
         private HitEffects           hitEffects;
         private CarDeathEffects      deathEffects;
+        private GameObject           nameTagCanvas;
         
         private int  maxHealth;
         private int  currentHealth;
@@ -66,6 +67,13 @@ namespace _Cars.Scripts
             controllerRumbler = GetComponent<ControllerRumbler>();
             hitEffects        = GetComponent<HitEffects>();
             deathEffects      = GetComponent<CarDeathEffects>();
+
+            // Find the name tag canvas — it uses CanvasRenderer so isn't
+            // caught by GetComponentsInChildren<Renderer>()
+            Transform nameTagTransform = transform.Find("CarModel/NameTagCanvas");
+
+            if (nameTagTransform != null)
+                nameTagCanvas = nameTagTransform.gameObject;
 
             if (healthBarManager == null)
                 Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
@@ -120,9 +128,15 @@ namespace _Cars.Scripts
 
         private void SetRenderersVisible(bool visible)
         {
-            if (carRenderers == null) return;
-            foreach (Renderer r in carRenderers)
-                if (r != null) r.enabled = visible;
+            // Toggle all mesh/particle renderers
+            if (carRenderers != null)
+                foreach (Renderer r in carRenderers)
+                    if (r != null) r.enabled = visible;
+
+            // Also toggle the name tag canvas since it uses
+            // CanvasRenderer which isn't caught by Renderer[]
+            if (nameTagCanvas != null)
+                nameTagCanvas.SetActive(visible);
         }
 
         // ═══════════════════════════════════════════════
@@ -160,7 +174,7 @@ namespace _Cars.Scripts
             UpdateHealthBar();
 
             cameraShaker?.ShakeTakeDamage();
-            controllerRumbler?.RumbleTakeDamage();  // ← vibration
+            controllerRumbler?.RumbleTakeDamage();
             hitEffects?.PlayHitEffect();
 
             if (currentHealth <= 0)
@@ -183,7 +197,7 @@ namespace _Cars.Scripts
             OnDeath?.Invoke(gameObject, shooter);
 
             cameraShaker?.ShakeDeath();
-            controllerRumbler?.RumbleDeath();  // ← vibration
+            controllerRumbler?.RumbleDeath();
             hitEffects?.PlayDeathEffect();
             deathEffects?.OnDeath();
 
