@@ -192,7 +192,7 @@ GameObject:
   - component: {fileID: 8010217095824698214}
   - component: {fileID: 4293571453736889084}
   - component: {fileID: 365574728547902581}
-  - component: {fileID: 1772843789950174776}
+  - component: {fileID: 3378124954064569441}
   m_Layer: 0
   m_Name: DefaultPlayer
   m_TagString: PlayerOne
@@ -665,7 +665,7 @@ MonoBehaviour:
   rotationSpeed: 15
   instantRotation: 0
   maxTiltAngle: 5
---- !u!114 &1772843789950174776
+--- !u!114 &3378124954064569441
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -674,7 +674,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 852133240821571215}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36ecb104aa7ef43f7ac562c78969cf89, type: 3}
+  m_Script: {fileID: 11500000, guid: d5c009e8638e14377ab470f8cf5179a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Effects.Scripts.ControllerRumbler
   shootLow: 0
