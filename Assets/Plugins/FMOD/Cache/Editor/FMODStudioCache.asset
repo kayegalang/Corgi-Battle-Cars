@@ -130,7 +130,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/FMOD/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639119018918334885
+  lastModified: 639119316059875222
   FileSizes:
   - Name: 
     Value: 1198
@@ -283,7 +283,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/FMOD/Desktop/Gameplay.bank
   Name: Gameplay
   StudioPath: bank:/Gameplay
-  lastModified: 639119018918320292
+  lastModified: 639119316059800549
   FileSizes: []
   Exists: 1
 --- !u!114 &-2031841888047733576
@@ -329,7 +329,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/FMOD/Desktop/UI.bank
   Name: UI
   StudioPath: bank:/UI
-  lastModified: 639119018918611980
+  lastModified: 639119316060102943
   FileSizes: []
   Exists: 1
 --- !u!114 &-1215641520841062781
@@ -389,7 +389,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/FMOD/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639119018918575207
+  lastModified: 639119316060087892
   FileSizes: []
   Exists: 1
 --- !u!114 &-605842017666810789
@@ -498,7 +498,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: -6245274205100534258}
   cacheVersion: 131858
-  cacheTime: 639119018918611980
+  cacheTime: 639119316060102943
   SerializableEventsDict:
   - key: event:/Gameplay/Shoot
     index: 0
@@ -716,7 +716,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/FMOD/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639119018918326564
+  lastModified: 639119316059865259
   FileSizes: []
   Exists: 1
 --- !u!114 &4828399468841444271

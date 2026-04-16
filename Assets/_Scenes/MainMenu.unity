@@ -3169,6 +3169,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dcab616f4b950d4aa61c227837cd672, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Audio.scripts.AudioManager
+  masterVolume: 1
+  musicVolume: 1
+  sfxVolume: 1
 --- !u!1 &719948772
 GameObject:
   m_ObjectHideFlags: 0
