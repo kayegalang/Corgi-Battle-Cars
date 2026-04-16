@@ -15,7 +15,7 @@ MonoBehaviour:
   Path: FMOD/Desktop/UI.bank
   Name: UI
   StudioPath: bank:/UI
-  lastModified: 639118925082507642
+  lastModified: 639118967179424992
   FileSizes: []
   Exists: 1
 --- !u!114 &-7074528669852366080
@@ -33,7 +33,7 @@ MonoBehaviour:
   Path: FMOD/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639118938117813770
+  lastModified: 639118967179398929
   FileSizes: []
   Exists: 1
 --- !u!114 &-4817725269978096578
@@ -264,7 +264,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: 7583003580447770628}
   cacheVersion: 131858
-  cacheTime: 639118938117813770
+  cacheTime: 639118967179424992
   SerializableEventsDict:
   - key: event:/Gameplay/Shoot
     index: 0
@@ -584,7 +584,7 @@ MonoBehaviour:
   Path: FMOD/Desktop/Gameplay.bank
   Name: Gameplay
   StudioPath: bank:/Gameplay
-  lastModified: 639118925081862114
+  lastModified: 639118967179273296
   FileSizes: []
   Exists: 1
 --- !u!114 &6875621086622223115
@@ -620,7 +620,7 @@ MonoBehaviour:
   Path: FMOD/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639118925081887991
+  lastModified: 639118967179279986
   FileSizes:
   - Name: 
     Value: 1198
