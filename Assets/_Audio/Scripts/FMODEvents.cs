@@ -23,11 +23,12 @@ public class FMODEvents : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null)
+        if (instance == null)
+            instance = this;
+        else if (instance != this)
         {
-            Debug.LogError("Thar be more than FMODEvents in this here scene!");
+            Debug.LogWarning($"[MatchTimerManager] Duplicate found — destroying this one on {gameObject.name}!");
+            Destroy(this);
         }
-
-        instance = this;
     }
 }

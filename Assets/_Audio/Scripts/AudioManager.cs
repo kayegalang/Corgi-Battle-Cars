@@ -9,11 +9,13 @@ namespace _Audio.scripts
 
         private void Awake()
         {
-            if (instance != null)
+            if (instance == null)
+                instance = this;
+            else if (instance != this)
             {
-                Debug.LogError("Shiver me timbers! More than one Audio Manager was found in the scene.");
+                Debug.LogWarning($"[MatchTimerManager] Duplicate found — destroying this one on {gameObject.name}!");
+                Destroy(this);
             }
-            instance = this;
         }
 
         public void PlayOneShot(EventReference sound, Vector3 worldPos)
