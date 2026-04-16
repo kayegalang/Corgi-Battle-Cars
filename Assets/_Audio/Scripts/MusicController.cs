@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using FMOD.Studio;
 using FMODUnity;
@@ -5,111 +6,142 @@ using _UI.Scripts;
 
 namespace _Audio.scripts
 {
-   public class MusicController : MonoBehaviour
-{
-    public static MusicController instance { get; private set; }
-
-    [Header("Music Settings")]
-    [SerializeField] private float normalVolume = 1f;
-    [SerializeField] private float pausedVolume = 0.25f;
-
-    [Header("Fade Settings")]
-    [SerializeField] private float fadeDuration = 0f;
-    
-    [Header("References")]
-    [SerializeField] private PauseController pauseController;
-
-    private EventInstance musicInstance;
-    private bool musicStarted;
-
-    private Coroutine fadeCoroutine;
-
-    private void Awake()
+    public class MusicController : MonoBehaviour
     {
-        if (instance != null && instance != this)
+        public static MusicController instance { get; private set; }
+
+        [Header("Music Settings")]
+        [SerializeField] private float normalVolume = 1f;
+
+        [Header("References")]
+        [SerializeField] private PauseController pauseController;
+
+        private EventInstance musicInstance;
+        private bool          musicStarted;
+
+        // ═══════════════════════════════════════════════
+        //  LIFECYCLE
+        // ═══════════════════════════════════════════════
+
+        private void Awake()
         {
-            Debug.LogError("More than one MusicController found in the scene.");
-            Destroy(gameObject);
-            return;
+            if (instance != null && instance != this)
+            {
+                Debug.LogError("More than one MusicController found in the scene.");
+                Destroy(gameObject);
+                return;
+            }
+
+            instance = this;
         }
 
-        instance = this;
-    }
-
-    private void Start()
-    {
-        musicInstance = RuntimeManager.CreateInstance(FMODEvents.instance.DogParkStart);
-        musicInstance.setVolume(normalVolume);
-
-        if (pauseController != null)
+        private void Start()
         {
-            pauseController.onPaused.AddListener(HandlePaused);
-            pauseController.onUnpaused.AddListener(HandleUnpaused);
-        }
-    }
+            try
+            {
+                musicInstance = RuntimeManager.CreateInstance(FMODEvents.instance.DogParkStart);
+                musicInstance.setVolume(normalVolume);
 
-    public void StartMusic()
-    {
-        if (musicStarted)
-            return;
+                // Explicitly reset GameState to 0 on creation
+                musicInstance.setParameterByName("GameState", 0f);
+                Debug.Log("[MusicController] FMOD instance created, GameState = 0");
+            }
+            catch (EventNotFoundException e)
+            {
+                Debug.LogWarning($"[MusicController] FMOD event not found — banks not built yet. {e.Message}");
+                return;
+            }
 
-        musicInstance.start();
-        musicStarted = true;
-    }
-
-    // ─────────────────────────────
-    // FADE LOGIC
-    // ─────────────────────────────
-
-    private void HandlePaused()
-    {
-        StartFade(pausedVolume);
-    }
-
-    private void HandleUnpaused()
-    {
-        StartFade(normalVolume);
-    }
-
-    private void StartFade(float targetVolume)
-    {
-        if (fadeCoroutine != null)
-            StopCoroutine(fadeCoroutine);
-
-        fadeCoroutine = StartCoroutine(FadeVolume(targetVolume));
-    }
-
-    private System.Collections.IEnumerator FadeVolume(float targetVolume)
-    {
-        musicInstance.getVolume(out float startVolume);
-
-        float elapsed = 0f;
-        
-        while (elapsed < fadeDuration)
-        {
-            elapsed += Time.unscaledDeltaTime;
-
-            float t = elapsed / fadeDuration;
-            float newVolume = Mathf.Lerp(startVolume, targetVolume, t);
-
-            musicInstance.setVolume(newVolume);
-
-            yield return null;
+            if (pauseController != null)
+            {
+                pauseController.onPaused.AddListener(HandlePaused);
+                pauseController.onUnpaused.AddListener(HandleUnpaused);
+            }
         }
 
-        musicInstance.setVolume(targetVolume);
-    }
+        // ═══════════════════════════════════════════════
+        //  PLAYBACK
+        // ═══════════════════════════════════════════════
 
-    private void OnDestroy()
-    {
-        if (pauseController != null)
+        public void StartMusic()
         {
-            pauseController.onPaused.RemoveListener(HandlePaused);
-            pauseController.onUnpaused.RemoveListener(HandleUnpaused);
+            if (musicStarted) return;
+
+            // Ensure GameState is 0 before starting
+            musicInstance.setParameterByName("GameState", 0f);
+            Debug.Log("[MusicController] StartMusic — GameState reset to 0");
+
+            musicInstance.start();
+            musicStarted = true;
+
+            musicInstance.getPlaybackState(out PLAYBACK_STATE state);
+            Debug.Log($"[MusicController] Music started! Playback state: {state}");
         }
 
-        musicInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-        musicInstance.release();
+        // ═══════════════════════════════════════════════
+        //  MUSIC TRANSITIONS
+        // ═══════════════════════════════════════════════
+
+        /// <summary>
+        /// Called at ~182 seconds remaining on the match timer.
+        /// Sets GameState = 1 — FMOD stops looping the Main Loop
+        /// and continues through Buildup → Solo → Outro → End Game Loop.
+        /// </summary>
+        public void TriggerBuildup()
+        {
+            if (!musicStarted) return;
+
+            FMOD.RESULT result = musicInstance.setParameterByName("GameState", 1f);
+
+            if (result == FMOD.RESULT.OK)
+                Debug.Log("[MusicController] GameState = 1 — transitioning to Buildup!");
+            else
+                Debug.LogWarning($"[MusicController] Failed to set GameState: {result}");
+        }
+
+        /// <summary>
+        /// Called when the match timer hits zero.
+        /// Outro should already be playing by now.
+        /// End Game Loop fires automatically after Outro.
+        /// </summary>
+        public void TriggerGameEnd()
+        {
+            if (!musicStarted) return;
+            Debug.Log("[MusicController] Game ended — Outro should be playing, End Game Loop incoming!");
+        }
+
+        // ═══════════════════════════════════════════════
+        //  PAUSE HANDLING
+        //  Fully pauses/resumes the FMOD timeline so the
+        //  music stays perfectly in sync with the game timer
+        // ═══════════════════════════════════════════════
+
+        private void HandlePaused()
+        {
+            musicInstance.setPaused(true);
+            Debug.Log("[MusicController] Music paused.");
+        }
+
+        private void HandleUnpaused()
+        {
+            musicInstance.setPaused(false);
+            Debug.Log("[MusicController] Music resumed.");
+        }
+
+        // ═══════════════════════════════════════════════
+        //  CLEANUP
+        // ═══════════════════════════════════════════════
+
+        private void OnDestroy()
+        {
+            if (pauseController != null)
+            {
+                pauseController.onPaused.RemoveListener(HandlePaused);
+                pauseController.onUnpaused.RemoveListener(HandleUnpaused);
+            }
+
+            musicInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            musicInstance.release();
+        }
     }
-}
 }
