@@ -130,7 +130,7 @@ MonoBehaviour:
   Path: FMOD/Desktop/UI.bank
   Name: UI
   StudioPath: bank:/UI
-  lastModified: 639119002672692473
+  lastModified: 639119007098123529
   FileSizes: []
   Exists: 1
 --- !u!114 &-6524167286614935274
@@ -148,7 +148,7 @@ MonoBehaviour:
   Path: FMOD/Desktop/Gameplay.bank
   Name: Gameplay
   StudioPath: bank:/Gameplay
-  lastModified: 639119002672366591
+  lastModified: 639119007097833934
   FileSizes: []
   Exists: 1
 --- !u!114 &-4817725269978096578
@@ -478,10 +478,20 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: 2612419789906308429}
   cacheVersion: 131858
-  cacheTime: 639119002672692473
+  cacheTime: 639119007098123529
   SerializableEventsDict:
-  - key: event:/New Event
+  - key: event:/Gameplay/Shoot
     index: 0
+  - key: event:/Music/BarkCountdown/Bark 3
+    index: 1
+  - key: event:/Music/BarkCountdown/Bark 2
+    index: 2
+  - key: event:/Music/BarkCountdown/Bark 1
+    index: 3
+  - key: event:/Music/DogPark
+    index: 4
+  - key: event:/UI/ClickSelect
+    index: 5
 --- !u!114 &77996261654886040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -668,7 +678,7 @@ MonoBehaviour:
   Path: FMOD/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639119002672373462
+  lastModified: 639119007097838039
   FileSizes:
   - Name: 
     Value: 1198
@@ -706,7 +716,7 @@ MonoBehaviour:
   Path: FMOD/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639119002672651045
+  lastModified: 639119007098102693
   FileSizes: []
   Exists: 1
 --- !u!114 &4828399468841444271
