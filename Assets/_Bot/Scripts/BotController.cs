@@ -76,7 +76,6 @@ namespace _Bot.Scripts
 
             if (Time.time - lastCrashTime < crashCooldown) return;
 
-            // Ignore vertical impacts (landing from a jump)
             Vector3 impactDirection = collision.GetContact(0).normal;
             if (Mathf.Abs(impactDirection.y) > 0.5f) return;
 
@@ -85,11 +84,9 @@ namespace _Bot.Scripts
 
             lastCrashTime = Time.time;
 
-            // Damage ourselves
             CarHealth myHealth = GetComponent<CarHealth>();
             myHealth?.TakeDamage(crashDamage, null);
 
-            // Damage the other car if it has health
             CarHealth theirHealth = collision.gameObject.GetComponent<CarHealth>();
             if (theirHealth != null)
                 theirHealth.TakeDamage(crashDamage, null);
@@ -135,7 +132,6 @@ namespace _Bot.Scripts
         private void Move()
         {
             if (!ShouldMove()) return;
-            
             ApplyAcceleration();
             ConstrainLateralMovement();
         }
@@ -208,6 +204,8 @@ namespace _Bot.Scripts
             moveInput.x = Mathf.Clamp(turnAmount, -1f, 1f);
             moveInput.y = Mathf.Clamp(moveAmount, -1f, 1f);
         }
+
+        public Vector2 GetMoveInput() => moveInput;
         
         public float GetSpeed() => carRb == null ? 0f : carRb.linearVelocity.magnitude;
         
@@ -259,15 +257,15 @@ namespace _Bot.Scripts
 
         public void ApplyJumpMultiplier(float jumpMult, float jumpHeightCapMult)
         {
-            hasSuperJump           = true;
-            jumpMultiplier         = jumpMult;
+            hasSuperJump            = true;
+            jumpMultiplier          = jumpMult;
             jumpHeightCapMultiplier = jumpHeightCapMult;
         }
     
         public void RemoveJumpMultiplier()
         {
-            hasSuperJump           = false;
-            jumpMultiplier         = 1f;
+            hasSuperJump            = false;
+            jumpMultiplier          = 1f;
             jumpHeightCapMultiplier = 1f;
         }
 
