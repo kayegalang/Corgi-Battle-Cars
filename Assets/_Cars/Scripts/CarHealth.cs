@@ -23,25 +23,19 @@ namespace _Cars.Scripts
         
         [Header("Events")]
         public UnityEvent<float> OnHealthChanged;
-
-        /// <summary>
-        /// Fired when this car dies. Parameters: (victim, killer).
-        /// </summary>
-        public event System.Action<GameObject, GameObject> OnDeath;
         
         private HealthBarManager     healthBarManager;
         private DeathSpectateManager deathSpectateManager;
         private CameraShaker         cameraShaker;
-        private ControllerRumbler    controllerRumbler;
         private HitEffects           hitEffects;
         private CarDeathEffects      deathEffects;
-        private GameObject           nameTagCanvas;
         
         private int  maxHealth;
         private int  currentHealth;
         private bool isBot;
         private bool isDead = false;
 
+        // Spawn protection
         private float      spawnProtectionTimer = 0f;
         private bool       isSpawnProtected     = false;
         private Renderer[] carRenderers;
@@ -62,17 +56,10 @@ namespace _Cars.Scripts
             if (spawnManager == null)
                 spawnManager = FindFirstObjectByType<SpawnManager>();
             
-            healthBarManager  = GetComponentInChildren<HealthBarManager>();
-            cameraShaker      = GetComponent<CameraShaker>();
-            controllerRumbler = GetComponent<ControllerRumbler>();
-            hitEffects        = GetComponent<HitEffects>();
-            deathEffects      = GetComponent<CarDeathEffects>();
-
-            // Find the name tag canvas — it uses CanvasRenderer so isn't
-            // caught by GetComponentsInChildren<Renderer>()
-            Transform nameTagTransform = transform.Find("CarModel/NameTagCanvas");
-            if (nameTagTransform != null)
-                nameTagCanvas = nameTagTransform.gameObject;
+            healthBarManager = GetComponentInChildren<HealthBarManager>();
+            cameraShaker     = GetComponent<CameraShaker>();
+            hitEffects       = GetComponent<HitEffects>();
+            deathEffects     = GetComponent<CarDeathEffects>();
 
             if (healthBarManager == null)
                 Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
@@ -88,7 +75,10 @@ namespace _Cars.Scripts
             ValidateCarStats();
             UpdateHealthBar();
 
+            // Cache all renderers for flashing effect
             carRenderers = GetComponentsInChildren<Renderer>();
+
+            // NOTE: No ActivateSpawnProtection() here — only called on respawn by SpawnManager
         }
 
         private void Update()
@@ -103,6 +93,7 @@ namespace _Cars.Scripts
                 return;
             }
 
+            // Flash the car by toggling renderer visibility
             bool visible = Mathf.Sin(Time.time * flashSpeed) > 0f;
             SetRenderersVisible(visible);
         }
@@ -111,6 +102,9 @@ namespace _Cars.Scripts
         //  SPAWN PROTECTION
         // ═══════════════════════════════════════════════
 
+        /// <summary>
+        /// Called by SpawnManager after a respawn (not on initial spawn).
+        /// </summary>
         public void ActivateSpawnProtection()
         {
             spawnProtectionTimer = spawnProtectionDuration;
@@ -127,15 +121,9 @@ namespace _Cars.Scripts
 
         private void SetRenderersVisible(bool visible)
         {
-            // Toggle all mesh/particle renderers
-            if (carRenderers != null)
-                foreach (Renderer r in carRenderers)
-                    if (r != null) r.enabled = visible;
-
-            // Also toggle the name tag canvas since it uses
-            // CanvasRenderer which isn't caught by Renderer[]
-            if (nameTagCanvas != null)
-                nameTagCanvas.SetActive(visible);
+            if (carRenderers == null) return;
+            foreach (Renderer r in carRenderers)
+                if (r != null) r.enabled = visible;
         }
 
         // ═══════════════════════════════════════════════
@@ -163,6 +151,7 @@ namespace _Cars.Scripts
         {
             if (isDead) return;
 
+            // Block all damage during spawn protection
             if (isSpawnProtected)
             {
                 Debug.Log($"[CarHealth] {gameObject.name} is spawn protected — damage blocked!");
@@ -172,8 +161,8 @@ namespace _Cars.Scripts
             currentHealth -= amount;
             UpdateHealthBar();
 
+            // Hit feedback
             cameraShaker?.ShakeTakeDamage();
-            controllerRumbler?.RumbleTakeDamage();
             hitEffects?.PlayHitEffect();
 
             if (currentHealth <= 0)
@@ -193,10 +182,8 @@ namespace _Cars.Scripts
             
             isDead = true;
 
-            OnDeath?.Invoke(gameObject, shooter);
-
+            // Death feedback
             cameraShaker?.ShakeDeath();
-            controllerRumbler?.RumbleDeath();
             hitEffects?.PlayDeathEffect();
             deathEffects?.OnDeath();
 
@@ -224,12 +211,15 @@ namespace _Cars.Scripts
 
         private IEnumerator DelayedPlayerDeath()
         {
+            // Hide car immediately but stay in place for explosion
             SetRenderersVisible(false);
 
+            // Wait for explosion to be visible
             yield return new WaitForSeconds(0.8f);
 
+            // Now teleport away
             transform.position = new Vector3(0, -1000f, 0);
-            SetRenderersVisible(true);
+            SetRenderersVisible(true); // restore for spectating
 
             if (healthBarManager != null)
                 healthBarManager.gameObject.SetActive(false);

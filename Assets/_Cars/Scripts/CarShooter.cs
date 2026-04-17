@@ -4,8 +4,6 @@ using _Gameplay.Scripts;
 using _UI.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using _Audio.scripts;
-
 
 namespace _Cars.Scripts
 {
@@ -340,8 +338,6 @@ namespace _Cars.Scripts
             ApplyRecoilToShooter(dir);
 
             GetComponent<CameraShaker>()?.ShakeShoot();
-            
-            AudioManager.instance.PlayOneShot(FMODEvents.instance.shootsound, this.transform.position);
         }
 
         private Vector3 CalculateShootDirectionFromReticle()
