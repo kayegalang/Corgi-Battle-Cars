@@ -3110,11 +3110,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FMODEvents
   <DogParkStart>k__BackingField:
     Guid:
-      Data1: 1642054377
-      Data2: 1335479926
-      Data3: -1630542939
-      Data4: 1193363955
-    Path: event:/Music/DogPark
+      Data1: 1271111369
+      Data2: 1246080548
+      Data3: 1202217636
+      Data4: -1734932419
+    Path: event:/Music/DogPark Theme
   <bark3Sound>k__BackingField:
     Guid:
       Data1: -1346768095
