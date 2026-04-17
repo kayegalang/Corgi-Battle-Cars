@@ -1,33 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8657067447604063879
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Music/DogPark
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Music/DogPark
-  Guid:
-    Data1: 1642054377
-    Data2: 1335479926
-    Data3: -1630542939
-    Data4: 1193363955
-  Banks:
-  - {fileID: -607961932140401856}
-  IsStream: 1
-  Is3D: 0
-  IsOneShot: 0
-  Parameters:
-  - {fileID: -7451405566172300488}
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 205839
 --- !u!114 &-8067379285048481582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47,7 +19,7 @@ MonoBehaviour:
     Data3: -1807967605
     Data4: 234077998
   Banks:
-  - {fileID: -607961932140401856}
+  - {fileID: 8508537552628691394}
   IsStream: 0
   Is3D: 0
   IsOneShot: 1
@@ -55,30 +27,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
---- !u!114 &-7451405566172300488
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
-  m_Name: parameter:/DogPark/GameState
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorParamRef
-  Name: GameState
-  StudioPath: 
-  Min: 0
-  Max: 1
-  Default: 0
-  ID:
-    data1: 224584688
-    data2: 2555434808
-  Type: 1
-  IsGlobal: 0
-  Labels: []
-  Exists: 1
 --- !u!114 &-7274860597699467728
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115,6 +63,60 @@ MonoBehaviour:
   lastModified: 639118994676655739
   FileSizes: []
   Exists: 1
+--- !u!114 &-6920415220719197998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Gameplay/Sniff
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Gameplay/Sniff
+  Guid:
+    Data1: -220374199
+    Data2: 1221778895
+    Data3: -577987905
+    Data4: 763620198
+  Banks:
+  - {fileID: -2202691005863213917}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &-6723563374832094534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Gameplay/Zoomies
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Gameplay/Zoomies
+  Guid:
+    Data1: 477552065
+    Data2: 1319680790
+    Data3: 366467475
+    Data4: 581116822
+  Banks:
+  - {fileID: -2202691005863213917}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &-6245274205100534258
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -130,10 +132,10 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/FMOD/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639119316059875222
+  lastModified: 639120344307711707
   FileSizes:
   - Name: 
-    Value: 1198
+    Value: 1466
   Exists: 1
 --- !u!114 &-4817725269978096578
 MonoBehaviour:
@@ -205,9 +207,36 @@ MonoBehaviour:
     Data3: -119903577
     Data4: 133773032
   Banks:
-  - {fileID: -607961932140401856}
+  - {fileID: 8508537552628691394}
   IsStream: 0
   Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &-3263978314711774320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Gameplay/Squirrel
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Gameplay/Squirrel
+  Guid:
+    Data1: -960147824
+    Data2: 1282792417
+    Data3: -1877860211
+    Data4: -901914912
+  Banks:
+  - {fileID: -2202691005863213917}
+  IsStream: 0
+  Is3D: 1
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
@@ -260,7 +289,7 @@ MonoBehaviour:
     Data3: -180489048
     Data4: 44268773
   Banks:
-  - {fileID: -607961932140401856}
+  - {fileID: 8508537552628691394}
   IsStream: 0
   Is3D: 0
   IsOneShot: 1
@@ -283,7 +312,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/FMOD/Desktop/Gameplay.bank
   Name: Gameplay
   StudioPath: bank:/Gameplay
-  lastModified: 639119316059800549
+  lastModified: 639120344307582882
   FileSizes: []
   Exists: 1
 --- !u!114 &-2031841888047733576
@@ -329,9 +358,36 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/FMOD/Desktop/UI.bank
   Name: UI
   StudioPath: bank:/UI
-  lastModified: 639119316060102943
+  lastModified: 639120344309912754
   FileSizes: []
   Exists: 1
+--- !u!114 &-1399391705458703513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Music/DogPark Theme
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Music/DogPark Theme
+  Guid:
+    Data1: 1271111369
+    Data2: 1246080548
+    Data3: 1202217636
+    Data4: -1734932419
+  Banks:
+  - {fileID: -607961932140401856}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 260600
 --- !u!114 &-1215641520841062781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -389,7 +445,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/FMOD/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639119316060087892
+  lastModified: 639120344308363469
   FileSizes: []
   Exists: 1
 --- !u!114 &-605842017666810789
@@ -421,6 +477,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 205839
+--- !u!114 &-347577132287863140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Music/BarkCountdown/Bark Go
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Music/BarkCountdown/Bark Go
+  Guid:
+    Data1: -1381024699
+    Data2: 1172359684
+    Data3: -747056216
+    Data4: -1884548749
+  Banks:
+  - {fileID: 8508537552628691394}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &-177000614870730498
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -485,20 +568,26 @@ MonoBehaviour:
   - {fileID: 2897708218363859704}
   - {fileID: -607961932140401856}
   - {fileID: -1930585918507506956}
+  - {fileID: 8508537552628691394}
   EditorEvents:
   - {fileID: -3707573194226237766}
   - {fileID: -8067379285048481582}
   - {fileID: -2424820656404512253}
   - {fileID: -3535222797967244742}
-  - {fileID: -8657067447604063879}
   - {fileID: 407649333426633640}
+  - {fileID: -347577132287863140}
+  - {fileID: -6920415220719197998}
+  - {fileID: 2599445687514133491}
+  - {fileID: -3263978314711774320}
+  - {fileID: -6723563374832094534}
+  - {fileID: -1399391705458703513}
   EditorParameters: []
   MasterBanks:
   - {fileID: 2897708218363859704}
   StringsBanks:
   - {fileID: -6245274205100534258}
   cacheVersion: 131858
-  cacheTime: 639119316060102943
+  cacheTime: 639120344309912754
   SerializableEventsDict:
   - key: event:/Gameplay/Shoot
     index: 0
@@ -508,10 +597,20 @@ MonoBehaviour:
     index: 2
   - key: event:/Music/BarkCountdown/Bark 1
     index: 3
-  - key: event:/Music/DogPark
-    index: 4
   - key: event:/UI/ClickSelect
+    index: 4
+  - key: event:/Music/BarkCountdown/Bark Go
     index: 5
+  - key: event:/Gameplay/Sniff
+    index: 6
+  - key: event:/Gameplay/Poop
+    index: 7
+  - key: event:/Gameplay/Squirrel
+    index: 8
+  - key: event:/Gameplay/Zoomies
+    index: 9
+  - key: event:/Music/DogPark Theme
+    index: 10
 --- !u!114 &77996261654886040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -683,6 +782,33 @@ MonoBehaviour:
   lastModified: 639118148549503518
   FileSizes: []
   Exists: 1
+--- !u!114 &2599445687514133491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Gameplay/Poop
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Gameplay/Poop
+  Guid:
+    Data1: -1347465645
+    Data2: 1149116605
+    Data3: -1884939362
+    Data4: 1933456710
+  Banks:
+  - {fileID: -2202691005863213917}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &2775079806247579506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -716,7 +842,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/FMOD/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639119316059865259
+  lastModified: 639120344307696429
   FileSizes: []
   Exists: 1
 --- !u!114 &4828399468841444271
@@ -903,6 +1029,24 @@ MonoBehaviour:
   FileSizes:
   - Name: 
     Value: 1198
+  Exists: 1
+--- !u!114 &8508537552628691394
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Countdown.bank
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
+  Path: Assets/StreamingAssets/FMOD/Desktop/Countdown.bank
+  Name: Countdown
+  StudioPath: bank:/Countdown
+  lastModified: 639120344306681259
+  FileSizes: []
   Exists: 1
 --- !u!114 &8741773927078264375
 MonoBehaviour:

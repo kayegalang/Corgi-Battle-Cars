@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="EventFolder" id="{7d42245a-2a5c-4133-b260-f90d5945fa07}">
+		<property name="name">
+			<value>BarkCountdown</value>
+		</property>
+		<relationship name="folder">
+			<destination>{e7b77906-6d3c-47cd-bdef-7bfbb4caa20f}</destination>
+		</relationship>
+	</object>
+</objects>
