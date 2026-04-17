@@ -1331,10 +1331,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
   m_Name: bank:/Gameplay.bank
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: FMOD/Desktop/DogPark.bank
-  Name: DogPark
-  StudioPath: bank:/DogPark
-  lastModified: 639119757814098854
+  Path: FMOD/Desktop/Gameplay.bank
+  Name: Gameplay
+  StudioPath: bank:/Gameplay
+  lastModified: 639118994676423257
   FileSizes: []
   Exists: 1
 --- !u!114 &6875621086622223115
@@ -1352,7 +1352,7 @@ MonoBehaviour:
   Path: FMOD/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639119757814102332
+  lastModified: 639118925081880326
   FileSizes: []
   Exists: 1
 --- !u!114 &7190473739402943172
@@ -1364,26 +1364,49 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d32cf7c32a3ed8347bac48ef5ed56d82, type: 3}
-  m_Name: FMODStudioCache
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EventCache
-  EditorBanks:
-  - {fileID: 2612419789906308429}
-  - {fileID: -7637423870720510782}
-  - {fileID: -2206478071360019817}
-  EditorEvents:
-  - {fileID: 3315300851992802316}
-  EditorParameters: []
-  MasterBanks:
-  - {fileID: -2206478071360019817}
-  StringsBanks:
-  - {fileID: 2612419789906308429}
-  cacheVersion: 131858
-  cacheTime: 639119757814103574
-  SerializableEventsDict:
-  - key: event:/New Event
-    index: 0
---- !u!114 &2612419789906308429
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/DogPark/GameState
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorParamRef
+  Name: GameState
+  StudioPath: 
+  Min: 0
+  Max: 1
+  Default: 0
+  ID:
+    data1: 224584688
+    data2: 2555434808
+  Type: 1
+  IsGlobal: 0
+  Labels: []
+  Exists: 1
+--- !u!114 &7496477865622890355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Gameplay/Shoot
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Gameplay/Shoot
+  Guid:
+    Data1: -1157410978
+    Data2: 1083807063
+    Data3: 2044705720
+    Data4: -1961419844
+  Banks:
+  - {fileID: -6833089808436281906}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &7583003580447770628
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1398,7 +1421,7 @@ MonoBehaviour:
   Path: FMOD/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639119757814103574
+  lastModified: 639118994676430151
   FileSizes:
   - Name: 
     Value: 1198
