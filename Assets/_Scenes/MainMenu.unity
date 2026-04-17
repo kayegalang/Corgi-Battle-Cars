@@ -3912,7 +3912,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
   m_Navigation:
-    m_Mode: 4
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 1959828326}
@@ -3938,7 +3938,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 865778780}
   m_OnClick:
     m_PersistentCalls:
@@ -3956,7 +3956,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.38679248, g: 0.38679248, b: 0.38679248, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4685,7 +4685,6 @@ MonoBehaviour:
   mapButtons:
   - {fileID: 1641245354}
   - {fileID: 865778779}
-  - {fileID: 0}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   highlightedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   comingSoonButtonName: Coming Soon
@@ -7711,11 +7710,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
   m_Navigation:
-    m_Mode: 4
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 1959828326}
-    m_SelectOnLeft: {fileID: 1889894934}
+    m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 865778779}
   m_Transition: 1
   m_Colors:
