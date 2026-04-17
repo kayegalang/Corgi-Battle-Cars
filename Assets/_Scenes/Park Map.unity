@@ -947,8 +947,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Audio.scripts.MusicController
   normalVolume: 1
-  pausedVolume: 0.25
-  fadeDuration: 0.5
   pauseController: {fileID: 7660101476274926852}
 --- !u!4 &448588835
 Transform:
