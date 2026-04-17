@@ -5,123 +5,76 @@ namespace _UI.Scripts
 {
     public class CooldownBarUI : MonoBehaviour
     {
+        [Header("Cooldown Sprites")]
+        [Tooltip("0 = full bar, 5 = empty bar")]
+        [SerializeField] private Sprite[] cooldownSprites = new Sprite[6];
+
         [Header("UI References")]
-        [Tooltip("The Image component that fills (should be set to Filled type)")]
-        [SerializeField] private Image cooldownFillImage;
-        
-        [Header("Visual Settings")]
-        [Tooltip("Color when weapon is ready to fire (bar is full)")]
-        [SerializeField] private Color weaponReadyColor = new Color(0.2f, 0.6f, 1f, 1f);
-        
-        [Tooltip("Color when weapon is on cooldown (bar is empty/filling)")]
-        [SerializeField] private Color onCooldownColor = new Color(1f, 0.2f, 0.2f, 1f);
-        
-        [Header("Optional Background")]
-        [Tooltip("Background image (optional - can be null)")]
-        [SerializeField] private Image backgroundImage;
-        
+        [Tooltip("Image component to display the current cooldown sprite")]
+        [SerializeField] private Image cooldownImage;
+
         private void Start()
         {
             ValidateComponents();
-            InitializeFillImage();
-            SetWeaponReady();
+            SetCooldown(0, 0); // start full
         }
-        
+
+        public void UpdateCooldown(float current, float max)
+        {
+            if (cooldownImage == null || cooldownSprites == null || cooldownSprites.Length == 0)
+                return;
+
+            float percent = Mathf.Clamp01(current / max); // 1 = full, 0 = empty
+
+            int index = Mathf.FloorToInt((cooldownSprites.Length - 1) * (1f - percent));
+
+            cooldownImage.sprite = cooldownSprites[index];
+        }
+
         private void ValidateComponents()
         {
-            if (cooldownFillImage == null)
+            if (cooldownImage == null)
             {
-                Debug.LogError($"[{nameof(CooldownBarUI)}] Cooldown fill image not assigned!");
+                Debug.LogError($"[{nameof(CooldownBarUI)}] cooldownImage not assigned!");
             }
-        }
-        
-        private void InitializeFillImage()
-        {
-            if (cooldownFillImage == null) return;
 
-            cooldownFillImage.type       = Image.Type.Filled;
-            cooldownFillImage.fillMethod = Image.FillMethod.Horizontal;
-            cooldownFillImage.fillOrigin = (int)Image.OriginHorizontal.Right;
-        }
-        
-        public void UpdateCooldown(float currentCooldown, float maxCooldown)
-        {
-            if (cooldownFillImage == null)
+            if (cooldownSprites == null || cooldownSprites.Length != 6)
             {
-                Debug.LogError($"[{nameof(CooldownBarUI)}] {gameObject.name} - cooldownFillImage is NULL!");
-                return;
-            }
-            
-            float fillAmount = CalculateFillAmount(currentCooldown, maxCooldown);
-            
-            SetFillAmount(fillAmount); // This now handles color gradient!
-        }
-        
-        private float CalculateFillAmount(float current, float max)
-        {
-            if (max <= 0f)
-            {
-                return 1f;
-            }
-            
-            return Mathf.Clamp01(current / max);
-        }
-        
-        private void SetFillAmount(float amount)
-        {
-            cooldownFillImage.fillAmount = amount;
-            
-            // Smooth color gradient based on fill amount
-            // 100% - 50% = Blue to Yellow
-            // 50% - 0% = Yellow to Red
-            Color fillColor;
-            
-            if (amount >= 0.5f)
-            {
-                // High charge: Lerp from Yellow (0.5) to Blue (1.0)
-                float t = (amount - 0.5f) / 0.5f; // 0 at 50%, 1 at 100%
-                fillColor = Color.Lerp(Color.yellow, weaponReadyColor, t);
-            }
-            else
-            {
-                // Low charge: Lerp from Red (0) to Yellow (0.5)
-                float t = amount / 0.5f; // 0 at 0%, 1 at 50%
-                fillColor = Color.Lerp(onCooldownColor, Color.yellow, t);
-            }
-            
-            cooldownFillImage.color = fillColor;
-        }
-        
-        private bool WeaponIsReady(float fillAmount)
-        {
-            return fillAmount >= 1f;
-        }
-        
-        private void SetOnCooldown()
-        {
-            if (cooldownFillImage != null)
-            {
-                cooldownFillImage.color = onCooldownColor;
+                Debug.LogError($"[{nameof(CooldownBarUI)}] cooldownSprites array must have 6 elements (0-5)!");
             }
         }
-        
-        private void SetWeaponReady()
+
+        /// <summary>
+        /// Call this from your weapon/ability system
+        /// currentCooldown: 0 = ready, maxCooldown = full cooldown
+        /// </summary>
+        public void SetCooldown(float currentCooldown, float maxCooldown)
         {
-            if (cooldownFillImage != null)
-            {
-                cooldownFillImage.color = weaponReadyColor;
-                cooldownFillImage.fillAmount = 1f;
-            }
+            if (cooldownImage == null || cooldownSprites == null || cooldownSprites.Length != 6) return;
+
+            int spriteIndex = Mathf.RoundToInt((currentCooldown / maxCooldown) * 5f); 
+            spriteIndex = Mathf.Clamp(spriteIndex, 0, 5);
+
+            // Since 0 = full bar, 5 = empty bar
+            cooldownImage.sprite = cooldownSprites[spriteIndex];
         }
-        
-        public void Hide()
+
+        /// <summary>
+        /// Shortcut to immediately show full bar
+        /// </summary>
+        public void SetCooldownFull()
         {
-            gameObject.SetActive(false);
+            if (cooldownImage != null)
+                cooldownImage.sprite = cooldownSprites[0];
         }
-        
-        public void Show()
+
+        /// <summary>
+        /// Shortcut to immediately show empty bar
+        /// </summary>
+        public void SetCooldownEmpty()
         {
-            gameObject.SetActive(true);
+            if (cooldownImage != null)
+                cooldownImage.sprite = cooldownSprites[5];
         }
     }
 }

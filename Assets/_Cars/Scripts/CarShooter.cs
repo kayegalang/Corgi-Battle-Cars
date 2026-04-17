@@ -4,6 +4,8 @@ using _Gameplay.Scripts;
 using _UI.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using _Audio.scripts;
+
 
 namespace _Cars.Scripts
 {
@@ -31,8 +33,7 @@ namespace _Cars.Scripts
         [SerializeField] [Tooltip("How fast the reticle moves with mouse")]
         [Range(0.1f, 5f)]
         private float mouseSensitivity = 1.5f;
-
-        private CooldownBarUI cooldownBar;
+        [SerializeField] private CooldownBarUI cooldownBar;
 
         private PlayerInput     playerInput;
         private InputAction     shootAction;
@@ -73,17 +74,6 @@ namespace _Cars.Scripts
             ValidateProjectileType();
         }
 
-        private void Start()
-        {
-            StartCoroutine(FindCooldownBarDelayed());
-        }
-
-        private System.Collections.IEnumerator FindCooldownBarDelayed()
-        {
-            yield return null;
-            FindCooldownBar();
-        }
-
         private void CacheComponents()
         {
             playerInput     = GetComponent<PlayerInput>();
@@ -116,20 +106,6 @@ namespace _Cars.Scripts
         {
             if (projectileType == null)
                 Debug.LogError($"[{nameof(CarShooter)}] No projectile type assigned on {gameObject.name}!");
-        }
-
-        private void FindCooldownBar()
-        {
-            if (cooldownBar != null) return;
-
-            string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-            if (scene == "MainMenu")
-                return;
-
-            cooldownBar = GetComponentInChildren<CooldownBarUI>();
-
-            if (cooldownBar == null)
-                Debug.LogError($"[{nameof(CarShooter)}] ✗ {gameObject.name} - CooldownBarUI not found!");
         }
 
         // ═══════════════════════════════════════════════
@@ -253,7 +229,10 @@ namespace _Cars.Scripts
         private void UpdateCooldownBar()
         {
             if (cooldownBar == null) return;
-            cooldownBar.UpdateCooldown(currentCharge, MAX_CHARGE);
+
+            Debug.Log($"Charge: {currentCharge} / {MAX_CHARGE}");
+
+            cooldownBar.SetCooldown(currentCharge, MAX_CHARGE);
         }
 
         // ═══════════════════════════════════════════════
@@ -361,6 +340,8 @@ namespace _Cars.Scripts
             ApplyRecoilToShooter(dir);
 
             GetComponent<CameraShaker>()?.ShakeShoot();
+            
+            AudioManager.instance.PlayOneShot(FMODEvents.instance.shootsound, this.transform.position);
         }
 
         private Vector3 CalculateShootDirectionFromReticle()
@@ -486,7 +467,9 @@ namespace _Cars.Scripts
         // ═══════════════════════════════════════════════
         //  SET PROJECTILE TYPE (runtime swap)
         // ═══════════════════════════════════════════════
-
+        
+        public bool IsFiring() => isFiring;
+        
         public void SetProjectileType(ProjectileObject newProjectile)
         {
             if (newProjectile == null)
@@ -499,6 +482,16 @@ namespace _Cars.Scripts
             currentCharge       = MAX_CHARGE;
             isOverheated        = false;
             nextAllowedFireTime = 0f;
+        }
+        
+        // ═══════════════════════════════════════════════
+        //  AIM DIRECTION (used by TurretVisuals)
+        // ═══════════════════════════════════════════════
+
+        public Vector3 GetAimDirection()
+        {
+            if (reticle == null || playerCamera == null || firePoint == null) return Vector3.zero;
+            return CalculateShootDirectionFromReticle();
         }
     }
 }
