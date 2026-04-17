@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using _Audio.scripts;
 
 namespace _Gameplay.Scripts
 {
@@ -82,6 +83,19 @@ namespace _Gameplay.Scripts
         public IEnumerator ShowNumber(int number)
         {
             if (countdownText == null) yield break;
+            
+            switch (number)
+            {
+                case 3:
+                    AudioManager.instance.PlayOneShot(FMODEvents.instance.bark3Sound, this.transform.position);
+                    break;
+                case 2:
+                    AudioManager.instance.PlayOneShot(FMODEvents.instance.bark2Sound, this.transform.position);
+                    break;
+                case 1:
+                    AudioManager.instance.PlayOneShot(FMODEvents.instance.bark1Sound, this.transform.position);
+                    break;
+            }
 
             Color color = number == 3 ? color3 :
                           number == 2 ? color2 :
@@ -100,6 +114,11 @@ namespace _Gameplay.Scripts
 
             // Flash the screen
             StartCoroutine(FlashScreen());
+            
+            AudioManager.instance.PlayOneShot(FMODEvents.instance.barkGoSound, this.transform.position);
+            
+            if (MusicController.instance != null)
+                MusicController.instance.StartMusic();
 
             yield return StartCoroutine(PunchAnimate(goText, colorGo, true));
         }

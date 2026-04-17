@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using _Audio.scripts;
 
 namespace _Gameplay.Scripts
 {
@@ -11,17 +12,22 @@ namespace _Gameplay.Scripts
         
         [Header("Timer Settings")]
         [SerializeField] private int matchCountdownSeconds = 3;
-        [SerializeField] private int gameDurationSeconds   = 300; 
+        [SerializeField] private int gameDurationSeconds   = 300;
+
+        [Header("Music Timing")]
+        [Tooltip("Seconds remaining when music breaks out of Main Loop toward Buildup")]
+        [SerializeField] private int musicTransitionTime = 182;
         
         [Header("Timer Text")]
-        [SerializeField] private string countdownGoText  = "GO!";
-        [SerializeField] private string gameTimerFormat  = "Time: {0}"; 
+        [SerializeField] private string countdownGoText = "GO!";
+        [SerializeField] private string gameTimerFormat = "Time: {0}";
         
         [Header("Events")]
         public UnityEvent onMatchStart;
         public UnityEvent onGameEnd;
         
         private TextMeshProUGUI gameTimerText;
+        private bool            musicTransitionTriggered = false;
         
         private const string GAME_TIMER_OBJECT_NAME = "GameTimerText";
         
@@ -39,7 +45,10 @@ namespace _Gameplay.Scripts
             if (instance == null)
                 instance = this;
             else if (instance != this)
+            {
+                Debug.LogWarning($"[MatchTimerManager] Duplicate found — destroying this one on {gameObject.name}!");
                 Destroy(this);
+            }
         }
 
         // ═══════════════════════════════════════════════
@@ -56,7 +65,6 @@ namespace _Gameplay.Scripts
             Time.timeScale = 0;
             HideCursor();
 
-            // Count down 3, 2, 1
             for (int i = matchCountdownSeconds; i >= 1; i--)
             {
                 if (CountdownUI.instance != null)
@@ -65,7 +73,6 @@ namespace _Gameplay.Scripts
                     yield return new WaitForSecondsRealtime(1f);
             }
 
-            // GO!
             if (CountdownUI.instance != null)
                 yield return StartCoroutine(CountdownUI.instance.ShowGo(countdownGoText));
             else
@@ -85,6 +92,10 @@ namespace _Gameplay.Scripts
         private void OnMatchStart()
         {
             onMatchStart?.Invoke();
+
+            musicTransitionTriggered = false;
+            MusicController.instance?.StartMusic();
+            Debug.Log("[MatchTimerManager] Match started — music playing!");
         }
 
         // ═══════════════════════════════════════════════
@@ -111,7 +122,6 @@ namespace _Gameplay.Scripts
         
         private IEnumerator GameDurationTimer(int duration)
         {
-            // Tell GameTimerUI the total so it can calculate vignette/color thresholds
             if (GameTimerUI.instance != null)
             {
                 GameTimerUI.instance.SetTotalDuration(duration);
@@ -123,14 +133,24 @@ namespace _Gameplay.Scripts
             while (timeRemaining > 0)
             {
                 UpdateGameTimerDisplay(timeRemaining);
+
                 if (GameTimerUI.instance != null)
                     GameTimerUI.instance.UpdateTimer(timeRemaining);
+
+                // Trigger music transition at the right time
+                if (timeRemaining == musicTransitionTime && !musicTransitionTriggered)
+                {
+                    musicTransitionTriggered = true;
+                    Debug.Log($"[MatchTimerManager] Triggering music buildup at {timeRemaining}s remaining!");
+                    MusicController.instance?.TriggerBuildup();
+                }
 
                 yield return new WaitForSeconds(1);
                 timeRemaining--;
             }
 
             UpdateGameTimerDisplay(0);
+
             if (GameTimerUI.instance != null)
                 GameTimerUI.instance.UpdateTimer(0);
 
@@ -149,6 +169,8 @@ namespace _Gameplay.Scripts
         
         private void OnGameEnd()
         {
+            MusicController.instance?.TriggerGameEnd();
+            Debug.Log("[MatchTimerManager] Game ended!");
             onGameEnd?.Invoke();
         }
         
