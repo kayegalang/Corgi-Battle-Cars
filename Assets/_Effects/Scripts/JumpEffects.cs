@@ -43,7 +43,6 @@ public class JumpEffects : MonoBehaviour
 
     private void OnLand(float landingSpeed)
     {
-        print(landingSpeed);
         float t = Mathf.Clamp01(landingSpeed / landingSpeedReference);
         float squash = Mathf.Lerp(0, landSettings.squashAmount, t);
 
