@@ -1533,6 +1533,7 @@ GameObject:
   - component: {fileID: 150084292}
   - component: {fileID: 150084291}
   - component: {fileID: 150084290}
+  - component: {fileID: 150084293}
   m_Layer: 5
   m_Name: MapSelectionButton
   m_TagString: Untagged
@@ -1665,6 +1666,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 150084288}
   m_CullTransparentMesh: 1
+--- !u!114 &150084293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 150084288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &171437632
 GameObject:
   m_ObjectHideFlags: 0
@@ -2716,6 +2736,7 @@ GameObject:
   - component: {fileID: 272144616}
   - component: {fileID: 272144615}
   - component: {fileID: 272144614}
+  - component: {fileID: 272144617}
   m_Layer: 5
   m_Name: ControlsButton
   m_TagString: Untagged
@@ -2848,6 +2869,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 272144612}
   m_CullTransparentMesh: 1
+--- !u!114 &272144617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 272144612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &282746412
 GameObject:
   m_ObjectHideFlags: 0
@@ -6512,6 +6552,7 @@ GameObject:
   - component: {fileID: 582907587}
   - component: {fileID: 582907586}
   - component: {fileID: 582907585}
+  - component: {fileID: 582907588}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -6644,6 +6685,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 582907583}
   m_CullTransparentMesh: 1
+--- !u!114 &582907588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582907583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &588102495
 GameObject:
   m_ObjectHideFlags: 0
@@ -7313,6 +7373,7 @@ GameObject:
   - component: {fileID: 664765775}
   - component: {fileID: 664765774}
   - component: {fileID: 664765773}
+  - component: {fileID: 664765776}
   m_Layer: 5
   m_Name: VolumeControlButton
   m_TagString: Untagged
@@ -7445,6 +7506,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 664765771}
   m_CullTransparentMesh: 1
+--- !u!114 &664765776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 664765771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &698459240
 GameObject:
   m_ObjectHideFlags: 0
@@ -9939,6 +10019,7 @@ GameObject:
   - component: {fileID: 886918920}
   - component: {fileID: 886918919}
   - component: {fileID: 886918918}
+  - component: {fileID: 886918921}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -10071,6 +10152,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 886918916}
   m_CullTransparentMesh: 1
+--- !u!114 &886918921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 886918916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &893403520
 GameObject:
   m_ObjectHideFlags: 0
@@ -10630,7 +10730,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d67debc52ae4b0b4c9082f41f5db5858, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  transition: {fileID: 11400000, guid: b0126e1e0c6c2a04895d564bd230dfb9, type: 2}
+  transition: {fileID: 0}
 --- !u!1 &938532508
 GameObject:
   m_ObjectHideFlags: 0
@@ -14097,6 +14197,7 @@ GameObject:
   - component: {fileID: 1260755349}
   - component: {fileID: 1260755348}
   - component: {fileID: 1260755347}
+  - component: {fileID: 1260755350}
   m_Layer: 5
   m_Name: CreditsButton
   m_TagString: Untagged
@@ -14229,6 +14330,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1260755345}
   m_CullTransparentMesh: 1
+--- !u!114 &1260755350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1260755345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1261973107
 GameObject:
   m_ObjectHideFlags: 0
@@ -15634,6 +15754,7 @@ GameObject:
   - component: {fileID: 1466926606}
   - component: {fileID: 1466926605}
   - component: {fileID: 1466926604}
+  - component: {fileID: 1466926607}
   m_Layer: 5
   m_Name: ControlsScreen
   m_TagString: Untagged
@@ -15715,6 +15836,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1466926602}
   m_CullTransparentMesh: 1
+--- !u!114 &1466926607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1466926602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1485332134
 GameObject:
   m_ObjectHideFlags: 0
@@ -18240,6 +18380,7 @@ GameObject:
   - component: {fileID: 1684562675}
   - component: {fileID: 1684562674}
   - component: {fileID: 1684562673}
+  - component: {fileID: 1684562676}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -18372,6 +18513,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1684562671}
   m_CullTransparentMesh: 1
+--- !u!114 &1684562676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684562671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1685088273
 GameObject:
   m_ObjectHideFlags: 0
@@ -20363,6 +20523,7 @@ GameObject:
   - component: {fileID: 1857041583}
   - component: {fileID: 1857041582}
   - component: {fileID: 1857041581}
+  - component: {fileID: 1857041584}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -20495,6 +20656,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1857041579}
   m_CullTransparentMesh: 1
+--- !u!114 &1857041584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1857041579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1858021708
 GameObject:
   m_ObjectHideFlags: 0
@@ -21637,6 +21817,7 @@ GameObject:
   - component: {fileID: 1950433404}
   - component: {fileID: 1950433403}
   - component: {fileID: 1950433402}
+  - component: {fileID: 1950433405}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -21769,6 +21950,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1950433400}
   m_CullTransparentMesh: 1
+--- !u!114 &1950433405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950433400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1959828324
 GameObject:
   m_ObjectHideFlags: 0
@@ -21945,6 +22145,7 @@ GameObject:
   - component: {fileID: 1961051751}
   - component: {fileID: 1961051750}
   - component: {fileID: 1961051749}
+  - component: {fileID: 1961051752}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -22077,6 +22278,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1961051747}
   m_CullTransparentMesh: 1
+--- !u!114 &1961051752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1961051747}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1986619669
 GameObject:
   m_ObjectHideFlags: 0
@@ -22308,6 +22528,7 @@ GameObject:
   - component: {fileID: 2000956299}
   - component: {fileID: 2000956298}
   - component: {fileID: 2000956297}
+  - component: {fileID: 2000956300}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -22440,6 +22661,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2000956295}
   m_CullTransparentMesh: 1
+--- !u!114 &2000956300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2000956295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &2006825728
 GameObject:
   m_ObjectHideFlags: 0
