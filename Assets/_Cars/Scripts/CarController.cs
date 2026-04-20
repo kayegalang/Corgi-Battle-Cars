@@ -456,7 +456,6 @@ namespace _Cars.Scripts
             if (grounded && !wasGrounded)
             {
                 float landingSpeed = Mathf.Abs(lastVelocity.y);
-                Debug.Log($"[CarController] Landing speed: {landingSpeed}");
                 GetComponent<CameraShaker>()?.ShakeLand();
                 OnLand?.Invoke(landingSpeed);
             }
