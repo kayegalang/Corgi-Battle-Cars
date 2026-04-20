@@ -109,17 +109,18 @@ namespace _Cars.Scripts
         private void FixedUpdate()
         {
             if (!CanMove()) return;
-            lastVelocity = carRb.linearVelocity;
-            
+
             if (isSlipping)
             {
                 ApplyMovementLimits();
+                lastVelocity = carRb.linearVelocity;
                 return;
             }
-            
+
             UpdateDriftState();
             ApplyPhysics();
             ApplyMovementLimits();
+            lastVelocity = carRb.linearVelocity;
         }
 
         // ═══════════════════════════════════════════════

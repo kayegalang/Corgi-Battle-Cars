@@ -2410,11 +2410,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpSquashStretchSimplified
   carController: {fileID: 1408241973283567108}
   jumpSettings:
-    squashAmount: -0.2
+    squashAmount: -0.1
     duration: 0.55
     ease: 6
   landSettings:
-    squashAmount: 0.5
+    squashAmount: 0.35
     duration: 0.225
     ease: 6
   landingSpeedReference: 9
