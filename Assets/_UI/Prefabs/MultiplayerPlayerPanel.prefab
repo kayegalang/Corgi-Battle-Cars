@@ -284,6 +284,7 @@ GameObject:
   - component: {fileID: 7623116761228562841}
   - component: {fileID: 4506515043509938230}
   - component: {fileID: 588377411595307174}
+  - component: {fileID: 3949321935628843776}
   m_Layer: 5
   m_Name: CarRightButton
   m_TagString: Untagged
@@ -404,6 +405,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &3949321935628843776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 704140821576734641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1068995519716937142
 GameObject:
   m_ObjectHideFlags: 0
@@ -723,6 +742,7 @@ GameObject:
   - component: {fileID: 2568538192680150674}
   - component: {fileID: 8601090977750780817}
   - component: {fileID: 8121354633308585072}
+  - component: {fileID: 3944432218625168465}
   m_Layer: 5
   m_Name: WeaponLeftButton
   m_TagString: Untagged
@@ -843,6 +863,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &3944432218625168465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1745984348956949546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1864562426388808344
 GameObject:
   m_ObjectHideFlags: 0
@@ -991,6 +1029,7 @@ GameObject:
   - component: {fileID: 5154261980222759305}
   - component: {fileID: 5720125769421046572}
   - component: {fileID: 6301964607761975013}
+  - component: {fileID: 2403612767414724263}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -1123,6 +1162,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+--- !u!114 &2403612767414724263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2108777935576476923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &2371952506698781871
 GameObject:
   m_ObjectHideFlags: 0
@@ -1367,6 +1424,7 @@ GameObject:
   - component: {fileID: 477934246910229695}
   - component: {fileID: 8421020607969411236}
   - component: {fileID: 7628955520050893088}
+  - component: {fileID: 3079408954093804134}
   m_Layer: 5
   m_Name: MapSelectionButton
   m_TagString: Untagged
@@ -1499,6 +1557,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+--- !u!114 &3079408954093804134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2908589503444462522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &2950756779626755791
 GameObject:
   m_ObjectHideFlags: 0
@@ -2012,6 +2088,7 @@ GameObject:
   - component: {fileID: 4387387654736225711}
   - component: {fileID: 7847403809801036681}
   - component: {fileID: 3023241791842041640}
+  - component: {fileID: 3817026027400889350}
   m_Layer: 5
   m_Name: CarLeftButton
   m_TagString: Untagged
@@ -2132,6 +2209,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &3817026027400889350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4390161386196261980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &4491105158861559662
 GameObject:
   m_ObjectHideFlags: 0
@@ -2659,6 +2754,7 @@ GameObject:
   - component: {fileID: 5635233641844711530}
   - component: {fileID: 6424371569261913476}
   - component: {fileID: 7374713384161127790}
+  - component: {fileID: 1096387944484083035}
   m_Layer: 5
   m_Name: WeaponRightButton
   m_TagString: Untagged
@@ -2779,6 +2875,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1096387944484083035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7697525973226004631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &8012463077968632371
 GameObject:
   m_ObjectHideFlags: 0
