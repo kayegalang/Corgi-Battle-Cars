@@ -92,8 +92,6 @@ public class ButtonTweenEffects : MonoBehaviour,
         bool wasScaledUp = scaledUp;
         scaledUp = isHovered || isSelected;
         
-        print($"{wasScaledUp} was: {scaledUp}");
-        
         if (scaledUp == wasScaledUp) return;
         
         if (scaledUp)
