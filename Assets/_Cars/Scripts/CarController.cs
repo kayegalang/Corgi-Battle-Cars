@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using _Cars.ScriptableObjects;
 using _Effects.Scripts;
@@ -41,8 +42,12 @@ namespace _Cars.Scripts
         private Rigidbody carRb;
         private PauseController pauseController;
         
+        public event Action OnJump;
+        public event Action<float> OnLand;
+
         // Landing detection
         private bool wasGrounded = false;
+        private Vector3 lastVelocity;
 
         // Zoomies power-up state
         private bool  hasZoomies             = false;
@@ -104,6 +109,7 @@ namespace _Cars.Scripts
         private void FixedUpdate()
         {
             if (!CanMove()) return;
+            lastVelocity = carRb.linearVelocity;
             
             if (isSlipping)
             {
@@ -448,7 +454,12 @@ namespace _Cars.Scripts
         {
             bool grounded = IsGrounded();
             if (grounded && !wasGrounded)
+            {
+                float landingSpeed = Mathf.Abs(lastVelocity.y);
+                Debug.Log($"[CarController] Landing speed: {landingSpeed}");
                 GetComponent<CameraShaker>()?.ShakeLand();
+                OnLand?.Invoke(landingSpeed);
+            }
             wasGrounded = grounded;
         }
         
@@ -482,6 +493,7 @@ namespace _Cars.Scripts
             if (!CanJump()) return;
             Vector3 jumpForce = transform.up * carStats.JumpForce * jumpMultiplier;
             carRb.AddForce(jumpForce, ForceMode.Impulse);
+            OnJump?.Invoke();
         }
         
         private bool CanJump() => IsGrounded() && carStats != null;
@@ -586,8 +598,8 @@ namespace _Cars.Scripts
         private void SpinPlayer(float spinForce)
         {
             if (carRb == null) return;
-            float   randomDirection = Random.value > 0.5f ? 1f : -1f;
-            Vector3 spinTorque      = Vector3.up * spinForce * randomDirection;
+            float   randomDirection = UnityEngine.Random.value > 0.5f ? 1f : -1f;
+            Vector3 spinTorque      = Vector3.up * (spinForce * randomDirection);
             carRb.AddTorque(spinTorque, ForceMode.Impulse);
         }
 
