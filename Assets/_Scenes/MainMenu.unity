@@ -252,6 +252,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.1
   jiggleStrength: 2
@@ -599,6 +600,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -3513,6 +3515,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -5421,6 +5424,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -7906,6 +7910,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -8837,6 +8842,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -9764,6 +9770,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.1
   jiggleStrength: 2
@@ -10484,6 +10491,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -10575,6 +10583,7 @@ GameObject:
   m_Component:
   - component: {fileID: 936771161}
   - component: {fileID: 936771160}
+  - component: {fileID: 936771162}
   m_Layer: 0
   m_Name: PlayerDeviceTracker
   m_TagString: Untagged
@@ -10609,6 +10618,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &936771162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 936771159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d67debc52ae4b0b4c9082f41f5db5858, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  transition: {fileID: 11400000, guid: b0126e1e0c6c2a04895d564bd230dfb9, type: 2}
 --- !u!1 &938532508
 GameObject:
   m_ObjectHideFlags: 0
@@ -11516,6 +11538,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -13619,6 +13642,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -13918,6 +13942,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -17545,6 +17570,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.1
   jiggleStrength: 2
@@ -19310,6 +19336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -19699,6 +19726,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -20316,6 +20344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -20807,6 +20836,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -21896,6 +21926,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
