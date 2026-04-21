@@ -192,6 +192,7 @@ GameObject:
   - component: {fileID: 8010217095824698214}
   - component: {fileID: 4293571453736889084}
   - component: {fileID: 365574728547902581}
+  - component: {fileID: 3039631922779800720}
   m_Layer: 0
   m_Name: DefaultPlayer
   m_TagString: PlayerOne
@@ -662,6 +663,23 @@ MonoBehaviour:
   rotationSpeed: 15
   instantRotation: 0
   maxTiltAngle: 5
+--- !u!114 &3039631922779800720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852133240821571215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5c3f34dd833450685929afdc1b3b13e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraFOVController
+  cam: {fileID: 6851379202247732706}
+  rb: {fileID: 1880922756369048339}
+  fovThresholdSpeedRange: {x: 0, y: 30}
+  maxFOVIncrease: 7.5
+  smoothTime: 0.3
 --- !u!1 &974924005986492713
 GameObject:
   m_ObjectHideFlags: 0
