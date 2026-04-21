@@ -27,6 +27,9 @@ namespace _Cars.Scripts
         [SerializeField] [Tooltip("How fast the reticle moves with controller stick")]
         [Range(100f, 2000f)]
         private float controllerSensitivity = 900f;
+
+        [SerializeField] [Tooltip("The transform we fire projectiles from")]
+        private Transform firePoint;
         
         [SerializeField] [Tooltip("How fast the reticle moves with mouse")]
         [Range(0.1f, 5f)]
@@ -39,7 +42,6 @@ namespace _Cars.Scripts
         private Rigidbody       carRigidbody;
         private PauseController pauseController;
         private Camera          playerCamera;
-        private Transform       firePoint;
         
         private Vector2 controllerAimInput;
         private Vector2 lastMousePosition;
@@ -76,7 +78,6 @@ namespace _Cars.Scripts
         {
             playerInput     = GetComponent<PlayerInput>();
             carRigidbody    = GetComponent<Rigidbody>();
-            firePoint       = transform.Find("FirePoint");
             playerCamera    = GetComponentInChildren<Camera>();
             pauseController = FindFirstObjectByType<PauseController>();
         }
