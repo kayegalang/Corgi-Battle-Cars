@@ -1,11 +1,5 @@
 ﻿using UnityEngine;
 
-/// <summary>
-/// Adjusts the FOV of a Cinemachine Virtual Camera based on the player's X-axis speed.
-///
-/// Add this script to the player prefab root.
-/// Drag the Cinemachine Virtual Camera into the Inspector slot.
-/// </summary>
 public class CameraFOVController : MonoBehaviour
 {
     [Header("References")]
@@ -28,10 +22,6 @@ public class CameraFOVController : MonoBehaviour
     private float currentFOV;
     private float fovVelocity;
 
-    // ═══════════════════════════════════════════════
-    //  LIFECYCLE
-    // ═══════════════════════════════════════════════
-
     private void Awake()
     {
         if (cam == null)
@@ -51,10 +41,7 @@ public class CameraFOVController : MonoBehaviour
     {
         if (cam == null || rb == null) return;
 
-        // Get the absolute X speed
         float speed = rb.linearVelocity.magnitude;
-
-        // Calculate target FOV based on speed range
         float targetFOV = baseFOV;
 
         if (speed > fovThresholdSpeedRange.x)
