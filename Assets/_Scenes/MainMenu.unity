@@ -7597,7 +7597,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Gameplay.Scripts.MatchTimerManager
   matchCountdownSeconds: 3
-  gameDurationSeconds: 300
+  gameDurationSeconds: 30
   countdownGoText: Go!
   gameTimerFormat: 'Time: {0}'
   onMatchStart:

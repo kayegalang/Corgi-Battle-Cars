@@ -3612,7 +3612,7 @@ MonoBehaviour:
   rank3Title: ALMOST!
   rank4Title: RUFF LUCK!
   pointsFormat: '{0} pts'
-  revealDelay: 0.3
+  revealDelay: 5.3
   loserRowDelay: 0.2
   onPlayAgain:
     m_PersistentCalls:
@@ -3620,6 +3620,9 @@ MonoBehaviour:
   onReturnToMenu:
     m_PersistentCalls:
       m_Calls: []
+  finishedTextObject: {fileID: 1268747351}
+  finishedAnimator: {fileID: 1268747353}
+  endBufferDuration: 5
 --- !u!4 &478994507
 Transform:
   m_ObjectHideFlags: 0
