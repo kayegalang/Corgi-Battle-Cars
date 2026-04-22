@@ -10,10 +10,15 @@ namespace _UI.Scripts
     {
         public static LoadingManager instance;
 
+        [Header("UI")]
         [SerializeField] private GameObject loadingScreen;
-        [SerializeField] private Slider progressBar;
+
+        [Header("Paw Progress")]
+        [SerializeField] private Image pawImage;
+        [SerializeField] private Sprite[] pawSprites; // 24 sprites
 
         private bool isLoading = false;
+        private int lastIndex = -1;
 
         void Awake()
         {
@@ -48,41 +53,36 @@ namespace _UI.Scripts
             if (loadingScreen != null)
                 loadingScreen.SetActive(true);
 
-            if (progressBar != null)
-                progressBar.value = 0f;
+            lastIndex = -1;
+            UpdatePawProgress(0f);
 
             AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
             op.allowSceneActivation = false;
 
             float fakeProgress = 0f;
 
+            // 🐾 FAKE LOADING (0 → 90)
             while (fakeProgress < 90f)
             {
-                // Move smoothly toward 90%
-                fakeProgress += Time.unscaledDeltaTime * 80f; // speed control
+                fakeProgress += Time.unscaledDeltaTime * 40f;
 
-                // Don't go past real progress
                 float realProgress = Mathf.Clamp01(op.progress / 0.9f) * 90f;
                 fakeProgress = Mathf.Min(fakeProgress, realProgress + 10f);
 
-                if (progressBar != null)
-                    progressBar.value = fakeProgress;
+                UpdatePawProgress(fakeProgress / 100f);
 
                 yield return null;
             }
 
-            // Wait until Unity is actually ready
+            // Wait until Unity is ready
             while (op.progress < 0.9f)
                 yield return null;
 
-            // Smooth fill from 90 → 100
+            // 🐾 FINAL FILL (90 → 100)
             while (fakeProgress < 100f)
             {
                 fakeProgress += Time.unscaledDeltaTime * 100f;
-
-                if (progressBar != null)
-                    progressBar.value = fakeProgress;
-
+                UpdatePawProgress(fakeProgress / 100f);
                 yield return null;
             }
 
@@ -94,6 +94,7 @@ namespace _UI.Scripts
             while (!op.isDone)
                 yield return null;
 
+            // Wait for GameplayManager
             yield return new WaitUntil(() => GameplayManager.instance != null);
 
             float timeout = 3f;
@@ -113,6 +114,26 @@ namespace _UI.Scripts
                 loadingScreen.SetActive(false);
 
             isLoading = false;
+        }
+
+        // 🐾 Update paw sprite based on progress
+        private void UpdatePawProgress(float progress01)
+        {
+            if (pawImage == null || pawSprites == null || pawSprites.Length == 0)
+                return;
+
+            int index = Mathf.Clamp(
+                Mathf.FloorToInt(progress01 * pawSprites.Length),
+                0,
+                pawSprites.Length - 1
+            );
+
+            // Only update when stepping forward (prevents flicker)
+            if (index != lastIndex)
+            {
+                pawImage.sprite = pawSprites[index];
+                lastIndex = index;
+            }
         }
     }
 }
