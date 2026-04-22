@@ -21,6 +21,10 @@ namespace _UI.Scripts
         
         [Header("Timing Settings")]
         [SerializeField] private float transitionDelay = 0.5f;
+
+        [Header("Navigation")]
+        [Tooltip("Panel to return to when pressing back (the PlayerCountSelector panel)")]
+        [SerializeField] private GameObject previousPanel;
         
         [Header("Events")]
         public UnityEvent<int> onAllPlayersJoined;
@@ -60,6 +64,14 @@ namespace _UI.Scripts
         private void OnDisable()
         {
             UnsubscribeFromPlayerJoinedEvent();
+        }
+
+        private void Update()
+        {
+            // Controller back button (B / East) — go back to player count selector
+            if (joinPanel != null && joinPanel.activeSelf)
+                if (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)
+                    GoBack();
         }
         
         private void InitializePlayerInputManager()
@@ -117,6 +129,38 @@ namespace _UI.Scripts
         }
 
         // ═══════════════════════════════════════════════
+        //  BACK
+        // ═══════════════════════════════════════════════
+
+        public void GoBack()
+        {
+            // Stop any running coroutines (e.g. EnableJoiningAfterButtonRelease)
+            StopAllCoroutines();
+
+            // Destroy any players that already joined
+            CleanupExistingPlayers();
+
+            // Disable joining so no more players can join
+            DisablePlayerJoining();
+
+            // Restore Player 1 only restriction
+            var guard = FindFirstObjectByType<PlayerOneUIGuard>();
+            guard?.SetAllowAllDevices(false);
+
+            // Reset counters
+            joinedPlayerCount = 0;
+            targetPlayerCount = 0;
+
+            // Hide join panel and go back to player count selector
+            HideJoinPanel();
+
+            if (previousPanel != null)
+                previousPanel.SetActive(true);
+
+            Debug.Log("[PlayerJoinScreen] Went back — join state fully reset.");
+        }
+
+        // ═══════════════════════════════════════════════
         //  JOIN FLOW
         // ═══════════════════════════════════════════════
         
@@ -145,13 +189,13 @@ namespace _UI.Scripts
         {
             if (Gamepad.current == null) return false;
 
-            return Gamepad.current.buttonSouth.isPressed ||
-                   Gamepad.current.buttonNorth.isPressed ||
-                   Gamepad.current.buttonEast.isPressed  ||
-                   Gamepad.current.buttonWest.isPressed  ||
-                   Gamepad.current.startButton.isPressed ||
-                   Gamepad.current.selectButton.isPressed ||
-                   Gamepad.current.leftShoulder.isPressed ||
+            return Gamepad.current.buttonSouth.isPressed   ||
+                   Gamepad.current.buttonNorth.isPressed   ||
+                   Gamepad.current.buttonEast.isPressed    ||
+                   Gamepad.current.buttonWest.isPressed    ||
+                   Gamepad.current.startButton.isPressed   ||
+                   Gamepad.current.selectButton.isPressed  ||
+                   Gamepad.current.leftShoulder.isPressed  ||
                    Gamepad.current.rightShoulder.isPressed;
         }
         
@@ -191,13 +235,9 @@ namespace _UI.Scripts
                 }
 
                 if (joinedPlayer == null)
-                {
                     Debug.LogError($"[{nameof(PlayerJoinScreen)}] JoinPlayer returned null!");
-                }
                 else
                 {
-                    // Camera lives on ShakePivot (child of PlayerCamera) not directly on root
-                    // Unity can't find it automatically so we assign it manually
                     joinedPlayer.camera = joinedPlayer.GetComponentInChildren<Camera>();
                     Debug.Log($"[PlayerJoinScreen] PlayerOne camera assigned: {joinedPlayer.camera != null}");
                 }
@@ -251,10 +291,8 @@ namespace _UI.Scripts
             }
             
             foreach (PlayerInput player in playersToRemove)
-            {
                 if (player != null && player.gameObject != null)
                     Destroy(player.gameObject);
-            }
         }
 
         // ═══════════════════════════════════════════════
@@ -338,10 +376,8 @@ namespace _UI.Scripts
         {
             joinedPlayerCount++;
 
-            // Camera is on ShakePivot child — assign manually for split-screen
             playerInput.camera = playerInput.GetComponentInChildren<Camera>();
 
-            // Track which device this player used
             if (playerInput.devices.Count > 0)
             {
                 InputDevice device    = playerInput.devices[0];
@@ -434,11 +470,6 @@ namespace _UI.Scripts
             }
             
             characterSelectionPanel.SetActive(true);
-        }
-        
-        public void GoBack()
-        {
-            CleanupExistingPlayers();
         }
     }
 }
