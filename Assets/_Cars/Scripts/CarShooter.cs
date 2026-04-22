@@ -35,6 +35,8 @@ namespace _Cars.Scripts
         [SerializeField] [Tooltip("How fast the reticle moves with mouse")]
         [Range(0.1f, 5f)]
         private float mouseSensitivity = 1.5f;
+        [SerializeField] [Tooltip("Extra padding in pixels to keep the crosshair fully inside the viewport — increase if it still bleeds into adjacent screens")]
+        private float reticleBorderPadding = -70f;
         [SerializeField] private CooldownBarUI cooldownBar;
 
         private PlayerInput     playerInput;
@@ -223,9 +225,6 @@ namespace _Cars.Scripts
         private void UpdateCooldownBar()
         {
             if (cooldownBar == null) return;
-
-            Debug.Log($"Charge: {currentCharge} / {MAX_CHARGE}");
-
             cooldownBar.SetCooldown(currentCharge, MAX_CHARGE);
         }
 
@@ -309,9 +308,14 @@ namespace _Cars.Scripts
             RectTransform canvasRect   = reticleCanvas.transform as RectTransform;
             Rect          viewportRect = playerCamera.pixelRect;
 
+            // Pad inward by half the reticle's size plus any extra border padding
+            // so the entire crosshair image stays within the viewport
+            float halfW = reticle.rect.width  * 0.5f + reticleBorderPadding;
+            float halfH = reticle.rect.height * 0.5f + reticleBorderPadding;
+
             Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
-            screenPos.x = Mathf.Clamp(screenPos.x, viewportRect.xMin, viewportRect.xMax);
-            screenPos.y = Mathf.Clamp(screenPos.y, viewportRect.yMin, viewportRect.yMax);
+            screenPos.x = Mathf.Clamp(screenPos.x, viewportRect.xMin + halfW, viewportRect.xMax - halfW);
+            screenPos.y = Mathf.Clamp(screenPos.y, viewportRect.yMin + halfH, viewportRect.yMax - halfH);
 
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 canvasRect, screenPos, null, out Vector2 localPoint);
@@ -335,7 +339,7 @@ namespace _Cars.Scripts
             ApplyRecoilToShooter(dir);
 
             GetComponent<CameraShaker>()?.ShakeShoot();
-            GetComponent<ControllerRumbler>()?.RumbleShoot();  // ← vibration
+            GetComponent<ControllerRumbler>()?.RumbleShoot();
         }
 
         private Vector3 CalculateShootDirectionFromReticle()

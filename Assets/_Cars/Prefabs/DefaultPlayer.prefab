@@ -295,6 +295,7 @@ MonoBehaviour:
   controllerSensitivity: 800
   firePoint: {fileID: 2524215442213149595}
   mouseSensitivity: 1.5
+  reticleBorderPadding: -70
   cooldownBar: {fileID: 2489620086990607020}
 --- !u!114 &6192070679033599830
 MonoBehaviour:
@@ -1931,7 +1932,7 @@ Camera:
   m_GameObject: {fileID: 3691089891187905203}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
