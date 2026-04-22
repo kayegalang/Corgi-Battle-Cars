@@ -2,7 +2,6 @@ using _Projectiles.Scripts;
 using _Projectiles.ScriptableObjects;
 using _Gameplay.Scripts;
 using _UI.Scripts;
-using _Effects.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -35,8 +34,6 @@ namespace _Cars.Scripts
         [SerializeField] [Tooltip("How fast the reticle moves with mouse")]
         [Range(0.1f, 5f)]
         private float mouseSensitivity = 1.5f;
-        [SerializeField] [Tooltip("Extra padding in pixels to keep the crosshair fully inside the viewport — increase if it still bleeds into adjacent screens")]
-        private float reticleBorderPadding = -70f;
         [SerializeField] private CooldownBarUI cooldownBar;
 
         private PlayerInput     playerInput;
@@ -58,6 +55,9 @@ namespace _Cars.Scripts
         private float nextAllowedFireTime;
         private bool  isOverheated = false;
 
+        // NOTE: fireRate and chargeRegenRate are read directly from projectileType
+        // every frame so TuningManager changes take effect immediately without needing
+        // to call InitializeFromProjectile() again.
         private float FireRate        => projectileType != null ? projectileType.FireRate        : 0.5f;
         private float ChargeRegenRate => projectileType != null ? MAX_CHARGE / Mathf.Max(projectileType.CooldownDuration, 0.1f) : 10f;
 
@@ -212,10 +212,13 @@ namespace _Cars.Scripts
         {
             if (currentCharge >= MAX_CHARGE) return;
 
+            // Read ChargeRegenRate live from projectileType so tuning changes apply immediately
             currentCharge = Mathf.Min(currentCharge + ChargeRegenRate * Time.deltaTime, MAX_CHARGE);
 
             if (currentCharge >= MAX_CHARGE && isOverheated)
+            {
                 isOverheated = false;
+            }
         }
 
         private bool GameplayIsDisabled() => !gameplayEnabled;
@@ -225,7 +228,12 @@ namespace _Cars.Scripts
         private void UpdateCooldownBar()
         {
             if (cooldownBar == null) return;
-            cooldownBar.SetCooldown(currentCharge, MAX_CHARGE);
+
+            float cooldown = MAX_CHARGE - currentCharge;
+
+            Debug.Log($"Cooldown: {cooldown} / {MAX_CHARGE}");
+
+            cooldownBar.SetCooldown(cooldown, MAX_CHARGE);
         }
 
         // ═══════════════════════════════════════════════
@@ -249,6 +257,7 @@ namespace _Cars.Scripts
                     isOverheated  = true;
                 }
 
+                // Read FireRate live — so TuningManager changes apply immediately
                 nextAllowedFireTime = Time.time + FireRate;
             }
         }
@@ -308,14 +317,9 @@ namespace _Cars.Scripts
             RectTransform canvasRect   = reticleCanvas.transform as RectTransform;
             Rect          viewportRect = playerCamera.pixelRect;
 
-            // Pad inward by half the reticle's size plus any extra border padding
-            // so the entire crosshair image stays within the viewport
-            float halfW = reticle.rect.width  * 0.5f + reticleBorderPadding;
-            float halfH = reticle.rect.height * 0.5f + reticleBorderPadding;
-
             Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
-            screenPos.x = Mathf.Clamp(screenPos.x, viewportRect.xMin + halfW, viewportRect.xMax - halfW);
-            screenPos.y = Mathf.Clamp(screenPos.y, viewportRect.yMin + halfH, viewportRect.yMax - halfH);
+            screenPos.x = Mathf.Clamp(screenPos.x, viewportRect.xMin, viewportRect.xMax);
+            screenPos.y = Mathf.Clamp(screenPos.y, viewportRect.yMin, viewportRect.yMax);
 
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 canvasRect, screenPos, null, out Vector2 localPoint);
@@ -329,8 +333,6 @@ namespace _Cars.Scripts
 
         private void FireProjectile()
         {
-            if (reticle == null || playerCamera == null || firePoint == null) return;
-
             Vector3    dir        = CalculateShootDirectionFromReticle();
             GameObject projectile = CreateProjectileAtFirePoint(dir);
 
@@ -339,7 +341,6 @@ namespace _Cars.Scripts
             ApplyRecoilToShooter(dir);
 
             GetComponent<CameraShaker>()?.ShakeShoot();
-            GetComponent<ControllerRumbler>()?.RumbleShoot();
         }
 
         private Vector3 CalculateShootDirectionFromReticle()
