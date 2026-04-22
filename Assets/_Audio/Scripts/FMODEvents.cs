@@ -21,6 +21,11 @@ namespace _Audio.scripts
     
         [field: Header("PowerUps")]
         [field: SerializeField] public EventReference shootsound { get; private set; }
+        [field: SerializeField] public EventReference zoomies { get; private set; }
+        [field: SerializeField] public EventReference sniff { get; private set; }
+        [field: SerializeField] public EventReference squirrel { get; private set; }
+        [field: SerializeField] public EventReference poop { get; private set; }
+        
         public static FMODEvents instance { get; private set; }
 
         private void Awake()

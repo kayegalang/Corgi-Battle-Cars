@@ -9981,6 +9981,34 @@ MonoBehaviour:
       Data3: 2044705720
       Data4: -1961419844
     Path: event:/Gameplay/Shoot
+  <zoomies>k__BackingField:
+    Guid:
+      Data1: 477552065
+      Data2: 1319680790
+      Data3: 366467475
+      Data4: 581116822
+    Path: event:/Gameplay/Zoomies
+  <sniff>k__BackingField:
+    Guid:
+      Data1: -220374199
+      Data2: 1221778895
+      Data3: -577987905
+      Data4: 763620198
+    Path: event:/Gameplay/Sniff
+  <squirrel>k__BackingField:
+    Guid:
+      Data1: -960147824
+      Data2: 1282792417
+      Data3: -1877860211
+      Data4: -901914912
+    Path: event:/Gameplay/Squirrel
+  <poop>k__BackingField:
+    Guid:
+      Data1: -1347465645
+      Data2: 1149116605
+      Data3: -1884939362
+      Data4: 1933456710
+    Path: event:/Gameplay/Poop
 --- !u!1 &793682586
 GameObject:
   m_ObjectHideFlags: 0
