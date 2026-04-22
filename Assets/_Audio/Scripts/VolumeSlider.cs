@@ -1,7 +1,5 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
-
 
 namespace _Audio.scripts
 {
@@ -14,31 +12,28 @@ namespace _Audio.scripts
             SFX
         }
 
-        [Header("Type")] 
+        [Header("Type")]
         [SerializeField] private VolumeType volumeType;
 
         private Slider volumeSlider;
 
         private void Awake()
         {
-            volumeSlider = this.GetComponentInChildren<Slider>();
+            volumeSlider = GetComponent<Slider>();
         }
 
-        private void Update()
+        private void Start()
         {
             switch (volumeType)
             {
                 case VolumeType.MASTER:
-                    volumeSlider.value = AudioManager.instance.masterVolume;
+                    volumeSlider.SetValueWithoutNotify(AudioManager.instance.masterVolume);
                     break;
                 case VolumeType.MUSIC:
-                    volumeSlider.value = AudioManager.instance.musicVolume;
+                    volumeSlider.SetValueWithoutNotify(AudioManager.instance.musicVolume);
                     break;
                 case VolumeType.SFX:
-                    volumeSlider.value = AudioManager.instance.sfxVolume;
-                    break;
-                default:
-                    Debug.LogWarning("Volume Type not supported: " + volumeType);
+                    volumeSlider.SetValueWithoutNotify(AudioManager.instance.sfxVolume);
                     break;
             }
         }
@@ -55,9 +50,6 @@ namespace _Audio.scripts
                     break;
                 case VolumeType.SFX:
                     AudioManager.instance.sfxVolume = volumeSlider.value;
-                    break;
-                default:
-                    Debug.LogWarning("Volume Type not supported: " + volumeType);
                     break;
             }
         }
