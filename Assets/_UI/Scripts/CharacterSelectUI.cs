@@ -21,16 +21,16 @@ public class CharacterSelectUI : MonoBehaviour
     [SerializeField] private ProjectileObject[] weaponTypes;
     [SerializeField] private TextMeshProUGUI weaponNameText;
 
-    [Header("Stats Panel")]
-    [SerializeField] private TextMeshProUGUI statsHeaderText;
-    [SerializeField] private TextMeshProUGUI statLabel1;
-    [SerializeField] private TextMeshProUGUI statLabel2;
-    [SerializeField] private TextMeshProUGUI statLabel3;
-    [SerializeField] private TextMeshProUGUI statLabel4;
-    [SerializeField] private Image statBar1;
-    [SerializeField] private Image statBar2;
-    [SerializeField] private Image statBar3;
-    [SerializeField] private Image statBar4;
+    [Header("Car Stats (Sprites)")]
+    [SerializeField] private StatUI jump;
+    [SerializeField] private StatUI acceleration;
+    [SerializeField] private StatUI health;
+    [SerializeField] private StatUI speed;
+
+    [Header("Weapon Stats (Sprites)")]
+    [SerializeField] private StatUI damage;
+    [SerializeField] private StatUI cooldown;
+    [SerializeField] private StatUI fireRate;
 
     [Header("Buttons — hidden when using controller")]
     [SerializeField] private GameObject backButton;
@@ -343,22 +343,20 @@ public class CharacterSelectUI : MonoBehaviour
     private void ApplyCarStats()
     {
         var s = carTypes[carIndex];
-        if (statsHeaderText != null) statsHeaderText.text = $"{s.CarName} Stats";
-        SetBar(statLabel1, statBar1, "SPD",   s.SpeedStat        / 100f);
-        SetBar(statLabel2, statBar2, "ACCEL", s.AccelerationStat / 100f);
-        SetBar(statLabel3, statBar3, "JUMP",  s.JumpForceStat    / 100f);
-        SetBar(statLabel4, statBar4, "HP",    s.HealthStat       / 100f);
+
+        jump.Set(s.JumpForceStat / 100f);
+        acceleration.Set(s.AccelerationStat / 100f);
+        health.Set(s.HealthStat / 100f);
+        speed.Set(s.SpeedStat / 100f);
     }
 
     private void ApplyWeaponStats()
     {
         var w = weaponTypes[weaponIndex];
-        if (statsHeaderText != null) statsHeaderText.text = $"{w.ProjectileName} Stats";
 
-        SetBar(statLabel1, statBar1, "DMG",  w.DamageStat   / 100f);
-        SetBar(statLabel2, statBar2, "RATE", w.FireRateStat  / 100f);
-        SetBar(statLabel3, statBar3, "COOL", w.CooldownStat  / 100f);
-        SetBar(statLabel4, statBar4, "RCOL", w.RecoilStat    / 100f);
+        damage.Set(w.DamageStat / 100f);
+        cooldown.Set(w.CooldownStat / 100f);
+        fireRate.Set(w.FireRateStat / 100f);
     }
 
     private void SetBar(TextMeshProUGUI label, Image bar, string labelText, float fill)

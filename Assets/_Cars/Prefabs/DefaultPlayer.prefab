@@ -1808,8 +1808,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.01175, y: -0.000011247}
-  m_SizeDelta: {x: 0.40471, y: 1.2876}
+  m_AnchoredPosition: {x: -0.0047886, y: -0.000011247}
+  m_SizeDelta: {x: 0.43779, y: 1.2876}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1828872276564024925
 CanvasRenderer:
@@ -2695,7 +2695,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4725,13 +4725,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_UI.Scripts.CooldownBarUI
   cooldownSprites:
-  - {fileID: 221301234, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
-  - {fileID: -140221187, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
-  - {fileID: -1515620456, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
-  - {fileID: 1353829009, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
-  - {fileID: -2000863285, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
   - {fileID: 1493224513, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
+  - {fileID: -2000863285, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
+  - {fileID: 1353829009, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
+  - {fileID: -1515620456, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
+  - {fileID: -140221187, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
+  - {fileID: 221301234, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
   cooldownImage: {fileID: 3669363509338673587}
+  backgroundImage: {fileID: 7792872324652329596}
+  pulseSpeed: 8
 --- !u!222 &5963921290390153051
 CanvasRenderer:
   m_ObjectHideFlags: 0
