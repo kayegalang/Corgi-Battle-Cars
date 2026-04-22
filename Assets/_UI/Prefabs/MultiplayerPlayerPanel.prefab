@@ -417,6 +417,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -875,6 +876,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -1174,6 +1176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -1569,6 +1572,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -1806,7 +1810,7 @@ MonoBehaviour:
   m_fontSize: 245
   m_fontSizeBase: 245
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -2221,6 +2225,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5
@@ -2887,6 +2892,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
   hoverScale: 1.1
   scaleDuration: 0.15
   jiggleStrength: 3.5

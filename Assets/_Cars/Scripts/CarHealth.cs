@@ -68,11 +68,12 @@ namespace _Cars.Scripts
             hitEffects        = GetComponent<HitEffects>();
             deathEffects      = GetComponent<CarDeathEffects>();
 
-            // Find the name tag canvas — it uses CanvasRenderer so isn't
-            // caught by GetComponentsInChildren<Renderer>()
+            // Search entire hierarchy for NameTagCanvas regardless of depth
             Transform nameTagTransform = transform.Find("Visuals/CarModel/NameTagCanvas");
             if (nameTagTransform != null)
                 nameTagCanvas = nameTagTransform.gameObject;
+            else
+                Debug.LogWarning($"[CarHealth] NameTagCanvas not found on {gameObject.name} — license plate won't flash during spawn protection!");
 
             if (healthBarManager == null)
                 Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
@@ -127,13 +128,10 @@ namespace _Cars.Scripts
 
         private void SetRenderersVisible(bool visible)
         {
-            // Toggle all mesh/particle renderers
             if (carRenderers != null)
                 foreach (Renderer r in carRenderers)
                     if (r != null) r.enabled = visible;
 
-            // Also toggle the name tag canvas since it uses
-            // CanvasRenderer which isn't caught by Renderer[]
             if (nameTagCanvas != null)
                 nameTagCanvas.SetActive(visible);
         }
@@ -224,12 +222,17 @@ namespace _Cars.Scripts
 
         private IEnumerator DelayedPlayerDeath()
         {
+            // Hide the car immediately on death
             SetRenderersVisible(false);
 
             yield return new WaitForSeconds(0.8f);
 
+            // Move below the map so physics doesn't interfere
             transform.position = new Vector3(0, -1000f, 0);
-            SetRenderersVisible(true);
+
+            // Keep renderers HIDDEN — no need to re-enable since
+            // this GameObject is about to be destroyed on respawn.
+            // Re-enabling here caused a flash at the death position.
 
             if (healthBarManager != null)
                 healthBarManager.gameObject.SetActive(false);
@@ -259,6 +262,21 @@ namespace _Cars.Scripts
             healthBarManager?.UpdateAllHealthBars(healthPercent);
             OnHealthChanged?.Invoke(healthPercent);
             deathEffects?.OnHealthChanged(healthPercent);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  HELPERS
+        // ═══════════════════════════════════════════════
+
+        private Transform FindDeepChild(Transform parent, string childName)
+        {
+            foreach (Transform child in parent)
+            {
+                if (child.name == childName) return child;
+                Transform found = FindDeepChild(child, childName);
+                if (found != null) return found;
+            }
+            return null;
         }
 
         // ═══════════════════════════════════════════════
