@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using _Cars.ScriptableObjects;
 using _Effects.Scripts;
@@ -27,9 +28,9 @@ namespace _Cars.Scripts
         [SerializeField] private float crashCooldown        = 0.5f;
 
         [Header("Bounce Settings")]
-        [SerializeField] private float bounceForce          = 8f;
-        [SerializeField] private float bounceUpForce        = 2f;
-        [SerializeField] private float bounceSpeedThreshold = 3f;
+        [SerializeField] private float bounceForce          = 8f;   // how hard the bounce is
+        [SerializeField] private float bounceUpForce        = 2f;   // slight upward pop for cartoon feel
+        [SerializeField] private float bounceSpeedThreshold = 3f;   // min speed to trigger bounce
         
         private PlayerInput playerInput;
         private InputAction moveAction;
@@ -41,7 +42,12 @@ namespace _Cars.Scripts
         private Rigidbody carRb;
         private PauseController pauseController;
         
+        public event Action OnJump;
+        public event Action<float> OnLand;
+
+        // Landing detection
         private bool wasGrounded = false;
+        private Vector3 lastVelocity;
 
         // Zoomies power-up state
         private bool  hasZoomies             = false;
@@ -103,16 +109,18 @@ namespace _Cars.Scripts
         private void FixedUpdate()
         {
             if (!CanMove()) return;
-            
+
             if (isSlipping)
             {
                 ApplyMovementLimits();
+                lastVelocity = carRb.linearVelocity;
                 return;
             }
-            
+
             UpdateDriftState();
             ApplyPhysics();
             ApplyMovementLimits();
+            lastVelocity = carRb.linearVelocity;
         }
 
         // ═══════════════════════════════════════════════
@@ -132,16 +140,19 @@ namespace _Cars.Scripts
 
             lastCrashTime = Time.time;
 
+            // ── Bounce ──────────────────────────────────────────
+            // Apply bounce force along the impact normal + a small upward pop
             if (impactSpeed >= bounceSpeedThreshold)
             {
                 Vector3 bounceDir = impactDirection + Vector3.up * bounceUpForce;
                 float   strength  = Mathf.Clamp01(impactSpeed / 20f) * bounceForce;
                 carRb.AddForce(bounceDir.normalized * strength, ForceMode.Impulse);
 
+                // Also shake the camera on crash
                 GetComponent<CameraShaker>()?.ShakeCrash(impactSpeed);
-                GetComponent<ControllerRumbler>()?.RumbleCrash(impactSpeed);  // ← vibration
             }
 
+            // ── Damage ──────────────────────────────────────────
             CarHealth myHealth = GetComponent<CarHealth>();
             myHealth?.TakeDamage(crashDamage, null);
 
@@ -175,6 +186,7 @@ namespace _Cars.Scripts
                 driftTimer = 0f;
             }
 
+            // Update drift visual effects
             driftEffects?.SetDrifting(isDrifting, moveInput.x);
         }
 
@@ -324,27 +336,40 @@ namespace _Cars.Scripts
         private void OnJumpPerformed(InputAction.CallbackContext ctx) => Jump();
 
         // ═══════════════════════════════════════════════
-        //  CINEMATIC MODE
+        //  CINEMATIC MODE — GAMEPAD ONLY
         // ═══════════════════════════════════════════════
 
+        /// <summary>
+        /// Called by CinematicFreeCam to lock input to gamepad only,
+        /// preventing WASD from driving the car while the camera operator
+        /// uses the keyboard to fly the cinematic camera.
+        /// </summary>
         public void SetGamepadOnly(bool gamepadOnly)
         {
             if (playerInput == null) return;
 
             if (gamepadOnly)
             {
+                // Switch to Gamepad scheme — keyboard WASD no longer drives the car
                 var gamepad = Gamepad.current;
                 if (gamepad != null)
+                {
                     playerInput.SwitchCurrentControlScheme("Controller", gamepad);
+                }
                 else
+                {
                     Debug.LogWarning($"[CarController] SetGamepadOnly: no gamepad found!");
+                }
             }
             else
             {
+                // Restore keyboard+mouse control scheme
                 var keyboard = Keyboard.current;
                 var mouse    = Mouse.current;
                 if (keyboard != null && mouse != null)
+                {
                     playerInput.SwitchCurrentControlScheme("Keyboard", keyboard, mouse);
+                }
             }
         }
 
@@ -431,8 +456,9 @@ namespace _Cars.Scripts
             bool grounded = IsGrounded();
             if (grounded && !wasGrounded)
             {
+                float landingSpeed = Mathf.Abs(lastVelocity.y);
                 GetComponent<CameraShaker>()?.ShakeLand();
-                GetComponent<ControllerRumbler>()?.RumbleLand();  // ← vibration
+                OnLand?.Invoke(landingSpeed);
             }
             wasGrounded = grounded;
         }
@@ -467,6 +493,7 @@ namespace _Cars.Scripts
             if (!CanJump()) return;
             Vector3 jumpForce = transform.up * carStats.JumpForce * jumpMultiplier;
             carRb.AddForce(jumpForce, ForceMode.Impulse);
+            OnJump?.Invoke();
         }
         
         private bool CanJump() => IsGrounded() && carStats != null;
@@ -505,8 +532,6 @@ namespace _Cars.Scripts
             
             if (zoomiesParticles != null)
                 zoomiesParticles.Play();
-
-            GetComponent<ControllerRumbler>()?.RumbleZoomiesStart();  // ← vibration
         }
         
         public void RemoveSpeedMultiplier()
@@ -517,8 +542,6 @@ namespace _Cars.Scripts
             
             if (zoomiesParticles != null)
                 zoomiesParticles.Stop();
-
-            GetComponent<ControllerRumbler>()?.RumbleZoomiesStop();  // ← vibration
         }
 
         // ═══════════════════════════════════════════════
@@ -545,10 +568,12 @@ namespace _Cars.Scripts
         
         public void TriggerSlip(float duration, float spinForce)
         {
-            if (isSlipping) return;
+            if (isSlipping)
+            {
+                return;
+            }
 
             GetComponent<CameraShaker>()?.ShakePoopSlip();
-            GetComponent<ControllerRumbler>()?.RumblePoopSlip();  // ← vibration
             
             if (carRb == null)
             {
@@ -573,8 +598,8 @@ namespace _Cars.Scripts
         private void SpinPlayer(float spinForce)
         {
             if (carRb == null) return;
-            float   randomDirection = Random.value > 0.5f ? 1f : -1f;
-            Vector3 spinTorque      = Vector3.up * spinForce * randomDirection;
+            float   randomDirection = UnityEngine.Random.value > 0.5f ? 1f : -1f;
+            Vector3 spinTorque      = Vector3.up * (spinForce * randomDirection);
             carRb.AddTorque(spinTorque, ForceMode.Impulse);
         }
 

@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 15594078}
   - component: {fileID: 15594077}
   - component: {fileID: 15594076}
+  - component: {fileID: 15594079}
   m_Layer: 5
   m_Name: Coming Soon
   m_TagString: Untagged
@@ -239,6 +240,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 15594074}
   m_CullTransparentMesh: 1
+--- !u!114 &15594079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15594074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.1
+  jiggleStrength: 2
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.05
 --- !u!1 &25962633
 GameObject:
   m_ObjectHideFlags: 0
@@ -447,6 +467,7 @@ GameObject:
   - component: {fileID: 45204268}
   - component: {fileID: 45204267}
   - component: {fileID: 45204266}
+  - component: {fileID: 45204269}
   m_Layer: 5
   m_Name: CarLeftButton
   m_TagString: Untagged
@@ -470,9 +491,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -698.8, y: -448}
+  m_AnchoredPosition: {x: -626.8, y: -222.50223}
   m_SizeDelta: {x: 128.9006, y: 176.9779}
-  m_Pivot: {x: 0.33667833, y: -0.117652774}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &45204266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -494,11 +515,11 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_NormalColor: {r: 0.7509433, g: 0.71782386, b: 0.67868274, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0.7490196, g: 0.7176471, b: 0.6784314, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.5471698, g: 0.5188122, b: 0.5110359, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -567,6 +588,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 45204264}
   m_CullTransparentMesh: 1
+--- !u!114 &45204269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 45204264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &51101145
 GameObject:
   m_ObjectHideFlags: 0
@@ -1493,6 +1533,7 @@ GameObject:
   - component: {fileID: 150084292}
   - component: {fileID: 150084291}
   - component: {fileID: 150084290}
+  - component: {fileID: 150084293}
   m_Layer: 5
   m_Name: MapSelectionButton
   m_TagString: Untagged
@@ -1625,6 +1666,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 150084288}
   m_CullTransparentMesh: 1
+--- !u!114 &150084293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 150084288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &171437632
 GameObject:
   m_ObjectHideFlags: 0
@@ -2676,6 +2736,7 @@ GameObject:
   - component: {fileID: 272144616}
   - component: {fileID: 272144615}
   - component: {fileID: 272144614}
+  - component: {fileID: 272144617}
   m_Layer: 5
   m_Name: ControlsButton
   m_TagString: Untagged
@@ -2808,6 +2869,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 272144612}
   m_CullTransparentMesh: 1
+--- !u!114 &272144617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 272144612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &282746412
 GameObject:
   m_ObjectHideFlags: 0
@@ -3310,7 +3390,7 @@ MonoBehaviour:
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
-  m_Antialiasing: 0
+  m_Antialiasing: 3
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
@@ -3342,6 +3422,7 @@ GameObject:
   - component: {fileID: 331360189}
   - component: {fileID: 331360188}
   - component: {fileID: 331360187}
+  - component: {fileID: 331360190}
   m_Layer: 5
   m_Name: WeaponLeftButton
   m_TagString: Untagged
@@ -3365,9 +3446,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -705, y: -86}
+  m_AnchoredPosition: {x: -633, y: 139.49777}
   m_SizeDelta: {x: 128.9006, y: 176.9779}
-  m_Pivot: {x: 0.33667833, y: -0.117652774}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &331360187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3389,11 +3470,11 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_NormalColor: {r: 0.7509433, g: 0.71782386, b: 0.67868274, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0.7490196, g: 0.7176471, b: 0.6784314, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.5471698, g: 0.5188122, b: 0.5110359, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -3462,6 +3543,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 331360185}
   m_CullTransparentMesh: 1
+--- !u!114 &331360190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 331360185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &337970278
 GameObject:
   m_ObjectHideFlags: 0
@@ -5231,6 +5331,7 @@ GameObject:
   - component: {fileID: 492283675}
   - component: {fileID: 492283674}
   - component: {fileID: 492283673}
+  - component: {fileID: 492283676}
   m_Layer: 5
   m_Name: QuitGameButton
   m_TagString: Untagged
@@ -5351,6 +5452,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 492283671}
   m_CullTransparentMesh: 1
+--- !u!114 &492283676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492283671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &506637603
 GameObject:
   m_ObjectHideFlags: 0
@@ -6432,6 +6552,7 @@ GameObject:
   - component: {fileID: 582907587}
   - component: {fileID: 582907586}
   - component: {fileID: 582907585}
+  - component: {fileID: 582907588}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -6564,6 +6685,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 582907583}
   m_CullTransparentMesh: 1
+--- !u!114 &582907588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582907583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &588102495
 GameObject:
   m_ObjectHideFlags: 0
@@ -7233,6 +7373,7 @@ GameObject:
   - component: {fileID: 664765775}
   - component: {fileID: 664765774}
   - component: {fileID: 664765773}
+  - component: {fileID: 664765776}
   m_Layer: 5
   m_Name: VolumeControlButton
   m_TagString: Untagged
@@ -7365,6 +7506,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 664765771}
   m_CullTransparentMesh: 1
+--- !u!114 &664765776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 664765771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &698459240
 GameObject:
   m_ObjectHideFlags: 0
@@ -7708,6 +7868,7 @@ GameObject:
   - component: {fileID: 720893645}
   - component: {fileID: 720893644}
   - component: {fileID: 720893643}
+  - component: {fileID: 720893646}
   m_Layer: 5
   m_Name: 3PlayersButton
   m_TagString: Untagged
@@ -7817,6 +7978,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 720893641}
   m_CullTransparentMesh: 1
+--- !u!114 &720893646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 720893641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &728921063
 GameObject:
   m_ObjectHideFlags: 0
@@ -8609,6 +8789,7 @@ GameObject:
   - component: {fileID: 778810813}
   - component: {fileID: 778810812}
   - component: {fileID: 778810811}
+  - component: {fileID: 778810814}
   m_Layer: 5
   m_Name: CarRightButton
   m_TagString: Untagged
@@ -8632,9 +8813,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -109, y: -448}
+  m_AnchoredPosition: {x: -37, y: -222.50223}
   m_SizeDelta: {x: 128.9006, y: 176.9779}
-  m_Pivot: {x: 0.33667833, y: -0.117652774}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &778810811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8656,11 +8837,11 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_NormalColor: {r: 0.7509433, g: 0.71782386, b: 0.67868274, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0.7490196, g: 0.7176471, b: 0.6784314, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.5471698, g: 0.5188122, b: 0.5110359, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -8729,6 +8910,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 778810809}
   m_CullTransparentMesh: 1
+--- !u!114 &778810814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 778810809}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &779588566
 GameObject:
   m_ObjectHideFlags: 0
@@ -9529,6 +9729,7 @@ GameObject:
   - component: {fileID: 865778781}
   - component: {fileID: 865778780}
   - component: {fileID: 865778779}
+  - component: {fileID: 865778782}
   m_Layer: 5
   m_Name: Coming Soon
   m_TagString: Untagged
@@ -9637,6 +9838,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 865778777}
   m_CullTransparentMesh: 1
+--- !u!114 &865778782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 865778777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.1
+  jiggleStrength: 2
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.05
 --- !u!1 &868633488
 GameObject:
   m_ObjectHideFlags: 0
@@ -9799,6 +10019,7 @@ GameObject:
   - component: {fileID: 886918920}
   - component: {fileID: 886918919}
   - component: {fileID: 886918918}
+  - component: {fileID: 886918921}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -9931,6 +10152,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 886918916}
   m_CullTransparentMesh: 1
+--- !u!114 &886918921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 886918916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &893403520
 GameObject:
   m_ObjectHideFlags: 0
@@ -10229,6 +10469,7 @@ GameObject:
   - component: {fileID: 926096230}
   - component: {fileID: 926096229}
   - component: {fileID: 926096228}
+  - component: {fileID: 926096231}
   m_Layer: 5
   m_Name: 4PlayersButton
   m_TagString: Untagged
@@ -10338,6 +10579,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 926096226}
   m_CullTransparentMesh: 1
+--- !u!114 &926096231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 926096226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &932106101
 GameObject:
   m_ObjectHideFlags: 0
@@ -10423,6 +10683,7 @@ GameObject:
   m_Component:
   - component: {fileID: 936771161}
   - component: {fileID: 936771160}
+  - component: {fileID: 936771162}
   m_Layer: 0
   m_Name: PlayerDeviceTracker
   m_TagString: Untagged
@@ -10457,6 +10718,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &936771162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 936771159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d67debc52ae4b0b4c9082f41f5db5858, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  transition: {fileID: 0}
 --- !u!1 &938532508
 GameObject:
   m_ObjectHideFlags: 0
@@ -10746,7 +11020,7 @@ MonoBehaviour:
   - {fileID: 865778779}
   - {fileID: 15594076}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  highlightedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  highlightedColor: {r: 0.5320754, g: 0.4846966, b: 0.44473472, a: 1}
   comingSoonButtonName: Coming Soon
   backButton: {fileID: 1889894932}
   previousPanel: {fileID: 1021778366}
@@ -11242,6 +11516,7 @@ GameObject:
   - component: {fileID: 1007622176}
   - component: {fileID: 1007622175}
   - component: {fileID: 1007622174}
+  - component: {fileID: 1007622177}
   m_Layer: 5
   m_Name: 2PlayersButton
   m_TagString: Untagged
@@ -11351,6 +11626,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1007622172}
   m_CullTransparentMesh: 1
+--- !u!114 &1007622177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1007622172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1016466763
 GameObject:
   m_ObjectHideFlags: 0
@@ -13303,6 +13597,7 @@ GameObject:
   - component: {fileID: 1230126067}
   - component: {fileID: 1230126066}
   - component: {fileID: 1230126065}
+  - component: {fileID: 1230126068}
   m_Layer: 5
   m_Name: SettingsButton
   m_TagString: Untagged
@@ -13435,6 +13730,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1230126063}
   m_CullTransparentMesh: 1
+--- !u!114 &1230126068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1230126063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1231563344
 GameObject:
   m_ObjectHideFlags: 0
@@ -13583,6 +13897,7 @@ GameObject:
   - component: {fileID: 1240567366}
   - component: {fileID: 1240567365}
   - component: {fileID: 1240567364}
+  - component: {fileID: 1240567367}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -13715,6 +14030,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1240567362}
   m_CullTransparentMesh: 1
+--- !u!114 &1240567367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1240567362}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1254617067
 GameObject:
   m_ObjectHideFlags: 0
@@ -13863,6 +14197,7 @@ GameObject:
   - component: {fileID: 1260755349}
   - component: {fileID: 1260755348}
   - component: {fileID: 1260755347}
+  - component: {fileID: 1260755350}
   m_Layer: 5
   m_Name: CreditsButton
   m_TagString: Untagged
@@ -13995,6 +14330,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1260755345}
   m_CullTransparentMesh: 1
+--- !u!114 &1260755350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1260755345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1261973107
 GameObject:
   m_ObjectHideFlags: 0
@@ -15400,6 +15754,7 @@ GameObject:
   - component: {fileID: 1466926606}
   - component: {fileID: 1466926605}
   - component: {fileID: 1466926604}
+  - component: {fileID: 1466926607}
   m_Layer: 5
   m_Name: ControlsScreen
   m_TagString: Untagged
@@ -15481,6 +15836,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1466926602}
   m_CullTransparentMesh: 1
+--- !u!114 &1466926607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1466926602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1485332134
 GameObject:
   m_ObjectHideFlags: 0
@@ -17215,6 +17589,7 @@ GameObject:
   - component: {fileID: 1641245356}
   - component: {fileID: 1641245355}
   - component: {fileID: 1641245354}
+  - component: {fileID: 1641245357}
   m_Layer: 5
   m_Name: Park Map
   m_TagString: Untagged
@@ -17323,6 +17698,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1641245352}
   m_CullTransparentMesh: 1
+--- !u!114 &1641245357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1641245352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.1
+  jiggleStrength: 2
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.05
 --- !u!1 &1647990007
 GameObject:
   m_ObjectHideFlags: 0
@@ -17986,6 +18380,7 @@ GameObject:
   - component: {fileID: 1684562675}
   - component: {fileID: 1684562674}
   - component: {fileID: 1684562673}
+  - component: {fileID: 1684562676}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -18118,6 +18513,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1684562671}
   m_CullTransparentMesh: 1
+--- !u!114 &1684562676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684562671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1685088273
 GameObject:
   m_ObjectHideFlags: 0
@@ -18949,6 +19363,7 @@ GameObject:
   - component: {fileID: 1745303039}
   - component: {fileID: 1745303038}
   - component: {fileID: 1745303037}
+  - component: {fileID: 1745303040}
   m_Layer: 5
   m_Name: WeaponRightButton
   m_TagString: Untagged
@@ -18972,9 +19387,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -109, y: -84.49777}
+  m_AnchoredPosition: {x: -37, y: 141}
   m_SizeDelta: {x: 128.9006, y: 176.9779}
-  m_Pivot: {x: 0.33667833, y: -0.117652774}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1745303037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18996,11 +19411,11 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_NormalColor: {r: 0.7509433, g: 0.71782386, b: 0.67868274, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0.7490196, g: 0.7176471, b: 0.6784314, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.5471698, g: 0.5188122, b: 0.5110359, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -19069,6 +19484,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1745303035}
   m_CullTransparentMesh: 1
+--- !u!114 &1745303040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1745303035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1751275569
 GameObject:
   m_ObjectHideFlags: 0
@@ -19295,6 +19729,7 @@ GameObject:
   - component: {fileID: 1757866377}
   - component: {fileID: 1757866376}
   - component: {fileID: 1757866375}
+  - component: {fileID: 1757866378}
   m_Layer: 5
   m_Name: MultiplayerButton
   m_TagString: Untagged
@@ -19439,6 +19874,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1757866373}
   m_CullTransparentMesh: 1
+--- !u!114 &1757866378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1757866373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1767439127
 GameObject:
   m_ObjectHideFlags: 0
@@ -19905,6 +20359,7 @@ GameObject:
   - component: {fileID: 1851763250}
   - component: {fileID: 1851763249}
   - component: {fileID: 1851763248}
+  - component: {fileID: 1851763251}
   m_Layer: 5
   m_Name: SingleplayerButton
   m_TagString: Untagged
@@ -20037,6 +20492,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1851763246}
   m_CullTransparentMesh: 1
+--- !u!114 &1851763251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1851763246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1857041579
 GameObject:
   m_ObjectHideFlags: 0
@@ -20049,6 +20523,7 @@ GameObject:
   - component: {fileID: 1857041583}
   - component: {fileID: 1857041582}
   - component: {fileID: 1857041581}
+  - component: {fileID: 1857041584}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -20181,6 +20656,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1857041579}
   m_CullTransparentMesh: 1
+--- !u!114 &1857041584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1857041579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1858021708
 GameObject:
   m_ObjectHideFlags: 0
@@ -20365,6 +20859,7 @@ GameObject:
   - component: {fileID: 1889894936}
   - component: {fileID: 1889894935}
   - component: {fileID: 1889894934}
+  - component: {fileID: 1889894937}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -20509,6 +21004,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1889894932}
   m_CullTransparentMesh: 1
+--- !u!114 &1889894937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1889894932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1891861551
 GameObject:
   m_ObjectHideFlags: 0
@@ -21303,6 +21817,7 @@ GameObject:
   - component: {fileID: 1950433404}
   - component: {fileID: 1950433403}
   - component: {fileID: 1950433402}
+  - component: {fileID: 1950433405}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -21435,6 +21950,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1950433400}
   m_CullTransparentMesh: 1
+--- !u!114 &1950433405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950433400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1959828324
 GameObject:
   m_ObjectHideFlags: 0
@@ -21447,6 +21981,7 @@ GameObject:
   - component: {fileID: 1959828328}
   - component: {fileID: 1959828327}
   - component: {fileID: 1959828326}
+  - component: {fileID: 1959828329}
   m_Layer: 5
   m_Name: StartGame
   m_TagString: Untagged
@@ -21579,6 +22114,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1959828324}
   m_CullTransparentMesh: 1
+--- !u!114 &1959828329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1959828324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1961051747
 GameObject:
   m_ObjectHideFlags: 0
@@ -21591,6 +22145,7 @@ GameObject:
   - component: {fileID: 1961051751}
   - component: {fileID: 1961051750}
   - component: {fileID: 1961051749}
+  - component: {fileID: 1961051752}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -21723,6 +22278,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1961051747}
   m_CullTransparentMesh: 1
+--- !u!114 &1961051752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1961051747}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &1986619669
 GameObject:
   m_ObjectHideFlags: 0
@@ -21954,6 +22528,7 @@ GameObject:
   - component: {fileID: 2000956299}
   - component: {fileID: 2000956298}
   - component: {fileID: 2000956297}
+  - component: {fileID: 2000956300}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -22086,6 +22661,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2000956295}
   m_CullTransparentMesh: 1
+--- !u!114 &2000956300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2000956295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13849c44b49c3a743a7465c30fb9353a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonTweenEffects
+  deselectOnPointerClick: 1
+  hoverScale: 1.1
+  scaleDuration: 0.15
+  jiggleStrength: 3.5
+  jiggleDuration: 0.2
+  jiggleFirstStepSpeedMultiplier: 3
+  shakePunchIntensity: 0.1
 --- !u!1 &2006825728
 GameObject:
   m_ObjectHideFlags: 0
