@@ -94,15 +94,15 @@ namespace _Gameplay.Scripts
             switch (number)
             {
                 case 3:
-                    AudioManager.instance.PlayOneShot(bark3sound, this.transform.position);
+                    AudioManager.instance.PlayOneShot(FMODEvents.instance.bark3Sound, transform.position);
                     Debug.Log("bark 3");
                     break;
                 case 2:
-                    AudioManager.instance.PlayOneShot(bark2sound, this.transform.position);
+                    AudioManager.instance.PlayOneShot(FMODEvents.instance.bark2Sound, transform.position);
                     Debug.Log("bark 2");
                     break;
                 case 1:
-                    AudioManager.instance.PlayOneShot(bark1sound, this.transform.position);
+                    AudioManager.instance.PlayOneShot(FMODEvents.instance.bark1Sound, transform.position);
                     Debug.Log("bark 1");
                     break;
             }
@@ -125,7 +125,7 @@ namespace _Gameplay.Scripts
             // Flash the screen
             StartCoroutine(FlashScreen());
             
-            AudioManager.instance.PlayOneShot(barkGosound, this.transform.position);
+            AudioManager.instance.PlayOneShot(FMODEvents.instance.barkGoSound, transform.position);
 
             yield return StartCoroutine(PunchAnimate(goText, colorGo, true));
         }

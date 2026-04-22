@@ -317,8 +317,8 @@ MonoBehaviour:
   switchSettingsMigration: 1
   HasSourceProject: 1
   HasPlatforms: 1
-  sourceProjectPath: D:/CorgiBattleCarsFMOD/CorgiBattleCarsFMOD.fspro
-  sourceBankPath: D:/CorgiBattleCarsFMOD/Build
+  sourceProjectPath: CorgiBattleCarsFMOD/CorgiBattleCarsFMOD.fspro
+  sourceBankPath: CorgiBattleCarsFMOD/Build
   sourceBankPathUnformatted: 
   BankRefreshCooldown: 5
   ShowBankRefreshWindow: 1
@@ -328,7 +328,7 @@ MonoBehaviour:
   EncryptionKey: 
   ImportType: 0
   TargetAssetPath: FMODBanks
-  TargetBankFolder: 
+  TargetBankFolder: FMOD
   EventLinkage: 0
   SerializeGUIDsOnly: 0
   LoggingLevel: 2

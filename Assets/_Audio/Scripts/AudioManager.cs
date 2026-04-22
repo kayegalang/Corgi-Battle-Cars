@@ -45,7 +45,6 @@ namespace _Audio.scripts
 
         public void PlayOneShot(EventReference sound, Vector3 worldPos)
         {
-            Debug.Log($"[AudioManager] PlayOneShot called with path: {sound.Path}");
             RuntimeManager.PlayOneShot(sound,worldPos);
         }
     }
