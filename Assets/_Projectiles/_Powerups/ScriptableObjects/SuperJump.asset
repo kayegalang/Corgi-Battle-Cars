@@ -25,5 +25,5 @@ MonoBehaviour:
   treatVisualPrefab: {fileID: 0}
   collectSound: {fileID: 0}
   activeSound: {fileID: 0}
-  jumpMultiplier: 3
+  jumpMultiplier: 1.6243385
   jumpHeightCapMultiplier: 3
