@@ -270,9 +270,12 @@ MonoBehaviour:
   driftTurnMultiplier: 1.5
   driftSpeedBoost: 8
   minDriftSpeedBoost: 0.3
-  crashDamage: 5
+  crashDamageMin: 3
+  crashDamageMax: 20
   crashMinSpeed: 3
+  crashMaxSpeed: 25
   crashCooldown: 0.5
+  zoomiesCrashMultiplier: 5
   bounceForce: 8
   bounceUpForce: 2
   bounceSpeedThreshold: 3
@@ -3319,6 +3322,7 @@ GameObject:
   - component: {fileID: 7913115902583245656}
   - component: {fileID: 8663745950021544486}
   - component: {fileID: 1887021275834310927}
+  - component: {fileID: 8858748582133099110}
   m_Layer: 0
   m_Name: PlayerUICanvas
   m_TagString: Untagged
@@ -3411,6 +3415,23 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &8858748582133099110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6941731447443961267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09d476510c90943fcb1d14e3b46a4d17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_UI.Scripts.ScoreFlash
+  flashColor: {r: 0, g: 1, b: 0, a: 1}
+  crashFlashColor: {r: 1, g: 0.6, b: 0, a: 1}
+  flashDuration: 0.5
+  borderThickness: 0.04
+  peakAlpha: 0.8
 --- !u!1 &7042073146421619452
 GameObject:
   m_ObjectHideFlags: 0
@@ -4094,7 +4115,7 @@ MonoBehaviour:
   IgnoreTag: 
   TransparentLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   MinimumDistanceFromTarget: 4
   AvoidObstacles:
     Enabled: 1

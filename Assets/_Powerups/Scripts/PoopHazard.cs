@@ -20,30 +20,69 @@ namespace _PowerUps.Scripts
         [Header("Grace Period")]
         [Tooltip("Time after spawning before owner can hit their own poop")]
         [SerializeField] private float ownerGracePeriod = 0.5f;
+
+        [Header("Ground Snap")]
+        [Tooltip("Layers to raycast against when snapping to ground")]
+        [SerializeField] private LayerMask groundMask;
+        [Tooltip("How far above the hit point to place the poop")]
+        [SerializeField] private float groundOffset = 0.05f;
+        [Tooltip("Maximum distance to search downward for ground")]
+        [SerializeField] private float groundCheckDistance = 20f;
         
         private GameObject owner;
         private float spawnTime;
         
         private void Start()
         {
+            SnapToGround();
             Destroy(gameObject, lifetime);
             spawnTime = Time.time;
             Debug.Log($"[PoopHazard] Spawned at {transform.position}");
         }
+
+        // ═══════════════════════════════════════════════
+        //  GROUND SNAP
+        // ═══════════════════════════════════════════════
+
+        private void SnapToGround()
+        {
+            // Cast downward from slightly above the spawn position
+            Vector3 origin = transform.position + Vector3.up * 0.5f;
+
+            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit,
+                groundCheckDistance, groundMask, QueryTriggerInteraction.Ignore))
+            {
+                transform.position = hit.point + Vector3.up * groundOffset;
+                // Align rotation to ground normal so it sits flat on slopes
+                transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                Debug.Log($"[PoopHazard] Snapped to ground at {transform.position}");
+            }
+            else
+            {
+                Debug.LogWarning($"[PoopHazard] No ground found below spawn point — poop may float!");
+            }
+        }
         
+        // ═══════════════════════════════════════════════
+        //  INITIALIZE
+        // ═══════════════════════════════════════════════
+
         public void Initialize(GameObject ownerObject)
         {
             owner = ownerObject;
             Debug.Log($"[PoopHazard] Owner set to: {owner?.name}");
         }
         
+        // ═══════════════════════════════════════════════
+        //  COLLISION
+        // ═══════════════════════════════════════════════
+
         private void OnTriggerEnter(Collider other)
         {
             Debug.Log($"[PoopHazard] ★★★ OnTriggerEnter CALLED! ★★★");
             Debug.Log($"[PoopHazard] Collided with: {other.gameObject.name}");
             Debug.Log($"[PoopHazard] Other root: {other.transform.root.gameObject.name}");
             
-            // Check if still in grace period for the owner
             if (owner != null && IsOwnerCollision(other))
             {
                 float timeSinceSpawn = Time.time - spawnTime;
@@ -55,19 +94,13 @@ namespace _PowerUps.Scripts
                 Debug.Log($"[PoopHazard] Grace period expired - owner CAN hit this poop!");
             }
             
-            // Check if it's a car (player or bot)
             CarController carController = other.GetComponent<CarController>();
             BotController botController = other.GetComponent<BotController>();
             
-            // Also check the root in case collider is on a child
             if (carController == null)
-            {
                 carController = other.transform.root.GetComponent<CarController>();
-            }
             if (botController == null)
-            {
                 botController = other.transform.root.GetComponent<BotController>();
-            }
             
             if (carController != null)
             {
@@ -89,11 +122,9 @@ namespace _PowerUps.Scripts
         
         private bool IsOwnerCollision(Collider other)
         {
-            // Check both the collided object AND its root
             GameObject rootObject = other.transform.root.gameObject;
-            
-            bool directMatch = other.gameObject == owner;
-            bool rootMatch = rootObject == owner;
+            bool directMatch      = other.gameObject == owner;
+            bool rootMatch        = rootObject == owner;
             
             if (directMatch || rootMatch)
             {
