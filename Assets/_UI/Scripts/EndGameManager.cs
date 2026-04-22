@@ -51,6 +51,11 @@ namespace _UI.Scripts
         public UnityEvent onPlayAgain;
         public UnityEvent onReturnToMenu;
 
+        [Header("Finished Sequence")]
+        [SerializeField] private GameObject finishedTextObject;
+        [SerializeField] private Animator finishedAnimator;
+        [SerializeField] private float endBufferDuration = 2f;
+
         // ═══════════════════════════════════════════════
         //  NESTED CLASS — one loser row in the scoreboard
         // ═══════════════════════════════════════════════
@@ -86,13 +91,28 @@ namespace _UI.Scripts
 
         public void OnGameEnd()
         {
-            Time.timeScale = 0f;
-            if (endScreen != null) endScreen.SetActive(true);
+            StartCoroutine(EndGameSequence());
         }
 
         // ═══════════════════════════════════════════════
         //  DISPLAY RESULTS
         // ═══════════════════════════════════════════════
+
+        private IEnumerator EndGameSequence()
+        {
+            if (finishedTextObject != null)
+                finishedTextObject.SetActive(true);
+
+            if (finishedAnimator != null)
+                finishedAnimator.Play("FinishedTextAnimation");
+
+            yield return new WaitForSecondsRealtime(endBufferDuration);
+
+            Time.timeScale = 0f;
+
+            if (endScreen != null)
+                endScreen.SetActive(true);
+        }
 
         public void DisplayResults(List<(string tag, int points)> sorted)
         {

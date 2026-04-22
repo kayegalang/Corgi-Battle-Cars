@@ -229,9 +229,11 @@ namespace _Cars.Scripts
         {
             if (cooldownBar == null) return;
 
-            Debug.Log($"Charge: {currentCharge} / {MAX_CHARGE}");
+            float cooldown = MAX_CHARGE - currentCharge;
 
-            cooldownBar.SetCooldown(currentCharge, MAX_CHARGE);
+            Debug.Log($"Cooldown: {cooldown} / {MAX_CHARGE}");
+
+            cooldownBar.SetCooldown(cooldown, MAX_CHARGE);
         }
 
         // ═══════════════════════════════════════════════

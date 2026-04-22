@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: db39d31d34935478b9e6ace1ac140aa4
+guid: 0c81deec3b1ac47fa97805f2ebddf625
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,13 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CoolDownBar_0
+      name: DamageStats_0
       rect:
         serializedVersion: 2
-        x: 387
-        y: 877
-        width: 42
-        height: 121
+        x: 561
+        y: 1996
+        width: 1295
+        height: 297
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -125,20 +125,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c044b62640b7c4812b3a894cc78a7eaa
-      internalID: 118547198
+      spriteID: f9d2816f7153d4956ae2b3eeac4ec786
+      internalID: -1740267744
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CoolDownBar_1
+      name: DamageStats_1
       rect:
         serializedVersion: 2
-        x: 387
-        y: 715
-        width: 42
-        height: 121
+        x: 560
+        y: 1605
+        width: 1271
+        height: 288
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -147,20 +147,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a30faa57bb46e4e66b04192a6b103b7b
-      internalID: 749485201
+      spriteID: df5f08f476fd94658a550db59476967b
+      internalID: -125084545
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CoolDownBar_2
+      name: DamageStats_2
       rect:
         serializedVersion: 2
-        x: 383
-        y: 543
-        width: 41
-        height: 121
+        x: 554
+        y: 1200
+        width: 1283
+        height: 293
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -169,20 +169,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0592e48edd41549ca82cb47c8697987c
-      internalID: -1612129041
+      spriteID: d4facccd38e2743e096661bdadca7703
+      internalID: -691694576
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CoolDownBar_3
+      name: DamageStats_3
       rect:
         serializedVersion: 2
-        x: 390
-        y: 381
-        width: 41
-        height: 121
+        x: 567
+        y: 826
+        width: 1249
+        height: 284
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -191,20 +191,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5eb0162f45160448b974ae080e497806
-      internalID: 765578498
+      spriteID: 184c3a515265f4e8a875e6cc373bd5cb
+      internalID: 190834665
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CoolDownBar_4
+      name: DamageStats_4
       rect:
         serializedVersion: 2
-        x: 385
-        y: 209
-        width: 42
-        height: 121
+        x: 536
+        y: 417
+        width: 1287
+        height: 291
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -213,20 +213,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f690b7b6dcc404dbe88d46f6ee5b209f
-      internalID: -804515754
+      spriteID: 2cb9fbb73934c433282fe7fc99a79c33
+      internalID: 91123794
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CoolDownBar_5
+      name: DamageStats_5
       rect:
         serializedVersion: 2
-        x: 380
-        y: 51
-        width: 42
-        height: 121
+        x: 545
+        y: 26
+        width: 1296
+        height: 294
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -235,8 +235,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f2b244c14509447879c5a6c0cdc17f2a
-      internalID: -1298035600
+      spriteID: 14dc30a616c824b0facd50f9699a0fdf
+      internalID: -1251932703
       vertices: []
       indices: 
       edges: []
@@ -245,7 +245,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 3be0f3d0a75914cc4a035d6b63c94190
+    spriteID: 8d41fa0179f9f4fb094e8c393d2e9de7
     internalID: 0
     vertices: []
     indices: 
@@ -253,16 +253,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      CoolDownBar_0: 118547198
-      CoolDownBar_1: 749485201
-      CoolDownBar_2: -1612129041
-      CoolDownBar_3: 765578498
-      CoolDownBar_4: -804515754
-      CoolDownBar_5: -1298035600
+      DamageStats_0: -1740267744
+      DamageStats_1: -125084545
+      DamageStats_2: -691694576
+      DamageStats_3: 190834665
+      DamageStats_4: 91123794
+      DamageStats_5: -1251932703
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
