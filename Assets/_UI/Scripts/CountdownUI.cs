@@ -2,6 +2,8 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using FMODUnity;
+using _Audio.scripts;
 
 namespace _Gameplay.Scripts
 {
@@ -46,6 +48,12 @@ namespace _Gameplay.Scripts
         [SerializeField] private Color color2 = new Color(0.9f, 0.6f, 0.1f); // orange
         [SerializeField] private Color color1 = new Color(0.9f, 0.9f, 0.1f); // yellow
         [SerializeField] private Color colorGo = new Color(0.2f, 0.9f, 0.2f); // green
+        
+        [Header("FMOD Audio")]
+        [SerializeField] private EventReference bark3sound;
+        [SerializeField] private EventReference bark2sound;
+        [SerializeField] private EventReference bark1sound;
+        [SerializeField] private EventReference barkGosound;
 
         private Vector3 originalTextPosition;
 
@@ -82,6 +90,22 @@ namespace _Gameplay.Scripts
         public IEnumerator ShowNumber(int number)
         {
             if (countdownText == null) yield break;
+            
+            switch (number)
+            {
+                case 3:
+                    AudioManager.instance.PlayOneShot(bark3sound, this.transform.position);
+                    Debug.Log("bark 3");
+                    break;
+                case 2:
+                    AudioManager.instance.PlayOneShot(bark2sound, this.transform.position);
+                    Debug.Log("bark 2");
+                    break;
+                case 1:
+                    AudioManager.instance.PlayOneShot(bark1sound, this.transform.position);
+                    Debug.Log("bark 1");
+                    break;
+            }
 
             Color color = number == 3 ? color3 :
                           number == 2 ? color2 :
@@ -100,6 +124,8 @@ namespace _Gameplay.Scripts
 
             // Flash the screen
             StartCoroutine(FlashScreen());
+            
+            AudioManager.instance.PlayOneShot(barkGosound, this.transform.position);
 
             yield return StartCoroutine(PunchAnimate(goText, colorGo, true));
         }
