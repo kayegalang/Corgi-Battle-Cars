@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: db39d31d34935478b9e6ace1ac140aa4
+guid: 3eefd937c260e4316a5686f3f901b962
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,13 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CoolDownBar_0
+      name: CBC health and stamina mood board_0
       rect:
         serializedVersion: 2
-        x: 387
-        y: 877
-        width: 42
-        height: 121
+        x: 940
+        y: 902
+        width: 43
+        height: 127
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -125,20 +125,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c044b62640b7c4812b3a894cc78a7eaa
-      internalID: 118547198
+      spriteID: aceeb9eefae274d1ebbefb75a0c675b0
+      internalID: 1493224513
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CoolDownBar_1
+      name: CBC health and stamina mood board_1
       rect:
         serializedVersion: 2
-        x: 387
-        y: 715
-        width: 42
-        height: 121
+        x: 940
+        y: 735
+        width: 43
+        height: 127
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -147,20 +147,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a30faa57bb46e4e66b04192a6b103b7b
-      internalID: 749485201
+      spriteID: c5d331dae5304456f88cf2e8a47655c3
+      internalID: -2000863285
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CoolDownBar_2
+      name: CBC health and stamina mood board_2
       rect:
         serializedVersion: 2
-        x: 383
-        y: 543
-        width: 41
-        height: 121
+        x: 935
+        y: 558
+        width: 43
+        height: 126
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -169,20 +169,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0592e48edd41549ca82cb47c8697987c
-      internalID: -1612129041
+      spriteID: 470cf5094275f49b6b9a0276f603d4b1
+      internalID: 1353829009
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CoolDownBar_3
+      name: CBC health and stamina mood board_3
       rect:
         serializedVersion: 2
-        x: 390
-        y: 381
-        width: 41
-        height: 121
+        x: 943
+        y: 391
+        width: 43
+        height: 127
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -191,20 +191,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5eb0162f45160448b974ae080e497806
-      internalID: 765578498
+      spriteID: b633644bc55fb4eac94a05d2790581bb
+      internalID: -1515620456
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CoolDownBar_4
+      name: CBC health and stamina mood board_4
       rect:
         serializedVersion: 2
-        x: 385
-        y: 209
-        width: 42
-        height: 121
+        x: 938
+        y: 214
+        width: 43
+        height: 126
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -213,20 +213,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f690b7b6dcc404dbe88d46f6ee5b209f
-      internalID: -804515754
+      spriteID: 5a41e500624864be3a3f9bd8526cba78
+      internalID: -140221187
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CoolDownBar_5
+      name: CBC health and stamina mood board_5
       rect:
         serializedVersion: 2
-        x: 380
-        y: 51
-        width: 42
-        height: 121
+        x: 933
+        y: 53
+        width: 43
+        height: 124
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -235,8 +235,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f2b244c14509447879c5a6c0cdc17f2a
-      internalID: -1298035600
+      spriteID: bb5554d41544f48f492af4c48a273620
+      internalID: 221301234
       vertices: []
       indices: 
       edges: []
@@ -245,7 +245,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 3be0f3d0a75914cc4a035d6b63c94190
+    spriteID: 495c21e13199e4ccc984c56f03ce7a38
     internalID: 0
     vertices: []
     indices: 
@@ -253,16 +253,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      CoolDownBar_0: 118547198
-      CoolDownBar_1: 749485201
-      CoolDownBar_2: -1612129041
-      CoolDownBar_3: 765578498
-      CoolDownBar_4: -804515754
-      CoolDownBar_5: -1298035600
+      CBC health and stamina mood board_0: 1493224513
+      CBC health and stamina mood board_1: -2000863285
+      CBC health and stamina mood board_2: 1353829009
+      CBC health and stamina mood board_3: -1515620456
+      CBC health and stamina mood board_4: -140221187
+      CBC health and stamina mood board_5: 221301234
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

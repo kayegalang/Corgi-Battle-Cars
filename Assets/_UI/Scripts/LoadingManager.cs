@@ -13,67 +13,106 @@ namespace _UI.Scripts
         [SerializeField] private GameObject loadingScreen;
         [SerializeField] private Slider progressBar;
 
+        private bool isLoading = false;
+
         void Awake()
         {
             if (instance == null)
             {
                 instance = this;
                 DontDestroyOnLoad(gameObject);
+
+                if (loadingScreen != null)
+                    DontDestroyOnLoad(loadingScreen);
             }
             else
+            {
                 Destroy(gameObject);
+                return;
+            }
+
+            if (loadingScreen != null)
+                loadingScreen.SetActive(false);
         }
-        
-        private bool isLoading = false;
 
         public void LoadScene(string sceneName)
         {
-            if (isLoading)
-            {
-                return;
-            }
-    
+            if (isLoading) return;
+
             isLoading = true;
             StartCoroutine(LoadSceneAsync(sceneName));
         }
 
         private IEnumerator LoadSceneAsync(string sceneName)
         {
-            loadingScreen.SetActive(true);
-            progressBar.value = 0f;
-    
+            if (loadingScreen != null)
+                loadingScreen.SetActive(true);
+
+            if (progressBar != null)
+                progressBar.value = 0f;
+
             AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
             op.allowSceneActivation = false;
-    
-            while (!op.isDone)
+
+            float fakeProgress = 0f;
+
+            while (fakeProgress < 90f)
             {
-                progressBar.value = Mathf.Clamp01(op.progress / 0.9f);
+                // Move smoothly toward 90%
+                fakeProgress += Time.unscaledDeltaTime * 80f; // speed control
+
+                // Don't go past real progress
+                float realProgress = Mathf.Clamp01(op.progress / 0.9f) * 90f;
+                fakeProgress = Mathf.Min(fakeProgress, realProgress + 10f);
+
+                if (progressBar != null)
+                    progressBar.value = fakeProgress;
+
+                yield return null;
+            }
+
+            // Wait until Unity is actually ready
+            while (op.progress < 0.9f)
                 yield return null;
 
-                if (progressBar.value >= 0.9f)
-                {
-                    break;
-                }
-            }
-    
-            op.allowSceneActivation = true;
-            yield return null;
-            yield return new WaitForSeconds(0.5f);
-    
-            float timeout = 3f;
-            float elapsed = 0f;
-            while (!GameplayManager.instance.IsGameSetupComplete() && elapsed < timeout)
+            // Smooth fill from 90 → 100
+            while (fakeProgress < 100f)
             {
-                elapsed += Time.deltaTime;
+                fakeProgress += Time.unscaledDeltaTime * 100f;
+
+                if (progressBar != null)
+                    progressBar.value = fakeProgress;
+
                 yield return null;
             }
-    
-            loadingScreen.SetActive(false);
-            yield return new WaitForSeconds(0.3f);
-    
+
+            yield return new WaitForSecondsRealtime(0.2f);
+
+            // Activate scene
+            op.allowSceneActivation = true;
+
+            while (!op.isDone)
+                yield return null;
+
+            yield return new WaitUntil(() => GameplayManager.instance != null);
+
+            float timeout = 3f;
+            float elapsed = 0f;
+
+            while (!GameplayManager.instance.IsGameSetupComplete() && elapsed < timeout)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            yield return new WaitForSecondsRealtime(0.2f);
+
             GameplayManager.instance.StartMatchTimer();
-    
-            isLoading = false; 
+
+            if (loadingScreen != null)
+                loadingScreen.SetActive(false);
+
+            isLoading = false;
         }
     }
 }
