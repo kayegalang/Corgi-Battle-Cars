@@ -193,6 +193,7 @@ GameObject:
   - component: {fileID: 4293571453736889084}
   - component: {fileID: 365574728547902581}
   - component: {fileID: 3039631922779800720}
+  - component: {fileID: 4094222531616991225}
   m_Layer: 0
   m_Name: DefaultPlayer
   m_TagString: PlayerOne
@@ -680,6 +681,42 @@ MonoBehaviour:
   fovThresholdSpeedRange: {x: 0, y: 30}
   maxFOVIncrease: 7.5
   smoothTime: 0.3
+--- !u!114 &4094222531616991225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852133240821571215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 664480d8aa98c468f98030420ed414b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Effects.Scripts.ControllerRumbler
+  shootLow: 0
+  shootHigh: 0.6
+  shootDuration: 0.08
+  damageLow: 0.5
+  damageHigh: 0.8
+  damageDuration: 0.25
+  deathLow: 1
+  deathHigh: 1
+  deathDuration: 0.8
+  crashMaxStrength: 0.9
+  crashMaxSpeed: 20
+  crashDuration: 0.2
+  landLow: 0.2
+  landHigh: 0.3
+  landDuration: 0.1
+  slipLow: 0.3
+  slipHigh: 0.5
+  slipDuration: 1.5
+  slipFrequency: 8
+  collectLow: 0
+  collectHigh: 1
+  collectDuration: 0.15
+  zoomiesLow: 0.15
+  zoomiesHigh: 0.05
 --- !u!1 &974924005986492713
 GameObject:
   m_ObjectHideFlags: 0
@@ -1862,6 +1899,7 @@ GameObject:
   - component: {fileID: 4886324431680724342}
   - component: {fileID: 8804463195589897197}
   - component: {fileID: 1971820430369054804}
+  - component: {fileID: 344397231370183850}
   m_Layer: 0
   m_Name: ShakePivot
   m_TagString: MainCamera
@@ -1915,7 +1953,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.1
+  near clip plane: 0.3
   far clip plane: 5000
   field of view: 60.000004
   orthographic: 0
@@ -2010,6 +2048,25 @@ MonoBehaviour:
   blendDistance: 0
   weight: 1
   sharedProfile: {fileID: 11400000, guid: 17ea33868fd784a8e872ee62a1648b8d, type: 2}
+--- !u!114 &344397231370183850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3691089891187905203}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5d089058e165437d8fb23b04e42a863, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.CameraClipGuard
+  normalNearClip: 0.1
+  insideGeometryNearClip: 1.5
+  transitionSpeed: 15
+  overlapRadius: 0.3
+  detectionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &3903267711428067611
 GameObject:
   m_ObjectHideFlags: 0
@@ -4032,7 +4089,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineDeoccluder
   CollideAgainst:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 2049
   IgnoreTag: 
   TransparentLayers:
     serializedVersion: 2
@@ -4042,7 +4099,7 @@ MonoBehaviour:
     Enabled: 1
     DistanceLimit: 0
     MinimumOcclusionTime: 0
-    CameraRadius: 7
+    CameraRadius: 0.5
     UseFollowTarget:
       Enabled: 0
       YOffset: 0
