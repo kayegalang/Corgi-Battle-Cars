@@ -7538,6 +7538,8 @@ GameObject:
   - component: {fileID: 698459245}
   - component: {fileID: 698459244}
   - component: {fileID: 698459243}
+  - component: {fileID: 698459248}
+  - component: {fileID: 698459247}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -7630,6 +7632,82 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9413780716b14a02a4c3969f30cdd61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Gameplay.Scripts.GameplayManager
+--- !u!114 &698459247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 698459240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb13b00f0ed82b746b5be8bb5f16e99f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Audio.scripts.FMODEvents
+  <DogParkStart>k__BackingField:
+    Guid:
+      Data1: 1271111369
+      Data2: 1246080548
+      Data3: 1202217636
+      Data4: -1734932419
+    Path: event:/Music/DogPark Theme
+  <bark3Sound>k__BackingField:
+    Guid:
+      Data1: -1346768095
+      Data2: 1179543949
+      Data3: -1807967605
+      Data4: 234077998
+    Path: event:/Music/BarkCountdown/Bark 3
+  <bark2Sound>k__BackingField:
+    Guid:
+      Data1: 1671092813
+      Data2: 1312906767
+      Data3: -180489048
+      Data4: 44268773
+    Path: event:/Music/BarkCountdown/Bark 2
+  <bark1Sound>k__BackingField:
+    Guid:
+      Data1: 1146122849
+      Data2: 1101948036
+      Data3: -119903577
+      Data4: 133773032
+    Path: event:/Music/BarkCountdown/Bark 1
+  <barkGoSound>k__BackingField:
+    Guid:
+      Data1: -1381024699
+      Data2: 1172359684
+      Data3: -747056216
+      Data4: -1884548749
+    Path: event:/Music/BarkCountdown/Bark Go
+  <clicksound>k__BackingField:
+    Guid:
+      Data1: 1195967630
+      Data2: 1163925222
+      Data3: -487128652
+      Data4: -99941290
+    Path: event:/UI/ClickSelect
+  <shootsound>k__BackingField:
+    Guid:
+      Data1: -1157410978
+      Data2: 1083807063
+      Data3: 2044705720
+      Data4: -1961419844
+    Path: event:/Gameplay/Shoot
+--- !u!114 &698459248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 698459240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dcab616f4b950d4aa61c227837cd672, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Audio.scripts.AudioManager
+  masterVolume: 1
+  musicVolume: 1
+  sfxVolume: 1
 --- !u!1 &708729343
 GameObject:
   m_ObjectHideFlags: 0

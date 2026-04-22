@@ -27,6 +27,7 @@ namespace _Audio.scripts
             if (instance != null)
             {
                 Debug.LogError("Shiver me timbers! More than one Audio Manager was found in the scene.");
+                return;
             }
             instance = this;
             
@@ -44,6 +45,7 @@ namespace _Audio.scripts
 
         public void PlayOneShot(EventReference sound, Vector3 worldPos)
         {
+            Debug.Log($"[AudioManager] PlayOneShot called with path: {sound.Path}");
             RuntimeManager.PlayOneShot(sound,worldPos);
         }
     }

@@ -5,6 +5,8 @@ using _UI.Scripts;
 using _Effects.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using _Audio.scripts;
+
 
 namespace _Cars.Scripts
 {
@@ -334,6 +336,8 @@ namespace _Cars.Scripts
 
             GetComponent<CameraShaker>()?.ShakeShoot();
             GetComponent<ControllerRumbler>()?.RumbleShoot();  // ← vibration
+            
+            AudioManager.instance.PlayOneShot(FMODEvents.instance.shootsound, this.transform.position);
         }
 
         private Vector3 CalculateShootDirectionFromReticle()

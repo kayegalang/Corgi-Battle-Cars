@@ -5,6 +5,8 @@ using _UI.Scripts;
 using _Player.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Reflection;
+using FMODUnity;
 
 namespace _Gameplay.Scripts 
 {
@@ -97,9 +99,13 @@ namespace _Gameplay.Scripts
                 
                 // Initial spawn — no spawn protection
                 GameObject player = SpawnPlayer(playerTag, spawnPoint, playerPrefab);
-                
+
                 if (player != null)
+                {
                     RestorePlayerDevice(player, i);
+                    AssignListenerIndex(player, i - 1);
+                }
+                    
                 
                 RegisterPlayer(playerTag);
             }
@@ -123,6 +129,32 @@ namespace _Gameplay.Scripts
         {
             if (GameplayManager.instance != null)
                 GameplayManager.instance.UpdatePlayerList(playerTag);
+        }
+        
+        private void AssignListenerIndex(GameObject player, int listenerIndex)
+        {
+            StudioListener listener = player.GetComponentInChildren<StudioListener>();
+
+            if (listener == null)
+            {
+                Debug.LogWarning($"[{nameof(SpawnManager)}] No StudioListener found on {player.name}!");
+                return;
+            }
+
+            FieldInfo field = typeof(StudioListener).GetField(
+                "listenerNumber",
+                BindingFlags.NonPublic | BindingFlags.Instance
+            );
+
+            if (field != null)
+            {
+                field.SetValue(listener, listenerIndex);
+                Debug.Log($"[{nameof(SpawnManager)}] Assigned FMOD listener index {listenerIndex} to {player.name}");
+            }
+            else
+            {
+                Debug.LogWarning($"[{nameof(SpawnManager)}] Could not find listenerNumber field on StudioListener!");
+            }
         }
 
         // ═══════════════════════════════════════════════
@@ -175,6 +207,7 @@ namespace _Gameplay.Scripts
                 {
                     int playerNumber = GetPlayerNumberFromTag(playerTag);
                     RestorePlayerDevice(player, playerNumber);
+                    AssignListenerIndex(player, playerNumber - 1);
 
                     // Activate spawn protection ONLY on respawn, not initial spawn
                     player.GetComponent<CarHealth>()?.ActivateSpawnProtection();
