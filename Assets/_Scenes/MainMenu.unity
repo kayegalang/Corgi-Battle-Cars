@@ -9971,6 +9971,13 @@ MonoBehaviour:
       Data3: 1202217636
       Data4: -1734932419
     Path: event:/Music/DogPark Theme
+  <MainMenuMusic>k__BackingField:
+    Guid:
+      Data1: -1115519594
+      Data2: 1279516119
+      Data3: 1965987474
+      Data4: 1900388259
+    Path: event:/Music/MainMenuTheme
   <bark3Sound>k__BackingField:
     Guid:
       Data1: -1346768095
@@ -23057,6 +23064,69 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1911645072}
   m_CullTransparentMesh: 1
+--- !u!1 &1940552824
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1940552826}
+  - component: {fileID: 1940552825}
+  m_Layer: 0
+  m_Name: MainMenuMusic
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1940552825
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940552824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -1115519594
+      Data2: 1279516119
+      Data3: 1965987474
+      Data4: 1900388259
+    Path: event:/Music/MainMenuTheme
+  Event: 
+  EventPlayTrigger: 1
+  EventStopTrigger: 2
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
+--- !u!4 &1940552826
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940552824}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -59.56804, y: -61.20031, z: 126.74579}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1948137961
 GameObject:
   m_ObjectHideFlags: 0
@@ -25497,3 +25567,4 @@ SceneRoots:
   - {fileID: 1777867163}
   - {fileID: 765539592}
   - {fileID: 936771161}
+  - {fileID: 1940552826}
