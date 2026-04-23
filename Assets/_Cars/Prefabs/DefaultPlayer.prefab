@@ -2932,8 +2932,8 @@ MonoBehaviour:
   - {fileID: -140221187, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
   - {fileID: 221301234, guid: 3eefd937c260e4316a5686f3f901b962, type: 3}
   cooldownImage: {fileID: 3669363509338673587}
-  backgroundImage: {fileID: 7792872324652329596}
-  pulseSpeed: 8
+  backgroundFlash: {fileID: 0}
+  flashInterval: 0.3
 --- !u!222 &5963921290390153051
 CanvasRenderer:
   m_ObjectHideFlags: 0
