@@ -266,7 +266,8 @@ namespace _PowerUps.Scripts
         private void StopAllVibrations()
         {
             foreach (GameObject player in playersInVibrationRange)
-                StopVibration(player);
+                if (player != null)
+                    StopVibration(player);
         }
         
         private void OnDestroy()

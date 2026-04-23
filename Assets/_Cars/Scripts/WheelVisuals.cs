@@ -3,11 +3,6 @@ using _Bot.Scripts;
 
 namespace _Cars.Scripts
 {
-    /// <summary>
-    /// Handles visual wheel rotation for both players and bots.
-    /// Automatically finds CarController (player) or BotController (bot) on the root.
-    /// Assign the visual mesh children, NOT the collider objects.
-    /// </summary>
     public class WheelVisuals : MonoBehaviour
     {
         [Header("Wheel Visual Meshes — assign the MESH child, NOT the collider object")]
@@ -54,6 +49,19 @@ namespace _Cars.Scripts
         }
 
         // ═══════════════════════════════════════════════
+        //  REWIRING — called by CarVisualLoader after spawn
+        // ═══════════════════════════════════════════════
+
+        public void SetWheels(Transform fl, Transform fr, Transform rl, Transform rr)
+        {
+            wheelFL = fl;
+            wheelFR = fr;
+            wheelRL = rl;
+            wheelRR = rr;
+            Debug.Log("[WheelVisuals] Wheels rewired from spawned car prefab.");
+        }
+
+        // ═══════════════════════════════════════════════
         //  SPIN
         // ═══════════════════════════════════════════════
 
@@ -88,10 +96,10 @@ namespace _Cars.Scripts
 
         private void ApplyWheelRotations()
         {
-            ApplyRotation(wheelFL, spinFL,  currentSteerAngle);
-            ApplyRotation(wheelFR, spinFR,  currentSteerAngle);
-            ApplyRotation(wheelRL, spinRL,  0f);
-            ApplyRotation(wheelRR, spinRR,  0f);
+            ApplyRotation(wheelFL, spinFL, currentSteerAngle);
+            ApplyRotation(wheelFR, spinFR, currentSteerAngle);
+            ApplyRotation(wheelRL, spinRL, 0f);
+            ApplyRotation(wheelRR, spinRR, 0f);
         }
 
         private void ApplyRotation(Transform wheel, float spinAngle, float steerAngle)

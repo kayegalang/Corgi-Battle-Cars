@@ -2,43 +2,33 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.UI;
 
 namespace _Effects.Scripts
 {
-    /// <summary>
-    /// Handles visual hit feedback:
-    ///   1. Red vignette flash on the player's screen
-    ///   2. Car material flashes red briefly
-    /// Add to the player prefab root.
-    /// Assign the player's Global Volume and the car's renderers in the Inspector.
-    /// </summary>
     public class HitEffects : MonoBehaviour
     {
         [Header("Vignette Flash")]
-        [Tooltip("The Global Volume on this player's camera — must have a Vignette override")]
-        [SerializeField] private Volume         postProcessVolume;
-        [SerializeField] private Color          vignetteHitColor    = new Color(0.8f, 0f, 0f);
-        [SerializeField] private float          vignetteHitIntensity = 0.6f;
-        [SerializeField] private float          vignetteFadeDuration = 0.3f;
+        [SerializeField] private Volume postProcessVolume;
+        [SerializeField] private Color  vignetteHitColor     = new Color(0.8f, 0f, 0f);
+        [SerializeField] private float  vignetteHitIntensity = 0.6f;
+        [SerializeField] private float  vignetteFadeDuration = 0.3f;
 
         [Header("Car Flash")]
-        [Tooltip("All renderers on the car that should flash red")]
-        [SerializeField] private Renderer[]     carRenderers;
-        [SerializeField] private Color          flashColor          = new Color(1f, 0.1f, 0.1f);
-        [SerializeField] private float          flashDuration       = 0.1f;
-        [SerializeField] private int            flashCount          = 2;
+        [Tooltip("Leave empty — CarVisualLoader assigns renderers after the car model spawns")]
+        [SerializeField] private Renderer[] carRenderers;
+        [SerializeField] private Color flashColor    = new Color(1f, 0.1f, 0.1f);
+        [SerializeField] private float flashDuration = 0.1f;
+        [SerializeField] private int   flashCount    = 2;
 
-        // Runtime
-        private Vignette        vignette;
-        private Color           vignetteOriginalColor;
-        private float           vignetteOriginalIntensity;
+        private Vignette     vignette;
+        private Color        vignetteOriginalColor;
+        private float        vignetteOriginalIntensity;
 
-        private Material[][]    originalMaterials;  // per renderer, per material
-        private Material[][]    flashMaterials;
+        private Material[][] originalMaterials;
+        private Material[][] flashMaterials;
 
-        private Coroutine       vignetteCoroutine;
-        private Coroutine       flashCoroutine;
+        private Coroutine vignetteCoroutine;
+        private Coroutine flashCoroutine;
 
         // ═══════════════════════════════════════════════
         //  LIFECYCLE
@@ -47,7 +37,8 @@ namespace _Effects.Scripts
         private void Awake()
         {
             SetupVignette();
-            SetupCarFlash();
+            // Don't call SetupCarFlash here — car model doesn't exist yet.
+            // CarVisualLoader calls SetRenderers() after spawning the car.
         }
 
         private void SetupVignette()
@@ -61,19 +52,21 @@ namespace _Effects.Scripts
             }
             else
             {
-                Debug.LogWarning($"[HitEffects] {gameObject.name} — no Vignette override found on Volume profile! Add one.");
+                Debug.LogWarning($"[HitEffects] No Vignette override found on Volume profile on {gameObject.name}!");
             }
         }
 
         private void SetupCarFlash()
         {
-            if (carRenderers == null || carRenderers.Length == 0)
-            {
-                // Auto-find renderers if not assigned
-                carRenderers = GetComponentsInChildren<Renderer>();
-            }
+            if (carRenderers == null || carRenderers.Length == 0) return;
 
-            // Cache original materials and create flash copies
+            // Destroy old flash materials to avoid leaks when re-called
+            if (flashMaterials != null)
+                foreach (var mats in flashMaterials)
+                    if (mats != null)
+                        foreach (var mat in mats)
+                            if (mat != null) Destroy(mat);
+
             originalMaterials = new Material[carRenderers.Length][];
             flashMaterials    = new Material[carRenderers.Length][];
 
@@ -82,22 +75,31 @@ namespace _Effects.Scripts
                 if (carRenderers[i] == null) continue;
 
                 originalMaterials[i] = carRenderers[i].materials;
+                flashMaterials[i]    = new Material[carRenderers[i].materials.Length];
 
-                // Create flash material copies
-                flashMaterials[i] = new Material[carRenderers[i].materials.Length];
                 for (int j = 0; j < flashMaterials[i].Length; j++)
                 {
-                    flashMaterials[i][j] = new Material(carRenderers[i].materials[j]);
+                    flashMaterials[i][j]       = new Material(carRenderers[i].materials[j]);
                     flashMaterials[i][j].color = flashColor;
                 }
             }
         }
 
         // ═══════════════════════════════════════════════
+        //  REWIRING — called by CarVisualLoader after spawn
+        // ═══════════════════════════════════════════════
+
+        public void SetRenderers(Renderer[] renderers)
+        {
+            carRenderers = renderers;
+            SetupCarFlash();
+            Debug.Log($"[HitEffects] Renderers rewired — {renderers.Length} renderer(s).");
+        }
+
+        // ═══════════════════════════════════════════════
         //  PUBLIC API
         // ═══════════════════════════════════════════════
 
-        /// <summary>Call from CarHealth.TakeDamage() to trigger all hit effects</summary>
         public void PlayHitEffect()
         {
             if (vignette != null)
@@ -113,7 +115,6 @@ namespace _Effects.Scripts
             }
         }
 
-        /// <summary>Call from CarHealth.Die() for a stronger death flash</summary>
         public void PlayDeathEffect()
         {
             if (vignetteCoroutine != null) StopCoroutine(vignetteCoroutine);
@@ -128,24 +129,21 @@ namespace _Effects.Scripts
         {
             if (vignette == null) yield break;
 
-            float targetIntensity = intensity  < 0 ? vignetteHitIntensity  : intensity;
-            float fadeDuration    = duration   < 0 ? vignetteFadeDuration  : duration;
+            float targetIntensity = intensity < 0 ? vignetteHitIntensity : intensity;
+            float fadeDuration    = duration  < 0 ? vignetteFadeDuration : duration;
 
-            // Snap to hit color
             vignette.color.Override(vignetteHitColor);
             vignette.intensity.Override(targetIntensity);
 
-            // Fade back to original
             float elapsed = 0f;
             while (elapsed < fadeDuration)
             {
                 elapsed += Time.deltaTime;
-                float t = elapsed / fadeDuration;
-                vignette.intensity.Override(Mathf.Lerp(targetIntensity, vignetteOriginalIntensity, t));
+                vignette.intensity.Override(
+                    Mathf.Lerp(targetIntensity, vignetteOriginalIntensity, elapsed / fadeDuration));
                 yield return null;
             }
 
-            // Restore
             vignette.color.Override(vignetteOriginalColor);
             vignette.intensity.Override(vignetteOriginalIntensity);
         }
@@ -158,21 +156,18 @@ namespace _Effects.Scripts
         {
             for (int f = 0; f < flashCount; f++)
             {
-                // Flash red
                 SetCarMaterials(flash: true);
                 yield return new WaitForSeconds(flashDuration);
-
-                // Restore original
                 SetCarMaterials(flash: false);
                 yield return new WaitForSeconds(flashDuration);
             }
 
-            // Always make sure we end on original materials
             SetCarMaterials(flash: false);
         }
 
         private void SetCarMaterials(bool flash)
         {
+            if (carRenderers == null) return;
             for (int i = 0; i < carRenderers.Length; i++)
             {
                 if (carRenderers[i] == null) continue;
@@ -186,7 +181,6 @@ namespace _Effects.Scripts
 
         private void OnDestroy()
         {
-            // Destroy flash material copies to avoid memory leaks
             if (flashMaterials != null)
                 foreach (var mats in flashMaterials)
                     if (mats != null)

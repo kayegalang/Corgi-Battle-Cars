@@ -32,17 +32,13 @@ namespace _Bot.Scripts
         private const float RAYCAST_ORIGIN_HEIGHT = 0.5f;
         private const float TURN_ANGLE_DIVISOR    = 45f;
 
-        // Stuck detection
         private const float STUCK_CHECK_INTERVAL     = 0.5f;
         private const float STUCK_MOVEMENT_THRESHOLD = 0.5f;
         private const float STUCK_SPEED_THRESHOLD    = 0.8f;
         private const float REVERSE_DURATION         = 1.2f;
         private const float UNSTUCK_TURN_STRENGTH    = 0.8f;
+        private const float REAR_CHECK_DISTANCE      = 2f;
 
-        // Rear check distance when reversing
-        private const float REAR_CHECK_DISTANCE = 2f;
-
-        // Charge / overheat
         private float currentCharge;
         private const float MAX_CHARGE      = 100f;
         private const float CHARGE_PER_SHOT = 10f;
@@ -78,8 +74,6 @@ namespace _Bot.Scripts
         {
             yield return null;
             cooldownBar = GetComponentInChildren<CooldownBarUI>();
-            if (cooldownBar == null)
-                Debug.LogWarning($"[{nameof(BotAI)}] {gameObject.name} - No CooldownBarUI found.");
         }
 
         private void InitializeFromProjectile()
@@ -93,17 +87,39 @@ namespace _Bot.Scripts
         {
             botController = GetComponent<BotController>();
             botRigidbody  = GetComponent<Rigidbody>();
-            firePoint     = transform.Find("FirePoint");
+
+            // FirePoint lives inside the spawned weapon prefab —
+            // CarVisualLoader calls SetFirePoint() after spawning.
+            // Try a deep search as fallback for scenes without CarVisualLoader.
+            firePoint = FindDeepChild(transform, "FirePoint");
+
             ValidateComponents();
         }
         
         private void ValidateComponents()
         {
-            if (botController == null) Debug.LogError($"[{nameof(BotAI)}] BotController not found on {gameObject.name}!");
-            if (botRigidbody  == null) Debug.LogError($"[{nameof(BotAI)}] Rigidbody not found on {gameObject.name}!");
-            if (firePoint     == null) Debug.LogError($"[{nameof(BotAI)}] FirePoint not found on {gameObject.name}!");
-            if (carStats      == null) Debug.LogError($"[{nameof(BotAI)}] AICarStats not assigned on {gameObject.name}!");
-            if (projectile    == null) Debug.LogError($"[{nameof(BotAI)}] ProjectileObject not assigned on {gameObject.name}!");
+            if (botController == null)
+                Debug.LogError($"[{nameof(BotAI)}] BotController not found on {gameObject.name}!");
+            if (botRigidbody == null)
+                Debug.LogError($"[{nameof(BotAI)}] Rigidbody not found on {gameObject.name}!");
+
+            // Warnings only — these get wired at runtime by CarVisualLoader / BotLoadoutRandomizer
+            if (firePoint  == null)
+                Debug.LogWarning($"[{nameof(BotAI)}] FirePoint not found yet — will be set by CarVisualLoader.");
+            if (carStats   == null)
+                Debug.LogWarning($"[{nameof(BotAI)}] AICarStats not assigned — assign in Inspector.");
+            if (projectile == null)
+                Debug.LogWarning($"[{nameof(BotAI)}] ProjectileObject not assigned — will be set by BotLoadoutRandomizer.");
+        }
+
+        // ═══════════════════════════════════════════════
+        //  REWIRING — called by CarVisualLoader after spawn
+        // ═══════════════════════════════════════════════
+
+        public void SetFirePoint(Transform newFirePoint)
+        {
+            firePoint = newFirePoint;
+            Debug.Log($"[BotAI] FirePoint rewired on {gameObject.name}");
         }
 
         // ═══════════════════════════════════════════════
@@ -112,6 +128,9 @@ namespace _Bot.Scripts
         
         private void Update()
         {
+            // Wait until carStats is assigned by BotLoadoutRandomizer
+            if (carStats == null) return;
+
             UpdateTargetSearch();
             CheckIfStuck();
             UpdateCooldownBar();
@@ -124,6 +143,7 @@ namespace _Bot.Scripts
         
         private void FixedUpdate()
         {
+            if (carStats == null) return;
             HandleShooting();
         }
 
@@ -183,13 +203,20 @@ namespace _Bot.Scripts
             isReversing  = true;
             reverseTimer = 0f;
 
+            // carStats may not be assigned yet — default to turning right
+            if (carStats == null)
+            {
+                unstuckTurnDir = (stuckCount % 2 == 0) ? 1f : -1f;
+                return;
+            }
+
             Vector3 origin     = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
             bool    leftClear  = !Physics.Raycast(origin, -transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
             bool    rightClear = !Physics.Raycast(origin,  transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
 
             if      (leftClear  && !rightClear) unstuckTurnDir = -1f;
             else if (!leftClear && rightClear)  unstuckTurnDir =  1f;
-            else                                unstuckTurnDir =  (stuckCount % 2 == 0) ? 1f : -1f;
+            else                                unstuckTurnDir  = (stuckCount % 2 == 0) ? 1f : -1f;
         }
         
         private void HandleReverseTimer()
@@ -228,18 +255,14 @@ namespace _Bot.Scripts
         
         private void ExecuteUnstuckRoutine()
         {
-            Vector3 origin      = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
-            Vector3 rearCenter  = -transform.forward;
-            Vector3 rearLeft    = (-transform.forward - transform.right * 0.5f).normalized;
-            Vector3 rearRight   = (-transform.forward + transform.right * 0.5f).normalized;
+            Vector3 origin     = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
+            Vector3 rearCenter = -transform.forward;
+            Vector3 rearLeft   = (-transform.forward - transform.right * 0.5f).normalized;
+            Vector3 rearRight  = (-transform.forward + transform.right * 0.5f).normalized;
 
-            bool rearCenterBlocked = Physics.Raycast(origin, rearCenter,  REAR_CHECK_DISTANCE, carStats.ObstacleMask);
-            bool rearLeftBlocked   = Physics.Raycast(origin, rearLeft,    REAR_CHECK_DISTANCE, carStats.ObstacleMask);
-            bool rearRightBlocked  = Physics.Raycast(origin, rearRight,   REAR_CHECK_DISTANCE, carStats.ObstacleMask);
-
-            Debug.DrawRay(origin, rearCenter * REAR_CHECK_DISTANCE, rearCenterBlocked ? Color.red : Color.cyan);
-            Debug.DrawRay(origin, rearLeft   * REAR_CHECK_DISTANCE, rearLeftBlocked   ? Color.red : Color.cyan);
-            Debug.DrawRay(origin, rearRight  * REAR_CHECK_DISTANCE, rearRightBlocked  ? Color.red : Color.cyan);
+            bool rearCenterBlocked = Physics.Raycast(origin, rearCenter, REAR_CHECK_DISTANCE, carStats.ObstacleMask);
+            bool rearLeftBlocked   = Physics.Raycast(origin, rearLeft,   REAR_CHECK_DISTANCE, carStats.ObstacleMask);
+            bool rearRightBlocked  = Physics.Raycast(origin, rearRight,  REAR_CHECK_DISTANCE, carStats.ObstacleMask);
 
             bool canReverse = !rearCenterBlocked && !rearLeftBlocked && !rearRightBlocked;
 
@@ -313,7 +336,7 @@ namespace _Bot.Scripts
             botController.GetSpeed() > carStats.StoppingSpeed;
 
         // ═══════════════════════════════════════════════
-        //  OBSTACLE DETECTION — front dual raycasts
+        //  OBSTACLE DETECTION
         // ═══════════════════════════════════════════════
         
         private struct ObstacleAvoidanceResult
@@ -325,6 +348,10 @@ namespace _Bot.Scripts
         
         private ObstacleAvoidanceResult HandleObstacleDetection()
         {
+            // carStats may not be assigned yet during first frames
+            if (carStats == null)
+                return new ObstacleAvoidanceResult { isAvoiding = false };
+
             Vector3 centerOrigin = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
             Vector3 footOrigin   = transform.position + Vector3.up * 0.1f;
             Vector3 direction    = transform.forward;
@@ -339,11 +366,6 @@ namespace _Bot.Scripts
                                out RaycastHit footRayHit,
                                carStats.ObstacleCheckDistance * 0.7f,
                                carStats.ObstacleMask);
-
-            Debug.DrawRay(centerOrigin, direction * carStats.ObstacleCheckDistance,
-                          centerHit ? Color.red : Color.blue);
-            Debug.DrawRay(footOrigin, footDirection * carStats.ObstacleCheckDistance * 0.7f,
-                          footHit ? Color.red : Color.green);
 
             bool       didHit = centerHit || footHit;
             RaycastHit hit    = centerHit ? centerRayHit : footRayHit;
@@ -369,9 +391,6 @@ namespace _Bot.Scripts
         {
             bool leftClear  = !Physics.Raycast(origin, -transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
             bool rightClear = !Physics.Raycast(origin,  transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
-            
-            Debug.DrawRay(origin, -transform.right * carStats.SideCheckDistance, leftClear  ? Color.green : Color.red);
-            Debug.DrawRay(origin,  transform.right * carStats.SideCheckDistance, rightClear ? Color.green : Color.red);
             
             float turnInput = DetermineTurnDirection(leftClear, rightClear);
             float moveInput = DetermineAvoidanceSpeed(leftClear, rightClear);
@@ -457,6 +476,9 @@ namespace _Bot.Scripts
         
         private void Shoot()
         {
+            // Laser weapons deal damage via their own visual — no projectile to spawn
+            if (projectile.IsLaser) return;
+
             Vector3 dir = GetShootDirection();
             if (dir == Vector3.zero) return;
             GameObject bullet = InstantiateBullet(dir);
@@ -526,6 +548,17 @@ namespace _Bot.Scripts
             if (closestTarget != null)
                 target = closestTarget;
         }
+
+        private Transform FindDeepChild(Transform parent, string childName)
+        {
+            foreach (Transform child in parent)
+            {
+                if (child.name == childName) return child;
+                Transform found = FindDeepChild(child, childName);
+                if (found != null) return found;
+            }
+            return null;
+        }
         
         private void SetState(BotStates newState) => currentState = newState;
         
@@ -544,7 +577,6 @@ namespace _Bot.Scripts
             isOverheated  = false;
             nextFireTime  = 0f;
             InitializeFromProjectile();
-            Debug.Log($"[{nameof(BotAI)}] {gameObject.name} swapped to {newProjectile.ProjectileName}");
         }
 
         public Vector3 GetAimDirection()

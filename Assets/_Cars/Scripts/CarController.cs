@@ -545,6 +545,13 @@ namespace _Cars.Scripts
 
             GetComponent<ControllerRumbler>()?.RumbleZoomiesStart();
         }
+
+        /// <summary>Called by CarVisualLoader after spawning the car prefab.</summary>
+        public void SetZoomiesParticles(ParticleSystem particles)
+        {
+            zoomiesParticles = particles;
+            Debug.Log("[CarController] ZoomiesParticles rewired from spawned car prefab.");
+        }
         
         public void RemoveSpeedMultiplier()
         {

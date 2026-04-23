@@ -1930,6 +1930,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_Gameplay.Scripts.PointsManager
   endGameManager: {fileID: 478994506}
   pointsPerKill: 100
+  pointsPerCrashKill: 200
+  pointsLostOnDeath: 100
 --- !u!4 &193038870
 Transform:
   m_ObjectHideFlags: 0
@@ -18895,7 +18897,7 @@ MonoBehaviour:
   - {fileID: 564686714}
   - {fileID: 2082242893}
   playerPrefab: {fileID: 852133240821571215, guid: 90e8f6189c3f8784191b4b6f64f7d6d3, type: 3}
-  botPrefab: {fileID: 852133240821571215, guid: 4bb64b156fede41c4b9ddab3c162c609, type: 3}
+  botPrefab: {fileID: 852133240821571215, guid: 5ba90855dd74c48a89761e06b6ed0797, type: 3}
   respawnDelay: 0
 --- !u!1 &2059097956
 GameObject:
