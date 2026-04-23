@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c498bfeef4a934768b0c388dab9f7bb8
+guid: b1bde60878fd94aab8d3237995643260
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,13 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CooldownStats_0
+      name: CookdownStat_0
       rect:
         serializedVersion: 2
-        x: 581
-        y: 2006
-        width: 1266
-        height: 279
+        x: 538
+        y: 2066
+        width: 1281
+        height: 299
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -125,20 +125,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 88df721fdb5ba4cb2ac89c55c7eb5c7b
-      internalID: 906480939
+      spriteID: d96e0c07d25924d0fbb34e59ee051fe0
+      internalID: -670617903
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CooldownStats_1
+      name: CookdownStat_1
       rect:
         serializedVersion: 2
-        x: 568
-        y: 1643
-        width: 1285
-        height: 285
+        x: 556
+        y: 1564
+        width: 1257
+        height: 276
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -147,20 +147,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 19b44c6e7239846bdb8fc88d9a7ccb9e
-      internalID: 1148839402
+      spriteID: f31f6e9cba380461bb24865a558b2f2c
+      internalID: 1334464370
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CooldownStats_2
+      name: CookdownStat_2
       rect:
         serializedVersion: 2
-        x: 577
-        y: 1291
-        width: 1280
-        height: 284
+        x: 557
+        y: 1054
+        width: 1256
+        height: 277
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -169,20 +169,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 114812505d2074e7480d92bbd4445347
-      internalID: -788936399
+      spriteID: 11dc266dbfbc04b56ae160867527d788
+      internalID: -1929972865
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CooldownStats_3
+      name: CookdownStat_3
       rect:
         serializedVersion: 2
-        x: 569
-        y: 907
-        width: 1282
-        height: 284
+        x: 557
+        y: 545
+        width: 1256
+        height: 277
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -191,20 +191,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8d22e3a943e83457db538a4a408aed53
-      internalID: 752986089
+      spriteID: ddbd65e0c86ba410fa1d49d4db105a82
+      internalID: -112608069
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CooldownStats_4
+      name: CookdownStat_4
       rect:
         serializedVersion: 2
-        x: 588
-        y: 557
-        width: 1284
-        height: 284
+        x: 557
+        y: 36
+        width: 1255
+        height: 277
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -213,30 +213,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 71c067dfa532948069cbb8c0fa3cb593
-      internalID: 284571648
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: CooldownStats_5
-      rect:
-        serializedVersion: 2
-        x: 571
-        y: 225
-        width: 1316
-        height: 292
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 63c1f569d18a945d3bf988945308a8a1
-      internalID: -1676145711
+      spriteID: 844ae60c4caf148e1a9405c8352cc71e
+      internalID: 1013093866
       vertices: []
       indices: 
       edges: []
@@ -245,7 +223,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5981b3cd7958f49cea51564c812fcf00
+    spriteID: f39e7bcb06e3b4ab8b7f9b65c303e3e6
     internalID: 0
     vertices: []
     indices: 
@@ -255,12 +233,11 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      CooldownStats_0: 906480939
-      CooldownStats_1: 1148839402
-      CooldownStats_2: -788936399
-      CooldownStats_3: 752986089
-      CooldownStats_4: 284571648
-      CooldownStats_5: -1676145711
+      CookdownStat_0: -670617903
+      CookdownStat_1: 1334464370
+      CookdownStat_2: -1929972865
+      CookdownStat_3: -112608069
+      CookdownStat_4: 1013093866
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
