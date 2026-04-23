@@ -7638,6 +7638,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 619660911}
   m_CullTransparentMesh: 1
+--- !u!1 &623645457
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 623645458}
+  m_Layer: 0
+  m_Name: yomama
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &623645458
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 623645457}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 698459241}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &631637470
 GameObject:
   m_ObjectHideFlags: 0
@@ -8048,6 +8079,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 791837580}
+  - {fileID: 623645458}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &698459243
@@ -14073,7 +14105,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_UI.Scripts.LoadingManager
   loadingScreen: {fileID: 1672238575}
-  progressBar: {fileID: 1168241047}
+  pawImage: {fileID: 0}
+  pawSprites: []
 --- !u!1 &1157240905
 GameObject:
   m_ObjectHideFlags: 0
@@ -16901,15 +16934,69 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 34193fc487c124ab08ba24caf24f31b7, type: 2}
   - {fileID: 11400000, guid: 3529a2bd0ba264e97afb032e1479f5f8, type: 2}
   weaponNameText: {fileID: 1159820436}
-  statsHeaderText: {fileID: 1695254971}
-  statLabel1: {fileID: 1126994883}
-  statLabel2: {fileID: 776112746}
-  statLabel3: {fileID: 957332259}
-  statLabel4: {fileID: 1316459188}
-  statBar1: {fileID: 794776433}
-  statBar2: {fileID: 932106103}
-  statBar3: {fileID: 282746414}
-  statBar4: {fileID: 1948137963}
+  jump:
+    image: {fileID: 0}
+    levels:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  acceleration:
+    image: {fileID: 0}
+    levels:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  health:
+    image: {fileID: 0}
+    levels:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  speed:
+    image: {fileID: 0}
+    levels:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  damage:
+    image: {fileID: 0}
+    levels:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  cooldown:
+    image: {fileID: 0}
+    levels:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  fireRate:
+    image: {fileID: 0}
+    levels:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
   backButton: {fileID: 1240567362}
   mapSelectionButton: {fileID: 150084288}
   weaponHighlight: {fileID: 1331481383}
@@ -19358,27 +19445,21 @@ MonoBehaviour:
   characterSelectionPanel: {fileID: 1021778366}
   playerSlots:
   - slotObject: {fileID: 1157240905}
-    statusText: {fileID: 440091411}
-    slotImage: {fileID: 1157240907}
-    waitingColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    joinedColor: {r: 0, g: 1, b: 0, a: 1}
+    slotImage: {fileID: 0}
+    waitingSprite: {fileID: 0}
+    joinedSprite: {fileID: 0}
   - slotObject: {fileID: 305936405}
-    statusText: {fileID: 719948774}
-    slotImage: {fileID: 305936407}
-    waitingColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    joinedColor: {r: 0, g: 1, b: 0, a: 1}
+    slotImage: {fileID: 0}
+    waitingSprite: {fileID: 0}
+    joinedSprite: {fileID: 0}
   - slotObject: {fileID: 307486080}
-    statusText: {fileID: 1283750621}
-    slotImage: {fileID: 307486082}
-    waitingColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    joinedColor: {r: 0, g: 1, b: 0, a: 1}
+    slotImage: {fileID: 0}
+    waitingSprite: {fileID: 0}
+    joinedSprite: {fileID: 0}
   - slotObject: {fileID: 728921063}
-    statusText: {fileID: 347440874}
-    slotImage: {fileID: 728921065}
-    waitingColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    joinedColor: {r: 0, g: 1, b: 0, a: 1}
-  waitingText: Waiting...
-  playerJoinedFormat: Player {0} Joined!
+    slotImage: {fileID: 0}
+    waitingSprite: {fileID: 0}
+    joinedSprite: {fileID: 0}
   transitionDelay: 0.5
   onAllPlayersJoined:
     m_PersistentCalls:
