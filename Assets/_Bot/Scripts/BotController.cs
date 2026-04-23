@@ -22,21 +22,17 @@ namespace _Bot.Scripts
         private Vector2    moveInput;
         private Rigidbody  carRb;
 
-        // Zoomies power-up state
         private bool  hasZoomies             = false;
         private float speedMultiplier        = 1f;
         private float accelerationMultiplier = 1f;
         
-        // Super jump power-up state
         private bool  hasSuperJump            = false;
         private float jumpMultiplier          = 1f;
         private float jumpHeightCapMultiplier = 1f;
         
-        // Poop power-up state
         private bool      isSlipping    = false;
         private Coroutine slipCoroutine;
 
-        // Crash cooldown
         private float lastCrashTime = -999f;
         
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
@@ -106,9 +102,19 @@ namespace _Bot.Scripts
         {
             if (carRb == null)
                 Debug.LogError($"[{nameof(BotController)}] Rigidbody not found on {gameObject.name}!");
-            
+
+            // Warning only — gets assigned at runtime by BotLoadoutRandomizer
             if (carStats == null)
-                Debug.LogError($"[{nameof(BotController)}] CarStats not assigned on {gameObject.name}!");
+                Debug.LogWarning($"[{nameof(BotController)}] CarStats not assigned — will be set by BotLoadoutRandomizer.");
+        }
+
+        // ═══════════════════════════════════════════════
+        //  REWIRING — called by CarVisualLoader after spawn
+        // ═══════════════════════════════════════════════
+
+        public void SetZoomiesParticles(ParticleSystem particles)
+        {
+            zoomiesParticles = particles;
         }
 
         // ═══════════════════════════════════════════════
@@ -206,8 +212,7 @@ namespace _Bot.Scripts
         }
 
         public Vector2 GetMoveInput() => moveInput;
-        
-        public float GetSpeed() => carRb == null ? 0f : carRb.linearVelocity.magnitude;
+        public float   GetSpeed()     => carRb == null ? 0f : carRb.linearVelocity.magnitude;
         
         private void CapJumpHeight()
         {

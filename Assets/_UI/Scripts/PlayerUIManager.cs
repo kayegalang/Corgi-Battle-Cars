@@ -24,6 +24,7 @@ namespace _UI.Scripts
 
         private Camera          playerCamera;
         private PauseController pauseController;
+        private ScoreFlash      scoreFlash;
 
         private const int INITIAL_SCORE = 0;
 
@@ -82,6 +83,7 @@ namespace _UI.Scripts
         private void InitializeCamera()
         {
             playerCamera = GetComponentInChildren<Camera>();
+            scoreFlash   = GetComponentInChildren<ScoreFlash>();
 
             if (playerCamera == null)
                 Debug.LogError($"[{nameof(PlayerUIManager)}] No camera found on {gameObject.name}!", this);
@@ -138,7 +140,7 @@ namespace _UI.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  ANCHORING — same as before
+        //  ANCHORING
         // ═══════════════════════════════════════════════
 
         private void SetAnchors()
@@ -153,6 +155,12 @@ namespace _UI.Scripts
         }
 
         private bool CanSetAnchors() => scoreTransform != null && playerCamera != null;
+
+        /// <summary>
+        /// Called by PlayerManager after viewport rects are recalculated
+        /// so the score text anchor stays correctly positioned.
+        /// </summary>
+        public void RefreshAnchors() => SetAnchors();
 
         // ═══════════════════════════════════════════════
         //  SCORE UPDATE
@@ -170,14 +178,19 @@ namespace _UI.Scripts
         public void UpdateScoreWithFloatingText(int score, int pointsAdded)
         {
             UpdateScore(score);
-            SpawnFloatingText($"+{pointsAdded}");
+            SpawnFloatingText($"{(pointsAdded >= 0 ? "+" : "")}{pointsAdded}");
+
+            // Edge flash — crash kills get the special orange flash
+            if (pointsAdded >= 200)
+                scoreFlash?.FlashCrash();
+            else if (pointsAdded > 0)
+                scoreFlash?.Flash();
         }
 
         private void SpawnFloatingText(string text)
         {
             if (floatingScorePrefab == null || scoreTransform == null) return;
 
-            // Spawn as a sibling of the score text so it shares the same canvas space
             GameObject obj = Instantiate(
                 floatingScorePrefab,
                 scoreTransform.parent);
@@ -185,7 +198,6 @@ namespace _UI.Scripts
             RectTransform rt = obj.GetComponent<RectTransform>();
             if (rt != null)
             {
-                // Start at same anchor/position as score text, floats upward from there
                 rt.anchorMin        = scoreTransform.anchorMin;
                 rt.anchorMax        = scoreTransform.anchorMax;
                 rt.anchoredPosition = scoreTransform.anchoredPosition;

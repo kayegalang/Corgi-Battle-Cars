@@ -68,12 +68,11 @@ namespace _Cars.Scripts
             hitEffects        = GetComponent<HitEffects>();
             deathEffects      = GetComponent<CarDeathEffects>();
 
-            // Find the name tag canvas — it uses CanvasRenderer so isn't
-            // caught by GetComponentsInChildren<Renderer>()
-            Transform nameTagTransform = transform.Find("CarModel/NameTagCanvas");
-
+            Transform nameTagTransform = FindDeepChild(transform, "NameTagCanvas");
             if (nameTagTransform != null)
                 nameTagCanvas = nameTagTransform.gameObject;
+            else
+                Debug.LogWarning($"[CarHealth] NameTagCanvas not found on {gameObject.name}!");
 
             if (healthBarManager == null)
                 Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
@@ -128,13 +127,10 @@ namespace _Cars.Scripts
 
         private void SetRenderersVisible(bool visible)
         {
-            // Toggle all mesh/particle renderers
             if (carRenderers != null)
                 foreach (Renderer r in carRenderers)
                     if (r != null) r.enabled = visible;
 
-            // Also toggle the name tag canvas since it uses
-            // CanvasRenderer which isn't caught by Renderer[]
             if (nameTagCanvas != null)
                 nameTagCanvas.SetActive(visible);
         }
@@ -160,7 +156,23 @@ namespace _Cars.Scripts
                 Debug.Log($"[CarHealth] {gameObject.name} using CarStats: {carStats.name} (Max Health: {maxHealth})");
         }
 
+        /// <summary>
+        /// Standard damage — used by projectiles, explosions etc.
+        /// </summary>
         public void TakeDamage(int amount, GameObject shooter)
+        {
+            TakeDamageInternal(amount, shooter, isCrash: false);
+        }
+
+        /// <summary>
+        /// Crash damage — awards +200 to crasher and -100 to victim on death.
+        /// </summary>
+        public void TakeCrashDamage(int amount, GameObject crasher)
+        {
+            TakeDamageInternal(amount, crasher, isCrash: true);
+        }
+
+        private void TakeDamageInternal(int amount, GameObject shooter, bool isCrash)
         {
             if (isDead) return;
 
@@ -178,7 +190,7 @@ namespace _Cars.Scripts
             hitEffects?.PlayHitEffect();
 
             if (currentHealth <= 0)
-                Die(shooter);
+                Die(shooter, isCrash);
 
             if (isBot && shooter != null)
                 GetComponent<BotAI>()?.OnHit(shooter.transform);
@@ -188,7 +200,7 @@ namespace _Cars.Scripts
         //  DEATH
         // ═══════════════════════════════════════════════
 
-        private void Die(GameObject shooter)
+        private void Die(GameObject shooter, bool isCrash)
         {
             if (isDead) return;
             
@@ -201,10 +213,25 @@ namespace _Cars.Scripts
             hitEffects?.PlayDeathEffect();
             deathEffects?.OnDeath();
 
+            // Death penalty for the victim (-100)
+            // Only applies if killed by crash (not projectile)
+            if (isCrash)
+            {
+                PointsManager.instance?.DeductDeathPenalty(gameObject.tag);
+            }
+
+            // Award points to the killer
             if (shooter != null)
-                PointsManager.instance.AddPoint(shooter.tag);
+            {
+                if (isCrash)
+                    PointsManager.instance?.AddCrashPoint(shooter.tag);  // +200
+                else
+                    PointsManager.instance?.AddPoint(shooter.tag);       // +100
+            }
             else
+            {
                 Debug.LogWarning($"[{nameof(CarHealth)}] {gameObject.name} died but shooter was already destroyed!");
+            }
             
             if (isBot)
                 HandleBotDeath();
@@ -230,7 +257,6 @@ namespace _Cars.Scripts
             yield return new WaitForSeconds(0.8f);
 
             transform.position = new Vector3(0, -1000f, 0);
-            SetRenderersVisible(true);
 
             if (healthBarManager != null)
                 healthBarManager.gameObject.SetActive(false);
@@ -260,6 +286,21 @@ namespace _Cars.Scripts
             healthBarManager?.UpdateAllHealthBars(healthPercent);
             OnHealthChanged?.Invoke(healthPercent);
             deathEffects?.OnHealthChanged(healthPercent);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  HELPERS
+        // ═══════════════════════════════════════════════
+
+        private Transform FindDeepChild(Transform parent, string childName)
+        {
+            foreach (Transform child in parent)
+            {
+                if (child.name == childName) return child;
+                Transform found = FindDeepChild(child, childName);
+                if (found != null) return found;
+            }
+            return null;
         }
 
         // ═══════════════════════════════════════════════

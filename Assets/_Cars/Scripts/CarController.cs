@@ -23,14 +23,22 @@ namespace _Cars.Scripts
         [SerializeField] private float minDriftSpeedBoost   = 0.3f;
 
         [Header("Crash Settings")]
-        [SerializeField] private int   crashDamage          = 5;
+        [Tooltip("Minimum damage dealt at the slowest qualifying crash speed")]
+        [SerializeField] private int   crashDamageMin       = 3;
+        [Tooltip("Maximum damage dealt at full speed")]
+        [SerializeField] private int   crashDamageMax       = 20;
+        [Tooltip("Speed at which minimum crash damage is dealt")]
         [SerializeField] private float crashMinSpeed        = 3f;
-        [SerializeField] private float crashCooldown        = 0.5f;
+        [Tooltip("Speed at which maximum crash damage is dealt")]
+        [SerializeField] private float crashMaxSpeed           = 25f;
+        [SerializeField] private float crashCooldown           = 0.5f;
+        [Tooltip("Damage multiplier when Zoomies is active — makes ramming nearly one-shot at full speed")]
+        [SerializeField] private float zoomiesCrashMultiplier  = 5f;
 
         [Header("Bounce Settings")]
-        [SerializeField] private float bounceForce          = 8f;   // how hard the bounce is
-        [SerializeField] private float bounceUpForce        = 2f;   // slight upward pop for cartoon feel
-        [SerializeField] private float bounceSpeedThreshold = 3f;   // min speed to trigger bounce
+        [SerializeField] private float bounceForce          = 8f;
+        [SerializeField] private float bounceUpForce        = 2f;
+        [SerializeField] private float bounceSpeedThreshold = 3f;
         
         private PlayerInput playerInput;
         private InputAction moveAction;
@@ -45,32 +53,25 @@ namespace _Cars.Scripts
         public event Action OnJump;
         public event Action<float> OnLand;
 
-        // Landing detection
-        private bool wasGrounded = false;
+        private bool    wasGrounded  = false;
         private Vector3 lastVelocity;
 
-        // Zoomies power-up state
         private bool  hasZoomies             = false;
         private float speedMultiplier        = 1f;
         private float accelerationMultiplier = 1f;
         
-        // Super Jump power-up state
         private bool  hasSuperJump            = false;
         private float jumpMultiplier          = 1f;
         private float jumpHeightCapMultiplier = 1f;
         
-        // Poop power-up state
         private bool      isSlipping    = false;
         private Coroutine slipCoroutine;
 
-        // Drift state
         private bool  isDrifting = false;
         private float driftTimer = 0f;
 
-        // Crash cooldown
         private float lastCrashTime = -999f;
 
-        // Drift effects
         private DriftEffects driftEffects;
         
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
@@ -140,25 +141,47 @@ namespace _Cars.Scripts
 
             lastCrashTime = Time.time;
 
-            // ── Bounce ──────────────────────────────────────────
-            // Apply bounce force along the impact normal + a small upward pop
             if (impactSpeed >= bounceSpeedThreshold)
             {
                 Vector3 bounceDir = impactDirection + Vector3.up * bounceUpForce;
                 float   strength  = Mathf.Clamp01(impactSpeed / 20f) * bounceForce;
                 carRb.AddForce(bounceDir.normalized * strength, ForceMode.Impulse);
 
-                // Also shake the camera on crash
                 GetComponent<CameraShaker>()?.ShakeCrash(impactSpeed);
+                GetComponent<ControllerRumbler>()?.RumbleCrash(impactSpeed);
             }
 
-            // ── Damage ──────────────────────────────────────────
-            CarHealth myHealth = GetComponent<CarHealth>();
-            myHealth?.TakeDamage(crashDamage, null);
+            int damage = CalculateCrashDamage(impactSpeed);
 
+            // Self damage — skipped if zoomies active (crash immunity!)
+            if (!hasZoomies)
+            {
+                CarHealth myHealth = GetComponent<CarHealth>();
+                myHealth?.TakeCrashDamage(damage, null);
+            }
+            else
+            {
+                Debug.Log($"[CarController] {gameObject.name} has Zoomies — crash self-damage blocked! 🚀");
+            }
+
+            // Damage to whoever we hit — always applied, scaled by speed
+            // TakeCrashDamage awards +200 to crasher and -100 to victim on death
             CarHealth theirHealth = collision.gameObject.GetComponent<CarHealth>();
             if (theirHealth != null)
-                theirHealth.TakeDamage(crashDamage, null);
+                theirHealth.TakeCrashDamage(damage, gameObject);
+        }
+
+        private int CalculateCrashDamage(float impactSpeed)
+        {
+            float t      = Mathf.InverseLerp(crashMinSpeed, crashMaxSpeed, impactSpeed);
+            int   damage = Mathf.RoundToInt(Mathf.Lerp(crashDamageMin, crashDamageMax, t));
+
+            // Zoomies = rocket league mode — massive damage multiplier at speed
+            if (hasZoomies)
+                damage = Mathf.RoundToInt(damage * zoomiesCrashMultiplier);
+
+            Debug.Log($"[CarController] Crash damage: {damage} (speed: {impactSpeed:F1}, zoomies: {hasZoomies})");
+            return damage;
         }
 
         // ═══════════════════════════════════════════════
@@ -186,7 +209,6 @@ namespace _Cars.Scripts
                 driftTimer = 0f;
             }
 
-            // Update drift visual effects
             driftEffects?.SetDrifting(isDrifting, moveInput.x);
         }
 
@@ -336,40 +358,27 @@ namespace _Cars.Scripts
         private void OnJumpPerformed(InputAction.CallbackContext ctx) => Jump();
 
         // ═══════════════════════════════════════════════
-        //  CINEMATIC MODE — GAMEPAD ONLY
+        //  CINEMATIC MODE
         // ═══════════════════════════════════════════════
 
-        /// <summary>
-        /// Called by CinematicFreeCam to lock input to gamepad only,
-        /// preventing WASD from driving the car while the camera operator
-        /// uses the keyboard to fly the cinematic camera.
-        /// </summary>
         public void SetGamepadOnly(bool gamepadOnly)
         {
             if (playerInput == null) return;
 
             if (gamepadOnly)
             {
-                // Switch to Gamepad scheme — keyboard WASD no longer drives the car
                 var gamepad = Gamepad.current;
                 if (gamepad != null)
-                {
                     playerInput.SwitchCurrentControlScheme("Controller", gamepad);
-                }
                 else
-                {
                     Debug.LogWarning($"[CarController] SetGamepadOnly: no gamepad found!");
-                }
             }
             else
             {
-                // Restore keyboard+mouse control scheme
                 var keyboard = Keyboard.current;
                 var mouse    = Mouse.current;
                 if (keyboard != null && mouse != null)
-                {
                     playerInput.SwitchCurrentControlScheme("Keyboard", keyboard, mouse);
-                }
             }
         }
 
@@ -458,6 +467,7 @@ namespace _Cars.Scripts
             {
                 float landingSpeed = Mathf.Abs(lastVelocity.y);
                 GetComponent<CameraShaker>()?.ShakeLand();
+                GetComponent<ControllerRumbler>()?.RumbleLand();
                 OnLand?.Invoke(landingSpeed);
             }
             wasGrounded = grounded;
@@ -532,6 +542,15 @@ namespace _Cars.Scripts
             
             if (zoomiesParticles != null)
                 zoomiesParticles.Play();
+
+            GetComponent<ControllerRumbler>()?.RumbleZoomiesStart();
+        }
+
+        /// <summary>Called by CarVisualLoader after spawning the car prefab.</summary>
+        public void SetZoomiesParticles(ParticleSystem particles)
+        {
+            zoomiesParticles = particles;
+            Debug.Log("[CarController] ZoomiesParticles rewired from spawned car prefab.");
         }
         
         public void RemoveSpeedMultiplier()
@@ -542,6 +561,8 @@ namespace _Cars.Scripts
             
             if (zoomiesParticles != null)
                 zoomiesParticles.Stop();
+
+            GetComponent<ControllerRumbler>()?.RumbleZoomiesStop();
         }
 
         // ═══════════════════════════════════════════════
@@ -568,12 +589,10 @@ namespace _Cars.Scripts
         
         public void TriggerSlip(float duration, float spinForce)
         {
-            if (isSlipping)
-            {
-                return;
-            }
+            if (isSlipping) return;
 
             GetComponent<CameraShaker>()?.ShakePoopSlip();
+            GetComponent<ControllerRumbler>()?.RumblePoopSlip();
             
             if (carRb == null)
             {

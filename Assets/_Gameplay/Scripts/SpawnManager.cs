@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using _Cars.Scripts;
 using _UI.Scripts;
 using _Player.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Reflection;
 using FMODUnity;
 
 namespace _Gameplay.Scripts 
@@ -69,7 +69,7 @@ namespace _Gameplay.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  START GAME — no spawn protection on initial spawn
+        //  START GAME
         // ═══════════════════════════════════════════════
         
         public void StartGame(int humanPlayerCount)
@@ -97,15 +97,15 @@ namespace _Gameplay.Scripts
                 string    playerTag  = GetPlayerTag(i);
                 Transform spawnPoint = GetUniqueSpawnPoint();
                 
-                // Initial spawn — no spawn protection
                 GameObject player = SpawnPlayer(playerTag, spawnPoint, playerPrefab);
-
+                
                 if (player != null)
                 {
                     RestorePlayerDevice(player, i);
+
+                    // Assign FMOD listener index — P1=0, P2=1, P3=2, P4=3
                     AssignListenerIndex(player, i - 1);
                 }
-                    
                 
                 RegisterPlayer(playerTag);
             }
@@ -130,35 +130,42 @@ namespace _Gameplay.Scripts
             if (GameplayManager.instance != null)
                 GameplayManager.instance.UpdatePlayerList(playerTag);
         }
-        
+
+        // ═══════════════════════════════════════════════
+        //  FMOD LISTENER INDEX
+        // ═══════════════════════════════════════════════
+
+        /// <summary>
+        /// Assigns a unique FMOD listener index to each player's StudioListener.
+        /// ListenerNumber has no public setter so we use reflection to set
+        /// the private backing field directly.
+        /// </summary>
         private void AssignListenerIndex(GameObject player, int listenerIndex)
         {
             StudioListener listener = player.GetComponentInChildren<StudioListener>();
 
             if (listener == null)
             {
-                Debug.LogWarning($"[{nameof(SpawnManager)}] No StudioListener found on {player.name}!");
+                Debug.LogWarning($"[SpawnManager] No StudioListener found on {player.name}!");
                 return;
             }
 
-            FieldInfo field = typeof(StudioListener).GetField(
-                "listenerNumber",
-                BindingFlags.NonPublic | BindingFlags.Instance
-            );
+            FieldInfo field = typeof(StudioListener).GetField("listenerNumber",
+                BindingFlags.NonPublic | BindingFlags.Instance);
 
             if (field != null)
             {
                 field.SetValue(listener, listenerIndex);
-                Debug.Log($"[{nameof(SpawnManager)}] Assigned FMOD listener index {listenerIndex} to {player.name}");
+                Debug.Log($"[SpawnManager] Assigned FMOD listener index {listenerIndex} to {player.name}");
             }
             else
             {
-                Debug.LogWarning($"[{nameof(SpawnManager)}] Could not find listenerNumber field on StudioListener!");
+                Debug.LogWarning($"[SpawnManager] Could not find listenerNumber field on StudioListener — listener index not set!");
             }
         }
 
         // ═══════════════════════════════════════════════
-        //  RESPAWN — spawn protection activated here
+        //  RESPAWN
         // ═══════════════════════════════════════════════
         
         public void Respawn(string playerTag)
@@ -207,9 +214,10 @@ namespace _Gameplay.Scripts
                 {
                     int playerNumber = GetPlayerNumberFromTag(playerTag);
                     RestorePlayerDevice(player, playerNumber);
+
+                    // Re-assign listener index on respawn
                     AssignListenerIndex(player, playerNumber - 1);
 
-                    // Activate spawn protection ONLY on respawn, not initial spawn
                     player.GetComponent<CarHealth>()?.ActivateSpawnProtection();
                 }
             }
@@ -235,12 +243,11 @@ namespace _Gameplay.Scripts
             
             GameObject player = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
 
-            // Set identity FIRST so loaders can read the correct tag
             SetPlayerIdentity(player, playerTag);
 
-            // Load stats — tag is correct so per-player keys work
             player.GetComponent<CarStatsLoader>()?.LoadForCurrentTag();
             player.GetComponent<WeaponStatsLoader>()?.LoadForCurrentTag();
+            player.GetComponent<CarVisualLoader>()?.LoadForCurrentTag();
             
             if (hasPlayerInput)
                 RestorePlayerInput(player, prefabInput, wasEnabled);
@@ -398,7 +405,6 @@ namespace _Gameplay.Scripts
                     playerInput.SwitchCurrentControlScheme(controlScheme, device, Mouse.current);
                 else
                     playerInput.SwitchCurrentControlScheme(controlScheme, device);
-                
             }
             catch (System.Exception e)
             {
@@ -435,24 +441,16 @@ namespace _Gameplay.Scripts
             if (shouldUseController)
             {
                 if (Gamepad.current != null)
-                {
                     playerInput.SwitchCurrentControlScheme("Controller", Gamepad.current);
-                }
                 else
-                {
                     Debug.LogWarning($"[{nameof(SpawnManager)}] No gamepad found!");
-                }
             }
             else
             {
                 if (Keyboard.current != null && Mouse.current != null)
-                {
                     playerInput.SwitchCurrentControlScheme("Keyboard", Keyboard.current, Mouse.current);
-                }
                 else
-                {
                     Debug.LogWarning($"[{nameof(SpawnManager)}] No keyboard/mouse found!");
-                }
             }
         }
 
@@ -492,8 +490,7 @@ namespace _Gameplay.Scripts
             PlayerInput instanceInput = player.GetComponent<PlayerInput>();
             if (instanceInput != null)
             {
-                // Manually assign camera so split-screen works even if Camera is on a child
-                instanceInput.camera = player.GetComponentInChildren<Camera>();
+                instanceInput.camera  = player.GetComponentInChildren<Camera>();
                 instanceInput.enabled = true;
             }
     

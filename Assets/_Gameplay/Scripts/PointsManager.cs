@@ -12,10 +12,12 @@ namespace _Gameplay.Scripts
         [SerializeField] private EndGameManager endGameManager;
 
         [Header("Scoring")]
-        [SerializeField] private int pointsPerKill = 100;
+        [SerializeField] private int pointsPerKill        = 100;
+        [SerializeField] private int pointsPerCrashKill   = 200;
+        [SerializeField] private int pointsLostOnDeath    = 100;
 
         private Dictionary<string, int>   playerScores;
-        private Dictionary<string, float> playerScoreTimestamps; // tiebreaker — who scored last first
+        private Dictionary<string, float> playerScoreTimestamps;
         private List<string>              playerTags;
 
         private const int INITIAL_SCORE = 0;
@@ -79,21 +81,49 @@ namespace _Gameplay.Scripts
         //  SCORING
         // ═══════════════════════════════════════════════
 
+        /// <summary>Normal kill — +100 points to the shooter.</summary>
         public void AddPoint(string playerTag)
         {
             if (!ValidatePlayerTag(playerTag)) return;
 
-            playerScores[playerTag]         += pointsPerKill;
-            playerScoreTimestamps[playerTag]  = Time.time;
+            playerScores[playerTag]          += pointsPerKill;
+            playerScoreTimestamps[playerTag]   = Time.time;
 
-            UpdateAllPlayerUIs(playerTag);
+            UpdateAllPlayerUIs(playerTag, pointsPerKill);
+            Debug.Log($"[PointsManager] {playerTag} scored +{pointsPerKill} (kill)!");
+        }
+
+        /// <summary>Crash kill — +200 points to the crasher.</summary>
+        public void AddCrashPoint(string playerTag)
+        {
+            if (!ValidatePlayerTag(playerTag)) return;
+
+            playerScores[playerTag]          += pointsPerCrashKill;
+            playerScoreTimestamps[playerTag]   = Time.time;
+
+            UpdateAllPlayerUIs(playerTag, pointsPerCrashKill);
+            Debug.Log($"[PointsManager] {playerTag} scored +{pointsPerCrashKill} (crash kill)!");
+        }
+
+        /// <summary>Death penalty — -100 points from the player who died.</summary>
+        public void DeductDeathPenalty(string playerTag)
+        {
+            if (!ValidatePlayerTag(playerTag)) return;
+
+            playerScores[playerTag] -= pointsLostOnDeath;
+
+            // Clamp to 0 so score can't go negative — remove this line if you want negative scores
+            // playerScores[playerTag] = Mathf.Max(0, playerScores[playerTag]);
+
+            UpdateAllPlayerUIs(playerTag, -pointsLostOnDeath);
+            Debug.Log($"[PointsManager] {playerTag} lost -{pointsLostOnDeath} (died by crash)!");
         }
 
         private bool ValidatePlayerTag(string playerTag)
         {
             if (string.IsNullOrEmpty(playerTag))
             {
-                Debug.LogWarning($"[{nameof(PointsManager)}] Cannot add point — tag is null or empty");
+                Debug.LogWarning($"[{nameof(PointsManager)}] Cannot update points — tag is null or empty");
                 return false;
             }
 
@@ -106,7 +136,7 @@ namespace _Gameplay.Scripts
             return true;
         }
 
-        private void UpdateAllPlayerUIs(string scoringPlayerTag)
+        private void UpdateAllPlayerUIs(string scoringPlayerTag, int pointsChanged)
         {
             PlayerUIManager[] allPlayerUIs = FindObjectsByType<PlayerUIManager>(FindObjectsSortMode.None);
 
@@ -118,7 +148,7 @@ namespace _Gameplay.Scripts
                 int newScore = playerScores[tag];
 
                 if (tag == scoringPlayerTag)
-                    ui.UpdateScoreWithFloatingText(newScore, pointsPerKill);
+                    ui.UpdateScoreWithFloatingText(newScore, pointsChanged);
                 else
                     ui.UpdateScore(newScore);
             }
@@ -146,7 +176,6 @@ namespace _Gameplay.Scripts
             endGameManager.DisplayResults(GetSortedScores());
         }
 
-        // Sort by score descending, tiebreak by who reached that score earliest
         private List<(string playerTag, int points)> GetSortedScores()
         {
             return playerScores

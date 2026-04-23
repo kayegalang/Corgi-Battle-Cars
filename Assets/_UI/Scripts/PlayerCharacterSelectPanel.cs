@@ -1,62 +1,70 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using _Cars.ScriptableObjects;
 using _Player.Scripts;
 using _Projectiles.ScriptableObjects;
 using TMPro;
+using _UI.Scripts;
 
 namespace _UI.Scripts
 {
-    /// <summary>
-    /// One instance per player in multiplayer character select.
-    /// Handles input from that player's specific device.
-    /// </summary>
     public class PlayerCharacterSelectPanel : MonoBehaviour
     {
         [Header("Car Selection")]
+        [SerializeField] private CarStats[] carTypes;
         [SerializeField] private TextMeshProUGUI carNameText;
 
         [Header("Weapon Selection")]
+        [SerializeField] private ProjectileObject[] weaponTypes;
         [SerializeField] private TextMeshProUGUI weaponNameText;
 
-        [Header("Stats Panel")]
-        [SerializeField] private TextMeshProUGUI  statsHeaderText;
-        [SerializeField] private TextMeshProUGUI  statLabel1;
-        [SerializeField] private TextMeshProUGUI  statLabel2;
-        [SerializeField] private TextMeshProUGUI  statLabel3;
-        [SerializeField] private TextMeshProUGUI  statLabel4;
-        [SerializeField] private Image statBar1;
-        [SerializeField] private Image statBar2;
-        [SerializeField] private Image statBar3;
-        [SerializeField] private Image statBar4;
+        [Header("Car Stats (Sprites)")]
+        [SerializeField] private StatUI jump;
+        [SerializeField] private StatUI acceleration;
+        [SerializeField] private StatUI health;
+        [SerializeField] private StatUI speed;
 
-        [Header("Status")]
-        [SerializeField] private TextMeshProUGUI  playerLabelText;
-        [SerializeField] private TextMeshProUGUI  statusText;
-        [SerializeField] private GameObject readyOverlay;
+        [Header("Weapon Stats (Sprites)")]
+        [SerializeField] private StatUI damage;
+        [SerializeField] private StatUI cooldown;
+        [SerializeField] private StatUI fireRate;
 
-        [Header("Selection Highlights")]
-        [SerializeField] private GameObject weaponHighlight;
-        [SerializeField] private GameObject carHighlight;
+        [Header("Instruction & Selection Text")]
+        [SerializeField] private TextMeshProUGUI instructionText;
+        [SerializeField] private TextMeshProUGUI selectionNameText;
+
+        [Header("Arrow Buttons — hidden when using controller")]
+        [SerializeField] private GameObject[] arrowButtons;
 
         [Header("Buttons — hidden when using controller")]
         [SerializeField] private GameObject backButton;
         [SerializeField] private GameObject mapSelectionButton;
 
+        [Header("Selection Highlights")]
+        [SerializeField] private GameObject weaponHighlight;
+        [SerializeField] private GameObject carHighlight;
+
+        [Header("Status")]
+        [SerializeField] private TextMeshProUGUI playerLabelText;
+        [SerializeField] private GameObject      readyOverlay;
+
+        [Header("Preview")]
+        [SerializeField] private CharacterSelectPreview preview;
+
+        private const string KEY_CAR    = "SelectedCarTypeIndex";
+        private const string KEY_WEAPON = "SelectedWeaponTypeIndex";
+
         // ═══════════════════════════════════════════════
         //  RUNTIME STATE
         // ═══════════════════════════════════════════════
 
-        private CarStats[]         carTypes;
-        private ProjectileObject[] weaponTypes;
-        private int                playerIndex;
-        private string             playerTag;
-        private PlayerInput        playerInput;
-        private Gamepad            assignedGamepad;
-        private bool               isKeyboard;
-        private bool               isPlayerOne;
+        private int         playerIndex;
+        private string      playerTag;
+        private PlayerInput playerInput;
+        private Gamepad     assignedGamepad;
+        private bool        isKeyboard;
+        private bool        isPlayerOne;
 
         private int carIndex    = 0;
         private int weaponIndex = 0;
@@ -64,24 +72,20 @@ namespace _UI.Scripts
         private enum StatsMode { Weapon, Car }
         private StatsMode statsMode = StatsMode.Weapon;
 
-        private enum Step { SelectingWeapon, SelectingCar, Ready }
-        private Step currentStep = Step.SelectingWeapon;
+        private enum ControllerStep { SelectingWeapon, SelectingCar, Ready }
+        private ControllerStep controllerStep = ControllerStep.SelectingWeapon;
 
-        private bool isReady       = false;
-        private bool inputEnabled  = false;
-        private bool stickConsumed = false;
+        private bool isControllerMode = false;
+        private bool isReady          = false;
+        private bool inputEnabled     = false;
+        private bool stickConsumed    = false;
         private const float STICK_THRESHOLD = 0.5f;
 
         public bool IsReady => isReady;
 
         public System.Action<int> OnPlayerReady;
         public System.Action<int> OnPlayerUnready;
-
-        /// <summary>
-        /// Fired when PlayerOne presses back on the first step (SelectingWeapon).
-        /// MultiplayerCharacterSelectManager listens to this to go back to join screen.
-        /// </summary>
-        public System.Action OnPlayerOneBack;
+        public System.Action      OnPlayerOneBack;
 
         // ═══════════════════════════════════════════════
         //  INITIALIZATION
@@ -105,31 +109,40 @@ namespace _UI.Scripts
             assignedGamepad = null;
 
             if (!isKeyboard && input != null)
-            {
                 foreach (var device in input.devices)
-                {
-                    if (device is Gamepad gp)
-                    {
-                        assignedGamepad = gp;
-                        break;
-                    }
-                }
-            }
+                    if (device is Gamepad gp) { assignedGamepad = gp; break; }
 
-            carIndex    = Mathf.Clamp(PlayerPrefs.GetInt(CarKey(),    0), 0, carTypes.Length    - 1);
-            weaponIndex = Mathf.Clamp(PlayerPrefs.GetInt(WeaponKey(), 0), 0, weaponTypes.Length - 1);
+            carIndex    = Mathf.Clamp(PlayerPrefs.GetInt(KEY_CAR,    0), 0, carTypes.Length    - 1);
+            weaponIndex = Mathf.Clamp(PlayerPrefs.GetInt(KEY_WEAPON, 0), 0, weaponTypes.Length - 1);
+
+            // Find preview on this GameObject or children if not assigned in Inspector
+            if (preview == null)
+                preview = GetComponentInChildren<CharacterSelectPreview>();
 
             if (playerLabelText != null)
                 playerLabelText.text = $"PLAYER {playerIdx + 1}";
 
-            statsMode   = StatsMode.Weapon;
-            currentStep = Step.SelectingWeapon;
-            isReady     = false;
+            statsMode      = StatsMode.Weapon;
+            controllerStep = ControllerStep.SelectingWeapon;
+            isReady        = false;
+            isControllerMode = !isKeyboard;
 
-            if (backButton         != null) backButton.SetActive(isKeyboard);
-            if (mapSelectionButton != null) mapSelectionButton.SetActive(isKeyboard);
+            bool showMouseButtons = isKeyboard;
+            if (backButton         != null) backButton.SetActive(showMouseButtons);
+            if (mapSelectionButton != null) mapSelectionButton.SetActive(showMouseButtons);
+            if (arrowButtons       != null)
+                foreach (var btn in arrowButtons)
+                    if (btn != null) btn.SetActive(showMouseButtons);
 
             RefreshAll();
+
+            // Pass arrays and player index to preview
+            if (preview != null)
+            {
+                preview.SetAssets(carTypes, weaponTypes);
+                preview.SetPlayerIndex(playerIdx);
+                preview.UpdatePreview(carIndex, weaponIndex);
+            }
 
             if (readyOverlay != null) readyOverlay.SetActive(false);
 
@@ -140,16 +153,12 @@ namespace _UI.Scripts
         {
             if (assignedGamepad != null)
             {
-                while (assignedGamepad.buttonSouth.isPressed ||
-                       assignedGamepad.buttonEast.isPressed  ||
-                       assignedGamepad.buttonNorth.isPressed ||
-                       assignedGamepad.buttonWest.isPressed)
+                while (assignedGamepad.buttonSouth.isPressed || assignedGamepad.buttonEast.isPressed  ||
+                       assignedGamepad.buttonNorth.isPressed || assignedGamepad.buttonWest.isPressed)
                     yield return null;
             }
-
             yield return null;
             inputEnabled = true;
-            UpdateStatusText();
         }
 
         // ═══════════════════════════════════════════════
@@ -159,7 +168,6 @@ namespace _UI.Scripts
         private void Update()
         {
             if (!inputEnabled) return;
-
             if (isKeyboard) HandleKeyboardInput();
             else            HandleGamepadInput();
         }
@@ -171,21 +179,18 @@ namespace _UI.Scripts
         private void HandleKeyboardInput()
         {
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
-                HandleConfirm();
-
+                HandleSouthPressed();
             if (Input.GetKeyDown(KeyCode.Escape))
-                HandleBack();
-
+                HandleEastPressed();
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
-                if (currentStep == Step.SelectingWeapon) WeaponPrev();
-                else if (currentStep == Step.SelectingCar) CarPrev();
+                if (controllerStep == ControllerStep.SelectingWeapon) WeaponPrev();
+                else if (controllerStep == ControllerStep.SelectingCar) CarPrev();
             }
-
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
-                if (currentStep == Step.SelectingWeapon) WeaponNext();
-                else if (currentStep == Step.SelectingCar) CarNext();
+                if (controllerStep == ControllerStep.SelectingWeapon) WeaponNext();
+                else if (controllerStep == ControllerStep.SelectingCar) CarNext();
             }
         }
 
@@ -195,7 +200,8 @@ namespace _UI.Scripts
 
         private void HandleGamepadInput()
         {
-            Gamepad pad = assignedGamepad ?? Gamepad.current;
+            // Never fall back to Gamepad.current — only respond to the assigned device
+            Gamepad pad = assignedGamepad;
             if (pad == null) return;
 
             float x = pad.leftStick.x.ReadValue();
@@ -204,84 +210,112 @@ namespace _UI.Scripts
                 if (!stickConsumed)
                 {
                     stickConsumed = true;
-                    if (currentStep == Step.SelectingWeapon)
-                    {
-                        if (x > 0) WeaponNext(); else WeaponPrev();
-                    }
-                    else if (currentStep == Step.SelectingCar)
-                    {
-                        if (x > 0) CarNext(); else CarPrev();
-                    }
+                    if (controllerStep == ControllerStep.SelectingWeapon)
+                    { if (x > 0) WeaponNext(); else WeaponPrev(); }
+                    else if (controllerStep == ControllerStep.SelectingCar)
+                    { if (x > 0) CarNext(); else CarPrev(); }
                 }
             }
-            else
-            {
-                stickConsumed = false;
-            }
+            else stickConsumed = false;
 
-            if (pad.buttonSouth.wasPressedThisFrame) HandleConfirm();
-            if (pad.buttonEast.wasPressedThisFrame)  HandleBack();
+            if (pad.buttonSouth.wasPressedThisFrame) HandleSouthPressed();
+            if (pad.buttonEast.wasPressedThisFrame)  HandleEastPressed();
         }
 
         // ═══════════════════════════════════════════════
-        //  CONFIRM / BACK
+        //  SOUTH / EAST
         // ═══════════════════════════════════════════════
 
-        private void HandleConfirm()
+        private void HandleSouthPressed()
         {
-            switch (currentStep)
+            switch (controllerStep)
             {
-                case Step.SelectingWeapon:
-                    currentStep = Step.SelectingCar;
-                    statsMode   = StatsMode.Car;
+                case ControllerStep.SelectingWeapon:
+                    controllerStep = ControllerStep.SelectingCar;
+                    statsMode      = StatsMode.Car;
                     RefreshStats();
                     break;
-
-                case Step.SelectingCar:
-                    currentStep = Step.Ready;
-                    isReady     = true;
+                case ControllerStep.SelectingCar:
+                    controllerStep = ControllerStep.Ready;
+                    isReady        = true;
                     Save();
-                    ShowReady();
+                    if (readyOverlay != null) readyOverlay.SetActive(true);
                     OnPlayerReady?.Invoke(playerIndex);
                     break;
             }
-
             UpdateHighlights();
-            UpdateStatusText();
+            UpdateInstructionText();
         }
 
-        private void HandleBack()
+        private void HandleEastPressed()
         {
-            switch (currentStep)
+            switch (controllerStep)
             {
-                case Step.SelectingWeapon:
-                    // Only PlayerOne can go back to the previous screen
-                    if (isPlayerOne)
-                        OnPlayerOneBack?.Invoke();
-                    break;
-
-                case Step.SelectingCar:
-                    currentStep = Step.SelectingWeapon;
-                    statsMode   = StatsMode.Weapon;
+                case ControllerStep.SelectingCar:
+                    controllerStep = ControllerStep.SelectingWeapon;
+                    statsMode      = StatsMode.Weapon;
                     RefreshStats();
                     break;
-
-                case Step.Ready:
-                    currentStep = Step.SelectingCar;
-                    statsMode   = StatsMode.Car;
-                    isReady     = false;
-                    HideReady();
+                case ControllerStep.SelectingWeapon:
+                    if (isPlayerOne) OnPlayerOneBack?.Invoke();
+                    break;
+                case ControllerStep.Ready:
+                    controllerStep = ControllerStep.SelectingCar;
+                    statsMode      = StatsMode.Car;
+                    isReady        = false;
+                    if (readyOverlay != null) readyOverlay.SetActive(false);
                     RefreshStats();
                     OnPlayerUnready?.Invoke(playerIndex);
                     break;
             }
-
             UpdateHighlights();
-            UpdateStatusText();
+            UpdateInstructionText();
         }
 
         // ═══════════════════════════════════════════════
-        //  CAR / WEAPON NAVIGATION
+        //  INSTRUCTION TEXT — matches CharacterSelectUI
+        // ═══════════════════════════════════════════════
+
+        private void UpdateInstructionText()
+        {
+            if (instructionText != null)
+            {
+                switch (controllerStep)
+                {
+                    case ControllerStep.SelectingWeapon:
+                        instructionText.text = "CHOOSE WEAPON";
+                        break;
+                    case ControllerStep.SelectingCar:
+                        instructionText.text = "CHOOSE CAR";
+                        break;
+                    case ControllerStep.Ready:
+                        instructionText.text = "READY!";
+                        break;
+                }
+            }
+
+            if (selectionNameText != null)
+            {
+                selectionNameText.text = controllerStep == ControllerStep.SelectingWeapon
+                    ? weaponTypes[weaponIndex].ProjectileName
+                    : carTypes[carIndex].CarName;
+            }
+        }
+
+        // ═══════════════════════════════════════════════
+        //  HIGHLIGHTS — matches CharacterSelectUI
+        // ═══════════════════════════════════════════════
+
+        private void UpdateHighlights()
+        {
+            if (weaponHighlight != null)
+                weaponHighlight.SetActive(isControllerMode && controllerStep == ControllerStep.SelectingWeapon);
+            if (carHighlight != null)
+                carHighlight.SetActive(isControllerMode && controllerStep == ControllerStep.SelectingCar);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  CAR NAVIGATION
         // ═══════════════════════════════════════════════
 
         public void CarNext()
@@ -291,6 +325,8 @@ namespace _UI.Scripts
             RefreshCarName();
             RefreshStats();
             Save();
+            preview?.UpdatePreview(carIndex, weaponIndex);
+            UpdateInstructionText();
         }
 
         public void CarPrev()
@@ -300,7 +336,13 @@ namespace _UI.Scripts
             RefreshCarName();
             RefreshStats();
             Save();
+            preview?.UpdatePreview(carIndex, weaponIndex);
+            UpdateInstructionText();
         }
+
+        // ═══════════════════════════════════════════════
+        //  WEAPON NAVIGATION
+        // ═══════════════════════════════════════════════
 
         public void WeaponNext()
         {
@@ -309,6 +351,8 @@ namespace _UI.Scripts
             RefreshWeaponName();
             RefreshStats();
             Save();
+            preview?.UpdatePreview(carIndex, weaponIndex);
+            UpdateInstructionText();
         }
 
         public void WeaponPrev()
@@ -318,55 +362,8 @@ namespace _UI.Scripts
             RefreshWeaponName();
             RefreshStats();
             Save();
-        }
-
-        // ═══════════════════════════════════════════════
-        //  READY UI
-        // ═══════════════════════════════════════════════
-
-        private void ShowReady()
-        {
-            if (readyOverlay != null) readyOverlay.SetActive(true);
-        }
-
-        private void HideReady()
-        {
-            if (readyOverlay != null) readyOverlay.SetActive(false);
-        }
-
-        private void UpdateStatusText()
-        {
-            if (statusText == null) return;
-
-            switch (currentStep)
-            {
-                case Step.SelectingWeapon:
-                    statusText.text = isKeyboard
-                        ? "← → Choose Weapon   Enter: Confirm   Esc: Back"
-                        : "← → Choose Weapon   A: Confirm" + (isPlayerOne ? "   B: Back" : "");
-                    break;
-                case Step.SelectingCar:
-                    statusText.text = isKeyboard
-                        ? "← → Choose Car   Enter: Ready   Esc: Back"
-                        : "← → Choose Car   A: Ready   B: Back";
-                    break;
-                case Step.Ready:
-                    statusText.text = isKeyboard ? "READY!   Esc: Undo" : "READY!   B: Undo";
-                    break;
-            }
-        }
-
-        // ═══════════════════════════════════════════════
-        //  HIGHLIGHTS
-        // ═══════════════════════════════════════════════
-
-        private void UpdateHighlights()
-        {
-            if (weaponHighlight != null)
-                weaponHighlight.SetActive(currentStep == Step.SelectingWeapon);
-
-            if (carHighlight != null)
-                carHighlight.SetActive(currentStep == Step.SelectingCar);
+            preview?.UpdatePreview(carIndex, weaponIndex);
+            UpdateInstructionText();
         }
 
         // ═══════════════════════════════════════════════
@@ -379,7 +376,8 @@ namespace _UI.Scripts
             RefreshWeaponName();
             RefreshStats();
             UpdateHighlights();
-            UpdateStatusText();
+            UpdateInstructionText();
+            preview?.UpdatePreview(carIndex, weaponIndex);
         }
 
         private void RefreshCarName()
@@ -403,43 +401,29 @@ namespace _UI.Scripts
         private void ApplyCarStats()
         {
             var s = carTypes[carIndex];
-            if (statsHeaderText != null) statsHeaderText.text = $"{s.CarName} Stats";
-            SetBar(statLabel1, statBar1, "SPD",   s.SpeedStat        / 100f);
-            SetBar(statLabel2, statBar2, "ACCEL", s.AccelerationStat / 100f);
-            SetBar(statLabel3, statBar3, "JUMP",  s.JumpForceStat    / 100f);
-            SetBar(statLabel4, statBar4, "HP",    s.HealthStat       / 100f);
+            jump.Set(s.JumpForceStat        / 100f);
+            acceleration.Set(s.AccelerationStat / 100f);
+            health.Set(s.HealthStat         / 100f);
+            speed.Set(s.SpeedStat           / 100f);
         }
 
         private void ApplyWeaponStats()
         {
             var w = weaponTypes[weaponIndex];
-            if (statsHeaderText != null) statsHeaderText.text = $"{w.ProjectileName} Stats";
-
-            SetBar(statLabel1, statBar1, "DMG",  w.DamageStat   / 100f);
-            SetBar(statLabel2, statBar2, "RATE", w.FireRateStat  / 100f);
-            SetBar(statLabel3, statBar3, "COOL", w.CooldownStat  / 100f);
-            SetBar(statLabel4, statBar4, "RCOL", w.RecoilStat    / 100f);
-        }
-
-        private void SetBar(TextMeshProUGUI label, Image bar, string labelText, float fill)
-        {
-            if (label != null) label.text = labelText;
-            if (bar   != null) bar.fillAmount = Mathf.Clamp01(fill);
+            damage.Set(w.DamageStat    / 100f);
+            cooldown.Set(w.CooldownStat / 100f);
+            fireRate.Set(w.FireRateStat / 100f);
         }
 
         // ═══════════════════════════════════════════════
-        //  SAVE
+        //  SAVE — same keys as CharacterSelectUI
         // ═══════════════════════════════════════════════
 
         private void Save()
         {
-            PlayerPrefs.SetInt(CarKey(),    carIndex);
-            PlayerPrefs.SetInt(WeaponKey(), weaponIndex);
-            PlayerPrefs.Save();
+            PlayerLoadout.SetCar(playerIndex,    carTypes[carIndex]);
+            PlayerLoadout.SetWeapon(playerIndex, weaponTypes[weaponIndex]);
         }
-
-        private string CarKey()    => $"SelectedCarTypeIndex_{playerTag}";
-        private string WeaponKey() => $"SelectedWeaponTypeIndex_{playerTag}";
 
         // ═══════════════════════════════════════════════
         //  GETTERS

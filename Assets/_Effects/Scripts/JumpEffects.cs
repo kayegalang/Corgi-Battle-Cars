@@ -31,26 +31,35 @@ public class JumpEffects : MonoBehaviour
 
     private void Awake()
     {
+        // If not assigned in Inspector, search up to the player root
+        if (carController == null)
+            carController = transform.root.GetComponentInChildren<CarController>();
+
+        // Bots don't have CarController — skip silently
+        if (carController == null) return;
+
         carController.OnLand += OnLand;
         carController.OnJump += OnJump;
     }
 
     private void OnDestroy()
     {
+        if (carController == null) return;
+
         carController.OnLand -= OnLand;
         carController.OnJump -= OnJump;
     }
 
     private void OnLand(float landingSpeed)
     {
-        float t = Mathf.Clamp01(landingSpeed / landingSpeedReference);
+        float t      = Mathf.Clamp01(landingSpeed / landingSpeedReference);
         float squash = Mathf.Lerp(0, landSettings.squashAmount, t);
 
         SquashSettings scaled = new SquashSettings
         {
             squashAmount = squash,
-            duration = landSettings.duration,
-            ease = landSettings.ease,
+            duration     = landSettings.duration,
+            ease         = landSettings.ease,
         };
         PlaySquash(scaled);
     }
@@ -64,7 +73,10 @@ public class JumpEffects : MonoBehaviour
     {
         currentTween?.Kill();
 
-        Vector3 squashScale = new Vector3(1 + settings.squashAmount, 1 - settings.squashAmount, 1);
+        Vector3 squashScale = new Vector3(
+            1 + settings.squashAmount,
+            1 - settings.squashAmount,
+            1);
 
         transform.localScale = squashScale;
         currentTween = transform.DOScale(Vector3.one, settings.duration)

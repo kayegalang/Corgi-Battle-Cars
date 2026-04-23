@@ -6,13 +6,10 @@ using _Cars.ScriptableObjects;
 using _Player.Scripts;
 using _Projectiles.ScriptableObjects;
 using TMPro;
+using _UI.Scripts;
 
 public class CharacterSelectUI : MonoBehaviour
 {
-    // ═══════════════════════════════════════════════
-    //  INSPECTOR REFERENCES
-    // ═══════════════════════════════════════════════
-
     [Header("Car Selection")]
     [SerializeField] private CarStats[] carTypes;
     [SerializeField] private TextMeshProUGUI carNameText;
@@ -32,6 +29,13 @@ public class CharacterSelectUI : MonoBehaviour
     [SerializeField] private StatUI cooldown;
     [SerializeField] private StatUI fireRate;
 
+    [Header("Instruction & Selection Text")]
+    [SerializeField] private TextMeshProUGUI instructionText;
+    [SerializeField] private TextMeshProUGUI selectionNameText;
+
+    [Header("Arrow Buttons — hidden when using controller")]
+    [SerializeField] private GameObject[] arrowButtons;
+
     [Header("Buttons — hidden when using controller")]
     [SerializeField] private GameObject backButton;
     [SerializeField] private GameObject mapSelectionButton;
@@ -45,16 +49,8 @@ public class CharacterSelectUI : MonoBehaviour
     [SerializeField] private GameObject previousPanel;
     [SerializeField] private GameObject characterSelectionPanel;
 
-    // ═══════════════════════════════════════════════
-    //  PLAYER PREFS KEYS
-    // ═══════════════════════════════════════════════
-
-    private const string KEY_CAR    = "SelectedCarTypeIndex";
-    private const string KEY_WEAPON = "SelectedWeaponTypeIndex";
-
-    // ═══════════════════════════════════════════════
-    //  STATE
-    // ═══════════════════════════════════════════════
+    [Header("Preview")]
+    [SerializeField] private CharacterSelectPreview preview;
 
     private int carIndex;
     private int weaponIndex;
@@ -70,27 +66,32 @@ public class CharacterSelectUI : MonoBehaviour
     private const float STICK_THRESHOLD = 0.5f;
 
     // ═══════════════════════════════════════════════
-    //  UNITY LIFECYCLE
+    //  LIFECYCLE
     // ═══════════════════════════════════════════════
 
     private void OnEnable()
     {
-        carIndex       = Mathf.Clamp(PlayerPrefs.GetInt(KEY_CAR,    0), 0, carTypes.Length    - 1);
-        weaponIndex    = Mathf.Clamp(PlayerPrefs.GetInt(KEY_WEAPON, 0), 0, weaponTypes.Length - 1);
+        carIndex       = 0;
+        weaponIndex    = 0;
         statsMode      = StatsMode.Weapon;
         controllerStep = ControllerStep.SelectingWeapon;
         stickConsumed  = false;
         isControllerMode = false;
 
-        // ── Hide buttons immediately before the player sees them ──
-        // Only trust PlayerOneInputTracker — never assume controller just because one is connected
         bool controllerConnected =
-            PlayerOneInputTracker.instance != null && PlayerOneInputTracker.instance.IsPlayerOneUsingController();
+            PlayerOneInputTracker.instance != null &&
+            PlayerOneInputTracker.instance.IsPlayerOneUsingController();
 
         if (backButton         != null) backButton.SetActive(!controllerConnected);
         if (mapSelectionButton != null) mapSelectionButton.SetActive(!controllerConnected);
 
+        if (arrowButtons != null)
+            foreach (var btn in arrowButtons)
+                if (btn != null) btn.SetActive(!controllerConnected);
+
+        Save();
         RefreshAll();
+        preview?.UpdatePreview(carIndex, weaponIndex);
         StartCoroutine(EnableControllerWhenButtonsReleased());
     }
 
@@ -120,11 +121,8 @@ public class CharacterSelectUI : MonoBehaviour
 
     private void DetectInputMode()
     {
-        // Only trust PlayerOneInputTracker — what the player chose on the start screen
-        // Never fall back to Gamepad.current, that would override keyboard players who have a controller connected
         bool usingController = PlayerOneInputTracker.instance != null
             && PlayerOneInputTracker.instance.IsPlayerOneUsingController();
-        
         SetControllerMode(usingController);
     }
 
@@ -135,7 +133,12 @@ public class CharacterSelectUI : MonoBehaviour
         if (backButton         != null) backButton.SetActive(!controller);
         if (mapSelectionButton != null) mapSelectionButton.SetActive(!controller);
 
+        if (arrowButtons != null)
+            foreach (var btn in arrowButtons)
+                if (btn != null) btn.SetActive(!controller);
+
         UpdateHighlights();
+        UpdateInstructionText();
     }
 
     // ═══════════════════════════════════════════════
@@ -155,33 +158,23 @@ public class CharacterSelectUI : MonoBehaviour
     private void HandleStick(Gamepad pad)
     {
         float x = pad.leftStick.x.ReadValue();
-
         if (Mathf.Abs(x) > STICK_THRESHOLD)
         {
             if (!stickConsumed)
             {
                 stickConsumed = true;
-
                 if (controllerStep == ControllerStep.SelectingWeapon)
-                {
-                    if (x > 0) WeaponNext(); else WeaponPrev();
-                }
+                { if (x > 0) WeaponNext(); else WeaponPrev(); }
                 else if (controllerStep == ControllerStep.SelectingCar)
-                {
-                    if (x > 0) CarNext(); else CarPrev();
-                }
+                { if (x > 0) CarNext(); else CarPrev(); }
             }
         }
-        else
-        {
-            stickConsumed = false;
-        }
+        else stickConsumed = false;
     }
 
     private void HandleSouth(Gamepad pad)
     {
         if (!pad.buttonSouth.wasPressedThisFrame) return;
-
         switch (controllerStep)
         {
             case ControllerStep.SelectingWeapon:
@@ -189,21 +182,19 @@ public class CharacterSelectUI : MonoBehaviour
                 statsMode      = StatsMode.Car;
                 RefreshStats();
                 break;
-
             case ControllerStep.SelectingCar:
                 controllerStep = ControllerStep.Ready;
                 Save();
                 AdvanceToMapSelection();
                 break;
         }
-
         UpdateHighlights();
+        UpdateInstructionText();
     }
 
     private void HandleEast(Gamepad pad)
     {
         if (!pad.buttonEast.wasPressedThisFrame) return;
-
         switch (controllerStep)
         {
             case ControllerStep.SelectingCar:
@@ -211,13 +202,46 @@ public class CharacterSelectUI : MonoBehaviour
                 statsMode      = StatsMode.Weapon;
                 RefreshStats();
                 break;
-
             case ControllerStep.SelectingWeapon:
                 GoBack();
                 break;
         }
-
         UpdateHighlights();
+        UpdateInstructionText();
+    }
+
+    // ═══════════════════════════════════════════════
+    //  INSTRUCTION TEXT
+    // ═══════════════════════════════════════════════
+
+    private void UpdateInstructionText()
+    {
+        if (instructionText != null)
+        {
+            switch (controllerStep)
+            {
+                case ControllerStep.SelectingWeapon:
+                    instructionText.text = isControllerMode
+                        ? "← → CHOOSE WEAPON   A: Confirm   B: Back"
+                        : "← → CHOOSE WEAPON";
+                    break;
+                case ControllerStep.SelectingCar:
+                    instructionText.text = isControllerMode
+                        ? "← → CHOOSE CAR   A: Confirm   B: Back"
+                        : "← → CHOOSE CAR";
+                    break;
+                case ControllerStep.Ready:
+                    instructionText.text = isControllerMode ? "READY!   B: Undo" : "READY!";
+                    break;
+            }
+        }
+
+        if (selectionNameText != null)
+        {
+            selectionNameText.text = controllerStep == ControllerStep.SelectingWeapon
+                ? weaponTypes[weaponIndex].ProjectileName
+                : carTypes[carIndex].CarName;
+        }
     }
 
     // ═══════════════════════════════════════════════
@@ -228,13 +252,12 @@ public class CharacterSelectUI : MonoBehaviour
     {
         if (weaponHighlight != null)
             weaponHighlight.SetActive(isControllerMode && controllerStep == ControllerStep.SelectingWeapon);
-
         if (carHighlight != null)
             carHighlight.SetActive(isControllerMode && controllerStep == ControllerStep.SelectingCar);
     }
 
     // ═══════════════════════════════════════════════
-    //  CAR NAVIGATION
+    //  NAVIGATION
     // ═══════════════════════════════════════════════
 
     public void CarNext()
@@ -244,6 +267,8 @@ public class CharacterSelectUI : MonoBehaviour
         RefreshCarName();
         RefreshStats();
         Save();
+        preview?.UpdatePreview(carIndex, weaponIndex);
+        UpdateInstructionText();
     }
 
     public void CarPrev()
@@ -253,11 +278,9 @@ public class CharacterSelectUI : MonoBehaviour
         RefreshCarName();
         RefreshStats();
         Save();
+        preview?.UpdatePreview(carIndex, weaponIndex);
+        UpdateInstructionText();
     }
-
-    // ═══════════════════════════════════════════════
-    //  WEAPON NAVIGATION
-    // ═══════════════════════════════════════════════
 
     public void WeaponNext()
     {
@@ -266,6 +289,8 @@ public class CharacterSelectUI : MonoBehaviour
         RefreshWeaponName();
         RefreshStats();
         Save();
+        preview?.UpdatePreview(carIndex, weaponIndex);
+        UpdateInstructionText();
     }
 
     public void WeaponPrev()
@@ -275,24 +300,17 @@ public class CharacterSelectUI : MonoBehaviour
         RefreshWeaponName();
         RefreshStats();
         Save();
+        preview?.UpdatePreview(carIndex, weaponIndex);
+        UpdateInstructionText();
     }
-
-    // ═══════════════════════════════════════════════
-    //  NAVIGATION
-    // ═══════════════════════════════════════════════
 
     public void AdvanceToMapSelection()
     {
         Save();
-
         if (mapSelectionPanel != null)
         {
             mapSelectionPanel.SetActive(true);
             gameObject.SetActive(false);
-        }
-        else
-        {
-            Debug.LogWarning("[CharacterSelectUI] mapSelectionPanel not assigned!");
         }
     }
 
@@ -302,7 +320,8 @@ public class CharacterSelectUI : MonoBehaviour
         {
             previousPanel.SetActive(true);
             gameObject.SetActive(false);
-            characterSelectionPanel.SetActive(false);
+            if (characterSelectionPanel != null)
+                characterSelectionPanel.SetActive(false);
         }
         else
         {
@@ -320,6 +339,7 @@ public class CharacterSelectUI : MonoBehaviour
         RefreshWeaponName();
         RefreshStats();
         UpdateHighlights();
+        UpdateInstructionText();
     }
 
     private void RefreshCarName()
@@ -343,41 +363,32 @@ public class CharacterSelectUI : MonoBehaviour
     private void ApplyCarStats()
     {
         var s = carTypes[carIndex];
-
-        jump.Set(s.JumpForceStat / 100f);
+        jump.Set(s.JumpForceStat        / 100f);
         acceleration.Set(s.AccelerationStat / 100f);
-        health.Set(s.HealthStat / 100f);
-        speed.Set(s.SpeedStat / 100f);
+        health.Set(s.HealthStat         / 100f);
+        speed.Set(s.SpeedStat           / 100f);
     }
 
     private void ApplyWeaponStats()
     {
         var w = weaponTypes[weaponIndex];
-
-        damage.Set(w.DamageStat / 100f);
+        damage.Set(w.DamageStat    / 100f);
         cooldown.Set(w.CooldownStat / 100f);
         fireRate.Set(w.FireRateStat / 100f);
     }
 
-    private void SetBar(TextMeshProUGUI label, Image bar, string labelText, float fill)
-    {
-        if (label != null) label.text = labelText;
-        if (bar   != null) bar.fillAmount = Mathf.Clamp01(fill);
-    }
-
     // ═══════════════════════════════════════════════
-    //  SAVE
+    //  SAVE — writes directly to PlayerLoadout, no PlayerPrefs
     // ═══════════════════════════════════════════════
 
     private void Save()
     {
-        PlayerPrefs.SetInt(KEY_CAR,    carIndex);
-        PlayerPrefs.SetInt(KEY_WEAPON, weaponIndex);
-        PlayerPrefs.Save();
+        PlayerLoadout.SetCar(0,    carTypes[carIndex]);
+        PlayerLoadout.SetWeapon(0, weaponTypes[weaponIndex]);
     }
 
     // ═══════════════════════════════════════════════
-    //  PUBLIC GETTERS
+    //  GETTERS
     // ═══════════════════════════════════════════════
 
     public int              GetSelectedCarIndex()    => carIndex;
