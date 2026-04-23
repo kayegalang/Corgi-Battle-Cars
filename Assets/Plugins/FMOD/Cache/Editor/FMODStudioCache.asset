@@ -12,33 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d32cf7c32a3ed8347bac48ef5ed56d82, type: 3}
   m_Name: FMODStudioCache
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EventCache
-  EditorBanks:
-  - {fileID: 8287879550460208350}
+  EditorBanks: []
   EditorEvents: []
   EditorParameters: []
   MasterBanks: []
-  StringsBanks:
-  - {fileID: 8287879550460208350}
+  StringsBanks: []
   cacheVersion: 131858
-  cacheTime: 639123929128422303
+  cacheTime: 0
   SerializableEventsDict: []
---- !u!114 &8287879550460208350
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Master.strings.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: FMOD/Desktop/Master.strings.bank
-  Name: Master.strings
-  StudioPath: bank:/Master.strings
-  lastModified: 639123929128422303
-  FileSizes:
-  - Name: 
-    Value: 820
-  Exists: 1
