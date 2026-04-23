@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,51 +7,39 @@ namespace _UI.Scripts
     public class CooldownBarUI : MonoBehaviour
     {
         [Header("Cooldown Sprites")]
-        [Tooltip("0 = full (ready), 5 = empty (blocked)")]
-        [SerializeField] private Sprite[] cooldownSprites = new Sprite[6];
+        [SerializeField] private Sprite[] cooldownSprites;
 
         [Header("UI References")]
         [SerializeField] private Image cooldownImage;
 
-        [Header("Background Pulse")]
-        [SerializeField] private Image backgroundImage;
-        [SerializeField] private float pulseSpeed = 6f;
+        [Header("Flash Overlay")]
+        [SerializeField] private GameObject backgroundFlash;
+
+        [Header("Flash Settings")]
+        [SerializeField] private float flashInterval = 0.3f;
 
         private float currentCooldown;
-        private float maxCooldown;
+
+        // Overheat state
+        private bool isOverheated;
+        private Coroutine pulseRoutine;
 
         private void Start()
         {
             ValidateComponents();
+
             SetCooldown(0, 1);
+
+            if (backgroundFlash != null)
+                backgroundFlash.SetActive(false);
         }
 
-        private void Update()
-        {
-            if (backgroundImage == null) return;
-
-            bool isOnCooldown = currentCooldown > 0f;
-
-            if (isOnCooldown)
-            {
-                float pulse = (Mathf.Sin(Time.time * pulseSpeed) + 1f) * 0.5f;
-
-                // stronger red pulse while blocked
-                Color baseColor = new Color(1f, 0f, 0f, 0.25f);
-                Color peakColor = new Color(1f, 0f, 0f, 0.65f);
-
-                backgroundImage.color = Color.Lerp(baseColor, peakColor, pulse);
-            }
-            else
-            {
-                backgroundImage.color = Color.clear;
-            }
-        }
-
+        // =========================
+        // COOLANT DISPLAY
+        // =========================
         public void UpdateCooldown(float current, float max)
         {
             currentCooldown = current;
-            maxCooldown = max;
 
             if (cooldownImage == null || cooldownSprites == null || cooldownSprites.Length == 0)
                 return;
@@ -63,18 +52,71 @@ namespace _UI.Scripts
             cooldownImage.sprite = cooldownSprites[index];
         }
 
-        public void SetCooldown(float currentCooldown, float maxCooldown)
+        public void SetCooldown(float current, float max)
         {
-            UpdateCooldown(currentCooldown, maxCooldown);
+            UpdateCooldown(current, max);
         }
 
+        // =========================
+        // OVERHEAT CONTROL (IMPORTANT)
+        // =========================
+        public void SetOverheatState(bool state)
+        {
+            isOverheated = state;
+
+            if (isOverheated)
+                StartPulse();
+            else
+                StopPulse();
+        }
+
+        // =========================
+        // PULSE SYSTEM
+        // =========================
+        private void StartPulse()
+        {
+            if (backgroundFlash == null) return;
+
+            if (pulseRoutine != null)
+                StopCoroutine(pulseRoutine);
+
+            pulseRoutine = StartCoroutine(PulseLoop());
+        }
+
+        private void StopPulse()
+        {
+            if (pulseRoutine != null)
+            {
+                StopCoroutine(pulseRoutine);
+                pulseRoutine = null;
+            }
+
+            if (backgroundFlash != null)
+                backgroundFlash.SetActive(false);
+        }
+
+        private IEnumerator PulseLoop()
+        {
+            while (isOverheated)
+            {
+                backgroundFlash.SetActive(true);
+                yield return new WaitForSeconds(flashInterval);
+
+                backgroundFlash.SetActive(false);
+                yield return new WaitForSeconds(flashInterval);
+            }
+        }
+
+        // =========================
+        // SAFETY
+        // =========================
         private void ValidateComponents()
         {
             if (cooldownImage == null)
                 Debug.LogError($"[{nameof(CooldownBarUI)}] cooldownImage not assigned!");
 
-            if (backgroundImage == null)
-                Debug.LogWarning($"[{nameof(CooldownBarUI)}] backgroundImage not assigned");
+            if (backgroundFlash == null)
+                Debug.LogWarning($"[{nameof(CooldownBarUI)}] backgroundFlash not assigned!");
         }
     }
 }

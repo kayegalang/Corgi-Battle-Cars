@@ -218,6 +218,7 @@ namespace _Cars.Scripts
             if (currentCharge >= MAX_CHARGE && isOverheated)
             {
                 isOverheated = false;
+                cooldownBar?.SetOverheatState(false);
             }
         }
 
@@ -254,7 +255,9 @@ namespace _Cars.Scripts
                 if (willOverheat)
                 {
                     currentCharge = 0f;
-                    isOverheated  = true;
+                    isOverheated = true;
+                    
+                    cooldownBar?.SetOverheatState(true);
                 }
 
                 // Read FireRate live — so TuningManager changes apply immediately
