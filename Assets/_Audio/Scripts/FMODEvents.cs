@@ -26,6 +26,9 @@ namespace _Audio.scripts
         [field: SerializeField] public EventReference squirrel { get; private set; }
         [field: SerializeField] public EventReference poop { get; private set; }
         
+        [field: Header("Other SFX")]
+        [field: SerializeField] public EventReference FinishedSound { get; private set; }
+        
         public static FMODEvents instance { get; private set; }
 
         private void Awake()

@@ -27,6 +27,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &-6171835383375214457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Music/Finished
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Music/Finished
+  Guid:
+    Data1: 46604525
+    Data2: 1119354448
+    Data3: 350657202
+    Data4: -985820271
+  Banks:
+  - {fileID: -1021369601438909780}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 1848
 --- !u!114 &-5684429719086854064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -107,7 +134,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 260600
+  Length: 96586
 --- !u!114 &-1131409687242485956
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150,10 +177,10 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639124146685415380
+  lastModified: 639124968950151479
   FileSizes:
   - Name: Desktop
-    Value: 1251552
+    Value: 1277120
   Exists: 1
 --- !u!114 &11400000
 MonoBehaviour:
@@ -186,13 +213,14 @@ MonoBehaviour:
   - {fileID: 8443968289852962077}
   - {fileID: -4906463478110476755}
   - {fileID: -1131409687242485956}
+  - {fileID: -6171835383375214457}
   EditorParameters: []
   MasterBanks:
   - {fileID: 7653927548659394763}
   StringsBanks:
   - {fileID: 2964150193165609296}
   cacheVersion: 131858
-  cacheTime: 639124146685425390
+  cacheTime: 639124968950801667
   SerializableEventsDict:
   - key: event:/Music/BarkCountdown/Bark 3
     index: 0
@@ -216,6 +244,8 @@ MonoBehaviour:
     index: 9
   - key: event:/UI/ClickSelect
     index: 10
+  - key: event:/Music/Finished
+    index: 11
 --- !u!114 &1218311216364382802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258,7 +288,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Gameplay.bank
   Name: Gameplay
   StudioPath: bank:/Gameplay
-  lastModified: 639124146685323530
+  lastModified: 639124968933010048
   FileSizes:
   - Name: Desktop
     Value: 145728
@@ -305,10 +335,10 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639124146685333546
+  lastModified: 639124968933066083
   FileSizes:
   - Name: Desktop
-    Value: 1466
+    Value: 1504
   Exists: 1
 --- !u!114 &3087794032016579827
 MonoBehaviour:
@@ -325,7 +355,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/UI.bank
   Name: UI
   StudioPath: bank:/UI
-  lastModified: 639124146685425390
+  lastModified: 639124968950801667
   FileSizes:
   - Name: Desktop
     Value: 120928
@@ -399,7 +429,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Countdown.bank
   Name: Countdown
   StudioPath: bank:/Countdown
-  lastModified: 639124146685303515
+  lastModified: 639124968930723991
   FileSizes:
   - Name: Desktop
     Value: 18400
@@ -419,7 +449,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639124146685323530
+  lastModified: 639124968933055926
   FileSizes:
   - Name: Desktop
     Value: 1378

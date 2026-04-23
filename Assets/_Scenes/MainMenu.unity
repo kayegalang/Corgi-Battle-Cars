@@ -10009,6 +10009,13 @@ MonoBehaviour:
       Data3: -1884939362
       Data4: 1933456710
     Path: event:/Gameplay/Poop
+  <FinishedSound>k__BackingField:
+    Guid:
+      Data1: 46604525
+      Data2: 1119354448
+      Data3: 350657202
+      Data4: -985820271
+    Path: event:/Music/Finished
 --- !u!1 &793682586
 GameObject:
   m_ObjectHideFlags: 0
@@ -13500,7 +13507,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 7.5740967, y: -28.03247}
+  m_AnchoredPosition: {x: 7.5739746, y: -28.03247}
   m_SizeDelta: {x: -1247.7932, y: -583.86346}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1085604381
@@ -23714,7 +23721,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 7.5740967, y: -28.03247}
+  m_AnchoredPosition: {x: 7.5739746, y: -28.03247}
   m_SizeDelta: {x: -1247.7932, y: -583.86346}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1986619671
