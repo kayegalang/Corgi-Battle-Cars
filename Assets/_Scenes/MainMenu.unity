@@ -222,7 +222,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9d64f758b02574a73a3dc84ae10ebcdd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fde78fd1a442b476295a78c428629001, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -9189,7 +9189,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9d64f758b02574a73a3dc84ae10ebcdd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fde78fd1a442b476295a78c428629001, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -11766,17 +11766,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_UI.Scripts.LoadingManager
   loadingScreen: {fileID: 1672238575}
-  pawImage: {fileID: 1759408231}
-  pawSprites:
-  - {fileID: -1020567819, guid: dae133f8786f24303b9c95d0901bc1b3, type: 3}
-  - {fileID: 1117168142, guid: dae133f8786f24303b9c95d0901bc1b3, type: 3}
-  - {fileID: -1004553364, guid: dae133f8786f24303b9c95d0901bc1b3, type: 3}
-  - {fileID: -901860390, guid: dae133f8786f24303b9c95d0901bc1b3, type: 3}
-  - {fileID: -578123395, guid: dae133f8786f24303b9c95d0901bc1b3, type: 3}
-  - {fileID: -1770381739, guid: dae133f8786f24303b9c95d0901bc1b3, type: 3}
-  - {fileID: 612480116, guid: dae133f8786f24303b9c95d0901bc1b3, type: 3}
-  - {fileID: 2049978769, guid: dae133f8786f24303b9c95d0901bc1b3, type: 3}
-  - {fileID: 54982856, guid: dae133f8786f24303b9c95d0901bc1b3, type: 3}
+  pawImage: {fileID: 0}
+  pawSprites: []
 --- !u!1 &1157240905
 GameObject:
   m_ObjectHideFlags: 0
@@ -14216,7 +14207,6 @@ MonoBehaviour:
   jump:
     image: {fileID: 1902119873}
     levels:
-    - {fileID: 212791959, guid: 4d16332e131a0460db6b3e0dd7d15e15, type: 3}
     - {fileID: 274601894, guid: 4d16332e131a0460db6b3e0dd7d15e15, type: 3}
     - {fileID: -469563252, guid: 4d16332e131a0460db6b3e0dd7d15e15, type: 3}
     - {fileID: 331075128, guid: 4d16332e131a0460db6b3e0dd7d15e15, type: 3}
@@ -14225,7 +14215,6 @@ MonoBehaviour:
   acceleration:
     image: {fileID: 1541189584}
     levels:
-    - {fileID: 1302878718, guid: c832dd98ad3b74654a4cc88a15235b4b, type: 3}
     - {fileID: -2106657409, guid: c832dd98ad3b74654a4cc88a15235b4b, type: 3}
     - {fileID: 1368839345, guid: c832dd98ad3b74654a4cc88a15235b4b, type: 3}
     - {fileID: -131645460, guid: c832dd98ad3b74654a4cc88a15235b4b, type: 3}
@@ -14234,7 +14223,6 @@ MonoBehaviour:
   health:
     image: {fileID: 193485622}
     levels:
-    - {fileID: 304041909, guid: f65b6493ba75f4959aafa360b61ed244, type: 3}
     - {fileID: 493066598, guid: f65b6493ba75f4959aafa360b61ed244, type: 3}
     - {fileID: -74767995, guid: f65b6493ba75f4959aafa360b61ed244, type: 3}
     - {fileID: 1469446028, guid: f65b6493ba75f4959aafa360b61ed244, type: 3}
@@ -14243,7 +14231,6 @@ MonoBehaviour:
   speed:
     image: {fileID: 1592849824}
     levels:
-    - {fileID: 21300000, guid: f4f949eb68f4c414e901aff2ee1a0107, type: 3}
     - {fileID: 69634365, guid: eeb0c2d9a499648d98ff96b0d81d7a3f, type: 3}
     - {fileID: 842539034, guid: eeb0c2d9a499648d98ff96b0d81d7a3f, type: 3}
     - {fileID: 62178261, guid: eeb0c2d9a499648d98ff96b0d81d7a3f, type: 3}
@@ -14252,7 +14239,6 @@ MonoBehaviour:
   damage:
     image: {fileID: 191998510}
     levels:
-    - {fileID: -1740267744, guid: 0c81deec3b1ac47fa97805f2ebddf625, type: 3}
     - {fileID: -125084545, guid: 0c81deec3b1ac47fa97805f2ebddf625, type: 3}
     - {fileID: -691694576, guid: 0c81deec3b1ac47fa97805f2ebddf625, type: 3}
     - {fileID: 190834665, guid: 0c81deec3b1ac47fa97805f2ebddf625, type: 3}
@@ -14261,16 +14247,14 @@ MonoBehaviour:
   cooldown:
     image: {fileID: 94874745}
     levels:
-    - {fileID: 906480939, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
-    - {fileID: 1148839402, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
-    - {fileID: -788936399, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
-    - {fileID: 752986089, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
-    - {fileID: 284571648, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
-    - {fileID: -1676145711, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
+    - {fileID: -670617903, guid: b1bde60878fd94aab8d3237995643260, type: 3}
+    - {fileID: 1334464370, guid: b1bde60878fd94aab8d3237995643260, type: 3}
+    - {fileID: -1929972865, guid: b1bde60878fd94aab8d3237995643260, type: 3}
+    - {fileID: -112608069, guid: b1bde60878fd94aab8d3237995643260, type: 3}
+    - {fileID: 1013093866, guid: b1bde60878fd94aab8d3237995643260, type: 3}
   fireRate:
     image: {fileID: 1309570550}
     levels:
-    - {fileID: 1437583475, guid: 60ce8bde42b394e2bb2fb24e4df8fce4, type: 3}
     - {fileID: -1419838015, guid: 60ce8bde42b394e2bb2fb24e4df8fce4, type: 3}
     - {fileID: -1384560727, guid: 60ce8bde42b394e2bb2fb24e4df8fce4, type: 3}
     - {fileID: -1564625915, guid: 60ce8bde42b394e2bb2fb24e4df8fce4, type: 3}
@@ -16564,21 +16548,21 @@ MonoBehaviour:
   characterSelectionPanel: {fileID: 1021778366}
   playerSlots:
   - slotObject: {fileID: 1157240905}
-    slotImage: {fileID: 1157240909}
-    waitingSprite: {fileID: 21300000, guid: 4a608c85a7ebe4a7ba6773aa63e89a54, type: 3}
-    joinedSprite: {fileID: 21300000, guid: 9415fa4e89f5846d8a5fd2c54f437881, type: 3}
+    slotImage: {fileID: 0}
+    waitingSprite: {fileID: 0}
+    joinedSprite: {fileID: 0}
   - slotObject: {fileID: 305936405}
-    slotImage: {fileID: 305936409}
-    waitingSprite: {fileID: 21300000, guid: 4a608c85a7ebe4a7ba6773aa63e89a54, type: 3}
-    joinedSprite: {fileID: 21300000, guid: 9415fa4e89f5846d8a5fd2c54f437881, type: 3}
+    slotImage: {fileID: 0}
+    waitingSprite: {fileID: 0}
+    joinedSprite: {fileID: 0}
   - slotObject: {fileID: 307486080}
-    slotImage: {fileID: 307486084}
-    waitingSprite: {fileID: 21300000, guid: 4a608c85a7ebe4a7ba6773aa63e89a54, type: 3}
-    joinedSprite: {fileID: 21300000, guid: 9415fa4e89f5846d8a5fd2c54f437881, type: 3}
+    slotImage: {fileID: 0}
+    waitingSprite: {fileID: 0}
+    joinedSprite: {fileID: 0}
   - slotObject: {fileID: 728921063}
-    slotImage: {fileID: 728921067}
-    waitingSprite: {fileID: 21300000, guid: 4a608c85a7ebe4a7ba6773aa63e89a54, type: 3}
-    joinedSprite: {fileID: 21300000, guid: 9415fa4e89f5846d8a5fd2c54f437881, type: 3}
+    slotImage: {fileID: 0}
+    waitingSprite: {fileID: 0}
+    joinedSprite: {fileID: 0}
   transitionDelay: 0.5
   onAllPlayersJoined:
     m_PersistentCalls:
@@ -20629,8 +20613,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 20.519, y: -283}
-  m_SizeDelta: {x: 378.9614, y: 243.7743}
+  m_AnchoredPosition: {x: -22, y: -342}
+  m_SizeDelta: {x: 729.5323, y: 516.617}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1959828326
 MonoBehaviour:
@@ -20720,7 +20704,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4d79d6b14e9774d648db9c3d2913ba95, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1669cfef490d44833be4f60b5111b517, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
