@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{400f716c-5eab-4172-906d-2d739529b6fa}">
+		<property name="assetPath">
+			<value>popSet2.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.069727891156462579</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{84c616f0-36e2-4c5d-a730-30e5a23b2d4e}</destination>
+		</relationship>
+	</object>
+</objects>

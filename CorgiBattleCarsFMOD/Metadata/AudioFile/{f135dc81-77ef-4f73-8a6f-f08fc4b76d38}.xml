@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{f135dc81-77ef-4f73-8a6f-f08fc4b76d38}">
+		<property name="assetPath">
+			<value>Minimalist4.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.75058956916099773</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{84c616f0-36e2-4c5d-a730-30e5a23b2d4e}</destination>
+		</relationship>
+	</object>
+</objects>
