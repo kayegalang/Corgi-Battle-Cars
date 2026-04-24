@@ -7,8 +7,9 @@ namespace _Audio.scripts
     public class FMODEvents : MonoBehaviour
     {
     
-        [field: Header("Dog Park Music")]
+        [field: Header("Music")]
         [field: SerializeField] public EventReference DogParkStart { get; private set; }
+        [field: SerializeField] public EventReference MainMenuMusic { get; private set; }
     
         [field: Header("Countdown Barks")]
         [field: SerializeField] public EventReference bark3Sound { get; private set; }
