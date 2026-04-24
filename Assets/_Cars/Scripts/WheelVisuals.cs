@@ -1,18 +1,11 @@
 using UnityEngine;
+using _Bot.Scripts;
 
 namespace _Cars.Scripts
 {
-    /// <summary>
-    /// Handles visual wheel rotation:
-    ///   1. All wheels spin based on car speed
-    ///   2. Front wheels steer with input
-    /// Drift rotation is handled automatically since wheels
-    /// are children of CarVisual which DriftEffects rotates.
-    /// Add to the player prefab root.
-    /// </summary>
     public class WheelVisuals : MonoBehaviour
     {
-        [Header("Wheel Meshes — assign the visual child transforms")]
+        [Header("Wheel Visual Meshes — assign the MESH child, NOT the collider object")]
         [SerializeField] private Transform wheelFL;
         [SerializeField] private Transform wheelFR;
         [SerializeField] private Transform wheelRL;
@@ -27,14 +20,10 @@ namespace _Cars.Scripts
 
         private Rigidbody     carRb;
         private CarController carController;
+        private BotController botController;
 
-        // Track spin per wheel
-        private float spinFL = 0f;
-        private float spinFR = 0f;
-        private float spinRL = 0f;
-        private float spinRR = 0f;
-
-        private float currentSteerAngle = 0f;
+        private float spinFL, spinFR, spinRL, spinRR;
+        private float currentSteerAngle;
 
         // ═══════════════════════════════════════════════
         //  LIFECYCLE
@@ -44,6 +33,10 @@ namespace _Cars.Scripts
         {
             carRb         = GetComponent<Rigidbody>();
             carController = GetComponent<CarController>();
+            botController = GetComponent<BotController>();
+
+            if (carController == null && botController == null)
+                Debug.LogError($"[WheelVisuals] No CarController or BotController found on {gameObject.name}!");
         }
 
         private void Update()
@@ -53,6 +46,19 @@ namespace _Cars.Scripts
             UpdateSpin();
             UpdateSteer();
             ApplyWheelRotations();
+        }
+
+        // ═══════════════════════════════════════════════
+        //  REWIRING — called by CarVisualLoader after spawn
+        // ═══════════════════════════════════════════════
+
+        public void SetWheels(Transform fl, Transform fr, Transform rl, Transform rr)
+        {
+            wheelFL = fl;
+            wheelFR = fr;
+            wheelRL = rl;
+            wheelRR = rr;
+            Debug.Log("[WheelVisuals] Wheels rewired from spawned car prefab.");
         }
 
         // ═══════════════════════════════════════════════
@@ -76,7 +82,10 @@ namespace _Cars.Scripts
 
         private void UpdateSteer()
         {
-            float steerInput  = carController != null ? carController.GetMoveInput().x : 0f;
+            float steerInput = 0f;
+            if (carController != null)      steerInput = carController.GetMoveInput().x;
+            else if (botController != null) steerInput = botController.GetMoveInput().x;
+
             float targetSteer = steerInput * maxSteerAngle;
             currentSteerAngle = Mathf.Lerp(currentSteerAngle, targetSteer, steerSpeed * Time.deltaTime);
         }
@@ -87,12 +96,10 @@ namespace _Cars.Scripts
 
         private void ApplyWheelRotations()
         {
-            // Front wheels steer, rear wheels stay straight
-            // Left and right need opposite Y to point same direction
-            ApplyRotation(wheelFL, spinFL,  currentSteerAngle);
-            ApplyRotation(wheelFR, spinFR, -currentSteerAngle);
-            ApplyRotation(wheelRL, spinRL,  0f);
-            ApplyRotation(wheelRR, spinRR,  0f);
+            ApplyRotation(wheelFL, spinFL, currentSteerAngle);
+            ApplyRotation(wheelFR, spinFR, currentSteerAngle);
+            ApplyRotation(wheelRL, spinRL, 0f);
+            ApplyRotation(wheelRR, spinRR, 0f);
         }
 
         private void ApplyRotation(Transform wheel, float spinAngle, float steerAngle)

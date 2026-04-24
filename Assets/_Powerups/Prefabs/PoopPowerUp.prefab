@@ -134,6 +134,9 @@ MonoBehaviour:
   trailColor: {r: 1, g: 0.85, b: 0.1, a: 0.6}
   trailMaterial: {fileID: 2100000, guid: 92226a9dd57fa411190e682a459e9c5c, type: 2}
   heightOffset: 0.5
+  lineCount: 4
+  lineSeparation: 0.07
+  linePhaseOffset: 0.5
 --- !u!65 &6458760947441341121
 BoxCollider:
   m_ObjectHideFlags: 0

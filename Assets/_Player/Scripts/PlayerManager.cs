@@ -2,14 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Cinemachine;
 using UnityEngine.InputSystem;
-using _Cars.Scripts;
 
 namespace _Player.Scripts
 {
     public class PlayerManager : MonoBehaviour
     {
         [SerializeField] private List<LayerMask> playerLayers;
-        [SerializeField] private ParticleSystem driftParticlePrefab;
         
         private List<PlayerInput> players = new List<PlayerInput>();
         private PlayerInputManager playerInputManager;
@@ -93,12 +91,10 @@ namespace _Player.Scripts
             if (IsRespawningPlayer(player, out int existingPlayerIndex))
             {
                 HandleRespawningPlayer(player, existingPlayerIndex);
-                SetupPlayerDriftParticles(player);
                 return;
             }
             
             HandleNewPlayer(player);
-            SetupPlayerDriftParticles(player);
         }
         
         private bool IsPlayerAlreadyRegistered(PlayerInput player)
@@ -121,20 +117,21 @@ namespace _Player.Scripts
             
             AssignPlayerLayer(player, existingPlayerIndex);
         }
-        
+
         private void HandleNewPlayer(PlayerInput player)
         {
             players.Add(player);
-            
+
             int playerIndex = players.Count - 1;
-            
+
             if (!ValidatePlayerLayerExists(playerIndex))
             {
                 return;
             }
-            
+
             AssignPlayerTag(player, playerIndex);
             AssignPlayerLayer(player, playerIndex);
+            FindFirstObjectByType<RebindUI>()?.SetPlayer(player);
         }
         
         private bool ValidatePlayerLayerExists(int playerIndex)
@@ -235,56 +232,6 @@ namespace _Player.Scripts
             
             Debug.LogWarning($"[{nameof(PlayerManager)}] Invalid player number: {playerNumber}, defaulting to PlayerOne");
             return "PlayerOne";
-        }
-
-        private void SetupPlayerDriftParticles(PlayerInput player)
-        {
-            if (player == null || driftParticlePrefab == null)
-                return;
-
-            Transform leftWheel = player.transform.Find("CarModel/Wheels/BL_Wheel");
-            Transform rightWheel = player.transform.Find("CarModel/Wheels/BR_Wheel");
-
-            if (leftWheel == null || rightWheel == null)
-            {
-                Debug.LogWarning($"[{nameof(PlayerManager)}] Could not find rear wheels on {player.gameObject.name}. Check the wheel hierarchy path.");
-                return;
-            }
-
-            ParticleSystem leftParticles = GetOrCreateDriftParticles(leftWheel, "BL_DriftParticles");
-            ParticleSystem rightParticles = GetOrCreateDriftParticles(rightWheel, "BR_DriftParticles");
-
-            CarController carController = player.GetComponent<CarController>();
-            if (carController != null)
-            {
-                carController.SetDriftParticleReferences(leftParticles, rightParticles);
-            }
-            else
-            {
-                Debug.LogWarning($"[{nameof(PlayerManager)}] CarController not found on {player.gameObject.name}.");
-            }
-        }
-
-        private ParticleSystem GetOrCreateDriftParticles(Transform wheelTransform, string objectName)
-        {
-            Transform existing = wheelTransform.Find(objectName);
-            if (existing != null)
-            {
-                ParticleSystem existingPs = existing.GetComponent<ParticleSystem>();
-                if (existingPs != null)
-                {
-                    existingPs.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-                    return existingPs;
-                }
-            }
-
-            ParticleSystem newParticles = Instantiate(driftParticlePrefab, wheelTransform);
-            newParticles.name = objectName;
-            newParticles.transform.localPosition = new Vector3(0f, -0.2f, 0f);
-            newParticles.transform.localRotation = Quaternion.identity;
-            newParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-
-            return newParticles;
         }
     }
 }

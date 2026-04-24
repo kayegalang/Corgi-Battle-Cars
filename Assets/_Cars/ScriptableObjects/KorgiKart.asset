@@ -15,6 +15,19 @@ MonoBehaviour:
   carName: Korgi Kart
   carDescription: Even stats
   carID: All Rounder
+  carModelPrefab: {fileID: 7862552674990832488, guid: 4cf189a9c09e24a3b983ae5f519e3780, type: 3}
+  carModelOffset: {x: 0, y: 0.79, z: 0.29}
+  carModelRotation: {x: -90, y: 0, z: 0}
+  carModelScale: {x: 500, y: 500, z: 500}
+  weaponOffsets:
+  - weaponName: bArK-47
+    positionOffset: {x: -0.000015, y: 0.000178, z: 0.001428}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleOffset: {x: 1, y: 1, z: 1}
+  - weaponName: The Hound
+    positionOffset: {x: 0, y: 0.000171, z: 0.001424}
+    rotationOffset: {x: 90, y: 0, z: 0}
+    scaleOffset: {x: 0.01, y: 0.01, z: 0.01}
   speedStat: 50
   accelerationStat: 50
   jumpForceStat: 50

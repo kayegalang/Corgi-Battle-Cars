@@ -10,8 +10,15 @@ namespace _UI.Scripts
     {
         public static LoadingManager instance;
 
+        [Header("UI")]
         [SerializeField] private GameObject loadingScreen;
-        [SerializeField] private Slider progressBar;
+
+        [Header("Paw Progress")]
+        [SerializeField] private Image pawImage;
+        [SerializeField] private Sprite[] pawSprites; // 24 sprites
+
+        private bool isLoading = false;
+        private int lastIndex = -1;
 
         void Awake()
         {
@@ -19,61 +26,114 @@ namespace _UI.Scripts
             {
                 instance = this;
                 DontDestroyOnLoad(gameObject);
+
+                if (loadingScreen != null)
+                    DontDestroyOnLoad(loadingScreen);
             }
             else
+            {
                 Destroy(gameObject);
+                return;
+            }
+
+            if (loadingScreen != null)
+                loadingScreen.SetActive(false);
         }
-        
-        private bool isLoading = false;
 
         public void LoadScene(string sceneName)
         {
-            if (isLoading)
-            {
-                return;
-            }
-    
+            if (isLoading) return;
+
             isLoading = true;
             StartCoroutine(LoadSceneAsync(sceneName));
         }
 
         private IEnumerator LoadSceneAsync(string sceneName)
         {
-            loadingScreen.SetActive(true);
-            progressBar.value = 0f;
-    
+            if (loadingScreen != null)
+                loadingScreen.SetActive(true);
+
+            lastIndex = -1;
+            UpdatePawProgress(0f);
+
             AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
             op.allowSceneActivation = false;
-    
-            while (!op.isDone)
+
+            float fakeProgress = 0f;
+
+            // 🐾 FAKE LOADING (0 → 90)
+            while (fakeProgress < 90f)
             {
-                progressBar.value = Mathf.Clamp01(op.progress / 0.9f);
+                fakeProgress += Time.unscaledDeltaTime * 40f;
+
+                float realProgress = Mathf.Clamp01(op.progress / 0.9f) * 90f;
+                fakeProgress = Mathf.Min(fakeProgress, realProgress + 10f);
+
+                UpdatePawProgress(fakeProgress / 100f);
+
+                yield return null;
+            }
+
+            // Wait until Unity is ready
+            while (op.progress < 0.9f)
                 yield return null;
 
-                if (progressBar.value >= 0.9f)
-                {
-                    break;
-                }
-            }
-    
-            op.allowSceneActivation = true;
-            yield return null;
-            yield return new WaitForSeconds(0.5f);
-    
-            float timeout = 3f;
-            float elapsed = 0f;
-            while (!GameplayManager.instance.IsGameSetupComplete() && elapsed < timeout)
+            // 🐾 FINAL FILL (90 → 100)
+            while (fakeProgress < 100f)
             {
-                elapsed += Time.deltaTime;
+                fakeProgress += Time.unscaledDeltaTime * 100f;
+                UpdatePawProgress(fakeProgress / 100f);
                 yield return null;
             }
-    
-            loadingScreen.SetActive(false);
-            yield return new WaitForSeconds(0.3f);
-    
+
+            yield return new WaitForSecondsRealtime(0.2f);
+
+            // Activate scene
+            op.allowSceneActivation = true;
+
+            while (!op.isDone)
+                yield return null;
+
+            // Wait for GameplayManager
+            yield return new WaitUntil(() => GameplayManager.instance != null);
+
+            float timeout = 3f;
+            float elapsed = 0f;
+
+            while (!GameplayManager.instance.IsGameSetupComplete() && elapsed < timeout)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            yield return new WaitForSecondsRealtime(0.2f);
+
             GameplayManager.instance.StartMatchTimer();
-    
-            isLoading = false; 
+
+            if (loadingScreen != null)
+                loadingScreen.SetActive(false);
+
+            isLoading = false;
+        }
+
+        // 🐾 Update paw sprite based on progress
+        private void UpdatePawProgress(float progress01)
+        {
+            if (pawImage == null || pawSprites == null || pawSprites.Length == 0)
+                return;
+
+            int index = Mathf.Clamp(
+                Mathf.FloorToInt(progress01 * pawSprites.Length),
+                0,
+                pawSprites.Length - 1
+            );
+
+            // Only update when stepping forward (prevents flicker)
+            if (index != lastIndex)
+            {
+                pawImage.sprite = pawSprites[index];
+                lastIndex = index;
+            }
         }
     }
 }

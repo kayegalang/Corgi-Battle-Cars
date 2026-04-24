@@ -1,4 +1,5 @@
 using System.Collections;
+using _Audio.scripts;
 using _Bot.Scripts;
 using _Cars.ScriptableObjects;
 using _Effects.Scripts;
@@ -23,19 +24,25 @@ namespace _Cars.Scripts
         
         [Header("Events")]
         public UnityEvent<float> OnHealthChanged;
+
+        /// <summary>
+        /// Fired when this car dies. Parameters: (victim, killer).
+        /// </summary>
+        public event System.Action<GameObject, GameObject> OnDeath;
         
         private HealthBarManager     healthBarManager;
         private DeathSpectateManager deathSpectateManager;
         private CameraShaker         cameraShaker;
+        private ControllerRumbler    controllerRumbler;
         private HitEffects           hitEffects;
         private CarDeathEffects      deathEffects;
+        private GameObject           nameTagCanvas;
         
         private int  maxHealth;
         private int  currentHealth;
         private bool isBot;
         private bool isDead = false;
 
-        // Spawn protection
         private float      spawnProtectionTimer = 0f;
         private bool       isSpawnProtected     = false;
         private Renderer[] carRenderers;
@@ -56,10 +63,17 @@ namespace _Cars.Scripts
             if (spawnManager == null)
                 spawnManager = FindFirstObjectByType<SpawnManager>();
             
-            healthBarManager = GetComponentInChildren<HealthBarManager>();
-            cameraShaker     = GetComponent<CameraShaker>();
-            hitEffects       = GetComponent<HitEffects>();
-            deathEffects     = GetComponent<CarDeathEffects>();
+            healthBarManager  = GetComponentInChildren<HealthBarManager>();
+            cameraShaker      = GetComponent<CameraShaker>();
+            controllerRumbler = GetComponent<ControllerRumbler>();
+            hitEffects        = GetComponent<HitEffects>();
+            deathEffects      = GetComponent<CarDeathEffects>();
+
+            Transform nameTagTransform = FindDeepChild(transform, "NameTagCanvas");
+            if (nameTagTransform != null)
+                nameTagCanvas = nameTagTransform.gameObject;
+            else
+                Debug.LogWarning($"[CarHealth] NameTagCanvas not found on {gameObject.name}!");
 
             if (healthBarManager == null)
                 Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
@@ -75,10 +89,7 @@ namespace _Cars.Scripts
             ValidateCarStats();
             UpdateHealthBar();
 
-            // Cache all renderers for flashing effect
             carRenderers = GetComponentsInChildren<Renderer>();
-
-            // NOTE: No ActivateSpawnProtection() here — only called on respawn by SpawnManager
         }
 
         private void Update()
@@ -93,7 +104,6 @@ namespace _Cars.Scripts
                 return;
             }
 
-            // Flash the car by toggling renderer visibility
             bool visible = Mathf.Sin(Time.time * flashSpeed) > 0f;
             SetRenderersVisible(visible);
         }
@@ -102,9 +112,6 @@ namespace _Cars.Scripts
         //  SPAWN PROTECTION
         // ═══════════════════════════════════════════════
 
-        /// <summary>
-        /// Called by SpawnManager after a respawn (not on initial spawn).
-        /// </summary>
         public void ActivateSpawnProtection()
         {
             spawnProtectionTimer = spawnProtectionDuration;
@@ -121,9 +128,12 @@ namespace _Cars.Scripts
 
         private void SetRenderersVisible(bool visible)
         {
-            if (carRenderers == null) return;
-            foreach (Renderer r in carRenderers)
-                if (r != null) r.enabled = visible;
+            if (carRenderers != null)
+                foreach (Renderer r in carRenderers)
+                    if (r != null) r.enabled = visible;
+
+            if (nameTagCanvas != null)
+                nameTagCanvas.SetActive(visible);
         }
 
         // ═══════════════════════════════════════════════
@@ -147,50 +157,84 @@ namespace _Cars.Scripts
                 Debug.Log($"[CarHealth] {gameObject.name} using CarStats: {carStats.name} (Max Health: {maxHealth})");
         }
 
+        /// <summary>
+        /// Standard damage — used by projectiles, explosions etc.
+        /// </summary>
         public void TakeDamage(int amount, GameObject shooter)
         {
-            if (isDead) return;
+            TakeDamageInternal(amount, shooter, isCrash: false);
+        }
 
-            // Block all damage during spawn protection
-            if (isSpawnProtected)
-            {
-                Debug.Log($"[CarHealth] {gameObject.name} is spawn protected — damage blocked!");
-                return;
-            }
-            
+        /// <summary>
+        /// Crash damage — awards +200 to crasher and -100 to victim on death.
+        /// </summary>
+        public void TakeCrashDamage(int amount, GameObject crasher)
+        {
+            TakeDamageInternal(amount, crasher, isCrash: true);
+        }
+
+        private void TakeDamageInternal(int amount, GameObject shooter, bool isCrash)
+        {
+            if (isDead) return;
+            if (isSpawnProtected) return;
+    
             currentHealth -= amount;
             UpdateHealthBar();
 
-            // Hit feedback
             cameraShaker?.ShakeTakeDamage();
+            controllerRumbler?.RumbleTakeDamage();
             hitEffects?.PlayHitEffect();
 
+            // Hit sound
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.hit, transform.position);
+
             if (currentHealth <= 0)
-                Die(shooter);
+                Die(shooter, isCrash);
 
             if (isBot && shooter != null)
                 GetComponent<BotAI>()?.OnHit(shooter.transform);
         }
-
         // ═══════════════════════════════════════════════
         //  DEATH
         // ═══════════════════════════════════════════════
 
-        private void Die(GameObject shooter)
+        private void Die(GameObject shooter, bool isCrash)
         {
             if (isDead) return;
             
             isDead = true;
 
-            // Death feedback
+            OnDeath?.Invoke(gameObject, shooter);
+
             cameraShaker?.ShakeDeath();
+            controllerRumbler?.RumbleDeath();
             hitEffects?.PlayDeathEffect();
             deathEffects?.OnDeath();
+            
+            // Explosion sound
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.explosion, transform.position);
 
+            // Death penalty for the victim (-100)
+            // Only applies if killed by crash (not projectile)
+            if (isCrash)
+            {
+                PointsManager.instance?.DeductDeathPenalty(gameObject.tag);
+            }
+
+            // Award points to the killer
             if (shooter != null)
-                PointsManager.instance.AddPoint(shooter.tag);
+            {
+                if (isCrash)
+                    PointsManager.instance?.AddCrashPoint(shooter.tag);  // +200
+                else
+                    PointsManager.instance?.AddPoint(shooter.tag);       // +100
+            }
             else
+            {
                 Debug.LogWarning($"[{nameof(CarHealth)}] {gameObject.name} died but shooter was already destroyed!");
+            }
             
             if (isBot)
                 HandleBotDeath();
@@ -211,15 +255,11 @@ namespace _Cars.Scripts
 
         private IEnumerator DelayedPlayerDeath()
         {
-            // Hide car immediately but stay in place for explosion
             SetRenderersVisible(false);
 
-            // Wait for explosion to be visible
             yield return new WaitForSeconds(0.8f);
 
-            // Now teleport away
             transform.position = new Vector3(0, -1000f, 0);
-            SetRenderersVisible(true); // restore for spectating
 
             if (healthBarManager != null)
                 healthBarManager.gameObject.SetActive(false);
@@ -249,6 +289,21 @@ namespace _Cars.Scripts
             healthBarManager?.UpdateAllHealthBars(healthPercent);
             OnHealthChanged?.Invoke(healthPercent);
             deathEffects?.OnHealthChanged(healthPercent);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  HELPERS
+        // ═══════════════════════════════════════════════
+
+        private Transform FindDeepChild(Transform parent, string childName)
+        {
+            foreach (Transform child in parent)
+            {
+                if (child.name == childName) return child;
+                Transform found = FindDeepChild(child, childName);
+                if (found != null) return found;
+            }
+            return null;
         }
 
         // ═══════════════════════════════════════════════

@@ -71,6 +71,11 @@ MonoBehaviour:
   spinForce: 500
   lifetime: 10
   ownerGracePeriod: 0.5
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 2048
+  groundOffset: 0.05
+  groundCheckDistance: 20
 --- !u!1 &1688989838427774389
 GameObject:
   m_ObjectHideFlags: 0
