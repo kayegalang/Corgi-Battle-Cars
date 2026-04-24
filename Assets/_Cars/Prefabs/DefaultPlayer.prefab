@@ -32,6 +32,7 @@ GameObject:
   - component: {fileID: 2838662308265025720}
   - component: {fileID: 5261735153100206024}
   - component: {fileID: 7603100274213365305}
+  - component: {fileID: 42363799723898279}
   m_Layer: 0
   m_Name: DefaultPlayer
   m_TagString: PlayerOne
@@ -573,6 +574,27 @@ MonoBehaviour:
   - 0
   - 120
   - 200
+--- !u!65 &42363799723898279
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852133240821571215}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.3392181, y: 1.8440385, z: 4.0491543}
+  m_Center: {x: 0.0540123, y: 0.3171389, z: -0.3396597}
 --- !u!1 &974924005986492713
 GameObject:
   m_ObjectHideFlags: 0

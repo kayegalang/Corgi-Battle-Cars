@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 2415825632701641268}
   - component: {fileID: 4368612644080473127}
   - component: {fileID: 5375036112367484824}
+  - component: {fileID: 2535620355823731014}
   m_Layer: 0
   m_Name: DefaultBot
   m_TagString: PlayerOne
@@ -267,6 +268,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.CarEngineSound
   minSpeedThreshold: 0.5
+--- !u!65 &2535620355823731014
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852133240821571215}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.3392181, y: 1.8440385, z: 4.0491543}
+  m_Center: {x: 0.0540123, y: 0.3171389, z: -0.3396597}
 --- !u!1 &4622505498870641697
 GameObject:
   m_ObjectHideFlags: 0
