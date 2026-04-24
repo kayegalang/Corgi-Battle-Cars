@@ -1,5 +1,32 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8409728080956215396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Gameplay/HonkBark
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Gameplay/HonkBark
+  Guid:
+    Data1: 1415018013
+    Data2: 1270783863
+    Data3: 413649327
+    Data4: -857908526
+  Banks:
+  - {fileID: 9174753310522757173}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &-7387008828980544383
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15,7 +42,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639125536206127897
+  lastModified: 639125914919203843
   FileSizes:
   - Name: Desktop
     Value: 1378
@@ -35,10 +62,10 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/UI.bank
   Name: UI
   StudioPath: bank:/UI
-  lastModified: 639124968950801667
+  lastModified: 639125910660400783
   FileSizes:
   - Name: Desktop
-    Value: 120928
+    Value: 164992
   Exists: 1
 --- !u!114 &-7205540235236333320
 MonoBehaviour:
@@ -82,7 +109,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Countdown.bank
   Name: Countdown
   StudioPath: bank:/Countdown
-  lastModified: 639124968930723991
+  lastModified: 639125922919169966
   FileSizes:
   - Name: Desktop
     Value: 18400
@@ -161,6 +188,33 @@ MonoBehaviour:
     Data4: 133773032
   Banks:
   - {fileID: 7557160806285700061}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &-5655335764293039128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Gameplay/Jump
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Gameplay/Jump
+  Guid:
+    Data1: 1345356159
+    Data2: 1126068125
+    Data3: 669037243
+    Data4: 1149097998
+  Banks:
+  - {fileID: 9174753310522757173}
   IsStream: 0
   Is3D: 0
   IsOneShot: 1
@@ -276,6 +330,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &-2211698934627304024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Gameplay/LaserBeam
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Gameplay/LaserBeam
+  Guid:
+    Data1: 986493406
+    Data2: 1267861425
+    Data3: 1726004926
+    Data4: 816131359
+  Banks:
+  - {fileID: 9174753310522757173}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &-1662561252659881790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,6 +458,33 @@ MonoBehaviour:
   - Name: Desktop
     Value: 1264768
   Exists: 1
+--- !u!114 &-813175034469618246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Gameplay/Hit
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Gameplay/Hit
+  Guid:
+    Data1: -587835416
+    Data2: 1172478677
+    Data3: 910346930
+    Data4: -1387689254
+  Banks:
+  - {fileID: 9174753310522757173}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &-575781733727558286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -437,13 +545,21 @@ MonoBehaviour:
   - {fileID: 540031180516602350}
   - {fileID: -4947277410539130867}
   - {fileID: -1662561252659881790}
+  - {fileID: 1762183337530252554}
+  - {fileID: -8409728080956215396}
+  - {fileID: -5655335764293039128}
+  - {fileID: -2211698934627304024}
+  - {fileID: -813175034469618246}
+  - {fileID: 255422613188284195}
+  - {fileID: 6037716587102117831}
+  - {fileID: 3079595495083046377}
   EditorParameters: []
   MasterBanks:
   - {fileID: -7387008828980544383}
   StringsBanks:
   - {fileID: 6097348948757065567}
   cacheVersion: 131858
-  cacheTime: 639125845737704752
+  cacheTime: 639125922919572032
   SerializableEventsDict:
   - key: event:/Music/BarkCountdown/Bark 3
     index: 0
@@ -471,6 +587,49 @@ MonoBehaviour:
     index: 11
   - key: event:/UI/ClickSelect
     index: 12
+  - key: event:/Gameplay/Explosion
+    index: 13
+  - key: event:/Gameplay/HonkBark
+    index: 14
+  - key: event:/Gameplay/Jump
+    index: 15
+  - key: event:/Gameplay/LaserBeam
+    index: 16
+  - key: event:/Gameplay/Hit
+    index: 17
+  - key: event:/Gameplay/SuperJump
+    index: 18
+  - key: event:/UI/JoinBark
+    index: 19
+  - key: event:/Gameplay/Carlowhealth
+    index: 20
+--- !u!114 &255422613188284195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Gameplay/SuperJump
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Gameplay/SuperJump
+  Guid:
+    Data1: -986694658
+    Data2: 1321907655
+    Data3: -22525305
+    Data4: 1042939173
+  Banks:
+  - {fileID: 9174753310522757173}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &299559228935420813
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -579,6 +738,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &1762183337530252554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Gameplay/Explosion
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Gameplay/Explosion
+  Guid:
+    Data1: 541928709
+    Data2: 1155928027
+    Data3: 294842011
+    Data4: 469178480
+  Banks:
+  - {fileID: 9174753310522757173}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &2434607180861711812
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -673,6 +859,33 @@ MonoBehaviour:
   - Name: Desktop
     Value: 1504
   Exists: 1
+--- !u!114 &3079595495083046377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Gameplay/Carlowhealth
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Gameplay/Carlowhealth
+  Guid:
+    Data1: 2080095832
+    Data2: 1087612013
+    Data3: -1858632810
+    Data4: 537163913
+  Banks:
+  - {fileID: 9174753310522757173}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 8500
 --- !u!114 &3087794032016579827
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -708,7 +921,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639125845737704752
+  lastModified: 639125922919572032
   FileSizes:
   - Name: Desktop
     Value: 4793536
@@ -794,6 +1007,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &6037716587102117831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/UI/JoinBark
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/UI/JoinBark
+  Guid:
+    Data1: 1492515765
+    Data2: 1118140511
+    Data3: -1339837815
+    Data4: -372286303
+  Banks:
+  - {fileID: -7375369218848819064}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &6097348948757065567
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -809,10 +1049,10 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639125536206143444
+  lastModified: 639125914919221288
   FileSizes:
   - Name: Desktop
-    Value: 1548
+    Value: 1880
   Exists: 1
 --- !u!114 &7212993241539973062
 MonoBehaviour:
@@ -977,8 +1217,8 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Gameplay.bank
   Name: Gameplay
   StudioPath: bank:/Gameplay
-  lastModified: 639125553578766639
+  lastModified: 639125914919144230
   FileSizes:
   - Name: Desktop
-    Value: 145728
+    Value: 651328
   Exists: 1

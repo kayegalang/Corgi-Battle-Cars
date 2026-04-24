@@ -9,7 +9,8 @@ namespace _Audio.scripts
         {
             MASTER,
             MUSIC,
-            SFX
+            SFX,
+            ANNOUNCER,
         }
 
         [Header("Type")]
@@ -29,6 +30,9 @@ namespace _Audio.scripts
                 case VolumeType.MASTER:
                     volumeSlider.SetValueWithoutNotify(AudioManager.instance.masterVolume);
                     break;
+                case VolumeType.ANNOUNCER:
+                    volumeSlider.SetValueWithoutNotify(AudioManager.instance.musicVolume);
+                    break;
                 case VolumeType.MUSIC:
                     volumeSlider.SetValueWithoutNotify(AudioManager.instance.musicVolume);
                     break;
@@ -44,6 +48,9 @@ namespace _Audio.scripts
             {
                 case VolumeType.MASTER:
                     AudioManager.instance.masterVolume = volumeSlider.value;
+                    break;
+                case VolumeType.ANNOUNCER:
+                    AudioManager.instance.musicVolume = volumeSlider.value;
                     break;
                 case VolumeType.MUSIC:
                     AudioManager.instance.musicVolume = volumeSlider.value;
