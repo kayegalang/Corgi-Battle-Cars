@@ -1,7 +1,6 @@
 using _Cars.Scripts;
 using _Bot.Scripts;
 using System.Collections.Generic;
-using _Audio.scripts;
 using UnityEngine;
 
 namespace _PowerUps.Scripts
@@ -34,12 +33,12 @@ namespace _PowerUps.Scripts
         private void Start()
         {
             rb = GetComponent<Rigidbody>();
+            
+            // Store the initial throw direction (forward direction when spawned)
             runDirection = transform.forward;
+            
+            // Destroy after lifetime
             Destroy(gameObject, lifetime);
-
-            // Play squirrel launch sound
-            if (AudioManager.instance != null && FMODEvents.instance != null)
-                AudioManager.instance.PlayOneShot(FMODEvents.instance.squirrel, transform.position);
         }
         
         private void Update()

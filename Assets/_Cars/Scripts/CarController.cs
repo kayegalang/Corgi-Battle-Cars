@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using _Audio.scripts;
 using _Cars.ScriptableObjects;
 using _Effects.Scripts;
 using _UI.Scripts;
@@ -19,22 +17,30 @@ namespace _Cars.Scripts
         [SerializeField] private ParticleSystem zoomiesParticles;
 
         [Header("Drift Settings")]
-        [SerializeField] private float driftTurnMultiplier  = 3f;
-        [SerializeField] private float driftSpeedBoost      = 8f;
-        [SerializeField] private float minDriftSpeedBoost   = 0.3f;
+        [SerializeField] private float driftTurnMultiplier      = 1.15f;
+        [SerializeField] private float driftLateralDamping      = 0.82f;
+        [SerializeField] private float driftSteeringSmoothness  = 3f;
+        [SerializeField] private float maxDriftAngularSpeed     = 2.0f;
+        [SerializeField] private float minDriftForwardSpeed     = 2f;
+        [SerializeField] private float minDriftSteerThreshold   = 0.1f;
+
+        [Header("Drift Boost Tiers")]
+        [SerializeField] private float greenDriftThreshold = 2.0f;
+        [SerializeField] private float orangeDriftThreshold = 3.0f;
+        [SerializeField] private float redDriftThreshold = 4.8f;
+
+        [SerializeField] private float greenBoostForce = 4f;
+        [SerializeField] private float orangeBoostForce = 7f;
+        [SerializeField] private float redBoostForce = 10f;
+
+        [Header("Drift VFX")]
+        [SerializeField] private ParticleSystem leftRearDriftParticles;
+        [SerializeField] private ParticleSystem rightRearDriftParticles;
 
         [Header("Crash Settings")]
-        [Tooltip("Minimum damage dealt at the slowest qualifying crash speed")]
-        [SerializeField] private int   crashDamageMin       = 3;
-        [Tooltip("Maximum damage dealt at full speed")]
-        [SerializeField] private int   crashDamageMax       = 20;
-        [Tooltip("Speed at which minimum crash damage is dealt")]
-        [SerializeField] private float crashMinSpeed        = 3f;
-        [Tooltip("Speed at which maximum crash damage is dealt")]
-        [SerializeField] private float crashMaxSpeed           = 25f;
-        [SerializeField] private float crashCooldown           = 0.5f;
-        [Tooltip("Damage multiplier when Zoomies is active — makes ramming nearly one-shot at full speed")]
-        [SerializeField] private float zoomiesCrashMultiplier  = 5f;
+        [SerializeField] private int   crashDamage   = 5;
+        [SerializeField] private float crashMinSpeed = 3f;
+        [SerializeField] private float crashCooldown = 0.5f;
 
         [Header("Bounce Settings")]
         [SerializeField] private float bounceForce          = 8f;
@@ -51,11 +57,7 @@ namespace _Cars.Scripts
         private Rigidbody carRb;
         private PauseController pauseController;
         
-        public event Action OnJump;
-        public event Action<float> OnLand;
-
-        private bool    wasGrounded  = false;
-        private Vector3 lastVelocity;
+        private bool wasGrounded = false;
 
         private bool  hasZoomies             = false;
         private float speedMultiplier        = 1f;
@@ -70,6 +72,7 @@ namespace _Cars.Scripts
 
         private bool  isDrifting = false;
         private float driftTimer = 0f;
+        private float currentDriftSteerInput = 0f;
 
         private float lastCrashTime = -999f;
 
@@ -81,10 +84,14 @@ namespace _Cars.Scripts
         private const float MAX_JUMP_HEIGHT_VELOCITY = 6f;
         private const float AIR_CONTROL_FACTOR       = 0.3f;
 
-        // ═══════════════════════════════════════════════
-        //  UNITY LIFECYCLE
-        // ═══════════════════════════════════════════════
-        
+        private enum DriftBoostTier
+        {
+            None,
+            Green,
+            Orange,
+            Red
+        }
+
         private void Awake()
         {
             InitializeComponents();
@@ -106,23 +113,22 @@ namespace _Cars.Scripts
         {
             DisableInputActions();
             UnsubscribeFromInputEvents();
+            SetDriftParticles(false);
         }
         
         private void FixedUpdate()
         {
             if (!CanMove()) return;
-
+            
             if (isSlipping)
             {
                 ApplyMovementLimits();
-                lastVelocity = carRb.linearVelocity;
                 return;
             }
-
+            
             UpdateDriftState();
             ApplyPhysics();
             ApplyMovementLimits();
-            lastVelocity = carRb.linearVelocity;
         }
 
         // ═══════════════════════════════════════════════
@@ -145,78 +151,161 @@ namespace _Cars.Scripts
             if (impactSpeed >= bounceSpeedThreshold)
             {
                 Vector3 bounceDir = impactDirection + Vector3.up * bounceUpForce;
-                float   strength  = Mathf.Clamp01(impactSpeed / 20f) * bounceForce;
+                float strength = Mathf.Clamp01(impactSpeed / 20f) * bounceForce;
                 carRb.AddForce(bounceDir.normalized * strength, ForceMode.Impulse);
 
                 GetComponent<CameraShaker>()?.ShakeCrash(impactSpeed);
-                GetComponent<ControllerRumbler>()?.RumbleCrash(impactSpeed);
             }
 
-            int damage = CalculateCrashDamage(impactSpeed);
+            CarHealth myHealth = GetComponent<CarHealth>();
+            myHealth?.TakeDamage(crashDamage, null);
 
-            // Self damage — skipped if zoomies active (crash immunity!)
-            if (!hasZoomies)
-            {
-                CarHealth myHealth = GetComponent<CarHealth>();
-                myHealth?.TakeCrashDamage(damage, null);
-            }
-            else
-            {
-                Debug.Log($"[CarController] {gameObject.name} has Zoomies — crash self-damage blocked! 🚀");
-            }
-
-            // Damage to whoever we hit — always applied, scaled by speed
-            // TakeCrashDamage awards +200 to crasher and -100 to victim on death
             CarHealth theirHealth = collision.gameObject.GetComponent<CarHealth>();
             if (theirHealth != null)
-                theirHealth.TakeCrashDamage(damage, gameObject);
-        }
-
-        private int CalculateCrashDamage(float impactSpeed)
-        {
-            float t      = Mathf.InverseLerp(crashMinSpeed, crashMaxSpeed, impactSpeed);
-            int   damage = Mathf.RoundToInt(Mathf.Lerp(crashDamageMin, crashDamageMax, t));
-
-            // Zoomies = rocket league mode — massive damage multiplier at speed
-            if (hasZoomies)
-                damage = Mathf.RoundToInt(damage * zoomiesCrashMultiplier);
-
-            Debug.Log($"[CarController] Crash damage: {damage} (speed: {impactSpeed:F1}, zoomies: {hasZoomies})");
-            return damage;
+                theirHealth.TakeDamage(crashDamage, null);
         }
 
         // ═══════════════════════════════════════════════
-        //  DRIFT STATE
+        //  DRIFT
         // ═══════════════════════════════════════════════
 
         private void UpdateDriftState()
         {
             bool driftHeld = driftAction != null && driftAction.IsPressed();
+            float forwardSpeed = GetForwardSpeed();
 
-            float forwardSpeed = transform.InverseTransformDirection(carRb.linearVelocity).z;
-            if (driftHeld && IsGrounded() && forwardSpeed > 1f)
+            bool canStartOrMaintainDrift =
+                driftHeld &&
+                IsGrounded() &&
+                Mathf.Abs(forwardSpeed) > minDriftForwardSpeed &&
+                Mathf.Abs(moveInput.x) > minDriftSteerThreshold &&
+                moveInput.y != 0f;
+
+            if (canStartOrMaintainDrift)
             {
                 if (!isDrifting)
+                {
                     isDrifting = true;
+                    driftTimer = 0f;
+                }
 
                 driftTimer += Time.fixedDeltaTime;
             }
             else if (isDrifting)
             {
-                if (driftTimer >= minDriftSpeedBoost)
-                    ApplyDriftBoost();
-
-                isDrifting = false;
-                driftTimer = 0f;
+                EndDrift();
             }
 
+            UpdateDriftParticleColor(GetCurrentDriftTier());
+            SetDriftParticles(isDrifting);
             driftEffects?.SetDrifting(isDrifting, moveInput.x);
+        }
+
+        private void EndDrift()
+        {
+            ApplyDriftBoost();
+
+            isDrifting = false;
+            driftTimer = 0f;
+            currentDriftSteerInput = 0f;
+
+            UpdateDriftParticleColor(DriftBoostTier.None);
+            SetDriftParticles(false);
+        }
+
+        private DriftBoostTier GetCurrentDriftTier()
+        {
+            if (driftTimer >= redDriftThreshold)
+                return DriftBoostTier.Red;
+
+            if (driftTimer >= orangeDriftThreshold)
+                return DriftBoostTier.Orange;
+
+            if (driftTimer >= greenDriftThreshold)
+                return DriftBoostTier.Green;
+
+            return DriftBoostTier.None;
         }
 
         private void ApplyDriftBoost()
         {
-            Vector3 boostDir = transform.forward * (moveInput.y >= 0 ? 1f : -1f);
-            carRb.AddForce(boostDir * driftSpeedBoost, ForceMode.Impulse);
+            DriftBoostTier tier = GetCurrentDriftTier();
+            if (tier == DriftBoostTier.None) return;
+
+            float boostForce = 0f;
+
+            switch (tier)
+            {
+                case DriftBoostTier.Green:
+                    boostForce = greenBoostForce;
+                    break;
+                case DriftBoostTier.Orange:
+                    boostForce = orangeBoostForce;
+                    break;
+                case DriftBoostTier.Red:
+                    boostForce = redBoostForce;
+                    break;
+            }
+
+            Vector3 boostDirection = transform.forward * Mathf.Sign(moveInput.y);
+            carRb.AddForce(boostDirection * boostForce, ForceMode.Impulse);
+        }
+
+        private void UpdateDriftParticleColor(DriftBoostTier tier)
+        {
+            Color driftColor = Color.clear;
+
+            switch (tier)
+            {
+                case DriftBoostTier.Green:
+                    driftColor = Color.green;
+                    break;
+                case DriftBoostTier.Orange:
+                    driftColor = new Color(1f, 0.5f, 0f);
+                    break;
+                case DriftBoostTier.Red:
+                    driftColor = Color.red;
+                    break;
+                default:
+                    driftColor = Color.clear;
+                    break;
+            }
+
+            SetParticleStartColor(leftRearDriftParticles, driftColor);
+            SetParticleStartColor(rightRearDriftParticles, driftColor);
+        }
+
+        private void SetParticleStartColor(ParticleSystem particleSystem, Color color)
+        {
+            if (particleSystem == null) return;
+
+            var main = particleSystem.main;
+            main.startColor = color;
+        }
+
+        public void SetDriftParticleReferences(ParticleSystem leftParticles, ParticleSystem rightParticles)
+        {
+            leftRearDriftParticles = leftParticles;
+            rightRearDriftParticles = rightParticles;
+        }
+
+        private void SetDriftParticles(bool active)
+        {
+            if (leftRearDriftParticles != null)
+            {
+                if (active && !leftRearDriftParticles.isPlaying)
+                    leftRearDriftParticles.Play();
+                else if (!active && leftRearDriftParticles.isPlaying)
+                    leftRearDriftParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            }
+
+            if (rightRearDriftParticles != null)
+            {
+                if (active && !rightRearDriftParticles.isPlaying)
+                    rightRearDriftParticles.Play();
+                else if (!active && rightRearDriftParticles.isPlaying)
+                    rightRearDriftParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            }
         }
 
         // ═══════════════════════════════════════════════
@@ -288,7 +377,7 @@ namespace _Cars.Scripts
         private void HandlePauseInput()
         {
             if (!CanPause()) return;
-            if (pauseAction.triggered) TogglePause();
+            if (pauseAction != null && pauseAction.triggered) TogglePause();
         }
         
         private bool CanPause()
@@ -359,7 +448,7 @@ namespace _Cars.Scripts
         private void OnJumpPerformed(InputAction.CallbackContext ctx) => Jump();
 
         // ═══════════════════════════════════════════════
-        //  CINEMATIC MODE
+        //  CINEMATIC MODE — GAMEPAD ONLY
         // ═══════════════════════════════════════════════
 
         public void SetGamepadOnly(bool gamepadOnly)
@@ -371,8 +460,6 @@ namespace _Cars.Scripts
                 var gamepad = Gamepad.current;
                 if (gamepad != null)
                     playerInput.SwitchCurrentControlScheme("Controller", gamepad);
-                else
-                    Debug.LogWarning($"[CarController] SetGamepadOnly: no gamepad found!");
             }
             else
             {
@@ -406,10 +493,12 @@ namespace _Cars.Scripts
         {
             if (!ShouldMove())
             {
-                if (!isDrifting) ConstrainLateralMovement();
+                if (!isDrifting)
+                    ConstrainLateralMovement();
+
                 return;
             }
-    
+
             ApplyAcceleration();
 
             if (isDrifting)
@@ -421,7 +510,7 @@ namespace _Cars.Scripts
         private void ApplyDriftLateralDamping()
         {
             Vector3 localVelocity = transform.InverseTransformDirection(carRb.linearVelocity);
-            localVelocity.x *= 0.75f;
+            localVelocity.x *= driftLateralDamping;
             carRb.linearVelocity = transform.TransformDirection(localVelocity);
         }
         
@@ -443,18 +532,66 @@ namespace _Cars.Scripts
         
         private void Turn()
         {
-            if (!ShouldTurn()) return;
+            if (!ShouldTurn())
+            {
+                if (isDrifting)
+                {
+                    currentDriftSteerInput = Mathf.Lerp(
+                        currentDriftSteerInput,
+                        0f,
+                        driftSteeringSmoothness * Time.fixedDeltaTime
+                    );
+                }
+
+                return;
+            }
 
             float turnDirection = IsMovingForward() ? moveInput.x : -moveInput.x;
             float controlFactor = IsGrounded() ? 1f : AIR_CONTROL_FACTOR;
-            float driftFactor   = isDrifting ? driftTurnMultiplier : 1f;
 
-            Vector3 torque = Vector3.up * turnDirection * carStats.TurnSpeed * controlFactor * driftFactor;
-            carRb.AddTorque(torque);
+            if (!isDrifting)
+            {
+                Vector3 normalTorque = Vector3.up * turnDirection * carStats.TurnSpeed * controlFactor;
+                carRb.AddTorque(normalTorque, ForceMode.Force);
+                return;
+            }
+
+            currentDriftSteerInput = Mathf.Lerp(
+                currentDriftSteerInput,
+                turnDirection,
+                driftSteeringSmoothness * Time.fixedDeltaTime
+            );
+
+            float forwardSpeed = Mathf.Abs(GetForwardSpeed());
+            float speedTurnFactor = Mathf.Clamp01(forwardSpeed / carStats.MaxSpeed);
+            speedTurnFactor = Mathf.Lerp(0.55f, 1f, speedTurnFactor);
+
+            Vector3 driftTorque =
+                Vector3.up *
+                currentDriftSteerInput *
+                carStats.TurnSpeed *
+                controlFactor *
+                driftTurnMultiplier *
+                speedTurnFactor;
+
+            carRb.AddTorque(driftTorque, ForceMode.Force);
+
+            Vector3 angularVelocity = carRb.angularVelocity;
+            angularVelocity.y = Mathf.Clamp(
+                angularVelocity.y,
+                -maxDriftAngularSpeed,
+                maxDriftAngularSpeed
+            );
+            carRb.angularVelocity = angularVelocity;
         }
         
         private bool ShouldTurn()      => moveInput.x != 0;
         private bool IsMovingForward() => moveInput.y >= 0;
+
+        private float GetForwardSpeed()
+        {
+            return transform.InverseTransformDirection(carRb.linearVelocity).z;
+        }
         
         private void ApplyAngularDamping()
         {
@@ -465,12 +602,7 @@ namespace _Cars.Scripts
         {
             bool grounded = IsGrounded();
             if (grounded && !wasGrounded)
-            {
-                float landingSpeed = Mathf.Abs(lastVelocity.y);
                 GetComponent<CameraShaker>()?.ShakeLand();
-                GetComponent<ControllerRumbler>()?.RumbleLand();
-                OnLand?.Invoke(landingSpeed);
-            }
             wasGrounded = grounded;
         }
         
@@ -504,16 +636,6 @@ namespace _Cars.Scripts
             if (!CanJump()) return;
             Vector3 jumpForce = transform.up * carStats.JumpForce * jumpMultiplier;
             carRb.AddForce(jumpForce, ForceMode.Impulse);
-            OnJump?.Invoke();
-
-            // Play jump or super jump sound
-            if (AudioManager.instance != null && FMODEvents.instance != null)
-            {
-                var sound = hasSuperJump
-                    ? FMODEvents.instance.superjump
-                    : FMODEvents.instance.jump;
-                AudioManager.instance.PlayOneShot(sound, transform.position);
-            }
         }
         
         private bool CanJump() => IsGrounded() && carStats != null;
@@ -549,24 +671,9 @@ namespace _Cars.Scripts
             hasZoomies             = true;
             speedMultiplier        = speedMult;
             accelerationMultiplier = accelMult;
-    
+            
             if (zoomiesParticles != null)
                 zoomiesParticles.Play();
-
-            GetComponent<ControllerRumbler>()?.RumbleZoomiesStart();
-
-            // Play zoomies sound
-            if (AudioManager.instance != null && FMODEvents.instance != null)
-                AudioManager.instance.PlayOneShot(FMODEvents.instance.zoomies, transform.position);
-        }
-
-        
-
-        /// <summary>Called by CarVisualLoader after spawning the car prefab.</summary>
-        public void SetZoomiesParticles(ParticleSystem particles)
-        {
-            zoomiesParticles = particles;
-            Debug.Log("[CarController] ZoomiesParticles rewired from spawned car prefab.");
         }
         
         public void RemoveSpeedMultiplier()
@@ -574,15 +681,9 @@ namespace _Cars.Scripts
             hasZoomies             = false;
             speedMultiplier        = 1f;
             accelerationMultiplier = 1f;
-    
+            
             if (zoomiesParticles != null)
                 zoomiesParticles.Stop();
-
-            GetComponent<ControllerRumbler>()?.RumbleZoomiesStop();
-
-            // Stop zoomies sound
-            if (AudioManager.instance != null && FMODEvents.instance != null)
-                AudioManager.instance.PlayOneShot(FMODEvents.instance.zoomies, transform.position);
         }
 
         // ═══════════════════════════════════════════════
@@ -609,10 +710,10 @@ namespace _Cars.Scripts
         
         public void TriggerSlip(float duration, float spinForce)
         {
-            if (isSlipping) return;
+            if (isSlipping)
+                return;
 
             GetComponent<CameraShaker>()?.ShakePoopSlip();
-            GetComponent<ControllerRumbler>()?.RumblePoopSlip();
             
             if (carRb == null)
             {
@@ -632,13 +733,14 @@ namespace _Cars.Scripts
             SpinPlayer(spinForce);
             yield return new WaitForSeconds(duration);
             isSlipping = false;
+            slipCoroutine = null;
         }
 
         private void SpinPlayer(float spinForce)
         {
             if (carRb == null) return;
-            float   randomDirection = UnityEngine.Random.value > 0.5f ? 1f : -1f;
-            Vector3 spinTorque      = Vector3.up * (spinForce * randomDirection);
+            float   randomDirection = Random.value > 0.5f ? 1f : -1f;
+            Vector3 spinTorque      = Vector3.up * spinForce * randomDirection;
             carRb.AddTorque(spinTorque, ForceMode.Impulse);
         }
 

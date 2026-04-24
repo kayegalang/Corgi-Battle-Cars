@@ -15,18 +15,7 @@ MonoBehaviour:
   projectileName: The Hound
   projectileDescription: No cooldown
   projectileID: Machine Gun
-  weaponModelPrefab: {fileID: 3089508186800169564, guid: 42d0f499e9d584c71823006df9a72573, type: 3}
-  weaponModelOffset: {x: -0.007, y: 1.777, z: -1.777}
-  weaponModelRotation: {x: 0, y: 0, z: 0}
-  fireSound:
-    Guid:
-      Data1: 986493406
-      Data2: 1267861425
-      Data3: 1726004926
-      Data4: 816131359
-    Path: event:/Gameplay/LaserBeam
-  projectilePrefab: {fileID: 0}
-  isLaser: 1
+  projectilePrefab: {fileID: 5940751187897929002, guid: a1cbf08f72ec94c2ca82033c3604a0d1, type: 3}
   damageStat: 60
   minDamage: 5
   maxDamage: 50

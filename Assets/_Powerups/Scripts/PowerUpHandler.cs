@@ -1,6 +1,5 @@
 using System.Collections;
 using _Bot.Scripts;
-using _Effects.Scripts;
 using _PowerUps.ScriptableObjects;
 using _UI.Scripts;
 using TMPro;
@@ -13,12 +12,14 @@ namespace _PowerUps.Scripts
     /// <summary>
     /// Sits on the player. Receives power-ups from PowerUpPickup and manages
     /// activating, ticking, and removing effects.
+    /// Power-up UI sits on the existing PlayerUICanvas (Screen Space - Overlay)
+    /// and is positioned exactly like the reticle — using player tag + count.
     /// </summary>
     public class PowerUpHandler : MonoBehaviour
     {
         [Header("Held Power-Up UI")]
-        [SerializeField] private GameObject    heldPowerUpUI;
-        [SerializeField] private Image         heldPowerUpIcon;
+        [SerializeField] private GameObject heldPowerUpUI;
+        [SerializeField] private Image      heldPowerUpIcon;  // assign the Image component that shows the icon
         [SerializeField] private RectTransform heldPowerUpRect;
 
         [Header("Bot Settings")]
@@ -44,6 +45,7 @@ namespace _PowerUps.Scripts
         private bool            hasThrowable = false;
         private SquirrelPowerUp squirrelData;
 
+        // Pause
         private PauseController pauseController;
 
         public bool IsBot { get; private set; }
@@ -68,6 +70,7 @@ namespace _PowerUps.Scripts
                 pauseController.onUnpaused.AddListener(OnUnpaused);
             }
 
+            // Wait one frame for all players to spawn before positioning
             StartCoroutine(PositionDelayed());
         }
 
@@ -124,22 +127,25 @@ namespace _PowerUps.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  POSITIONING
+        //  POSITIONING — same approach as reticle
         // ═══════════════════════════════════════════════
 
         private void PositionPowerUpUI()
         {
             if (heldPowerUpRect == null) return;
 
+            // Use playerCamera.rect exactly like PlayerUIManager does for score text
             Camera playerCam = GetComponentInChildren<Camera>();
             if (playerCam == null) return;
 
             Rect viewportRect = playerCam.rect;
 
-            Vector2 anchorPosition    = new Vector2(viewportRect.xMin, viewportRect.yMax);
+            // Anchor to top-left of this player's viewport slice
+            Vector2 anchorPosition = new Vector2(viewportRect.xMin, viewportRect.yMax);
             heldPowerUpRect.anchorMin = anchorPosition;
             heldPowerUpRect.anchorMax = anchorPosition;
 
+            // Small offset from the corner so it's not right on the edge
             heldPowerUpRect.anchoredPosition = new Vector2(20f, -20f);
         }
 
@@ -147,7 +153,10 @@ namespace _PowerUps.Scripts
         //  PAUSE HANDLING
         // ═══════════════════════════════════════════════
 
-        private void OnPaused()   => HideHeldPowerUpUI();
+        private void OnPaused()
+        {
+            HideHeldPowerUpUI();
+        }
 
         private void OnUnpaused()
         {
@@ -161,27 +170,33 @@ namespace _PowerUps.Scripts
 
         public bool TryPickUpPowerUp(PowerUpObject powerUp)
         {
-            if (hasPowerUp) return false;
+            if (hasPowerUp)
+            {
+                return false;
+            }
 
             heldPowerUp = powerUp;
             hasPowerUp  = true;
 
             ShowHeldPowerUpUI();
-
-            // Rumble on collect — only for human players (bots have no ControllerRumbler)
-            GetComponent<ControllerRumbler>()?.RumbleCollectPowerUp();  // ← vibration
-
+            
             if (IsBot)
                 UseHeldPowerUp();
 
             return true;
         }
 
-        private void OnUsePowerUpPressed(InputAction.CallbackContext ctx) => UseHeldPowerUp();
+        private void OnUsePowerUpPressed(InputAction.CallbackContext ctx)
+        {
+            UseHeldPowerUp();
+        }
 
         public void UseHeldPowerUp()
         {
-            if (!hasPowerUp || heldPowerUp == null) return;
+            if (!hasPowerUp || heldPowerUp == null)
+            {
+                return;
+            }
             
             ActivatePowerUp(heldPowerUp);
             ClearHeldPowerUp();
@@ -300,7 +315,7 @@ namespace _PowerUps.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  UI
+        //  UI — HELD POWER-UP
         // ═══════════════════════════════════════════════
 
         private void ShowHeldPowerUpUI()
@@ -308,6 +323,7 @@ namespace _PowerUps.Scripts
             if (heldPowerUpUI != null)
                 heldPowerUpUI.SetActive(true);
 
+            // Show the icon sprite from the PowerUpObject
             if (heldPowerUpIcon != null && heldPowerUp != null)
             {
                 heldPowerUpIcon.sprite  = heldPowerUp.icon;

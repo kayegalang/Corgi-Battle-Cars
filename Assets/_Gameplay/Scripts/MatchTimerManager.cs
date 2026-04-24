@@ -2,7 +2,6 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using _Audio.scripts;
 
 namespace _Gameplay.Scripts
 {
@@ -14,10 +13,6 @@ namespace _Gameplay.Scripts
         [SerializeField] private int matchCountdownSeconds = 3;
         [SerializeField] private int gameDurationSeconds   = 300; 
         
-        [Header("Music Timing")]
-        [Tooltip("Seconds remaining when music breaks out of Main Loop toward Buildup")]
-        [SerializeField] private int musicTransitionTime = 182;
-        
         [Header("Timer Text")]
         [SerializeField] private string countdownGoText  = "GO!";
         [SerializeField] private string gameTimerFormat  = "Time: {0}"; 
@@ -27,7 +22,6 @@ namespace _Gameplay.Scripts
         public UnityEvent onGameEnd;
         
         private TextMeshProUGUI gameTimerText;
-        private bool musicTransitionTriggered = false;
         
         private const string GAME_TIMER_OBJECT_NAME = "GameTimerText";
         
@@ -91,10 +85,6 @@ namespace _Gameplay.Scripts
         private void OnMatchStart()
         {
             onMatchStart?.Invoke();
-            
-            musicTransitionTriggered = false;
-            MusicController.instance?.StartMusic();
-            Debug.Log("[MatchTimerManager] Match started — music playing!");
         }
 
         // ═══════════════════════════════════════════════
@@ -135,13 +125,6 @@ namespace _Gameplay.Scripts
                 UpdateGameTimerDisplay(timeRemaining);
                 if (GameTimerUI.instance != null)
                     GameTimerUI.instance.UpdateTimer(timeRemaining);
-                
-                if (timeRemaining == musicTransitionTime && !musicTransitionTriggered)
-                {
-                    musicTransitionTriggered = true;
-                    Debug.Log($"[MatchTimerManager] Triggering music buildup at {timeRemaining}s remaining!");
-                    MusicController.instance?.TriggerBuildup();
-                }
 
                 yield return new WaitForSeconds(1);
                 timeRemaining--;

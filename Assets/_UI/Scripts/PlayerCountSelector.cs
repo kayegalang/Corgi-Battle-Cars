@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.InputSystem;
 
 namespace _UI.Scripts
 {
@@ -21,10 +20,6 @@ namespace _UI.Scripts
         
         [Tooltip("Button to select 4 players")]
         [SerializeField] private Button fourPlayersButton;
-
-        [Header("Navigation")]
-        [Tooltip("Panel to return to when pressing back")]
-        [SerializeField] private GameObject previousPanel;
         
         private const int MIN_PLAYER_COUNT = 1;
         private const int MAX_PLAYER_COUNT = 4;
@@ -35,13 +30,6 @@ namespace _UI.Scripts
             InitializeButtons();
             ShowSelectionPanel();
         }
-
-        private void Update()
-        {
-            // Controller back button (B / East)
-            if (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)
-                GoBack();
-        }
         
         private void OnDestroy()
         {
@@ -51,23 +39,29 @@ namespace _UI.Scripts
         private void ValidateReferences()
         {
             if (selectionPanel == null)
+            {
                 Debug.LogError($"[{nameof(PlayerCountSelector)}] Selection panel is not assigned!", this);
+            }
             
             if (joinScreen == null)
+            {
                 Debug.LogError($"[{nameof(PlayerCountSelector)}] Join screen is not assigned!", this);
+            }
         }
         
         private void InitializeButtons()
         {
-            SetupButton(twoPlayersButton,   2);
+            SetupButton(twoPlayersButton, 2);
             SetupButton(threePlayersButton, 3);
-            SetupButton(fourPlayersButton,  4);
+            SetupButton(fourPlayersButton, 4);
         }
         
         private void ShowSelectionPanel()
         {
             if (selectionPanel != null)
+            {
                 selectionPanel.SetActive(true);
+            }
         }
         
         private void SetupButton(Button button, int playerCount)
@@ -98,20 +92,13 @@ namespace _UI.Scripts
             HideSelectionPanel();
             ShowJoinScreen(playerCount);
         }
-
-        public void GoBack()
-        {
-            if (previousPanel != null)
-            {
-                previousPanel.SetActive(true);
-                selectionPanel.SetActive(false);
-            }
-        }
         
         private void HideSelectionPanel()
         {
             if (selectionPanel != null)
+            {
                 selectionPanel.SetActive(false);
+            }
         }
         
         private void ShowJoinScreen(int playerCount)
@@ -125,8 +112,10 @@ namespace _UI.Scripts
             joinScreen.ShowJoinScreen(playerCount);
         }
         
-        private bool IsValidPlayerCount(int playerCount) =>
-            playerCount >= MIN_PLAYER_COUNT && playerCount <= MAX_PLAYER_COUNT;
+        private bool IsValidPlayerCount(int playerCount)
+        {
+            return playerCount >= MIN_PLAYER_COUNT && playerCount <= MAX_PLAYER_COUNT;
+        }
         
         private void CleanupButtonListeners()
         {
@@ -138,7 +127,9 @@ namespace _UI.Scripts
         private void RemoveButtonListener(Button button)
         {
             if (button != null)
+            {
                 button.onClick.RemoveAllListeners();
+            }
         }
     }
 }

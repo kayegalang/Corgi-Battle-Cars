@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using _Audio.scripts;
 using _Gameplay.Scripts;
 using TMPro;
 using UnityEngine;
@@ -52,11 +51,6 @@ namespace _UI.Scripts
         public UnityEvent onPlayAgain;
         public UnityEvent onReturnToMenu;
 
-        [Header("Finished Sequence")]
-        [SerializeField] private GameObject finishedTextObject;
-        [SerializeField] private Animator finishedAnimator;
-        [SerializeField] private float endBufferDuration = 2f;
-
         // ═══════════════════════════════════════════════
         //  NESTED CLASS — one loser row in the scoreboard
         // ═══════════════════════════════════════════════
@@ -92,32 +86,13 @@ namespace _UI.Scripts
 
         public void OnGameEnd()
         {
-            StartCoroutine(EndGameSequence());
+            Time.timeScale = 0f;
+            if (endScreen != null) endScreen.SetActive(true);
         }
 
         // ═══════════════════════════════════════════════
         //  DISPLAY RESULTS
         // ═══════════════════════════════════════════════
-
-        private IEnumerator EndGameSequence()
-        {
-            if (finishedTextObject != null)
-                finishedTextObject.SetActive(true);
-
-            // Play finished sound
-            if (AudioManager.instance != null && FMODEvents.instance != null)
-                AudioManager.instance.PlayOneShot(FMODEvents.instance.FinishedSound, transform.position);
-
-            if (finishedAnimator != null)
-                finishedAnimator.Play("FinishedTextAnimation");
-
-            yield return new WaitForSecondsRealtime(endBufferDuration);
-
-            Time.timeScale = 0f;
-
-            if (endScreen != null)
-                endScreen.SetActive(true);
-        }
 
         public void DisplayResults(List<(string tag, int points)> sorted)
         {

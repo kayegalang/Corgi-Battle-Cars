@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,117 +5,123 @@ namespace _UI.Scripts
 {
     public class CooldownBarUI : MonoBehaviour
     {
-        [Header("Cooldown Sprites")]
-        [SerializeField] private Sprite[] cooldownSprites;
-
         [Header("UI References")]
-        [SerializeField] private Image cooldownImage;
-
-        [Header("Flash Overlay")]
-        [SerializeField] private GameObject backgroundFlash;
-
-        [Header("Flash Settings")]
-        [SerializeField] private float flashInterval = 0.3f;
-
-        private float currentCooldown;
-
-        // Overheat state
-        private bool isOverheated;
-        private Coroutine pulseRoutine;
-
+        [Tooltip("The Image component that fills (should be set to Filled type)")]
+        [SerializeField] private Image cooldownFillImage;
+        
+        [Header("Visual Settings")]
+        [Tooltip("Color when weapon is ready to fire (bar is full)")]
+        [SerializeField] private Color weaponReadyColor = new Color(0.2f, 0.6f, 1f, 1f);
+        
+        [Tooltip("Color when weapon is on cooldown (bar is empty/filling)")]
+        [SerializeField] private Color onCooldownColor = new Color(1f, 0.2f, 0.2f, 1f);
+        
+        [Header("Optional Background")]
+        [Tooltip("Background image (optional - can be null)")]
+        [SerializeField] private Image backgroundImage;
+        
         private void Start()
         {
             ValidateComponents();
-
-            SetCooldown(0, 1);
-
-            if (backgroundFlash != null)
-                backgroundFlash.SetActive(false);
+            InitializeFillImage();
+            SetWeaponReady();
         }
-
-        // =========================
-        // COOLANT DISPLAY
-        // =========================
-        public void UpdateCooldown(float current, float max)
-        {
-            currentCooldown = current;
-
-            if (cooldownImage == null || cooldownSprites == null || cooldownSprites.Length == 0)
-                return;
-
-            float percent = Mathf.Clamp01(current / max);
-
-            int index = Mathf.RoundToInt(percent * (cooldownSprites.Length - 1));
-            index = Mathf.Clamp(index, 0, cooldownSprites.Length - 1);
-
-            cooldownImage.sprite = cooldownSprites[index];
-        }
-
-        public void SetCooldown(float current, float max)
-        {
-            UpdateCooldown(current, max);
-        }
-
-        // =========================
-        // OVERHEAT CONTROL (IMPORTANT)
-        // =========================
-        public void SetOverheatState(bool state)
-        {
-            isOverheated = state;
-
-            if (isOverheated)
-                StartPulse();
-            else
-                StopPulse();
-        }
-
-        // =========================
-        // PULSE SYSTEM
-        // =========================
-        private void StartPulse()
-        {
-            if (backgroundFlash == null) return;
-
-            if (pulseRoutine != null)
-                StopCoroutine(pulseRoutine);
-
-            pulseRoutine = StartCoroutine(PulseLoop());
-        }
-
-        private void StopPulse()
-        {
-            if (pulseRoutine != null)
-            {
-                StopCoroutine(pulseRoutine);
-                pulseRoutine = null;
-            }
-
-            if (backgroundFlash != null)
-                backgroundFlash.SetActive(false);
-        }
-
-        private IEnumerator PulseLoop()
-        {
-            while (isOverheated)
-            {
-                backgroundFlash.SetActive(true);
-                yield return new WaitForSeconds(flashInterval);
-
-                backgroundFlash.SetActive(false);
-                yield return new WaitForSeconds(flashInterval);
-            }
-        }
-
-        // =========================
-        // SAFETY
-        // =========================
+        
         private void ValidateComponents()
         {
-            if (cooldownImage == null)
-                Debug.LogError($"[{nameof(CooldownBarUI)}] cooldownImage not assigned!");
+            if (cooldownFillImage == null)
+            {
+                Debug.LogError($"[{nameof(CooldownBarUI)}] Cooldown fill image not assigned!");
+            }
+        }
+        
+        private void InitializeFillImage()
+        {
+            if (cooldownFillImage == null) return;
 
-            if (backgroundFlash == null)
-                Debug.LogWarning($"[{nameof(CooldownBarUI)}] backgroundFlash not assigned!");
+            cooldownFillImage.type       = Image.Type.Filled;
+            cooldownFillImage.fillMethod = Image.FillMethod.Horizontal;
+            cooldownFillImage.fillOrigin = (int)Image.OriginHorizontal.Right;
+        }
+        
+        public void UpdateCooldown(float currentCooldown, float maxCooldown)
+        {
+            if (cooldownFillImage == null)
+            {
+                Debug.LogError($"[{nameof(CooldownBarUI)}] {gameObject.name} - cooldownFillImage is NULL!");
+                return;
+            }
+            
+            float fillAmount = CalculateFillAmount(currentCooldown, maxCooldown);
+            
+            SetFillAmount(fillAmount); // This now handles color gradient!
+        }
+        
+        private float CalculateFillAmount(float current, float max)
+        {
+            if (max <= 0f)
+            {
+                return 1f;
+            }
+            
+            return Mathf.Clamp01(current / max);
+        }
+        
+        private void SetFillAmount(float amount)
+        {
+            cooldownFillImage.fillAmount = amount;
+            
+            // Smooth color gradient based on fill amount
+            // 100% - 50% = Blue to Yellow
+            // 50% - 0% = Yellow to Red
+            Color fillColor;
+            
+            if (amount >= 0.5f)
+            {
+                // High charge: Lerp from Yellow (0.5) to Blue (1.0)
+                float t = (amount - 0.5f) / 0.5f; // 0 at 50%, 1 at 100%
+                fillColor = Color.Lerp(Color.yellow, weaponReadyColor, t);
+            }
+            else
+            {
+                // Low charge: Lerp from Red (0) to Yellow (0.5)
+                float t = amount / 0.5f; // 0 at 0%, 1 at 50%
+                fillColor = Color.Lerp(onCooldownColor, Color.yellow, t);
+            }
+            
+            cooldownFillImage.color = fillColor;
+        }
+        
+        private bool WeaponIsReady(float fillAmount)
+        {
+            return fillAmount >= 1f;
+        }
+        
+        private void SetOnCooldown()
+        {
+            if (cooldownFillImage != null)
+            {
+                cooldownFillImage.color = onCooldownColor;
+            }
+        }
+        
+        private void SetWeaponReady()
+        {
+            if (cooldownFillImage != null)
+            {
+                cooldownFillImage.color = weaponReadyColor;
+                cooldownFillImage.fillAmount = 1f;
+            }
+        }
+        
+        public void Hide()
+        {
+            gameObject.SetActive(false);
+        }
+        
+        public void Show()
+        {
+            gameObject.SetActive(true);
         }
     }
 }

@@ -2,7 +2,6 @@ using System.Collections;
 using _Cars.ScriptableObjects;
 using _Cars.Scripts;
 using _Gameplay.Scripts;
-using _Audio.scripts;
 using UnityEngine;
 
 namespace _Bot.Scripts
@@ -23,17 +22,21 @@ namespace _Bot.Scripts
         private Vector2    moveInput;
         private Rigidbody  carRb;
 
+        // Zoomies power-up state
         private bool  hasZoomies             = false;
         private float speedMultiplier        = 1f;
         private float accelerationMultiplier = 1f;
         
+        // Super jump power-up state
         private bool  hasSuperJump            = false;
         private float jumpMultiplier          = 1f;
         private float jumpHeightCapMultiplier = 1f;
         
+        // Poop power-up state
         private bool      isSlipping    = false;
         private Coroutine slipCoroutine;
 
+        // Crash cooldown
         private float lastCrashTime = -999f;
         
         private const float GROUNDED_ANGULAR_DAMPING = 3f;
@@ -73,6 +76,7 @@ namespace _Bot.Scripts
 
             if (Time.time - lastCrashTime < crashCooldown) return;
 
+            // Ignore vertical impacts (landing from a jump)
             Vector3 impactDirection = collision.GetContact(0).normal;
             if (Mathf.Abs(impactDirection.y) > 0.5f) return;
 
@@ -81,9 +85,11 @@ namespace _Bot.Scripts
 
             lastCrashTime = Time.time;
 
+            // Damage ourselves
             CarHealth myHealth = GetComponent<CarHealth>();
             myHealth?.TakeDamage(crashDamage, null);
 
+            // Damage the other car if it has health
             CarHealth theirHealth = collision.gameObject.GetComponent<CarHealth>();
             if (theirHealth != null)
                 theirHealth.TakeDamage(crashDamage, null);
@@ -103,18 +109,9 @@ namespace _Bot.Scripts
         {
             if (carRb == null)
                 Debug.LogError($"[{nameof(BotController)}] Rigidbody not found on {gameObject.name}!");
-
+            
             if (carStats == null)
-                Debug.LogWarning($"[{nameof(BotController)}] CarStats not assigned — will be set by BotLoadoutRandomizer.");
-        }
-
-        // ═══════════════════════════════════════════════
-        //  REWIRING — called by CarVisualLoader after spawn
-        // ═══════════════════════════════════════════════
-
-        public void SetZoomiesParticles(ParticleSystem particles)
-        {
-            zoomiesParticles = particles;
+                Debug.LogError($"[{nameof(BotController)}] CarStats not assigned on {gameObject.name}!");
         }
 
         // ═══════════════════════════════════════════════
@@ -138,6 +135,7 @@ namespace _Bot.Scripts
         private void Move()
         {
             if (!ShouldMove()) return;
+            
             ApplyAcceleration();
             ConstrainLateralMovement();
         }
@@ -201,15 +199,6 @@ namespace _Bot.Scripts
             if (!CanJump()) return;
             Vector3 jumpForce = transform.up * carStats.JumpForce * jumpMultiplier;
             carRb.AddForce(jumpForce, ForceMode.Impulse);
-
-            // Play jump or super jump sound
-            if (AudioManager.instance != null && FMODEvents.instance != null)
-            {
-                var sound = hasSuperJump
-                    ? FMODEvents.instance.superjump
-                    : FMODEvents.instance.jump;
-                AudioManager.instance.PlayOneShot(sound, transform.position);
-            }
         }
         
         private bool CanJump() => IsGrounded() && carStats != null;
@@ -219,9 +208,8 @@ namespace _Bot.Scripts
             moveInput.x = Mathf.Clamp(turnAmount, -1f, 1f);
             moveInput.y = Mathf.Clamp(moveAmount, -1f, 1f);
         }
-
-        public Vector2 GetMoveInput() => moveInput;
-        public float   GetSpeed()     => carRb == null ? 0f : carRb.linearVelocity.magnitude;
+        
+        public float GetSpeed() => carRb == null ? 0f : carRb.linearVelocity.magnitude;
         
         private void CapJumpHeight()
         {
@@ -255,10 +243,6 @@ namespace _Bot.Scripts
             speedMultiplier        = speedMult;
             accelerationMultiplier = accelMult;
             if (zoomiesParticles != null) zoomiesParticles.Play();
-
-            // Play zoomies sound
-            if (AudioManager.instance != null && FMODEvents.instance != null)
-                AudioManager.instance.PlayOneShot(FMODEvents.instance.zoomies, transform.position);
         }
         
         public void RemoveSpeedMultiplier()
@@ -267,10 +251,6 @@ namespace _Bot.Scripts
             speedMultiplier        = 1f;
             accelerationMultiplier = 1f;
             if (zoomiesParticles != null) zoomiesParticles.Stop();
-
-            // Play zoomies end sound
-            if (AudioManager.instance != null && FMODEvents.instance != null)
-                AudioManager.instance.PlayOneShot(FMODEvents.instance.zoomies, transform.position);
         }
 
         // ═══════════════════════════════════════════════
@@ -279,15 +259,15 @@ namespace _Bot.Scripts
 
         public void ApplyJumpMultiplier(float jumpMult, float jumpHeightCapMult)
         {
-            hasSuperJump            = true;
-            jumpMultiplier          = jumpMult;
+            hasSuperJump           = true;
+            jumpMultiplier         = jumpMult;
             jumpHeightCapMultiplier = jumpHeightCapMult;
         }
     
         public void RemoveJumpMultiplier()
         {
-            hasSuperJump            = false;
-            jumpMultiplier          = 1f;
+            hasSuperJump           = false;
+            jumpMultiplier         = 1f;
             jumpHeightCapMultiplier = 1f;
         }
 

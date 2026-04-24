@@ -12,7 +12,6 @@ TagManager:
   - BotTwo
   - BotThree
   - BotFour
-  - FxTemporaire
   layers:
   - Default
   - TransparentFX
@@ -26,7 +25,7 @@ TagManager:
   - Player4
   - Loading
   - Ground
-  - CharacterSelectPreviewArea
+  - 
   - 
   - 
   - 

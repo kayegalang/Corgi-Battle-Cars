@@ -1,9 +1,7 @@
-using _Audio.scripts;
 using _Projectiles.Scripts;
 using _Projectiles.ScriptableObjects;
 using _Gameplay.Scripts;
 using _UI.Scripts;
-using _Effects.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -29,16 +27,12 @@ namespace _Cars.Scripts
         [SerializeField] [Tooltip("How fast the reticle moves with controller stick")]
         [Range(100f, 2000f)]
         private float controllerSensitivity = 900f;
-
-        [SerializeField] [Tooltip("The transform we fire projectiles from")]
-        private Transform firePoint;
         
         [SerializeField] [Tooltip("How fast the reticle moves with mouse")]
         [Range(0.1f, 5f)]
         private float mouseSensitivity = 1.5f;
-        [SerializeField] [Tooltip("Extra padding in pixels to keep the crosshair fully inside the viewport — increase if it still bleeds into adjacent screens")]
-        private float reticleBorderPadding = 0f;
-        [SerializeField] private CooldownBarUI cooldownBar;
+
+        private CooldownBarUI cooldownBar;
 
         private PlayerInput     playerInput;
         private InputAction     shootAction;
@@ -46,6 +40,7 @@ namespace _Cars.Scripts
         private Rigidbody       carRigidbody;
         private PauseController pauseController;
         private Camera          playerCamera;
+        private Transform       firePoint;
         
         private Vector2 controllerAimInput;
         private Vector2 lastMousePosition;
@@ -59,6 +54,9 @@ namespace _Cars.Scripts
         private float nextAllowedFireTime;
         private bool  isOverheated = false;
 
+        // NOTE: fireRate and chargeRegenRate are read directly from projectileType
+        // every frame so TuningManager changes take effect immediately without needing
+        // to call InitializeFromProjectile() again.
         private float FireRate        => projectileType != null ? projectileType.FireRate        : 0.5f;
         private float ChargeRegenRate => projectileType != null ? MAX_CHARGE / Mathf.Max(projectileType.CooldownDuration, 0.1f) : 10f;
 
@@ -75,10 +73,22 @@ namespace _Cars.Scripts
             ValidateProjectileType();
         }
 
+        private void Start()
+        {
+            StartCoroutine(FindCooldownBarDelayed());
+        }
+
+        private System.Collections.IEnumerator FindCooldownBarDelayed()
+        {
+            yield return null;
+            FindCooldownBar();
+        }
+
         private void CacheComponents()
         {
             playerInput     = GetComponent<PlayerInput>();
             carRigidbody    = GetComponent<Rigidbody>();
+            firePoint       = transform.Find("FirePoint");
             playerCamera    = GetComponentInChildren<Camera>();
             pauseController = FindFirstObjectByType<PauseController>();
         }
@@ -106,6 +116,20 @@ namespace _Cars.Scripts
         {
             if (projectileType == null)
                 Debug.LogError($"[{nameof(CarShooter)}] No projectile type assigned on {gameObject.name}!");
+        }
+
+        private void FindCooldownBar()
+        {
+            if (cooldownBar != null) return;
+
+            string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (scene == "MainMenu")
+                return;
+
+            cooldownBar = GetComponentInChildren<CooldownBarUI>();
+
+            if (cooldownBar == null)
+                Debug.LogError($"[{nameof(CarShooter)}] ✗ {gameObject.name} - CooldownBarUI not found!");
         }
 
         // ═══════════════════════════════════════════════
@@ -213,10 +237,13 @@ namespace _Cars.Scripts
         {
             if (currentCharge >= MAX_CHARGE) return;
 
+            // Read ChargeRegenRate live from projectileType so tuning changes apply immediately
             currentCharge = Mathf.Min(currentCharge + ChargeRegenRate * Time.deltaTime, MAX_CHARGE);
 
             if (currentCharge >= MAX_CHARGE && isOverheated)
+            {
                 isOverheated = false;
+            }
         }
 
         private bool GameplayIsDisabled() => !gameplayEnabled;
@@ -226,7 +253,7 @@ namespace _Cars.Scripts
         private void UpdateCooldownBar()
         {
             if (cooldownBar == null) return;
-            cooldownBar.SetCooldown(currentCharge, MAX_CHARGE);
+            cooldownBar.UpdateCooldown(currentCharge, MAX_CHARGE);
         }
 
         // ═══════════════════════════════════════════════
@@ -250,6 +277,7 @@ namespace _Cars.Scripts
                     isOverheated  = true;
                 }
 
+                // Read FireRate live — so TuningManager changes apply immediately
                 nextAllowedFireTime = Time.time + FireRate;
             }
         }
@@ -309,14 +337,9 @@ namespace _Cars.Scripts
             RectTransform canvasRect   = reticleCanvas.transform as RectTransform;
             Rect          viewportRect = playerCamera.pixelRect;
 
-            // Pad inward by half the reticle's size plus any extra border padding
-            // so the entire crosshair image stays within the viewport
-            float halfW = reticle.rect.width  * 0.5f + reticleBorderPadding;
-            float halfH = reticle.rect.height * 0.5f + reticleBorderPadding;
-
             Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, reticle.position);
-            screenPos.x = Mathf.Clamp(screenPos.x, viewportRect.xMin + halfW, viewportRect.xMax - halfW);
-            screenPos.y = Mathf.Clamp(screenPos.y, viewportRect.yMin + halfH, viewportRect.yMax - halfH);
+            screenPos.x = Mathf.Clamp(screenPos.x, viewportRect.xMin, viewportRect.xMax);
+            screenPos.y = Mathf.Clamp(screenPos.y, viewportRect.yMin, viewportRect.yMax);
 
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 canvasRect, screenPos, null, out Vector2 localPoint);
@@ -330,22 +353,6 @@ namespace _Cars.Scripts
 
         private void FireProjectile()
         {
-            if (reticle == null || playerCamera == null || firePoint == null) return;
-            
-            // Play weapon fire sound
-            if (AudioManager.instance != null && FMODEvents.instance != null)
-                AudioManager.instance.PlayOneShot(projectileType.FireSound, firePoint.position);
-
-
-            // Laser weapons deal damage via HoundVisual raycast — no projectile needed
-            if (projectileType != null && projectileType.IsLaser)
-            {
-                ApplyRecoilToShooter(CalculateShootDirectionFromReticle());
-                GetComponent<CameraShaker>()?.ShakeShoot();
-                GetComponent<ControllerRumbler>()?.RumbleShoot();
-                return;
-            }
-
             Vector3    dir        = CalculateShootDirectionFromReticle();
             GameObject projectile = CreateProjectileAtFirePoint(dir);
 
@@ -354,7 +361,6 @@ namespace _Cars.Scripts
             ApplyRecoilToShooter(dir);
 
             GetComponent<CameraShaker>()?.ShakeShoot();
-            GetComponent<ControllerRumbler>()?.RumbleShoot();
         }
 
         private Vector3 CalculateShootDirectionFromReticle()
@@ -478,25 +484,9 @@ namespace _Cars.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  SET FIRE POINT (called by CarVisualLoader)
-        // ═══════════════════════════════════════════════
-
-        /// <summary>
-        /// Called by CarVisualLoader after spawning a weapon model.
-        /// Updates the fire point to match the new weapon's FirePoint child.
-        /// </summary>
-        public void SetFirePoint(Transform newFirePoint)
-        {
-            firePoint = newFirePoint;
-            Debug.Log($"[CarShooter] FirePoint updated to {newFirePoint.name} on {gameObject.name}");
-        }
-
-        // ═══════════════════════════════════════════════
         //  SET PROJECTILE TYPE (runtime swap)
         // ═══════════════════════════════════════════════
-        
-        public bool IsFiring() => isFiring;
-        
+
         public void SetProjectileType(ProjectileObject newProjectile)
         {
             if (newProjectile == null)
@@ -509,16 +499,6 @@ namespace _Cars.Scripts
             currentCharge       = MAX_CHARGE;
             isOverheated        = false;
             nextAllowedFireTime = 0f;
-        }
-        
-        // ═══════════════════════════════════════════════
-        //  AIM DIRECTION (used by TurretVisuals)
-        // ═══════════════════════════════════════════════
-
-        public Vector3 GetAimDirection()
-        {
-            if (reticle == null || playerCamera == null || firePoint == null) return Vector3.zero;
-            return CalculateShootDirectionFromReticle();
         }
     }
 }

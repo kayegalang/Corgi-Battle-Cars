@@ -34,7 +34,7 @@ namespace _UI.Scripts
         [Header("Transparency")]
         [Tooltip("0 = invisible, 1 = fully opaque. Applied to collar and all additional images.")]
         [Range(0f, 1f)]
-        [SerializeField] private float nameTagAlpha = 1f;
+        [SerializeField] private float nameTagAlpha = 0.6f;
 
         // ═══════════════════════════════════════════════
         //  LIFECYCLE
@@ -63,10 +63,10 @@ namespace _UI.Scripts
             if (playerLabelText == null) return;
 
             string tag   = gameObject.tag;
-            string label = tag.Contains("One")   ? "Player1" :
-                           tag.Contains("Two")   ? "Player2" :
-                           tag.Contains("Three") ? "Player3" :
-                           tag.Contains("Four")  ? "Player4" : "??";
+            string label = tag.Contains("One")   ? "P1" :
+                           tag.Contains("Two")   ? "P2" :
+                           tag.Contains("Three") ? "P3" :
+                           tag.Contains("Four")  ? "P4" : "??";
 
             playerLabelText.text = label;
 

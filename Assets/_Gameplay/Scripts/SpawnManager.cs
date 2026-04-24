@@ -1,12 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using _Cars.Scripts;
 using _UI.Scripts;
 using _Player.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using FMODUnity;
 
 namespace _Gameplay.Scripts 
 {
@@ -20,10 +18,12 @@ namespace _Gameplay.Scripts
         [SerializeField] private float respawnDelay = 3f;
         
         private readonly HashSet<int> usedSpawnIndices = new HashSet<int>();
+        private ParticleSystem driftParticlePrefab;
         
         private const int    TOTAL_PLAYERS     = 4;
         private const string PLAYER_TAG_PREFIX = "Player";
         private const string BOT_TAG_PREFIX    = "Bot";
+        private const string DRIFT_PARTICLE_RESOURCE_PATH = "VFXPACK_FIRE_WALLCOEUR/Prefab/VFX_GreenSmoke";
         
         private static readonly Dictionary<int, string> PlayerTagMap = new Dictionary<int, string>
         {
@@ -49,6 +49,7 @@ namespace _Gameplay.Scripts
         {
             ClearUsedSpawnIndices();
             ValidateReferences();
+            LoadDriftParticlePrefab();
         }
         
         private void ClearUsedSpawnIndices()
@@ -68,8 +69,18 @@ namespace _Gameplay.Scripts
                 Debug.LogError($"[{nameof(SpawnManager)}] Bot prefab is not assigned!");
         }
 
+        private void LoadDriftParticlePrefab()
+        {
+            driftParticlePrefab = Resources.Load<ParticleSystem>(DRIFT_PARTICLE_RESOURCE_PATH);
+
+            if (driftParticlePrefab == null)
+            {
+                Debug.LogError($"[{nameof(SpawnManager)}] Could not load drift particle prefab at Resources/{DRIFT_PARTICLE_RESOURCE_PATH}");
+            }
+        }
+
         // ═══════════════════════════════════════════════
-        //  START GAME
+        //  START GAME — no spawn protection on initial spawn
         // ═══════════════════════════════════════════════
         
         public void StartGame(int humanPlayerCount)
@@ -100,12 +111,7 @@ namespace _Gameplay.Scripts
                 GameObject player = SpawnPlayer(playerTag, spawnPoint, playerPrefab);
                 
                 if (player != null)
-                {
                     RestorePlayerDevice(player, i);
-
-                    // Assign FMOD listener index — P1=0, P2=1, P3=2, P4=3
-                    AssignListenerIndex(player, i - 1);
-                }
                 
                 RegisterPlayer(playerTag);
             }
@@ -132,40 +138,7 @@ namespace _Gameplay.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  FMOD LISTENER INDEX
-        // ═══════════════════════════════════════════════
-
-        /// <summary>
-        /// Assigns a unique FMOD listener index to each player's StudioListener.
-        /// ListenerNumber has no public setter so we use reflection to set
-        /// the private backing field directly.
-        /// </summary>
-        private void AssignListenerIndex(GameObject player, int listenerIndex)
-        {
-            StudioListener listener = player.GetComponentInChildren<StudioListener>();
-
-            if (listener == null)
-            {
-                Debug.LogWarning($"[SpawnManager] No StudioListener found on {player.name}!");
-                return;
-            }
-
-            FieldInfo field = typeof(StudioListener).GetField("listenerNumber",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-
-            if (field != null)
-            {
-                field.SetValue(listener, listenerIndex);
-                Debug.Log($"[SpawnManager] Assigned FMOD listener index {listenerIndex} to {player.name}");
-            }
-            else
-            {
-                Debug.LogWarning($"[SpawnManager] Could not find listenerNumber field on StudioListener — listener index not set!");
-            }
-        }
-
-        // ═══════════════════════════════════════════════
-        //  RESPAWN
+        //  RESPAWN — spawn protection activated here
         // ═══════════════════════════════════════════════
         
         public void Respawn(string playerTag)
@@ -215,9 +188,6 @@ namespace _Gameplay.Scripts
                     int playerNumber = GetPlayerNumberFromTag(playerTag);
                     RestorePlayerDevice(player, playerNumber);
 
-                    // Re-assign listener index on respawn
-                    AssignListenerIndex(player, playerNumber - 1);
-
                     player.GetComponent<CarHealth>()?.ActivateSpawnProtection();
                 }
             }
@@ -245,9 +215,10 @@ namespace _Gameplay.Scripts
 
             SetPlayerIdentity(player, playerTag);
 
+            SetupPlayerDriftParticles(player);
+
             player.GetComponent<CarStatsLoader>()?.LoadForCurrentTag();
             player.GetComponent<WeaponStatsLoader>()?.LoadForCurrentTag();
-            player.GetComponent<CarVisualLoader>()?.LoadForCurrentTag();
             
             if (hasPlayerInput)
                 RestorePlayerInput(player, prefabInput, wasEnabled);
@@ -265,6 +236,52 @@ namespace _Gameplay.Scripts
         {
             player.tag  = playerTag;
             player.name = playerTag;
+        }
+
+        private void SetupPlayerDriftParticles(GameObject player)
+        {
+            if (player == null || driftParticlePrefab == null)
+                return;
+
+            Transform leftWheel = player.transform.Find("CarModel/Wheels/BL_Wheel");
+            Transform rightWheel = player.transform.Find("CarModel/Wheels/BR_Wheel");
+
+            if (leftWheel == null || rightWheel == null)
+            {
+                Debug.LogWarning($"[{nameof(SpawnManager)}] Could not find rear wheels on {player.name}. Check the wheel hierarchy path.");
+                return;
+            }
+
+            ParticleSystem leftParticles = GetOrCreateDriftParticles(leftWheel, "BL_DriftParticles");
+            ParticleSystem rightParticles = GetOrCreateDriftParticles(rightWheel, "BR_DriftParticles");
+
+            CarController carController = player.GetComponent<CarController>();
+            if (carController != null)
+            {
+                carController.SetDriftParticleReferences(leftParticles, rightParticles);
+            }
+        }
+
+        private ParticleSystem GetOrCreateDriftParticles(Transform wheelTransform, string objectName)
+        {
+            Transform existing = wheelTransform.Find(objectName);
+            if (existing != null)
+            {
+                ParticleSystem existingPs = existing.GetComponent<ParticleSystem>();
+                if (existingPs != null)
+                {
+                    existingPs.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                    return existingPs;
+                }
+            }
+
+            ParticleSystem newParticles = Instantiate(driftParticlePrefab, wheelTransform);
+            newParticles.name = objectName;
+            newParticles.transform.localPosition = new Vector3(0f, -0.2f, 0f);
+            newParticles.transform.localRotation = Quaternion.identity;
+            newParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            return newParticles;
         }
 
         // ═══════════════════════════════════════════════
@@ -405,6 +422,7 @@ namespace _Gameplay.Scripts
                     playerInput.SwitchCurrentControlScheme(controlScheme, device, Mouse.current);
                 else
                     playerInput.SwitchCurrentControlScheme(controlScheme, device);
+                
             }
             catch (System.Exception e)
             {
@@ -441,16 +459,24 @@ namespace _Gameplay.Scripts
             if (shouldUseController)
             {
                 if (Gamepad.current != null)
+                {
                     playerInput.SwitchCurrentControlScheme("Controller", Gamepad.current);
+                }
                 else
+                {
                     Debug.LogWarning($"[{nameof(SpawnManager)}] No gamepad found!");
+                }
             }
             else
             {
                 if (Keyboard.current != null && Mouse.current != null)
+                {
                     playerInput.SwitchCurrentControlScheme("Keyboard", Keyboard.current, Mouse.current);
+                }
                 else
+                {
                     Debug.LogWarning($"[{nameof(SpawnManager)}] No keyboard/mouse found!");
+                }
             }
         }
 
@@ -490,7 +516,7 @@ namespace _Gameplay.Scripts
             PlayerInput instanceInput = player.GetComponent<PlayerInput>();
             if (instanceInput != null)
             {
-                instanceInput.camera  = player.GetComponentInChildren<Camera>();
+                instanceInput.camera = player.GetComponentInChildren<Camera>();
                 instanceInput.enabled = true;
             }
     

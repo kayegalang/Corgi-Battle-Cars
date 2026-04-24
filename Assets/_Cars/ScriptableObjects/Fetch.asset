@@ -15,19 +15,6 @@ MonoBehaviour:
   carName: Fetch
   carDescription: Fast, zippy but fragile (harder to control)
   carID: Speedy
-  carModelPrefab: {fileID: 8767961143671080588, guid: 60e68a41d81844daaa7925486b00f869, type: 3}
-  carModelOffset: {x: 0, y: 0, z: 0}
-  carModelRotation: {x: 0, y: 0, z: 0}
-  carModelScale: {x: 5, y: 5, z: 5}
-  weaponOffsets:
-  - weaponName: bArK-47
-    positionOffset: {x: -0.000003, y: 0.000203, z: 0.001429}
-    rotationOffset: {x: 0, y: 0, z: 0}
-    scaleOffset: {x: 1, y: 1, z: 1}
-  - weaponName: The Hound
-    positionOffset: {x: 0.000016, y: 0.00019, z: 0.001423}
-    rotationOffset: {x: 90, y: 0, z: 0}
-    scaleOffset: {x: 0.01, y: 0.01, z: 0.01}
   speedStat: 95
   accelerationStat: 90
   jumpForceStat: 60
@@ -43,4 +30,4 @@ MonoBehaviour:
   minTurnSpeed: 20
   maxTurnSpeed: 35
   groundCheckOffset: {x: 0, y: 0.26, z: 0}
-  groundCheckDistance: 0.5
+  groundCheckDistance: 0.26

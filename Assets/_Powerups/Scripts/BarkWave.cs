@@ -27,13 +27,17 @@ namespace _PowerUps.Scripts
         [SerializeField] private float upwardForce = 300f;
         
         private GameObject owner;
-        private Vector3    direction;
-        private float      currentScale = 1f;
+        private Vector3 direction;
+        private float currentScale = 1f;
         
         private void Start()
         {
+            // Destroy after lifetime
             Destroy(gameObject, lifetime);
+            
+            // Set initial direction (forward)
             direction = transform.forward;
+            
             Debug.Log($"[BarkWave] Sound wave spawned! Direction: {direction}");
         }
         
@@ -51,13 +55,16 @@ namespace _PowerUps.Scripts
         
         private void MoveForward()
         {
+            // Move in the direction it was spawned
             transform.position += direction * speed * Time.deltaTime;
         }
         
         private void ExpandWave()
         {
+            // Gradually scale up
             currentScale += expansionSpeed * Time.deltaTime;
-            currentScale  = Mathf.Min(currentScale, maxScale);
+            currentScale = Mathf.Min(currentScale, maxScale);
+            
             transform.localScale = Vector3.one * currentScale;
         }
         
@@ -65,43 +72,54 @@ namespace _PowerUps.Scripts
         {
             Debug.Log($"[BarkWave] Hit: {other.gameObject.name}");
             
-            // Check both the collider's GameObject AND its root
-            // so children of the owner (like CarModel, colliders etc.) are also ignored
-            if (IsOwner(other))
+            // Don't affect the owner
+            if (owner != null && other.gameObject == owner)
             {
                 Debug.Log($"[BarkWave] Ignoring owner");
                 return;
             }
             
-            CarController carController = other.GetComponent<CarController>()
-                ?? other.transform.root.GetComponent<CarController>();
-
-            BotController botController = other.GetComponent<BotController>()
-                ?? other.transform.root.GetComponent<BotController>();
-
-            Rigidbody targetRb = other.GetComponent<Rigidbody>()
-                ?? other.transform.root.GetComponent<Rigidbody>();
+            // Check if it's a car (player or bot)
+            CarController carController = other.GetComponent<CarController>();
+            BotController botController = other.GetComponent<BotController>();
+            
+            // Also check root in case collider is on a child
+            if (carController == null)
+            {
+                carController = other.transform.root.GetComponent<CarController>();
+            }
+            if (botController == null)
+            {
+                botController = other.transform.root.GetComponent<BotController>();
+            }
+            
+            // Get the rigidbody
+            Rigidbody targetRb = other.GetComponent<Rigidbody>();
+            if (targetRb == null)
+            {
+                targetRb = other.transform.root.GetComponent<Rigidbody>();
+            }
             
             if ((carController != null || botController != null) && targetRb != null)
+            {
                 PushBack(other.gameObject, targetRb);
-        }
-
-        private bool IsOwner(Collider other)
-        {
-            if (owner == null) return false;
-            return other.gameObject == owner
-                || other.transform.root.gameObject == owner;
+            }
         }
         
         private void PushBack(GameObject target, Rigidbody targetRb)
         {
+            // Calculate push direction (away from the wave's origin)
             Vector3 pushDirection = (target.transform.position - transform.position).normalized;
-            pushDirection.y = 0.3f;
+            
+            // Add upward component for dramatic effect
+            pushDirection.y = 0.3f; // Mix in some upward force
             pushDirection.Normalize();
             
+            // Apply the force
             Vector3 force = pushDirection * pushForce + Vector3.up * upwardForce;
             targetRb.AddForce(force, ForceMode.Impulse);
 
+            // Shake the hit target's camera
             target.GetComponent<CameraShaker>()?.ShakeBarkHit();
             
             Debug.Log($"[BarkWave] 💨 PUSHED {target.name} back! Force: {force}");

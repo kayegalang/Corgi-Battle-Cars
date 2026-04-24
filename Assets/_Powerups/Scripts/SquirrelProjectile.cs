@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using _Audio.scripts;
 using _Bot.Scripts;
 using UnityEngine;
 
@@ -24,13 +23,9 @@ namespace _PowerUps.Scripts
         
         public void Initialize(GameObject projectileThrower, float radius, float duration)
         {
-            thrower         = projectileThrower;
-            attractRadius   = radius;
+            thrower = projectileThrower;
+            attractRadius = radius;
             distractDuration = duration;
-
-            // Play squirrel launch sound
-            if (AudioManager.instance != null && FMODEvents.instance != null)
-                AudioManager.instance.PlayOneShot(FMODEvents.instance.squirrel, transform.position);
         }
         
         private void OnCollisionEnter(Collision collision)

@@ -15,18 +15,7 @@ MonoBehaviour:
   projectileName: bArK-47
   projectileDescription: Fast but inaccurate
   projectileID: Rapid Fire
-  weaponModelPrefab: {fileID: 6924448426231431607, guid: 6361fc8400e964e9bad2bbd96a6f7242, type: 3}
-  weaponModelOffset: {x: -0.012, y: 1.774, z: -1.167}
-  weaponModelRotation: {x: -90, y: 0, z: 0}
-  fireSound:
-    Guid:
-      Data1: -1157410978
-      Data2: 1083807063
-      Data3: 2044705720
-      Data4: -1961419844
-    Path: event:/Gameplay/Shoot
   projectilePrefab: {fileID: 5940751187897929002, guid: a1cbf08f72ec94c2ca82033c3604a0d1, type: 3}
-  isLaser: 0
   damageStat: 50
   minDamage: 5
   maxDamage: 50

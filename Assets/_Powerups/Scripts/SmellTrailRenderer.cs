@@ -1,20 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
-using FMOD.Studio;
-using FMODUnity;
-using _Audio.scripts;
 
 namespace _PowerUps.Scripts
 {
     /// <summary>
-    /// Draws animated smell trails from the power-up toward each player OR bot in range.
-    /// Creates multiple parallel wavy lines per entity for a thick ribbon effect.
+    /// Draws animated smell trails from the power-up toward each player in range.
+    /// Creates multiple parallel wavy lines per player for a thick ribbon effect.
+    /// Each trail is on the target player's layer so only their camera sees it.
     /// Add to the same GameObject as PowerUpPickup.
     /// </summary>
     public class SmellTrailRenderer : MonoBehaviour
     {
         [Header("Trail Settings")]
-        [Tooltip("How far the smell trail reaches toward players and bots")]
+        [Tooltip("How far the smell trail reaches toward players")]
         [SerializeField] private float smellDistance = 25f;
 
         [Tooltip("Width of each individual line")]
@@ -51,18 +49,12 @@ namespace _PowerUps.Scripts
         [Tooltip("Phase offset per line — makes lines braid around each other")]
         [SerializeField] private float linePhaseOffset = 0.5f;
 
+        // List of LineRenderers per player
         private readonly Dictionary<GameObject, List<LineRenderer>> activeTrails =
             new Dictionary<GameObject, List<LineRenderer>>();
 
-        // One looping sniff sound per player in range
-        private readonly Dictionary<GameObject, EventInstance> sniffInstances =
-            new Dictionary<GameObject, EventInstance>();
-
-        private static readonly string[] AllTags =
-        {
-            "PlayerOne", "PlayerTwo", "PlayerThree", "PlayerFour",
-            "BotOne",    "BotTwo",    "BotThree",    "BotFour"
-        };
+        private readonly string[] playerTags =
+            { "PlayerOne", "PlayerTwo", "PlayerThree", "PlayerFour" };
 
         private float textureOffset = 0f;
 
@@ -74,14 +66,6 @@ namespace _PowerUps.Scripts
         {
             textureOffset -= scrollSpeed * Time.deltaTime;
             UpdateTrails();
-            UpdateSniffSoundPositions();
-        }
-
-        private void UpdateSniffSoundPositions()
-        {
-            foreach (var kvp in sniffInstances)
-                if (kvp.Key != null)
-                    kvp.Value.set3DAttributes(RuntimeUtils.To3DAttributes(kvp.Key.transform));
         }
 
         private void OnDestroy()
@@ -95,19 +79,19 @@ namespace _PowerUps.Scripts
 
         private void UpdateTrails()
         {
-            List<GameObject> entitiesInRange = GetEntitiesInRange();
+            List<GameObject> playersInRange = GetPlayersInRange();
 
-            foreach (GameObject entity in entitiesInRange)
-                if (!activeTrails.ContainsKey(entity))
-                    AddTrail(entity);
+            foreach (GameObject player in playersInRange)
+                if (!activeTrails.ContainsKey(player))
+                    AddTrail(player);
 
             List<GameObject> toRemove = new List<GameObject>();
             foreach (var kvp in activeTrails)
-                if (!entitiesInRange.Contains(kvp.Key) || kvp.Key == null)
+                if (!playersInRange.Contains(kvp.Key) || kvp.Key == null)
                     toRemove.Add(kvp.Key);
 
-            foreach (GameObject entity in toRemove)
-                RemoveTrail(entity);
+            foreach (GameObject player in toRemove)
+                RemoveTrail(player);
 
             foreach (var kvp in activeTrails)
                 if (kvp.Key != null && kvp.Value != null)
@@ -115,45 +99,54 @@ namespace _PowerUps.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  ENTITY DETECTION — players AND bots
+        //  PLAYER DETECTION
         // ═══════════════════════════════════════════════
 
-        private List<GameObject> GetEntitiesInRange()
+        private List<GameObject> GetPlayersInRange()
         {
-            var entities = new List<GameObject>();
+            var players = new List<GameObject>();
 
-            foreach (string tag in AllTags)
+            foreach (string tag in playerTags)
             {
                 try
                 {
                     GameObject[] tagged = GameObject.FindGameObjectsWithTag(tag);
-                    foreach (GameObject entity in tagged)
+                    foreach (GameObject player in tagged)
                     {
-                        if (entity == null) continue;
+                        if (player == null) continue;
 
-                        float dist = Vector3.Distance(transform.position, entity.transform.position);
+                        // Skip bots — no PlayerInput means it's a bot
+                        if (player.GetComponent<UnityEngine.InputSystem.PlayerInput>() == null)
+                            continue;
+
+                        float dist = Vector3.Distance(transform.position, player.transform.position);
                         if (dist <= smellDistance)
-                            entities.Add(entity);
+                            players.Add(player);
                     }
                 }
                 catch { }
             }
 
-            return entities;
+            return players;
         }
 
         // ═══════════════════════════════════════════════
         //  TRAIL MANAGEMENT
         // ═══════════════════════════════════════════════
 
-        private void AddTrail(GameObject entity)
+        private void AddTrail(GameObject player)
         {
+            // Get player's layer so only their camera renders this trail
+            Camera playerCamera = player.GetComponentInChildren<Camera>();
+            int    playerLayer  = playerCamera != null ? playerCamera.gameObject.layer : 0;
+
             var lines = new List<LineRenderer>();
 
             for (int i = 0; i < lineCount; i++)
             {
-                GameObject trailGO = new GameObject($"SmellTrail_{entity.name}_Line{i}");
+                GameObject trailGO = new GameObject($"SmellTrail_{player.name}_Line{i}");
                 trailGO.transform.SetParent(transform);
+                trailGO.layer = playerLayer;
 
                 LineRenderer lr  = trailGO.AddComponent<LineRenderer>();
                 lr.positionCount = segments + 1;
@@ -169,6 +162,7 @@ namespace _PowerUps.Scripts
 
                 lr.material.color = trailColor;
 
+                // Centre lines are brighter, outer lines fade slightly
                 float alphaScale = 1f - (Mathf.Abs(i - (lineCount - 1) / 2f) / lineCount) * 0.35f;
 
                 Gradient gradient = new Gradient();
@@ -189,24 +183,19 @@ namespace _PowerUps.Scripts
                 lines.Add(lr);
             }
 
-            activeTrails[entity] = lines;
-
-            // Start looping sniff sound for this player
-            StartSniffSound(entity);
+            activeTrails[player] = lines;
+            Debug.Log($"[SmellTrailRenderer] Added {lineCount}-line trail toward {player.name}");
         }
 
-        private void RemoveTrail(GameObject entity)
+        private void RemoveTrail(GameObject player)
         {
-            if (activeTrails.TryGetValue(entity, out List<LineRenderer> lines))
+            if (activeTrails.TryGetValue(player, out List<LineRenderer> lines))
             {
                 foreach (var lr in lines)
                     if (lr != null) Destroy(lr.gameObject);
 
-                activeTrails.Remove(entity);
+                activeTrails.Remove(player);
             }
-
-            // Stop sniff sound for this player
-            StopSniffSound(entity);
         }
 
         private void RemoveAllTrails()
@@ -216,46 +205,16 @@ namespace _PowerUps.Scripts
                     if (lr != null) Destroy(lr.gameObject);
 
             activeTrails.Clear();
-
-            foreach (var kvp in sniffInstances)
-            {
-                kvp.Value.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-                kvp.Value.release();
-            }
-            sniffInstances.Clear();
-        }
-
-        // ═══════════════════════════════════════════════
-        //  SNIFF SOUND
-        // ═══════════════════════════════════════════════
-
-        private void StartSniffSound(GameObject player)
-        {
-            if (FMODEvents.instance == null) return;
-            if (sniffInstances.ContainsKey(player)) return;
-
-            EventInstance instance = RuntimeManager.CreateInstance(FMODEvents.instance.sniff);
-            instance.set3DAttributes(RuntimeUtils.To3DAttributes(player.transform));
-            instance.start();
-            sniffInstances[player] = instance;
-        }
-
-        private void StopSniffSound(GameObject player)
-        {
-            if (!sniffInstances.TryGetValue(player, out EventInstance instance)) return;
-            instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-            instance.release();
-            sniffInstances.Remove(player);
         }
 
         // ═══════════════════════════════════════════════
         //  TRAIL POSITIONS
         // ═══════════════════════════════════════════════
 
-        private void UpdateTrailPositions(List<LineRenderer> lines, GameObject entity)
+        private void UpdateTrailPositions(List<LineRenderer> lines, GameObject player)
         {
             Vector3 start = transform.position + Vector3.up * heightOffset;
-            Vector3 end   = entity.transform.position + Vector3.up * heightOffset;
+            Vector3 end   = player.transform.position + Vector3.up * heightOffset;
 
             Vector3 direction     = (end - start).normalized;
             Vector3 perpendicular = Vector3.Cross(direction, Vector3.up).normalized;
@@ -265,8 +224,11 @@ namespace _PowerUps.Scripts
                 LineRenderer lr = lines[lineIdx];
                 if (lr == null) continue;
 
+                // Each line is offset laterally — spread evenly around centre
                 float lateralOffset = (lineIdx - (lines.Count - 1) / 2f) * lineSeparation;
-                float phase         = lineIdx * linePhaseOffset;
+
+                // Each line has a different wave phase so they braid nicely
+                float phase = lineIdx * linePhaseOffset;
 
                 for (int i = 0; i <= segments; i++)
                 {
@@ -275,7 +237,7 @@ namespace _PowerUps.Scripts
 
                     float wave = Mathf.Sin(t * Mathf.PI * 3f + Time.time * waveFrequency + phase)
                                  * waveAmplitude
-                                 * Mathf.Sin(t * Mathf.PI);
+                                 * Mathf.Sin(t * Mathf.PI); // envelope: 0 at ends, peak in middle
 
                     lr.SetPosition(i, straight + perpendicular * (wave + lateralOffset));
                 }

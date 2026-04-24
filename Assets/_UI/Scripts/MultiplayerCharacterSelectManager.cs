@@ -4,7 +4,6 @@ using UnityEngine.InputSystem;
 using _Cars.ScriptableObjects;
 using _Projectiles.ScriptableObjects;
 using _Gameplay.Scripts;
-using _UI.Scripts;
 
 namespace _UI.Scripts
 {
@@ -93,6 +92,7 @@ namespace _UI.Scripts
             {
                 if (singleplayerPanel != null) singleplayerPanel.SetActive(false);
 
+                // Allow all devices so each player can control their own panel
                 var guard = FindFirstObjectByType<PlayerOneUIGuard>();
                 guard?.SetAllowAllDevices(true);
 
@@ -106,11 +106,9 @@ namespace _UI.Scripts
 
         private void OnDisable()
         {
+            // Restore Player 1 only restriction when leaving character select
             var guard = FindFirstObjectByType<PlayerOneUIGuard>();
             guard?.SetAllowAllDevices(false);
-
-            // Hide dividers when leaving character select
-            SplitScreenDivider.instance?.SetVisible(false);
 
             DestroyMultiplayerPanels();
         }
@@ -166,9 +164,6 @@ namespace _UI.Scripts
 
                 panels.Add(panel);
             }
-
-            // Draw divider lines between player panels
-            SplitScreenDivider.instance?.Setup(totalPlayers);
         }
 
         private PlayerInput GetPlayerInput(int playerIndex)
@@ -223,6 +218,7 @@ namespace _UI.Scripts
             var guard = FindFirstObjectByType<PlayerOneUIGuard>();
             guard?.SetAllowAllDevices(false);
 
+            // Mirror exactly what CharacterSelectUI.GoBack() does
             if (previousPanel != null)
                 previousPanel.SetActive(true);
 
@@ -240,6 +236,7 @@ namespace _UI.Scripts
 
             DestroyMultiplayerPanels();
 
+            // Restore Player 1 restriction before map selection
             var guard = FindFirstObjectByType<PlayerOneUIGuard>();
             guard?.SetAllowAllDevices(false);
 

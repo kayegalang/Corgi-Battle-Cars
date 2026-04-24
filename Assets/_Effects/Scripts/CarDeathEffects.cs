@@ -3,28 +3,36 @@ using UnityEngine;
 
 namespace _Cars.Scripts
 {
+    /// <summary>
+    /// Handles visual death effects:
+    ///   1. Smoke particle system that activates at low health
+    ///   2. Explosion particle system spawned on death
+    /// Add to the player prefab root.
+    /// </summary>
     public class CarDeathEffects : MonoBehaviour
     {
         [Header("Smoke")]
+        [Tooltip("Particle system for low-health smoke — assign a child PS on the car")]
         [SerializeField] private ParticleSystem smokeEffect;
-        [SerializeField] private float smokeThreshold  = 0.75f;
+
+        [Tooltip("Health percentage (0-1) at which smoke starts")]
+        [SerializeField] private float smokeThreshold = 0.25f;
+
+        [Tooltip("Emission rate at exactly the smoke threshold")]
         [SerializeField] private float smokeMinEmission = 5f;
+
+        [Tooltip("Emission rate at 0 health (maximum smoke)")]
         [SerializeField] private float smokeMaxEmission = 40f;
 
-        [Header("Flames")]
-        [SerializeField] private GameObject flameEffect;
-        [SerializeField] private float flameThreshold = 0.25f;
-
         [Header("Explosion")]
+        [Tooltip("Explosion particle system prefab — instantiated at death position")]
         [SerializeField] private GameObject explosionPrefab;
+
+        [Tooltip("How long before the explosion GameObject is destroyed")]
         [SerializeField] private float explosionLifetime = 3f;
-        [SerializeField] private float explosionScale    = 2f;
 
-        [Tooltip("Optional curve to control how smoke emission scales with health")]
-        [SerializeField] private AnimationCurve smokeCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-
-        [Header("Name Tag")]
-        [SerializeField] private GameObject nameTagCanvas;
+        [Tooltip("Scale of the explosion — increase for a bigger boom")]
+        [SerializeField] private float explosionScale = 2f;
 
         private bool smokeActive = false;
 
@@ -34,71 +42,57 @@ namespace _Cars.Scripts
 
         private void Awake()
         {
-            InitializeEffects();
-        }
-
-        private void InitializeEffects()
-        {
+            // Make sure smoke starts off
             if (smokeEffect != null)
             {
+                smokeEffect.Stop();
                 var emission = smokeEffect.emission;
-                emission.enabled      = true;
-                emission.rateOverTime = 0f;
+                emission.enabled = false;
             }
-
-            if (flameEffect != null)
-                flameEffect.SetActive(false);
         }
 
         // ═══════════════════════════════════════════════
-        //  REWIRING — called by CarVisualLoader after spawn
+        //  PUBLIC API — called from CarHealth
         // ═══════════════════════════════════════════════
 
-        public void SetReferences(ParticleSystem smoke, GameObject flame, GameObject nameTag)
-        {
-            smokeEffect   = smoke;
-            flameEffect   = flame;
-            nameTagCanvas = nameTag;
-
-            InitializeEffects();
-            Debug.Log("[CarDeathEffects] References rewired from spawned car prefab.");
-        }
-
-        // ═══════════════════════════════════════════════
-        //  PUBLIC API
-        // ═══════════════════════════════════════════════
-
+        /// <summary>
+        /// Call every time health changes. Handles smoke activation and intensity.
+        /// </summary>
         public void OnHealthChanged(float healthPercent)
         {
+            Debug.Log($"[CarDeathEffects] OnHealthChanged called: {healthPercent}, smokeEffect={smokeEffect != null}");
+
             if (smokeEffect == null) return;
 
             if (healthPercent <= smokeThreshold)
             {
-                if (!smokeActive) ActivateSmoke();
+                if (!smokeActive)
+                    ActivateSmoke();
 
-                float normalized   = Mathf.InverseLerp(smokeThreshold, 0f, healthPercent);
-                float curveValue   = smokeCurve.Evaluate(normalized);
-                float emissionRate = Mathf.Lerp(smokeMinEmission, smokeMaxEmission, curveValue);
+                // Scale emission with how low health is
+                // 0.25 health = min emission, 0 health = max emission
+                float t            = 1f - (healthPercent / smokeThreshold);
+                float emissionRate = Mathf.Lerp(smokeMinEmission, smokeMaxEmission, t);
 
-                var emission = smokeEffect.emission;
+                var emission      = smokeEffect.emission;
+                emission.enabled  = true;
                 emission.rateOverTime = emissionRate;
             }
             else if (smokeActive)
             {
                 DeactivateSmoke();
             }
-
-            if (flameEffect != null)
-                flameEffect.SetActive(healthPercent <= flameThreshold);
         }
 
+        /// <summary>
+        /// Call from CarHealth.Die() to spawn the explosion.
+        /// </summary>
         public void OnDeath()
         {
+            Debug.Log($"[CarDeathEffects] OnDeath called! explosionPrefab={explosionPrefab != null}");
+
             SpawnExplosion();
             DeactivateSmoke();
-
-            if (flameEffect   != null) flameEffect.SetActive(false);
-            if (nameTagCanvas != null) Destroy(nameTagCanvas);
         }
 
         // ═══════════════════════════════════════════════
@@ -109,6 +103,7 @@ namespace _Cars.Scripts
         {
             smokeActive = true;
             smokeEffect.Play();
+            Debug.Log($"[CarDeathEffects] {gameObject.name} smoke activated!");
         }
 
         private void DeactivateSmoke()
@@ -116,7 +111,7 @@ namespace _Cars.Scripts
             if (smokeEffect == null) return;
             smokeActive = false;
             smokeEffect.Stop();
-            var emission = smokeEffect.emission;
+            var emission     = smokeEffect.emission;
             emission.enabled = false;
         }
 
@@ -132,10 +127,20 @@ namespace _Cars.Scripts
                 return;
             }
 
-            Vector3    spawnPos  = transform.position + Vector3.up * 0.5f;
-            GameObject explosion = Instantiate(explosionPrefab, spawnPos, Quaternion.identity);
+            // Spawn slightly above the car so it's visible
+            Vector3 spawnPos = transform.position + Vector3.up * 0.5f;
+
+            GameObject explosion = Instantiate(
+                explosionPrefab,
+                spawnPos,
+                Quaternion.identity);
+
             explosion.transform.localScale = Vector3.one * explosionScale;
+
+            // Destroy after particles finish
             Destroy(explosion, explosionLifetime);
+
+            Debug.Log($"[CarDeathEffects] {gameObject.name} exploded!");
         }
     }
 }

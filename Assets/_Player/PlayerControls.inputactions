@@ -25,18 +25,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "UsePowerUp",
+                    "name": "Shoot",
                     "type": "Button",
-                    "id": "fb74e9ed-a691-4fdd-b610-6c7f2684ca56",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Drift",
-                    "type": "Button",
-                    "id": "c42c176f-130a-47a0-9cfd-e6b55ff98507",
+                    "id": "ef049858-ffcf-4410-8434-01060714e044",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -52,9 +43,18 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Shoot",
+                    "name": "UsePowerUp",
                     "type": "Button",
-                    "id": "ef049858-ffcf-4410-8434-01060714e044",
+                    "id": "fb74e9ed-a691-4fdd-b610-6c7f2684ca56",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Drift",
+                    "type": "Button",
+                    "id": "c42c176f-130a-47a0-9cfd-e6b55ff98507",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
