@@ -105,8 +105,9 @@ public class PresentationDirector : MonoBehaviour
                 cam.rect = sideRects[i];
         }
 
-        // Keep score text hidden — respawns can re-enable it
+        // Keep score text and death screens hidden every frame
         SetScoreTextVisible(false);
+        SetDeathSpectateEnabled(false);
     }
 
     private void OnDisable()

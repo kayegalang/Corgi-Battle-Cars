@@ -1374,6 +1374,8 @@ MonoBehaviour:
   detectionMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  minimumCameraY: 0.5
+  enforceMinimumY: 1
 --- !u!1 &3903267711428067611
 GameObject:
   m_ObjectHideFlags: 0

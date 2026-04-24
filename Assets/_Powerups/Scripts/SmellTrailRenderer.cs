@@ -54,9 +54,9 @@ namespace _PowerUps.Scripts
         private readonly Dictionary<GameObject, List<LineRenderer>> activeTrails =
             new Dictionary<GameObject, List<LineRenderer>>();
 
-        // One looping sniff sound per player in range
-        private readonly Dictionary<GameObject, EventInstance> sniffInstances =
-            new Dictionary<GameObject, EventInstance>();
+        // Single sniff sound — plays when ANY player is in range
+        private EventInstance sniffInstance;
+        private bool          sniffPlaying = false;
 
         private static readonly string[] AllTags =
         {
@@ -79,9 +79,8 @@ namespace _PowerUps.Scripts
 
         private void UpdateSniffSoundPositions()
         {
-            foreach (var kvp in sniffInstances)
-                if (kvp.Key != null)
-                    kvp.Value.set3DAttributes(RuntimeUtils.To3DAttributes(kvp.Key.transform));
+            if (sniffPlaying)
+                sniffInstance.set3DAttributes(RuntimeUtils.To3DAttributes(transform));
         }
 
         private void OnDestroy()
@@ -191,8 +190,9 @@ namespace _PowerUps.Scripts
 
             activeTrails[entity] = lines;
 
-            // Start looping sniff sound for this player
-            StartSniffSound(entity);
+            // Start sniff sound if not already playing
+            if (!sniffPlaying)
+                StartSniffSound();
         }
 
         private void RemoveTrail(GameObject entity)
@@ -205,8 +205,9 @@ namespace _PowerUps.Scripts
                 activeTrails.Remove(entity);
             }
 
-            // Stop sniff sound for this player
-            StopSniffSound(entity);
+            // Stop sniff sound only when no players are in range
+            if (activeTrails.Count == 0)
+                StopSniffSound();
         }
 
         private void RemoveAllTrails()
@@ -216,36 +217,29 @@ namespace _PowerUps.Scripts
                     if (lr != null) Destroy(lr.gameObject);
 
             activeTrails.Clear();
-
-            foreach (var kvp in sniffInstances)
-            {
-                kvp.Value.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-                kvp.Value.release();
-            }
-            sniffInstances.Clear();
+            StopSniffSound();
         }
 
         // ═══════════════════════════════════════════════
         //  SNIFF SOUND
         // ═══════════════════════════════════════════════
 
-        private void StartSniffSound(GameObject player)
+        private void StartSniffSound()
         {
-            if (FMODEvents.instance == null) return;
-            if (sniffInstances.ContainsKey(player)) return;
+            if (FMODEvents.instance == null || sniffPlaying) return;
 
-            EventInstance instance = RuntimeManager.CreateInstance(FMODEvents.instance.sniff);
-            instance.set3DAttributes(RuntimeUtils.To3DAttributes(player.transform));
-            instance.start();
-            sniffInstances[player] = instance;
+            sniffInstance = RuntimeManager.CreateInstance(FMODEvents.instance.sniff);
+            sniffInstance.set3DAttributes(RuntimeUtils.To3DAttributes(transform));
+            sniffInstance.start();
+            sniffPlaying = true;
         }
 
-        private void StopSniffSound(GameObject player)
+        private void StopSniffSound()
         {
-            if (!sniffInstances.TryGetValue(player, out EventInstance instance)) return;
-            instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-            instance.release();
-            sniffInstances.Remove(player);
+            if (!sniffPlaying) return;
+            sniffInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            sniffInstance.release();
+            sniffPlaying = false;
         }
 
         // ═══════════════════════════════════════════════

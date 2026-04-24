@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{26b84e04-d88c-4340-8c58-dc3930e3f4d4}">
+		<property name="assetPath">
+			<value>IEEEParkMap.mp3</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>215.19673469387754</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{84c616f0-36e2-4c5d-a730-30e5a23b2d4e}</destination>
+		</relationship>
+	</object>
+</objects>
