@@ -51,6 +51,8 @@ namespace _Cars.Scripts
         private Vector2 lastMousePosition;
         private bool    usingMouseForAiming = true;
         private bool    isFiring;
+        private bool    wasLaserFiring = false;
+        private FMOD.Studio.EventInstance laserInstance;
         
         // Charge system
         private float currentCharge;
@@ -193,6 +195,7 @@ namespace _Cars.Scripts
         {
             RegenerateCharge();
             UpdateCooldownBar();
+            UpdateLaserSound();
 
             if (GameHasEnded() || GameplayIsDisabled())
             {
@@ -255,6 +258,45 @@ namespace _Cars.Scripts
         }
 
         private bool PlayerPressingFireButton() => isFiring;
+
+        private void UpdateLaserSound()
+        {
+            if (projectileType == null || !projectileType.IsLaser) return;
+            if (FMODEvents.instance == null || AudioManager.instance == null) return;
+
+            bool isLaserFiring = IsFiring();
+
+            if (isLaserFiring && !wasLaserFiring)
+            {
+                // Start looping laser sound
+                laserInstance = FMODUnity.RuntimeManager.CreateInstance(FMODEvents.instance.laserbeam);
+                if (firePoint != null)
+                    laserInstance.set3DAttributes(FMODUnity.RuntimeUtils.To3DAttributes(firePoint));
+                laserInstance.start();
+            }
+            else if (!isLaserFiring && wasLaserFiring)
+            {
+                // Stop laser sound
+                laserInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                laserInstance.release();
+            }
+            else if (isLaserFiring && firePoint != null)
+            {
+                // Update 3D position while firing
+                laserInstance.set3DAttributes(FMODUnity.RuntimeUtils.To3DAttributes(firePoint));
+            }
+
+            wasLaserFiring = isLaserFiring;
+        }
+
+        private void OnDestroy()
+        {
+            if (wasLaserFiring)
+            {
+                laserInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+                laserInstance.release();
+            }
+        }
 
         private bool CanShootNow()
         {
@@ -331,11 +373,6 @@ namespace _Cars.Scripts
         private void FireProjectile()
         {
             if (reticle == null || playerCamera == null || firePoint == null) return;
-            
-            // Play weapon fire sound
-            if (AudioManager.instance != null && FMODEvents.instance != null)
-                AudioManager.instance.PlayOneShot(projectileType.FireSound, firePoint.position);
-
 
             // Laser weapons deal damage via HoundVisual raycast — no projectile needed
             if (projectileType != null && projectileType.IsLaser)
