@@ -37,18 +37,30 @@ namespace _Cars.Scripts
         // ═══════════════════════════════════════════════
 
         /// <summary>
-        /// Call this after the car model spawns, passing all renderers
-        /// on the spawned car model.
+        /// Called by CarVisualLoader after spawning — passes the player index
+        /// since the car model prefab doesn't have the player tag.
+        /// Also called by CharacterSelectPreview for preview cars.
         /// </summary>
+        public void ApplyColor(int playerIdx)
+        {
+            if (playerIdx < 0 || playerIdx >= playerHues.Length) return;
+
+            float      hue       = playerHues[playerIdx];
+            Renderer[] renderers = GetComponentsInChildren<Renderer>();
+
+            ApplyHueShift(renderers, hue);
+            Debug.Log($"[CarColorizer] P{playerIdx + 1} → hue {hue}°");
+        }
+
+        /// <summary>Called by CarVisualLoader passing pre-gathered renderers.</summary>
         public void ApplyColor(Renderer[] renderers)
         {
-            int playerIndex = GetPlayerIndex();
-            if (playerIndex < 0 || playerIndex >= playerHues.Length) return;
+            int playerIdx = GetPlayerIndex();
+            if (playerIdx < 0 || playerIdx >= playerHues.Length) return;
 
-            float hue = playerHues[playerIndex];
+            float hue = playerHues[playerIdx];
             ApplyHueShift(renderers, hue);
-
-            Debug.Log($"[CarColorizer] {gameObject.tag} → hue shift {hue}°");
+            Debug.Log($"[CarColorizer] {gameObject.tag} → hue {hue}°");
         }
 
         // ═══════════════════════════════════════════════

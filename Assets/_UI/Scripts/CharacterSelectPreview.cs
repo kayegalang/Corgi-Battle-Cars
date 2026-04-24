@@ -1,4 +1,5 @@
 using _Cars.ScriptableObjects;
+using _Cars.Scripts;
 using _Projectiles.ScriptableObjects;
 using UnityEngine;
 
@@ -84,9 +85,8 @@ namespace _UI.Scripts
 
         public void SetPlayerIndex(int index)
         {
-            if (playerIndex == index && previewRoot != null) return;
             playerIndex = index;
-            previewRoot = null; // force re-resolve
+            previewRoot = null; // force re-resolve with new index
             carMount    = null;
         }
 
@@ -189,6 +189,7 @@ namespace _UI.Scripts
             spawnedCar.transform.localScale       = car.CarModelScale;
 
             SetLayerRecursively(spawnedCar, previewLayer);
+            ApplyPreviewHue(spawnedCar);
             SpawnWeapon(car, weaponIndex);
         }
 
@@ -209,6 +210,19 @@ namespace _UI.Scripts
             model.transform.localScale             = car.GetWeaponScaleOffset(weaponIndex);
 
             SetLayerRecursively(model, previewLayer);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  HUE SHIFT
+        // ═══════════════════════════════════════════════
+
+        private void ApplyPreviewHue(GameObject car)
+        {
+            if (playerIndex < 0 || playerIndex > 3) return;
+
+            CarColorizer colorizer = car.GetComponent<CarColorizer>();
+            if (colorizer != null)
+                colorizer.ApplyColor(playerIndex);
         }
 
         // ═══════════════════════════════════════════════

@@ -187,14 +187,10 @@ namespace _Cars.Scripts
             }
 
             // ── CarColorizer (hue shift per player) ──────
-            CarColorizer colorizer = GetComponent<CarColorizer>();
-            Debug.Log($"[CarVisualLoader] CarColorizer found: {colorizer != null}");
+            CarColorizer colorizer = spawnedCar.GetComponent<CarColorizer>();
+            Debug.Log($"[CarVisualLoader] CarColorizer found on car: {colorizer != null}");
             if (colorizer != null)
-            {
-                Renderer[] renderers = spawnedCar.GetComponentsInChildren<Renderer>();
-                Debug.Log($"[CarVisualLoader] Passing {renderers.Length} renderers to CarColorizer");
-                colorizer.ApplyColor(renderers);
-            }
+                colorizer.ApplyColor(GetPlayerIndex());
 
             // ── CarDeathEffects ──────────────────────────
             CarDeathEffects deathEffects = GetComponent<CarDeathEffects>();
