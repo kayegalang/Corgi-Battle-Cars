@@ -1,3 +1,4 @@
+using _Audio.scripts;
 using _Cars.Scripts;
 using _Bot.Scripts;
 using UnityEngine;
@@ -37,7 +38,10 @@ namespace _PowerUps.Scripts
             SnapToGround();
             Destroy(gameObject, lifetime);
             spawnTime = Time.time;
-            Debug.Log($"[PoopHazard] Spawned at {transform.position}");
+
+            // Play poop spawn sound
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.poop, transform.position);
         }
 
         // ═══════════════════════════════════════════════
