@@ -1,3 +1,4 @@
+using _Audio.scripts;
 using _Projectiles.Scripts;
 using _Projectiles.ScriptableObjects;
 using _Gameplay.Scripts;
@@ -330,6 +331,11 @@ namespace _Cars.Scripts
         private void FireProjectile()
         {
             if (reticle == null || playerCamera == null || firePoint == null) return;
+            
+            // Play weapon fire sound
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(projectileType.FireSound, firePoint.position);
+
 
             // Laser weapons deal damage via HoundVisual raycast — no projectile needed
             if (projectileType != null && projectileType.IsLaser)

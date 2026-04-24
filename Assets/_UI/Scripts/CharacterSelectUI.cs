@@ -7,6 +7,7 @@ using _Player.Scripts;
 using _Projectiles.ScriptableObjects;
 using TMPro;
 using _UI.Scripts;
+using _Audio.scripts;
 
 public class CharacterSelectUI : MonoBehaviour
 {
@@ -185,6 +186,8 @@ public class CharacterSelectUI : MonoBehaviour
             case ControllerStep.SelectingCar:
                 controllerStep = ControllerStep.Ready;
                 Save();
+                if (AudioManager.instance != null && FMODEvents.instance != null)
+                    AudioManager.instance.PlayOneShot(FMODEvents.instance.readyup, transform.position);
                 AdvanceToMapSelection();
                 break;
         }
@@ -269,6 +272,8 @@ public class CharacterSelectUI : MonoBehaviour
         Save();
         preview?.UpdatePreview(carIndex, weaponIndex);
         UpdateInstructionText();
+        if (AudioManager.instance != null && FMODEvents.instance != null)
+            AudioManager.instance.PlayOneShot(FMODEvents.instance.characterselect, transform.position);
     }
 
     public void CarPrev()
@@ -280,6 +285,8 @@ public class CharacterSelectUI : MonoBehaviour
         Save();
         preview?.UpdatePreview(carIndex, weaponIndex);
         UpdateInstructionText();
+        if (AudioManager.instance != null && FMODEvents.instance != null)
+            AudioManager.instance.PlayOneShot(FMODEvents.instance.characterselect, transform.position);
     }
 
     public void WeaponNext()
@@ -291,6 +298,8 @@ public class CharacterSelectUI : MonoBehaviour
         Save();
         preview?.UpdatePreview(carIndex, weaponIndex);
         UpdateInstructionText();
+        if (AudioManager.instance != null && FMODEvents.instance != null)
+            AudioManager.instance.PlayOneShot(FMODEvents.instance.characterselect, transform.position);
     }
 
     public void WeaponPrev()
@@ -302,6 +311,8 @@ public class CharacterSelectUI : MonoBehaviour
         Save();
         preview?.UpdatePreview(carIndex, weaponIndex);
         UpdateInstructionText();
+        if (AudioManager.instance != null && FMODEvents.instance != null)
+            AudioManager.instance.PlayOneShot(FMODEvents.instance.characterselect, transform.position);
     }
 
     public void AdvanceToMapSelection()

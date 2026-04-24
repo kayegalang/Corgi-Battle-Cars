@@ -3,6 +3,7 @@ using _Cars.Scripts;
 using _Projectiles.ScriptableObjects;
 using _Projectiles.Scripts;
 using _UI.Scripts;
+using _Audio.scripts;
 using Bot.Scripts;
 using UnityEngine;
 
@@ -87,12 +88,7 @@ namespace _Bot.Scripts
         {
             botController = GetComponent<BotController>();
             botRigidbody  = GetComponent<Rigidbody>();
-
-            // FirePoint lives inside the spawned weapon prefab —
-            // CarVisualLoader calls SetFirePoint() after spawning.
-            // Try a deep search as fallback for scenes without CarVisualLoader.
-            firePoint = FindDeepChild(transform, "FirePoint");
-
+            firePoint     = FindDeepChild(transform, "FirePoint");
             ValidateComponents();
         }
         
@@ -102,8 +98,6 @@ namespace _Bot.Scripts
                 Debug.LogError($"[{nameof(BotAI)}] BotController not found on {gameObject.name}!");
             if (botRigidbody == null)
                 Debug.LogError($"[{nameof(BotAI)}] Rigidbody not found on {gameObject.name}!");
-
-            // Warnings only — these get wired at runtime by CarVisualLoader / BotLoadoutRandomizer
             if (firePoint  == null)
                 Debug.LogWarning($"[{nameof(BotAI)}] FirePoint not found yet — will be set by CarVisualLoader.");
             if (carStats   == null)
@@ -128,7 +122,6 @@ namespace _Bot.Scripts
         
         private void Update()
         {
-            // Wait until carStats is assigned by BotLoadoutRandomizer
             if (carStats == null) return;
 
             UpdateTargetSearch();
@@ -203,7 +196,6 @@ namespace _Bot.Scripts
             isReversing  = true;
             reverseTimer = 0f;
 
-            // carStats may not be assigned yet — default to turning right
             if (carStats == null)
             {
                 unstuckTurnDir = (stuckCount % 2 == 0) ? 1f : -1f;
@@ -235,11 +227,7 @@ namespace _Bot.Scripts
         
         private void ExecuteCurrentState()
         {
-            if (isReversing)
-            {
-                ExecuteUnstuckRoutine();
-                return;
-            }
+            if (isReversing) { ExecuteUnstuckRoutine(); return; }
             
             switch (currentState)
             {
@@ -266,10 +254,8 @@ namespace _Bot.Scripts
 
             bool canReverse = !rearCenterBlocked && !rearLeftBlocked && !rearRightBlocked;
 
-            if (canReverse)
-                botController.SetInputs(unstuckTurnDir * UNSTUCK_TURN_STRENGTH, -1f);
-            else
-                botController.SetInputs(unstuckTurnDir, 0f);
+            if (canReverse) botController.SetInputs(unstuckTurnDir * UNSTUCK_TURN_STRENGTH, -1f);
+            else            botController.SetInputs(unstuckTurnDir, 0f);
         }
         
         private void HandleStateTransitions()
@@ -288,13 +274,8 @@ namespace _Bot.Scripts
             }
         }
         
-        private void TransitionToChase()
-        {
-            runAwayTimer = 0f;
-            SetState(BotStates.Chase);
-        }
-        
-        private bool ReachedTarget() => GetDistanceFromTarget() <= carStats.ReachedTargetDistance;
+        private void TransitionToChase() { runAwayTimer = 0f; SetState(BotStates.Chase); }
+        private bool ReachedTarget()     => GetDistanceFromTarget() <= carStats.ReachedTargetDistance;
 
         // ═══════════════════════════════════════════════
         //  CHASE / RUN AWAY
@@ -303,18 +284,13 @@ namespace _Bot.Scripts
         private void Chase()
         {
             ObstacleAvoidanceResult avoidance = HandleObstacleDetection();
-            
-            if (avoidance.isAvoiding)
-                botController.SetInputs(avoidance.turnInput, avoidance.moveInput);
-            else
-                NavigateToTarget();
+            if (avoidance.isAvoiding) botController.SetInputs(avoidance.turnInput, avoidance.moveInput);
+            else                      NavigateToTarget();
         }
         
         private void NavigateToTarget()
         {
-            float turnInput = CalculateTurnInput();
-            float moveInput = CalculateMoveInput();
-            botController.SetInputs(turnInput, moveInput);
+            botController.SetInputs(CalculateTurnInput(), CalculateMoveInput());
         }
         
         private float CalculateTurnInput()
@@ -348,33 +324,26 @@ namespace _Bot.Scripts
         
         private ObstacleAvoidanceResult HandleObstacleDetection()
         {
-            // carStats may not be assigned yet during first frames
             if (carStats == null)
                 return new ObstacleAvoidanceResult { isAvoiding = false };
 
-            Vector3 centerOrigin = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
-            Vector3 footOrigin   = transform.position + Vector3.up * 0.1f;
-            Vector3 direction    = transform.forward;
+            Vector3 centerOrigin  = transform.position + Vector3.up * RAYCAST_ORIGIN_HEIGHT;
+            Vector3 footOrigin    = transform.position + Vector3.up * 0.1f;
+            Vector3 direction     = transform.forward;
 
-            bool centerHit = Physics.Raycast(centerOrigin, direction,
-                                 out RaycastHit centerRayHit,
-                                 carStats.ObstacleCheckDistance,
-                                 carStats.ObstacleMask);
-
-            Vector3 footDirection = (direction + Vector3.up * 0.3f).normalized;
-            bool footHit = Physics.Raycast(footOrigin, footDirection,
-                               out RaycastHit footRayHit,
-                               carStats.ObstacleCheckDistance * 0.7f,
-                               carStats.ObstacleMask);
+            bool centerHit = Physics.Raycast(centerOrigin, direction, out RaycastHit centerRayHit,
+                                 carStats.ObstacleCheckDistance, carStats.ObstacleMask);
+            bool footHit   = Physics.Raycast(footOrigin,
+                                 (direction + Vector3.up * 0.3f).normalized,
+                                 out RaycastHit footRayHit,
+                                 carStats.ObstacleCheckDistance * 0.7f, carStats.ObstacleMask);
 
             bool       didHit = centerHit || footHit;
             RaycastHit hit    = centerHit ? centerRayHit : footRayHit;
 
-            if (!didHit)
-                return new ObstacleAvoidanceResult { isAvoiding = false };
+            if (!didHit) return new ObstacleAvoidanceResult { isAvoiding = false };
 
             float obstacleHeight = hit.point.y - transform.position.y;
-
             if (CanJumpOver(obstacleHeight))
             {
                 botController.Jump();
@@ -391,11 +360,12 @@ namespace _Bot.Scripts
         {
             bool leftClear  = !Physics.Raycast(origin, -transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
             bool rightClear = !Physics.Raycast(origin,  transform.right, carStats.SideCheckDistance, carStats.ObstacleMask);
-            
-            float turnInput = DetermineTurnDirection(leftClear, rightClear);
-            float moveInput = DetermineAvoidanceSpeed(leftClear, rightClear);
-            
-            return new ObstacleAvoidanceResult { isAvoiding = true, turnInput = turnInput, moveInput = moveInput };
+            return new ObstacleAvoidanceResult
+            {
+                isAvoiding = true,
+                turnInput  = DetermineTurnDirection(leftClear, rightClear),
+                moveInput  = DetermineAvoidanceSpeed(leftClear, rightClear)
+            };
         }
         
         private float DetermineTurnDirection(bool leftClear, bool rightClear)
@@ -416,28 +386,18 @@ namespace _Bot.Scripts
             if (lastAttacker == null) { TransitionToChase(); return; }
             
             ObstacleAvoidanceResult avoidance = HandleObstacleDetection();
-            
-            if (avoidance.isAvoiding)
-                botController.SetInputs(avoidance.turnInput, avoidance.moveInput);
-            else
-                NavigateAwayFromAttacker();
+            if (avoidance.isAvoiding) botController.SetInputs(avoidance.turnInput, avoidance.moveInput);
+            else                      NavigateAwayFromAttacker();
             
             runAwayTimer += Time.deltaTime;
-            if (runAwayTimer >= RUN_AWAY_DURATION)
-                TransitionToChase();
+            if (runAwayTimer >= RUN_AWAY_DURATION) TransitionToChase();
         }
         
         private void NavigateAwayFromAttacker()
         {
             Vector3 awayDirection = (transform.position - lastAttacker.position).normalized;
-            float   turnAmount    = CalculateRunAwayTurnAmount(awayDirection);
-            botController.SetInputs(turnAmount, 1f);
-        }
-        
-        private float CalculateRunAwayTurnAmount(Vector3 awayDirection)
-        {
-            float angle = Vector3.SignedAngle(transform.forward, awayDirection, Vector3.up);
-            return Mathf.Clamp(angle / TURN_ANGLE_DIVISOR, -1f, 1f);
+            float   angle         = Vector3.SignedAngle(transform.forward, awayDirection, Vector3.up);
+            botController.SetInputs(Mathf.Clamp(angle / TURN_ANGLE_DIVISOR, -1f, 1f), 1f);
         }
 
         // ═══════════════════════════════════════════════
@@ -459,10 +419,8 @@ namespace _Bot.Scripts
         private void RegenerateCharge()
         {
             if (currentCharge >= MAX_CHARGE) return;
-            currentCharge += chargeRegenRate * Time.fixedDeltaTime;
-            currentCharge  = Mathf.Min(currentCharge, MAX_CHARGE);
-            if (isOverheated && currentCharge >= MAX_CHARGE)
-                isOverheated = false;
+            currentCharge = Mathf.Min(currentCharge + chargeRegenRate * Time.fixedDeltaTime, MAX_CHARGE);
+            if (isOverheated && currentCharge >= MAX_CHARGE) isOverheated = false;
         }
         
         private void ConsumeCharge()
@@ -476,11 +434,17 @@ namespace _Bot.Scripts
         
         private void Shoot()
         {
-            // Laser weapons deal damage via their own visual — no projectile to spawn
             if (projectile.IsLaser) return;
 
             Vector3 dir = GetShootDirection();
             if (dir == Vector3.zero) return;
+
+            // Play weapon fire sound using the projectile's assigned sound
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(projectile.FireSound, firePoint != null
+                    ? firePoint.position
+                    : transform.position);
+
             GameObject bullet = InstantiateBullet(dir);
             ConfigureBullet(bullet, dir);
         }
@@ -532,21 +496,14 @@ namespace _Bot.Scripts
             float     closestDistance = Mathf.Infinity;
             Transform closestTarget   = null;
             
-            CarHealth[] allCars = FindObjectsByType<CarHealth>(FindObjectsSortMode.None);
-            
-            foreach (CarHealth car in allCars)
+            foreach (CarHealth car in FindObjectsByType<CarHealth>(FindObjectsSortMode.None))
             {
                 if (car.gameObject == gameObject) continue;
                 float distance = Vector3.Distance(transform.position, car.transform.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestTarget   = car.transform;
-                }
+                if (distance < closestDistance) { closestDistance = distance; closestTarget = car.transform; }
             }
             
-            if (closestTarget != null)
-                target = closestTarget;
+            if (closestTarget != null) target = closestTarget;
         }
 
         private Transform FindDeepChild(Transform parent, string childName)

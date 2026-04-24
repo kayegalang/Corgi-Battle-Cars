@@ -24,12 +24,10 @@ namespace _Audio.scripts
 
         private void Awake()
         {
-            if (instance != null)
-            {
-                Debug.LogError("Shiver me timbers! More than one Audio Manager was found in the scene.");
-                return;
-            }
-            instance = this;
+            if (instance == null)
+                instance = this;
+            else if (instance != this)
+                Destroy(this);
             
             masterBus = RuntimeManager.GetBus("bus:/");
             musicBus = RuntimeManager.GetBus("bus:/Music");
@@ -45,7 +43,10 @@ namespace _Audio.scripts
 
         public void PlayOneShot(EventReference sound, Vector3 worldPos)
         {
-            RuntimeManager.PlayOneShot(sound,worldPos);
+            EventInstance instance = RuntimeManager.CreateInstance(sound);
+            instance.set3DAttributes(RuntimeUtils.To3DAttributes(worldPos));
+            instance.start();
+            instance.release();
         }
     }
 }

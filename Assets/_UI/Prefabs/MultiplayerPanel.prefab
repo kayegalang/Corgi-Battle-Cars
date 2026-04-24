@@ -2526,16 +2526,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 902cb837d2b414b0c8d6dee446407e31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_UI.Scripts.CharacterSelectPreview
-  previewRoot: {fileID: 0}
-  carMount: {fileID: 0}
-  previewCamera: {fileID: 0}
-  playerIndex: 0
   carTypes:
   - {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
   - {fileID: 11400000, guid: b426bf9d8a9ccd147af9464da20c052e, type: 2}
   weaponTypes:
   - {fileID: 11400000, guid: 4435cf7b253264ab8b2e1d0a877e40d6, type: 2}
   - {fileID: 11400000, guid: 3529a2bd0ba264e97afb032e1479f5f8, type: 2}
+  playerIndex: 0
+  previewDisplay: {fileID: 4479571868222690047}
   spinSpeed: 45
   previewLayerMask:
     serializedVersion: 2

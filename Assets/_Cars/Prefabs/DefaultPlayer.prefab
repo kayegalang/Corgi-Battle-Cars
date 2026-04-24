@@ -30,6 +30,7 @@ GameObject:
   - component: {fileID: 3039631922779800720}
   - component: {fileID: 4094222531616991225}
   - component: {fileID: 2838662308265025720}
+  - component: {fileID: 5261735153100206024}
   m_Layer: 0
   m_Name: DefaultPlayer
   m_TagString: PlayerOne
@@ -540,6 +541,19 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4435cf7b253264ab8b2e1d0a877e40d6, type: 2}
   - {fileID: 11400000, guid: 3529a2bd0ba264e97afb032e1479f5f8, type: 2}
   carMount: {fileID: 8768274521847905966}
+--- !u!114 &5261735153100206024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852133240821571215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4772f2ca8f11941eb8a9ff0148ea2a38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.CarEngineSound
+  minSpeedThreshold: 0.5
 --- !u!1 &974924005986492713
 GameObject:
   m_ObjectHideFlags: 0

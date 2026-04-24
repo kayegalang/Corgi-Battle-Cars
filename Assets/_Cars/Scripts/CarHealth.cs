@@ -1,4 +1,5 @@
 using System.Collections;
+using _Audio.scripts;
 using _Bot.Scripts;
 using _Cars.ScriptableObjects;
 using _Effects.Scripts;
@@ -175,13 +176,8 @@ namespace _Cars.Scripts
         private void TakeDamageInternal(int amount, GameObject shooter, bool isCrash)
         {
             if (isDead) return;
-
-            if (isSpawnProtected)
-            {
-                Debug.Log($"[CarHealth] {gameObject.name} is spawn protected — damage blocked!");
-                return;
-            }
-            
+            if (isSpawnProtected) return;
+    
             currentHealth -= amount;
             UpdateHealthBar();
 
@@ -189,13 +185,16 @@ namespace _Cars.Scripts
             controllerRumbler?.RumbleTakeDamage();
             hitEffects?.PlayHitEffect();
 
+            // Hit sound
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.hit, transform.position);
+
             if (currentHealth <= 0)
                 Die(shooter, isCrash);
 
             if (isBot && shooter != null)
                 GetComponent<BotAI>()?.OnHit(shooter.transform);
         }
-
         // ═══════════════════════════════════════════════
         //  DEATH
         // ═══════════════════════════════════════════════
@@ -212,6 +211,10 @@ namespace _Cars.Scripts
             controllerRumbler?.RumbleDeath();
             hitEffects?.PlayDeathEffect();
             deathEffects?.OnDeath();
+            
+            // Explosion sound
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.explosion, transform.position);
 
             // Death penalty for the victim (-100)
             // Only applies if killed by crash (not projectile)

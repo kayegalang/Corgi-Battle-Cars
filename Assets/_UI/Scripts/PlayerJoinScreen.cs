@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using _Audio.scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Events;
@@ -300,6 +301,10 @@ namespace _UI.Scripts
         private void OnPlayerJoined(PlayerInput playerInput)
         {
             joinedPlayerCount++;
+            
+            // Play join bark sound
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.joinbark, transform.position);
 
             // Assign camera for split-screen (lives on ShakePivot child)
             playerInput.camera = playerInput.GetComponentInChildren<Camera>();

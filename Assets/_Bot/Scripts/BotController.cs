@@ -2,6 +2,7 @@ using System.Collections;
 using _Cars.ScriptableObjects;
 using _Cars.Scripts;
 using _Gameplay.Scripts;
+using _Audio.scripts;
 using UnityEngine;
 
 namespace _Bot.Scripts
@@ -103,7 +104,6 @@ namespace _Bot.Scripts
             if (carRb == null)
                 Debug.LogError($"[{nameof(BotController)}] Rigidbody not found on {gameObject.name}!");
 
-            // Warning only — gets assigned at runtime by BotLoadoutRandomizer
             if (carStats == null)
                 Debug.LogWarning($"[{nameof(BotController)}] CarStats not assigned — will be set by BotLoadoutRandomizer.");
         }
@@ -201,6 +201,15 @@ namespace _Bot.Scripts
             if (!CanJump()) return;
             Vector3 jumpForce = transform.up * carStats.JumpForce * jumpMultiplier;
             carRb.AddForce(jumpForce, ForceMode.Impulse);
+
+            // Play jump or super jump sound
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+            {
+                var sound = hasSuperJump
+                    ? FMODEvents.instance.superjump
+                    : FMODEvents.instance.jump;
+                AudioManager.instance.PlayOneShot(sound, transform.position);
+            }
         }
         
         private bool CanJump() => IsGrounded() && carStats != null;
@@ -246,6 +255,10 @@ namespace _Bot.Scripts
             speedMultiplier        = speedMult;
             accelerationMultiplier = accelMult;
             if (zoomiesParticles != null) zoomiesParticles.Play();
+
+            // Play zoomies sound
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.zoomies, transform.position);
         }
         
         public void RemoveSpeedMultiplier()
@@ -254,6 +267,10 @@ namespace _Bot.Scripts
             speedMultiplier        = 1f;
             accelerationMultiplier = 1f;
             if (zoomiesParticles != null) zoomiesParticles.Stop();
+
+            // Play zoomies end sound
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.zoomies, transform.position);
         }
 
         // ═══════════════════════════════════════════════

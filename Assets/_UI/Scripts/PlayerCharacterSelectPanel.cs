@@ -6,6 +6,7 @@ using _Player.Scripts;
 using _Projectiles.ScriptableObjects;
 using TMPro;
 using _UI.Scripts;
+using _Audio.scripts;
 
 namespace _UI.Scripts
 {
@@ -139,6 +140,9 @@ namespace _UI.Scripts
             // Pass arrays and player index to preview
             if (preview != null)
             {
+                // Get RawImage on THIS instance — not the prefab's serialized reference
+                var rawImage = GetComponentInChildren<UnityEngine.UI.RawImage>();
+                preview.SetPreviewDisplay(rawImage);
                 preview.SetAssets(carTypes, weaponTypes);
                 preview.SetPlayerIndex(playerIdx);
                 preview.UpdatePreview(carIndex, weaponIndex);
@@ -240,6 +244,8 @@ namespace _UI.Scripts
                     isReady        = true;
                     Save();
                     if (readyOverlay != null) readyOverlay.SetActive(true);
+                    if (AudioManager.instance != null && FMODEvents.instance != null)
+                        AudioManager.instance.PlayOneShot(FMODEvents.instance.readyup, transform.position);
                     OnPlayerReady?.Invoke(playerIndex);
                     break;
             }
@@ -327,6 +333,8 @@ namespace _UI.Scripts
             Save();
             preview?.UpdatePreview(carIndex, weaponIndex);
             UpdateInstructionText();
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.characterselect, transform.position);
         }
 
         public void CarPrev()
@@ -338,6 +346,8 @@ namespace _UI.Scripts
             Save();
             preview?.UpdatePreview(carIndex, weaponIndex);
             UpdateInstructionText();
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.characterselect, transform.position);
         }
 
         // ═══════════════════════════════════════════════
@@ -353,6 +363,8 @@ namespace _UI.Scripts
             Save();
             preview?.UpdatePreview(carIndex, weaponIndex);
             UpdateInstructionText();
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.characterselect, transform.position);
         }
 
         public void WeaponPrev()
@@ -364,6 +376,8 @@ namespace _UI.Scripts
             Save();
             preview?.UpdatePreview(carIndex, weaponIndex);
             UpdateInstructionText();
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.characterselect, transform.position);
         }
 
         // ═══════════════════════════════════════════════

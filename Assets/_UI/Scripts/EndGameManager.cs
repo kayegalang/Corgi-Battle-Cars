@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using _Audio.scripts;
 using _Gameplay.Scripts;
 using TMPro;
 using UnityEngine;
@@ -102,6 +103,10 @@ namespace _UI.Scripts
         {
             if (finishedTextObject != null)
                 finishedTextObject.SetActive(true);
+
+            // Play finished sound
+            if (AudioManager.instance != null && FMODEvents.instance != null)
+                AudioManager.instance.PlayOneShot(FMODEvents.instance.FinishedSound, transform.position);
 
             if (finishedAnimator != null)
                 finishedAnimator.Play("FinishedTextAnimation");

@@ -59,7 +59,11 @@
 			<destination>{e5b61470-cc52-458e-8148-8e47ebc8adeb}</destination>
 		</relationship>
 	</object>
-	<object class="EventAutomatableProperties" id="{431585a0-84e6-47f4-8e88-bd14a9cdb670}" />
+	<object class="EventAutomatableProperties" id="{431585a0-84e6-47f4-8e88-bd14a9cdb670}">
+		<property name="maximumDistance">
+			<value>100</value>
+		</property>
+	</object>
 	<object class="MarkerTrack" id="{e0cf11ad-21cb-45b5-a1bc-4cd7aa0086e5}" />
 	<object class="Timeline" id="{450e4ac5-8a62-4163-ac7d-fcf65ada3f70}">
 		<property name="isProxyEnabled">

@@ -21,6 +21,8 @@ namespace _Audio.scripts
         [field: Header("UI")]
         [field: SerializeField] public EventReference clicksound { get; private set; }
         [field: SerializeField] public EventReference joinbark { get; private set; }
+        [field: SerializeField] public EventReference characterselect { get; private set; }
+        [field: SerializeField] public EventReference readyup { get; private set; }
     
         [field: Header("PowerUps")]
         [field: SerializeField] public EventReference shootsound { get; private set; }
@@ -43,12 +45,10 @@ namespace _Audio.scripts
 
         private void Awake()
         {
-            if (instance != null)
-            {
-                Debug.LogError("Thar be more than FMODEvents in this here scene!");
-            }
-
-            instance = this;
+            if (instance == null)
+                instance = this;
+            else if (instance != this)
+                Destroy(this);
         }
     }
 }

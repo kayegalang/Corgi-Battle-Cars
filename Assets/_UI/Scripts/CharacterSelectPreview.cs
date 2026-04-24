@@ -21,7 +21,8 @@ namespace _UI.Scripts
         [Tooltip("0 = P1, 1 = P2, 2 = P3, 3 = P4")]
         [SerializeField] private int playerIndex = 0;
 
-        [Header("Raw Image — assign the RawImage that displays the preview")]
+        [Header("Raw Image — assign the RawImage that displays THIS player's preview")]
+        [Tooltip("Must be assigned — do not leave empty, GetComponentInChildren may find the wrong one")]
         [SerializeField] private UnityEngine.UI.RawImage previewDisplay;
 
         [Header("Spin Settings")]
@@ -70,6 +71,11 @@ namespace _UI.Scripts
         //  SETUP — called by PlayerCharacterSelectPanel
         // ═══════════════════════════════════════════════
 
+        public void SetPreviewDisplay(UnityEngine.UI.RawImage display)
+        {
+            previewDisplay = display;
+        }
+
         public void SetAssets(CarStats[] cars, ProjectileObject[] weapons)
         {
             carTypes    = cars;
@@ -113,17 +119,18 @@ namespace _UI.Scripts
             // Assign the correct RenderTexture to the RawImage
             if (previewCamera != null && previewCamera.targetTexture != null)
             {
-                if (previewDisplay == null)
-                    previewDisplay = GetComponentInChildren<UnityEngine.UI.RawImage>();
-
                 if (previewDisplay != null)
                 {
                     previewDisplay.texture = previewCamera.targetTexture;
                     Debug.Log($"[CharacterSelectPreview] P{playerIndex + 1} RawImage → {previewCamera.targetTexture.name}");
                 }
+                else
+                {
+                    Debug.LogWarning($"[CharacterSelectPreview] P{playerIndex + 1} previewDisplay not assigned in Inspector!");
+                }
             }
 
-            Debug.Log($"[CharacterSelectPreview] P{playerIndex+1} → root={setup.previewRoot.name}, carMount={setup.carMount.name}, cam={setup.previewCamera.name}");
+            Debug.Log($"[CharacterSelectPreview] P{playerIndex + 1} resolved.");
             return true;
         }
 

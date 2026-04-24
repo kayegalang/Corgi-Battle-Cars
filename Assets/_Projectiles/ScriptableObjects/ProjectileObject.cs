@@ -20,6 +20,11 @@ namespace _Projectiles.ScriptableObjects
 
         [Tooltip("Local rotation offset of the weapon model")]
         [SerializeField] private Vector3 weaponModelRotation = Vector3.zero;
+        
+        [Header("Audio")]
+        [Tooltip("Sound played when this weapon fires")]
+        [SerializeField] private FMODUnity.EventReference fireSound;
+        public FMODUnity.EventReference FireSound => fireSound;
 
         // Weapon visual accessors
         public GameObject WeaponModelPrefab   => weaponModelPrefab;

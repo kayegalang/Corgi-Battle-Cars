@@ -47,15 +47,6 @@ namespace _UI.Scripts
                 if (setups[i].previewRoot != null)
                     setups[i].previewRoot.localPosition = new Vector3(xOffset, 0f, 0f);
 
-                if (setups[i].previewCamera != null)
-                {
-                    Vector3 camLocal = setups[i].previewCamera.transform.localPosition;
-                    setups[i].previewCamera.transform.localPosition = new Vector3(
-                        xOffset + camLocal.x,  // preserve original X offset relative to root
-                        camLocal.y,
-                        camLocal.z);
-                }
-
                 Debug.Log($"[CharacterSelectPreviewManager] P{i + 1} spaced to X={xOffset}");
             }
         }
