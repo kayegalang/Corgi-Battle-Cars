@@ -5,8 +5,6 @@ using _Utilities.Scripts;
 using _PowerUps.Scripts;
 using _PowerUps.ScriptableObjects;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-
 /// <summary>
 /// Live presentation director tool for Corgi Battle Cars.
 /// Attach to any GameObject in the gameplay scene.
@@ -367,5 +365,3 @@ public class PresentationDirector : MonoBehaviour
         if (overlayCanvas != null) overlayCanvas.gameObject.SetActive(false);
     }
 }
-
-#endif
