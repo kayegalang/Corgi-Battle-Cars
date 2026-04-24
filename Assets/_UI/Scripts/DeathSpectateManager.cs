@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using _Cars.Scripts;
 using TMPro;
@@ -22,8 +23,18 @@ namespace _UI.Scripts
         [SerializeField] private string respawnCountdownFormat  = "Respawning in {0}";
         [SerializeField] private string spectatingFormat        = "Spectating: {0}";
         [SerializeField] private string noPlayersToSpectateText = "No players to spectate";
+        [SerializeField] private TextMeshProUGUI deathMessageText;
+        private string[] deathMessages =
+        {
+            "sent you to the dog house",
+            "eliminated you",
+            "it's time to go to the vet"
+        };
 
-        private Camera            playerCamera;
+        private Coroutine deathMessageRoutine;
+        private string killerName;
+
+        private Camera playerCamera;
         private CinemachineBrain  cinemachineBrain;
         private PlayerInput       playerInput;
         private string            playerTag;
@@ -213,20 +224,23 @@ namespace _UI.Scripts
         //  DEATH ENTRY POINT
         // ═══════════════════════════════════════════════
 
-        public void OnPlayerDeath(string tag, float respawnDelay, Action onRespawn)
+        public void OnPlayerDeath(string tag, float respawnDelay, Action onRespawn, string killer)
         {
             playerTag        = tag;
             respawnDuration  = respawnDelay;
             respawnTimer     = respawnDuration;
             onRespawnCallback = onRespawn;
             isDead           = true;
+            killerName = killer;
 
             ShowDeathScreen();
             DisablePlayerControls();
+            if (deathMessageRoutine != null)
+                StopCoroutine(deathMessageRoutine);
 
             if (IsKeyboardPlayer())
             {
-                Cursor.visible   = true;
+                Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;
             }
 
@@ -235,7 +249,23 @@ namespace _UI.Scripts
                 cinemachineBrain.enabled = false;
 
             FindAlivePlayersToSpectate();
+            deathMessageRoutine = StartCoroutine(CycleDeathMessages());
             StartSpectating();
+        }
+
+        private IEnumerator CycleDeathMessages()
+        {
+            int index = 0;
+
+            while (isDead)
+            {
+                if (deathMessageText != null)
+                    deathMessageText.text = $"{killerName} {deathMessages[index]}";
+
+                index = (index + 1) % deathMessages.Length;
+
+                yield return new WaitForSeconds(1.5f);
+            }
         }
 
         private void ShowDeathScreen()
@@ -419,6 +449,12 @@ namespace _UI.Scripts
         {
             isDead               = false;
             spectateFollowTarget = null;
+
+            if (deathMessageRoutine != null)
+            {
+                StopCoroutine(deathMessageRoutine);
+                deathMessageRoutine = null;
+            }
 
             HideDeathScreen();
             RestoreCamera();

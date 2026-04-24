@@ -7334,6 +7334,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_Gameplay.Scripts.MatchTimerManager
   matchCountdownSeconds: 3
   gameDurationSeconds: 300
+  musicTransitionTime: 182
   countdownGoText: Go!
   gameTimerFormat: 'Time: {0}'
   onMatchStart:
@@ -10747,7 +10748,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1021778367
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14269,6 +14270,9 @@ MonoBehaviour:
     - {fileID: -1564625915, guid: 60ce8bde42b394e2bb2fb24e4df8fce4, type: 3}
     - {fileID: 1568012407, guid: 60ce8bde42b394e2bb2fb24e4df8fce4, type: 3}
     - {fileID: -1731055707, guid: 60ce8bde42b394e2bb2fb24e4df8fce4, type: 3}
+  instructionText: {fileID: 0}
+  selectionNameText: {fileID: 0}
+  arrowButtons: []
   backButton: {fileID: 1240567362}
   mapSelectionButton: {fileID: 150084288}
   weaponHighlight: {fileID: 1331481383}
@@ -14276,6 +14280,7 @@ MonoBehaviour:
   mapSelectionPanel: {fileID: 945544600}
   previousPanel: {fileID: 103740118}
   characterSelectionPanel: {fileID: 1021778366}
+  preview: {fileID: 0}
 --- !u!1 &1466926602
 GameObject:
   m_ObjectHideFlags: 0
@@ -14699,6 +14704,7 @@ MonoBehaviour:
   twoPlayersButton: {fileID: 1007622174}
   threePlayersButton: {fileID: 720893643}
   fourPlayersButton: {fileID: 926096228}
+  previousPanel: {fileID: 0}
 --- !u!114 &1489527847
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16573,6 +16579,7 @@ MonoBehaviour:
     waitingSprite: {fileID: 0}
     joinedSprite: {fileID: 0}
   transitionDelay: 0.5
+  previousPanel: {fileID: 0}
   onAllPlayersJoined:
     m_PersistentCalls:
       m_Calls: []

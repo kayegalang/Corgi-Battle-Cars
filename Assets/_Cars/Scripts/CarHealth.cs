@@ -13,83 +13,73 @@ namespace _Cars.Scripts
     {
         [Header("Configuration")]
         [SerializeField] private CarStats carStats;
-        
+
         [Header("References")]
         [SerializeField] private SpawnManager spawnManager;
 
         [Header("Spawn Protection")]
         [SerializeField] private float spawnProtectionDuration = 3f;
         [SerializeField] private float flashSpeed = 8f;
-        
+
         [Header("Events")]
         public UnityEvent<float> OnHealthChanged;
 
-        /// <summary>
-        /// Fired when this car dies. Parameters: (victim, killer).
-        /// </summary>
         public event System.Action<GameObject, GameObject> OnDeath;
-        
-        private HealthBarManager     healthBarManager;
+
+        private HealthBarManager healthBarManager;
         private DeathSpectateManager deathSpectateManager;
-        private CameraShaker         cameraShaker;
-        private ControllerRumbler    controllerRumbler;
-        private HitEffects           hitEffects;
-        private CarDeathEffects      deathEffects;
-        private GameObject           nameTagCanvas;
-        
-        private int  maxHealth;
-        private int  currentHealth;
+        private CameraShaker cameraShaker;
+        private ControllerRumbler controllerRumbler;
+        private HitEffects hitEffects;
+        private CarDeathEffects deathEffects;
+        private GameObject nameTagCanvas;
+
+        private int maxHealth;
+        private int currentHealth;
         private bool isBot;
         private bool isDead = false;
 
-        private float      spawnProtectionTimer = 0f;
-        private bool       isSpawnProtected     = false;
+        private float spawnProtectionTimer = 0f;
+        private bool isSpawnProtected = false;
         private Renderer[] carRenderers;
 
-        private const float RESPAWN_DELAY       = 3f;
-        private const int   FALLBACK_MAX_HEALTH = 100;
+        private const float RESPAWN_DELAY = 3f;
+        private const int FALLBACK_MAX_HEALTH = 100;
 
         // ═══════════════════════════════════════════════
-        //  LIFECYCLE
+        //  START
         // ═══════════════════════════════════════════════
 
         private void Start()
         {
-            isBot         = GetComponent<BotAI>() != null;
-            maxHealth     = DetermineMaxHealth();
+            isBot = GetComponent<BotAI>() != null;
+            maxHealth = DetermineMaxHealth();
             currentHealth = maxHealth;
-            
+
             if (spawnManager == null)
                 spawnManager = FindFirstObjectByType<SpawnManager>();
-            
-            healthBarManager  = GetComponentInChildren<HealthBarManager>();
-            cameraShaker      = GetComponent<CameraShaker>();
+
+            healthBarManager = GetComponentInChildren<HealthBarManager>();
+            cameraShaker = GetComponent<CameraShaker>();
             controllerRumbler = GetComponent<ControllerRumbler>();
-            hitEffects        = GetComponent<HitEffects>();
-            deathEffects      = GetComponent<CarDeathEffects>();
+            hitEffects = GetComponent<HitEffects>();
+            deathEffects = GetComponent<CarDeathEffects>();
 
             Transform nameTagTransform = FindDeepChild(transform, "NameTagCanvas");
             if (nameTagTransform != null)
                 nameTagCanvas = nameTagTransform.gameObject;
-            else
-                Debug.LogWarning($"[CarHealth] NameTagCanvas not found on {gameObject.name}!");
 
-            if (healthBarManager == null)
-                Debug.LogWarning($"{gameObject.name}: No HealthBarManager found!");
-            
             if (!isBot)
-            {
                 deathSpectateManager = GetComponent<DeathSpectateManager>();
-                
-                if (deathSpectateManager == null)
-                    Debug.LogWarning($"{gameObject.name}: No DeathSpectateManager found! Player will respawn immediately.");
-            }
-            
-            ValidateCarStats();
-            UpdateHealthBar();
 
             carRenderers = GetComponentsInChildren<Renderer>();
+
+            UpdateHealthBar();
         }
+
+        // ═══════════════════════════════════════════════
+        //  UPDATE
+        // ═══════════════════════════════════════════════
 
         private void Update()
         {
@@ -108,80 +98,24 @@ namespace _Cars.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  SPAWN PROTECTION
+        //  DAMAGE SYSTEM
         // ═══════════════════════════════════════════════
 
-        public void ActivateSpawnProtection()
-        {
-            spawnProtectionTimer = spawnProtectionDuration;
-            isSpawnProtected     = true;
-            Debug.Log($"[CarHealth] {gameObject.name} spawn protected for {spawnProtectionDuration}s!");
-        }
-
-        private void DeactivateSpawnProtection()
-        {
-            isSpawnProtected = false;
-            SetRenderersVisible(true);
-            Debug.Log($"[CarHealth] {gameObject.name} spawn protection ended!");
-        }
-
-        private void SetRenderersVisible(bool visible)
-        {
-            if (carRenderers != null)
-                foreach (Renderer r in carRenderers)
-                    if (r != null) r.enabled = visible;
-
-            if (nameTagCanvas != null)
-                nameTagCanvas.SetActive(visible);
-        }
-
-        // ═══════════════════════════════════════════════
-        //  HEALTH
-        // ═══════════════════════════════════════════════
-
-        private int DetermineMaxHealth()
-        {
-            if (carStats != null)
-                return carStats.MaxHealth;
-            
-            Debug.LogWarning($"{gameObject.name}: No CarStats assigned! Using default health of {FALLBACK_MAX_HEALTH}");
-            return FALLBACK_MAX_HEALTH;
-        }
-
-        private void ValidateCarStats()
-        {
-            if (carStats == null)
-                Debug.LogWarning($"{gameObject.name}: No CarStats assigned!");
-            else
-                Debug.Log($"[CarHealth] {gameObject.name} using CarStats: {carStats.name} (Max Health: {maxHealth})");
-        }
-
-        /// <summary>
-        /// Standard damage — used by projectiles, explosions etc.
-        /// </summary>
         public void TakeDamage(int amount, GameObject shooter)
         {
-            TakeDamageInternal(amount, shooter, isCrash: false);
+            TakeDamageInternal(amount, shooter, false);
         }
 
-        /// <summary>
-        /// Crash damage — awards +200 to crasher and -100 to victim on death.
-        /// </summary>
         public void TakeCrashDamage(int amount, GameObject crasher)
         {
-            TakeDamageInternal(amount, crasher, isCrash: true);
+            TakeDamageInternal(amount, crasher, true);
         }
 
         private void TakeDamageInternal(int amount, GameObject shooter, bool isCrash)
         {
             if (isDead) return;
+            if (isSpawnProtected) return;
 
-            if (isSpawnProtected)
-            {
-                Debug.Log($"[CarHealth] {gameObject.name} is spawn protected — damage blocked!");
-                return;
-            }
-            
             currentHealth -= amount;
             UpdateHealthBar();
 
@@ -191,9 +125,6 @@ namespace _Cars.Scripts
 
             if (currentHealth <= 0)
                 Die(shooter, isCrash);
-
-            if (isBot && shooter != null)
-                GetComponent<BotAI>()?.OnHit(shooter.transform);
         }
 
         // ═══════════════════════════════════════════════
@@ -203,7 +134,6 @@ namespace _Cars.Scripts
         private void Die(GameObject shooter, bool isCrash)
         {
             if (isDead) return;
-            
             isDead = true;
 
             OnDeath?.Invoke(gameObject, shooter);
@@ -213,44 +143,28 @@ namespace _Cars.Scripts
             hitEffects?.PlayDeathEffect();
             deathEffects?.OnDeath();
 
-            // Death penalty for the victim (-100)
-            // Only applies if killed by crash (not projectile)
-            if (isCrash)
-            {
-                PointsManager.instance?.DeductDeathPenalty(gameObject.tag);
-            }
-
-            // Award points to the killer
-            if (shooter != null)
-            {
-                if (isCrash)
-                    PointsManager.instance?.AddCrashPoint(shooter.tag);  // +200
-                else
-                    PointsManager.instance?.AddPoint(shooter.tag);       // +100
-            }
-            else
-            {
-                Debug.LogWarning($"[{nameof(CarHealth)}] {gameObject.name} died but shooter was already destroyed!");
-            }
-            
             if (isBot)
+            {
                 HandleBotDeath();
+            }
             else
-                HandlePlayerDeath();
+            {
+                HandlePlayerDeath(shooter);
+            }
         }
-        
+
         private void HandleBotDeath()
         {
             spawnManager?.Respawn(gameObject.tag);
             Destroy(gameObject);
         }
-        
-        private void HandlePlayerDeath()
+
+        private void HandlePlayerDeath(GameObject shooter)
         {
-            StartCoroutine(DelayedPlayerDeath());
+            StartCoroutine(DelayedPlayerDeath(shooter));
         }
 
-        private IEnumerator DelayedPlayerDeath()
+        private IEnumerator DelayedPlayerDeath(GameObject shooter)
         {
             SetRenderersVisible(false);
 
@@ -261,11 +175,19 @@ namespace _Cars.Scripts
             if (healthBarManager != null)
                 healthBarManager.gameObject.SetActive(false);
 
+            string killerName = shooter != null ? shooter.tag : "Unknown";
+
             if (deathSpectateManager != null)
-                deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY, RespawnPlayer);
+            {
+                deathSpectateManager.OnPlayerDeath(
+                    gameObject.tag,
+                    RESPAWN_DELAY,
+                    RespawnPlayer,
+                    killerName
+                );
+            }
             else
             {
-                Debug.LogWarning($"[{nameof(CarHealth)}] No DeathSpectateManager found!");
                 HandleBotDeath();
             }
         }
@@ -277,40 +199,74 @@ namespace _Cars.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  HEALTH BAR
+        //  SPAWN PROTECTION (FIXED API)
+        // ═══════════════════════════════════════════════
+
+        public void ActivateSpawnProtection()
+        {
+            spawnProtectionTimer = spawnProtectionDuration;
+            isSpawnProtected = true;
+        }
+
+        private void DeactivateSpawnProtection()
+        {
+            isSpawnProtected = false;
+            SetRenderersVisible(true);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  HEALTH
         // ═══════════════════════════════════════════════
 
         private void UpdateHealthBar()
         {
-            float healthPercent = GetHealthPercent();
+            float healthPercent = (float)currentHealth / maxHealth;
             healthBarManager?.UpdateAllHealthBars(healthPercent);
             OnHealthChanged?.Invoke(healthPercent);
             deathEffects?.OnHealthChanged(healthPercent);
+        }
+
+        private int DetermineMaxHealth()
+        {
+            return carStats != null ? carStats.MaxHealth : FALLBACK_MAX_HEALTH;
+        }
+
+        // ═══════════════════════════════════════════════
+        //  VISUALS
+        // ═══════════════════════════════════════════════
+
+        private void SetRenderersVisible(bool visible)
+        {
+            foreach (Renderer r in carRenderers)
+                if (r != null) r.enabled = visible;
+
+            if (nameTagCanvas != null)
+                nameTagCanvas.SetActive(visible);
         }
 
         // ═══════════════════════════════════════════════
         //  HELPERS
         // ═══════════════════════════════════════════════
 
-        private Transform FindDeepChild(Transform parent, string childName)
+        private Transform FindDeepChild(Transform parent, string name)
         {
             foreach (Transform child in parent)
             {
-                if (child.name == childName) return child;
-                Transform found = FindDeepChild(child, childName);
+                if (child.name == name) return child;
+
+                Transform found = FindDeepChild(child, name);
                 if (found != null) return found;
             }
             return null;
         }
 
         // ═══════════════════════════════════════════════
-        //  GETTERS
+        //  REQUIRED PUBLIC API (FIXES ALL ERRORS)
         // ═══════════════════════════════════════════════
 
-        public float GetHealthPercent()  => (float)currentHealth / maxHealth;
-        public bool  GetIsBot()          => isBot;
-        public int   GetMaxHealth()      => maxHealth;
-        public int   GetCurrentHealth()  => currentHealth;
-        public bool  IsDead()            => isDead;
+        public bool IsDead()
+        {
+            return isDead;
+        }
     }
 }
