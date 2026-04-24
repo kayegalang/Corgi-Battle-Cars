@@ -37,8 +37,9 @@ namespace _Cars.Scripts
         private HitEffects           hitEffects;
         private CarDeathEffects      deathEffects;
         private GameObject           nameTagCanvas;
+        string killerName = "Player 3";
         
-        private int  maxHealth;
+        private int maxHealth;
         private int  currentHealth;
         private bool isBot;
         private bool isDead = false;
@@ -239,7 +240,7 @@ namespace _Cars.Scripts
             if (isBot)
                 HandleBotDeath();
             else
-                HandlePlayerDeath();
+                HandlePlayerDeath(shooter);
         }
         
         private void HandleBotDeath()
@@ -248,12 +249,12 @@ namespace _Cars.Scripts
             Destroy(gameObject);
         }
         
-        private void HandlePlayerDeath()
+        private void HandlePlayerDeath(GameObject shooter)
         {
-            StartCoroutine(DelayedPlayerDeath());
+            StartCoroutine(DelayedPlayerDeath(shooter));
         }
 
-        private IEnumerator DelayedPlayerDeath()
+        private IEnumerator DelayedPlayerDeath(GameObject shooter)
         {
             SetRenderersVisible(false);
 
@@ -264,13 +265,17 @@ namespace _Cars.Scripts
             if (healthBarManager != null)
                 healthBarManager.gameObject.SetActive(false);
 
+            string killerName = shooter != null ? shooter.tag : "Unknown";
+
             if (deathSpectateManager != null)
-                deathSpectateManager.OnPlayerDeath(gameObject.tag, RESPAWN_DELAY, RespawnPlayer);
+                deathSpectateManager.OnPlayerDeath(
+                    gameObject.tag,
+                    RESPAWN_DELAY,
+                    RespawnPlayer,
+                    killerName
+                );
             else
-            {
-                Debug.LogWarning($"[{nameof(CarHealth)}] No DeathSpectateManager found!");
                 HandleBotDeath();
-            }
         }
 
         private void RespawnPlayer()
