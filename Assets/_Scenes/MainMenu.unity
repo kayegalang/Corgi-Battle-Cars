@@ -7479,7 +7479,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4784398358863627862}
+  - {fileID: 791837580}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &698459243
@@ -8884,6 +8884,141 @@ MonoBehaviour:
   bindingDisplayText: {fileID: 779588568}
   rebindButton: {fileID: 788080541}
   bindingIndex: 17
+--- !u!1 &791837579
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 791837580}
+  - component: {fileID: 791837581}
+  m_Layer: 0
+  m_Name: FMODEvents
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &791837580
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791837579}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 698459241}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &791837581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791837579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb13b00f0ed82b746b5be8bb5f16e99f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Audio.scripts.FMODEvents
+  <DogParkStart>k__BackingField:
+    Guid:
+      Data1: 1271111369
+      Data2: 1246080548
+      Data3: 1202217636
+      Data4: -1734932419
+    Path: event:/Music/DogPark Theme
+  <MainMenuMusic>k__BackingField:
+    Guid:
+      Data1: -1115519594
+      Data2: 1279516119
+      Data3: 1965987474
+      Data4: 1900388259
+    Path: event:/Music/MainMenuTheme
+  <bark3Sound>k__BackingField:
+    Guid:
+      Data1: -1346768095
+      Data2: 1179543949
+      Data3: -1807967605
+      Data4: 234077998
+    Path: event:/Music/BarkCountdown/Bark 3
+  <bark2Sound>k__BackingField:
+    Guid:
+      Data1: 1671092813
+      Data2: 1312906767
+      Data3: -180489048
+      Data4: 44268773
+    Path: event:/Music/BarkCountdown/Bark 2
+  <bark1Sound>k__BackingField:
+    Guid:
+      Data1: 1146122849
+      Data2: 1101948036
+      Data3: -119903577
+      Data4: 133773032
+    Path: event:/Music/BarkCountdown/Bark 1
+  <barkGoSound>k__BackingField:
+    Guid:
+      Data1: -1381024699
+      Data2: 1172359684
+      Data3: -747056216
+      Data4: -1884548749
+    Path: event:/Music/BarkCountdown/Bark Go
+  <clicksound>k__BackingField:
+    Guid:
+      Data1: 1195967630
+      Data2: 1163925222
+      Data3: -487128652
+      Data4: -99941290
+    Path: event:/UI/ClickSelect
+  <shootsound>k__BackingField:
+    Guid:
+      Data1: -1157410978
+      Data2: 1083807063
+      Data3: 2044705720
+      Data4: -1961419844
+    Path: event:/Gameplay/Shoot
+  <zoomies>k__BackingField:
+    Guid:
+      Data1: 477552065
+      Data2: 1319680790
+      Data3: 366467475
+      Data4: 581116822
+    Path: event:/Gameplay/Zoomies
+  <sniff>k__BackingField:
+    Guid:
+      Data1: -220374199
+      Data2: 1221778895
+      Data3: -577987905
+      Data4: 763620198
+    Path: event:/Gameplay/Sniff
+  <squirrel>k__BackingField:
+    Guid:
+      Data1: -960147824
+      Data2: 1282792417
+      Data3: -1877860211
+      Data4: -901914912
+    Path: event:/Gameplay/Squirrel
+  <poop>k__BackingField:
+    Guid:
+      Data1: -1347465645
+      Data2: 1149116605
+      Data3: -1884939362
+      Data4: 1933456710
+    Path: event:/Gameplay/Poop
+  <FinishedSound>k__BackingField:
+    Guid:
+      Data1: 46604525
+      Data2: 1119354448
+      Data3: 350657202
+      Data4: -985820271
+    Path: event:/Music/Finished
 --- !u!1 &793682586
 GameObject:
   m_ObjectHideFlags: 0
@@ -23177,134 +23312,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2140654268}
   m_CullTransparentMesh: 1
---- !u!114 &2131567619011804389
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4009109428464382991}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb13b00f0ed82b746b5be8bb5f16e99f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::_Audio.scripts.FMODEvents
-  <DogParkStart>k__BackingField:
-    Guid:
-      Data1: 1271111369
-      Data2: 1246080548
-      Data3: 1202217636
-      Data4: -1734932419
-    Path: event:/Music/DogPark Theme
-  <bark3Sound>k__BackingField:
-    Guid:
-      Data1: -1346768095
-      Data2: 1179543949
-      Data3: -1807967605
-      Data4: 234077998
-    Path: event:/Music/BarkCountdown/Bark 3
-  <bark2Sound>k__BackingField:
-    Guid:
-      Data1: 1671092813
-      Data2: 1312906767
-      Data3: -180489048
-      Data4: 44268773
-    Path: event:/Music/BarkCountdown/Bark 2
-  <bark1Sound>k__BackingField:
-    Guid:
-      Data1: 1146122849
-      Data2: 1101948036
-      Data3: -119903577
-      Data4: 133773032
-    Path: event:/Music/BarkCountdown/Bark 1
-  <barkGoSound>k__BackingField:
-    Guid:
-      Data1: -1381024699
-      Data2: 1172359684
-      Data3: -747056216
-      Data4: -1884548749
-    Path: event:/Music/BarkCountdown/Bark Go
-  <clicksound>k__BackingField:
-    Guid:
-      Data1: 1195967630
-      Data2: 1163925222
-      Data3: -487128652
-      Data4: -99941290
-    Path: event:/UI/ClickSelect
-  <shootsound>k__BackingField:
-    Guid:
-      Data1: -1157410978
-      Data2: 1083807063
-      Data3: 2044705720
-      Data4: -1961419844
-    Path: event:/Gameplay/Shoot
-  <zoomies>k__BackingField:
-    Guid:
-      Data1: 477552065
-      Data2: 1319680790
-      Data3: 366467475
-      Data4: 581116822
-    Path: event:/Gameplay/Zoomies
-  <sniff>k__BackingField:
-    Guid:
-      Data1: -220374199
-      Data2: 1221778895
-      Data3: -577987905
-      Data4: 763620198
-    Path: event:/Gameplay/Sniff
-  <squirrel>k__BackingField:
-    Guid:
-      Data1: -960147824
-      Data2: 1282792417
-      Data3: -1877860211
-      Data4: -901914912
-    Path: event:/Gameplay/Squirrel
-  <poop>k__BackingField:
-    Guid:
-      Data1: -1347465645
-      Data2: 1149116605
-      Data3: -1884939362
-      Data4: 1933456710
-    Path: event:/Gameplay/Poop
-  <FinishedSound>k__BackingField:
-    Guid:
-      Data1: 46604525
-      Data2: 1119354448
-      Data3: 350657202
-      Data4: -985820271
-    Path: event:/Music/Finished
---- !u!1 &4009109428464382991
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4784398358863627862}
-  - component: {fileID: 2131567619011804389}
-  m_Layer: 0
-  m_Name: FMODEvents
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4784398358863627862
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4009109428464382991}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1059.568, y: 65.610306, z: -134.74579}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 698459241}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
