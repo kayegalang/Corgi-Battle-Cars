@@ -18,10 +18,12 @@ namespace _Gameplay.Scripts
         [SerializeField] private float respawnDelay = 3f;
         
         private readonly HashSet<int> usedSpawnIndices = new HashSet<int>();
+        private ParticleSystem driftParticlePrefab;
         
         private const int    TOTAL_PLAYERS     = 4;
         private const string PLAYER_TAG_PREFIX = "Player";
         private const string BOT_TAG_PREFIX    = "Bot";
+        private const string DRIFT_PARTICLE_RESOURCE_PATH = "VFXPACK_FIRE_WALLCOEUR/Prefab/VFX_GreenSmoke";
         
         private static readonly Dictionary<int, string> PlayerTagMap = new Dictionary<int, string>
         {
@@ -47,6 +49,7 @@ namespace _Gameplay.Scripts
         {
             ClearUsedSpawnIndices();
             ValidateReferences();
+            LoadDriftParticlePrefab();
         }
         
         private void ClearUsedSpawnIndices()
@@ -64,6 +67,16 @@ namespace _Gameplay.Scripts
             
             if (botPrefab == null)
                 Debug.LogError($"[{nameof(SpawnManager)}] Bot prefab is not assigned!");
+        }
+
+        private void LoadDriftParticlePrefab()
+        {
+            driftParticlePrefab = Resources.Load<ParticleSystem>(DRIFT_PARTICLE_RESOURCE_PATH);
+
+            if (driftParticlePrefab == null)
+            {
+                Debug.LogError($"[{nameof(SpawnManager)}] Could not load drift particle prefab at Resources/{DRIFT_PARTICLE_RESOURCE_PATH}");
+            }
         }
 
         // ═══════════════════════════════════════════════
@@ -95,7 +108,6 @@ namespace _Gameplay.Scripts
                 string    playerTag  = GetPlayerTag(i);
                 Transform spawnPoint = GetUniqueSpawnPoint();
                 
-                // Initial spawn — no spawn protection
                 GameObject player = SpawnPlayer(playerTag, spawnPoint, playerPrefab);
                 
                 if (player != null)
@@ -176,7 +188,6 @@ namespace _Gameplay.Scripts
                     int playerNumber = GetPlayerNumberFromTag(playerTag);
                     RestorePlayerDevice(player, playerNumber);
 
-                    // Activate spawn protection ONLY on respawn, not initial spawn
                     player.GetComponent<CarHealth>()?.ActivateSpawnProtection();
                 }
             }
@@ -202,10 +213,10 @@ namespace _Gameplay.Scripts
             
             GameObject player = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
 
-            // Set identity FIRST so loaders can read the correct tag
             SetPlayerIdentity(player, playerTag);
 
-            // Load stats — tag is correct so per-player keys work
+            SetupPlayerDriftParticles(player);
+
             player.GetComponent<CarStatsLoader>()?.LoadForCurrentTag();
             player.GetComponent<WeaponStatsLoader>()?.LoadForCurrentTag();
             
@@ -225,6 +236,52 @@ namespace _Gameplay.Scripts
         {
             player.tag  = playerTag;
             player.name = playerTag;
+        }
+
+        private void SetupPlayerDriftParticles(GameObject player)
+        {
+            if (player == null || driftParticlePrefab == null)
+                return;
+
+            Transform leftWheel = player.transform.Find("CarModel/Wheels/BL_Wheel");
+            Transform rightWheel = player.transform.Find("CarModel/Wheels/BR_Wheel");
+
+            if (leftWheel == null || rightWheel == null)
+            {
+                Debug.LogWarning($"[{nameof(SpawnManager)}] Could not find rear wheels on {player.name}. Check the wheel hierarchy path.");
+                return;
+            }
+
+            ParticleSystem leftParticles = GetOrCreateDriftParticles(leftWheel, "BL_DriftParticles");
+            ParticleSystem rightParticles = GetOrCreateDriftParticles(rightWheel, "BR_DriftParticles");
+
+            CarController carController = player.GetComponent<CarController>();
+            if (carController != null)
+            {
+                carController.SetDriftParticleReferences(leftParticles, rightParticles);
+            }
+        }
+
+        private ParticleSystem GetOrCreateDriftParticles(Transform wheelTransform, string objectName)
+        {
+            Transform existing = wheelTransform.Find(objectName);
+            if (existing != null)
+            {
+                ParticleSystem existingPs = existing.GetComponent<ParticleSystem>();
+                if (existingPs != null)
+                {
+                    existingPs.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                    return existingPs;
+                }
+            }
+
+            ParticleSystem newParticles = Instantiate(driftParticlePrefab, wheelTransform);
+            newParticles.name = objectName;
+            newParticles.transform.localPosition = new Vector3(0f, -0.2f, 0f);
+            newParticles.transform.localRotation = Quaternion.identity;
+            newParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            return newParticles;
         }
 
         // ═══════════════════════════════════════════════
@@ -459,7 +516,6 @@ namespace _Gameplay.Scripts
             PlayerInput instanceInput = player.GetComponent<PlayerInput>();
             if (instanceInput != null)
             {
-                // Manually assign camera so split-screen works even if Camera is on a child
                 instanceInput.camera = player.GetComponentInChildren<Camera>();
                 instanceInput.enabled = true;
             }

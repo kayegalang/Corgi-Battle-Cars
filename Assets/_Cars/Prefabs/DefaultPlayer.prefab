@@ -288,8 +288,19 @@ MonoBehaviour:
   carStats: {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
   zoomiesParticles: {fileID: 4295368576151657587}
   driftTurnMultiplier: 1.5
-  driftSpeedBoost: 8
-  minDriftSpeedBoost: 0.3
+  driftLateralDamping: 0.82
+  driftSteeringSmoothness: 3
+  maxDriftAngularSpeed: 2
+  minDriftForwardSpeed: 2
+  minDriftSteerThreshold: 0.1
+  greenDriftThreshold: 0.4
+  orangeDriftThreshold: 1
+  redDriftThreshold: 1.8
+  greenBoostForce: 4
+  orangeBoostForce: 7
+  redBoostForce: 10
+  leftRearDriftParticles: {fileID: 0}
+  rightRearDriftParticles: {fileID: 0}
   crashDamage: 5
   crashMinSpeed: 3
   crashCooldown: 0.5
