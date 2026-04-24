@@ -6,32 +6,6 @@ using UnityEngine;
 
 namespace _Cars.Scripts
 {
-    /// <summary>
-    /// Spawns the selected car and weapon models at runtime based on PlayerPrefs,
-    /// then rewires all component references that point into the spawned prefab.
-    ///
-    /// CAR PREFAB STRUCTURE (e.g. KorgiKart):
-    ///   KorgiKart
-    ///     ├── [mesh children]
-    ///     ├── Corgi
-    ///     ├── SmokeEffect         (ParticleSystem)
-    ///     ├── FlameEffect         (GameObject)
-    ///     ├── ZoomiesSpeedTrail   (ParticleSystem)
-    ///     ├── Back Left Wheel
-    ///     ├── Back Right Wheel
-    ///     ├── Front Left Wheel
-    ///     ├── Front Right Wheel
-    ///     ├── NameTagCanvas
-    ///     └── WeaponMount
-    ///           └── Mount
-    ///
-    /// WEAPON PREFAB STRUCTURE (e.g. bArK-47):
-    ///   bArK-47
-    ///     ├── [mesh children]
-    ///     └── FirePoint
-    ///
-    /// Add CarVisualLoader to DefaultPlayer root.
-    /// </summary>
     public class CarVisualLoader : MonoBehaviour
     {
         [Header("All Available Cars (same order as CharacterSelectUI)")]
@@ -41,13 +15,11 @@ namespace _Cars.Scripts
         [SerializeField] private ProjectileObject[] weaponTypes;
 
         [Header("Mount Point")]
-        [Tooltip("Empty GameObject under Visuals — the car prefab spawns here")]
         [SerializeField] private Transform carMount;
 
         private const string KEY_CAR    = "SelectedCarTypeIndex";
         private const string KEY_WEAPON = "SelectedWeaponTypeIndex";
 
-        // Maps player tags to PlayerLoadout indices
         private static readonly System.Collections.Generic.Dictionary<string, int> TagToIndex
             = new System.Collections.Generic.Dictionary<string, int>
         {
@@ -61,7 +33,7 @@ namespace _Cars.Scripts
         {
             if (TagToIndex.TryGetValue(gameObject.tag, out int index))
                 return index;
-            return 0; // default to P1 for bots or untagged
+            return 0;
         }
 
         // ═══════════════════════════════════════════════
@@ -70,8 +42,6 @@ namespace _Cars.Scripts
 
         private void Awake()
         {
-            // In singleplayer tag is already correct — load immediately
-            // In multiplayer SpawnManager calls LoadForCurrentTag() after setting the tag
             if (GetComponent<BotLoadoutRandomizer>() != null) return;
 
             if (GameplayManager.instance != null &&
@@ -79,7 +49,6 @@ namespace _Cars.Scripts
                 LoadVisuals();
         }
 
-        /// <summary>Called by SpawnManager after SetPlayerIdentity() so tag is correct.</summary>
         public void LoadForCurrentTag()
         {
             LoadVisuals();
@@ -93,11 +62,9 @@ namespace _Cars.Scripts
         {
             int playerIdx = GetPlayerIndex();
 
-            // Try PlayerLoadout first (set by character select)
             CarStats         loadoutCar    = PlayerLoadout.GetCar(playerIdx);
             ProjectileObject loadoutWeapon = PlayerLoadout.GetWeapon(playerIdx);
 
-            // Fall back to PlayerPrefs for backwards compatibility
             int carIndex    = loadoutCar    != null ? System.Array.IndexOf(carTypes,    loadoutCar)    : Mathf.Clamp(PlayerPrefs.GetInt(KEY_CAR,    0), 0, carTypes.Length    - 1);
             int weaponIndex = loadoutWeapon != null ? System.Array.IndexOf(weaponTypes, loadoutWeapon) : Mathf.Clamp(PlayerPrefs.GetInt(KEY_WEAPON, 0), 0, weaponTypes.Length - 1);
 
@@ -107,7 +74,6 @@ namespace _Cars.Scripts
             LoadVisuals(carIndex, weaponIndex);
         }
 
-        /// <summary>Called directly by BotLoadoutRandomizer with explicit indices.</summary>
         public void LoadVisuals(int carIndex, int weaponIndex)
         {
             carIndex    = Mathf.Clamp(carIndex,    0, carTypes.Length    - 1);
@@ -151,11 +117,6 @@ namespace _Cars.Scripts
             model.transform.localEulerAngles = car.CarModelRotationEuler;
             model.transform.localScale       = car.CarModelScale;
 
-            Debug.Log($"[CarVisualLoader] Car spawned!" +
-                      $"\n  Rotation requested: {car.CarModelRotationEuler}" +
-                      $"\n  Rotation applied:   {model.transform.localEulerAngles}" +
-                      $"\n  Prefab rotation:    {car.CarModelPrefab.transform.eulerAngles}");
-
             return model;
         }
 
@@ -183,42 +144,38 @@ namespace _Cars.Scripts
             GameObject model = Instantiate(weapon.WeaponModelPrefab, weaponMount);
             model.name = "WeaponModel_Dynamic";
 
-            // Apply the car's per-weapon offset — each car defines where each weapon sits
             model.transform.localPosition = car.GetWeaponPositionOffset(weaponIndex);
             model.transform.localRotation = car.GetWeaponRotationOffset(weaponIndex);
             model.transform.localScale    = car.GetWeaponScaleOffset(weaponIndex);
 
-            // Hand FirePoint to CarShooter
             Transform firePoint = FindDeepChild(model.transform, "FirePoint");
             if (firePoint != null)
                 GetComponent<CarShooter>()?.SetFirePoint(firePoint);
             else
                 Debug.LogWarning($"[CarVisualLoader] No 'FirePoint' found in weapon prefab '{weapon.ProjectileName}'!");
 
-            // Wire TurretVisuals to the weapon's visual component
             WeaponVisualBase weaponVisual = model.GetComponentInChildren<WeaponVisualBase>();
             if (weaponVisual != null)
             {
                 weaponVisual.SetPlayerRoot(transform);
 
-                // Pass owner for laser damage attribution
                 HoundVisual houndVisual = weaponVisual as HoundVisual;
                 houndVisual?.SetOwner(gameObject);
 
                 GetComponent<TurretVisuals>()?.SetWeaponVisual(weaponVisual);
             }
             else
-                Debug.LogWarning($"[CarVisualLoader] No WeaponVisualBase found in weapon prefab '{weapon.ProjectileName}'! Add BArK47Visual or HoundVisual to the prefab.");
+                Debug.LogWarning($"[CarVisualLoader] No WeaponVisualBase found in weapon prefab '{weapon.ProjectileName}'!");
         }
 
         // ═══════════════════════════════════════════════
         //  RESOLVE REFERENCES
-        //  Rewires all component references that point into
-        //  the spawned car prefab after it's instantiated
         // ═══════════════════════════════════════════════
 
         private void ResolveReferences(GameObject spawnedCar)
         {
+            Debug.Log($"[CarVisualLoader] ResolveReferences called on {gameObject.name} (tag: {gameObject.tag})");
+
             Transform car = spawnedCar.transform;
 
             // ── HitEffects (car flash renderers) ─────────
@@ -229,13 +186,23 @@ namespace _Cars.Scripts
                 hitEffects.SetRenderers(renderers);
             }
 
+            // ── CarColorizer (hue shift per player) ──────
+            CarColorizer colorizer = GetComponent<CarColorizer>();
+            Debug.Log($"[CarVisualLoader] CarColorizer found: {colorizer != null}");
+            if (colorizer != null)
+            {
+                Renderer[] renderers = spawnedCar.GetComponentsInChildren<Renderer>();
+                Debug.Log($"[CarVisualLoader] Passing {renderers.Length} renderers to CarColorizer");
+                colorizer.ApplyColor(renderers);
+            }
+
             // ── CarDeathEffects ──────────────────────────
             CarDeathEffects deathEffects = GetComponent<CarDeathEffects>();
             if (deathEffects != null)
             {
-                ParticleSystem smoke    = FindDeepChild(car, "SmokeEffect")?.GetComponent<ParticleSystem>();
-                GameObject     flame    = FindDeepChild(car, "FlameEffect")?.gameObject;
-                GameObject     nameTag  = FindDeepChild(car, "NameTagCanvas")?.gameObject;
+                ParticleSystem smoke   = FindDeepChild(car, "SmokeEffect")?.GetComponent<ParticleSystem>();
+                GameObject     flame   = FindDeepChild(car, "FlameEffect")?.gameObject;
+                GameObject     nameTag = FindDeepChild(car, "NameTagCanvas")?.gameObject;
                 deathEffects.SetReferences(smoke, flame, nameTag);
             }
 
@@ -254,10 +221,9 @@ namespace _Cars.Scripts
             DriftEffects drift = GetComponent<DriftEffects>();
             if (drift != null)
             {
-                // carBodyRoot is the spawned car model root itself
-                Transform      bodyRoot   = spawnedCar.transform;
-                ParticleSystem dustLeft   = FindDeepChild(car, "DustLeft")?.GetComponent<ParticleSystem>();
-                ParticleSystem dustRight  = FindDeepChild(car, "DustRight")?.GetComponent<ParticleSystem>();
+                Transform      bodyRoot  = spawnedCar.transform;
+                ParticleSystem dustLeft  = FindDeepChild(car, "DustLeft")?.GetComponent<ParticleSystem>();
+                ParticleSystem dustRight = FindDeepChild(car, "DustRight")?.GetComponent<ParticleSystem>();
                 drift.SetReferences(bodyRoot, dustLeft, dustRight);
             }
 
@@ -280,14 +246,13 @@ namespace _Cars.Scripts
             }
 
             // ── BotAI FirePoint ───────────────────────────
-            // Bots need FirePoint wired after weapon spawns just like CarShooter
             GetComponent<_Bot.Scripts.BotAI>()?.SetFirePoint(
                 FindDeepChild(spawnedCar.transform, "FirePoint") ??
                 FindDeepChild(transform, "FirePoint"));
         }
 
         // ═══════════════════════════════════════════════
-        //  SMART CLEAR — only removes _Dynamic objects
+        //  HELPERS
         // ═══════════════════════════════════════════════
 
         private void ClearDynamicChildren(Transform parent)
@@ -299,10 +264,6 @@ namespace _Cars.Scripts
                     Destroy(child);
             }
         }
-
-        // ═══════════════════════════════════════════════
-        //  HELPERS
-        // ═══════════════════════════════════════════════
 
         private Transform FindDeepChild(Transform parent, string childName)
         {
