@@ -16,7 +16,7 @@ MonoBehaviour:
   carDescription: 'Jump higher, less health '
   carID: Aerial
   speedStat: 77.24867
-  accelerationStat: 63.492065
+  accelerationStat: 73.01588
   jumpForceStat: 100
   healthStat: 45
   minMaxSpeed: 25
