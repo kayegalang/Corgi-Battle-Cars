@@ -15821,6 +15821,59 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1672307820}
   m_CullTransparentMesh: 1
+--- !u!1 &1691846956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1691846958}
+  - component: {fileID: 1691846957}
+  m_Layer: 0
+  m_Name: PresentationDirector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1691846957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1691846956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2967a86a68d794edfa351bbc0d55686c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PresentationDirector
+  squirrelPowerUp: {fileID: 11400000, guid: 275886eb43dfa492497f23c16d0c53a4, type: 2}
+  zoomiesPowerUp: {fileID: 11400000, guid: 724d7c9b00801457b9a81acb4cfe37b9, type: 2}
+  poopPowerUp: {fileID: 11400000, guid: edf3a1b9ef3904cc1a1ae83a415d9e74, type: 2}
+  squirrelPickupPrefab: {fileID: 6877758537058637260, guid: b1094290085664423bb2f115325d126d, type: 3}
+  squirrelSpawnDistance: 12
+  slowMotionScale: 0.35
+  teleportRadius: 4
+  overlayCanvas: {fileID: 0}
+  cueText: {fileID: 0}
+--- !u!4 &1691846958
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1691846956}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 103.7, y: -0.19238, z: 4.72047}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1691923854
 GameObject:
   m_ObjectHideFlags: 0
@@ -18425,7 +18478,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 5:00
+  m_text: 3:00
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f3ebcb0b654e64fb2bd2a5cb204730fe, type: 2}
   m_sharedMaterial: {fileID: 153796944699633917, guid: f3ebcb0b654e64fb2bd2a5cb204730fe, type: 2}
@@ -53555,3 +53608,4 @@ SceneRoots:
   - {fileID: 1480799662}
   - {fileID: 115680629}
   - {fileID: 1150255072}
+  - {fileID: 1691846958}

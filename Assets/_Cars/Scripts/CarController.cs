@@ -506,12 +506,12 @@ namespace _Cars.Scripts
             carRb.AddForce(jumpForce, ForceMode.Impulse);
             OnJump?.Invoke();
 
-            // Play jump or super jump sound
+            // Don't play sounds in main menu
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "MainMenu") return;
+
             if (AudioManager.instance != null && FMODEvents.instance != null)
             {
-                var sound = hasSuperJump
-                    ? FMODEvents.instance.superjump
-                    : FMODEvents.instance.jump;
+                var sound = hasSuperJump ? FMODEvents.instance.superjump : FMODEvents.instance.jump;
                 AudioManager.instance.PlayOneShot(sound, transform.position);
             }
         }

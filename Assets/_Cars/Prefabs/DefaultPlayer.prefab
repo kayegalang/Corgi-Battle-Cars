@@ -31,7 +31,6 @@ GameObject:
   - component: {fileID: 4094222531616991225}
   - component: {fileID: 2838662308265025720}
   - component: {fileID: 5261735153100206024}
-  - component: {fileID: 7603100274213365305}
   - component: {fileID: 42363799723898279}
   m_Layer: 0
   m_Name: DefaultPlayer
@@ -557,24 +556,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.CarEngineSound
   minSpeedThreshold: 0.5
---- !u!114 &7603100274213365305
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 852133240821571215}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86ba071e14d9b4a5b997361b7e3a29d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.CarColorizer
-  hueShiftPropertyName: _HueShift
-  playerHues:
-  - 0
-  - 0
-  - 120
-  - 200
 --- !u!65 &42363799723898279
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1392,6 +1373,8 @@ MonoBehaviour:
   detectionMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  minimumCameraY: 0.5
+  enforceMinimumY: 1
 --- !u!1 &3903267711428067611
 GameObject:
   m_ObjectHideFlags: 0
