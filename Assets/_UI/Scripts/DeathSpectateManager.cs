@@ -260,8 +260,8 @@ namespace _UI.Scripts
             if (cinemachineBrain != null)
                 cinemachineBrain.enabled = false;
 
+            ShowDeathMessage();
             FindAlivePlayersToSpectate();
-            deathMessageRoutine = StartCoroutine(CycleDeathMessages());
             StartSpectating();
         }
 
@@ -272,19 +272,12 @@ namespace _UI.Scripts
             onRespawnCallback = null;
         }
 
-        private IEnumerator CycleDeathMessages()
+        private void ShowDeathMessage()
         {
-            int index = 0;
+            if (deathMessageText == null) return;
 
-            while (isDead)
-            {
-                if (deathMessageText != null)
-                    deathMessageText.text = $"{killerName} {deathMessages[index]}";
-
-                index = (index + 1) % deathMessages.Length;
-
-                yield return new WaitForSeconds(1.5f);
-            }
+            int index = UnityEngine.Random.Range(0, deathMessages.Length);
+            deathMessageText.text = $"{killerName} {deathMessages[index]}";
         }
 
         private void ShowDeathScreen()

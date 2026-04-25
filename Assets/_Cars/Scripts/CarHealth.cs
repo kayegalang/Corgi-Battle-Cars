@@ -47,8 +47,9 @@ namespace _Cars.Scripts
         private float      spawnProtectionTimer = 0f;
         private bool       isSpawnProtected     = false;
         private Renderer[] carRenderers;
+        private GameObject lastAttacker;
 
-        private const float RESPAWN_DELAY       = 3f;
+        private const float RESPAWN_DELAY = 3f;
         private const int   FALLBACK_MAX_HEALTH = 100;
 
         // ═══════════════════════════════════════════════
@@ -178,6 +179,9 @@ namespace _Cars.Scripts
         {
             if (isDead) return;
             if (isSpawnProtected) return;
+
+            if (shooter != null)
+                lastAttacker = shooter;
     
             currentHealth -= amount;
             UpdateHealthBar();
@@ -265,7 +269,8 @@ namespace _Cars.Scripts
             if (healthBarManager != null)
                 healthBarManager.gameObject.SetActive(false);
 
-            string killerName = shooter != null ? shooter.tag : "Unknown";
+            GameObject killer = shooter != null ? shooter : lastAttacker;
+            string killerName = killer != null ? killer.tag : "Unknown";
 
             if (deathSpectateManager != null)
                 deathSpectateManager.OnPlayerDeath(
