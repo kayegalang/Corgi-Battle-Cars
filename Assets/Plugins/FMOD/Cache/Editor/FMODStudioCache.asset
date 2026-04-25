@@ -42,7 +42,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639126388006803210
+  lastModified: 639126284544185980
   FileSizes:
   - Name: Desktop
     Value: 1378
@@ -62,7 +62,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/UI.bank
   Name: UI
   StudioPath: bank:/UI
-  lastModified: 639126388034942757
+  lastModified: 639126284544238029
   FileSizes:
   - Name: Desktop
     Value: 205792
@@ -109,7 +109,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Countdown.bank
   Name: Countdown
   StudioPath: bank:/Countdown
-  lastModified: 639126388004675720
+  lastModified: 639126284544147748
   FileSizes:
   - Name: Desktop
     Value: 18400
@@ -643,7 +643,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: 6097348948757065567}
   cacheVersion: 131858
-  cacheTime: 639126661316559348
+  cacheTime: 639126544799195912
   SerializableEventsDict:
   - key: event:/Music/BarkCountdown/Bark 3
     index: 0
@@ -901,7 +901,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 100
-  Length: 5000
+  Length: 0
 --- !u!114 &2825154357708597493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1011,7 +1011,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639126661316559348
+  lastModified: 639126544799195912
   FileSizes:
   - Name: Desktop
     Value: 3801536
@@ -1139,9 +1139,11 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639126388006813098
+  lastModified: 639126284544187381
   FileSizes:
   - Name: Desktop
+    Value: 2010
+  - Name: Desktop 2
     Value: 2010
   Exists: 1
 --- !u!114 &7212993241539973062
@@ -1307,8 +1309,8 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Gameplay.bank
   Name: Gameplay
   StudioPath: bank:/Gameplay
-  lastModified: 639126661289085801
+  lastModified: 639126284544184113
   FileSizes:
   - Name: Desktop
-    Value: 662464
+    Value: 695584
   Exists: 1

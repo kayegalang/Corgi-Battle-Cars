@@ -225,13 +225,13 @@ public class CharacterSelectUI : MonoBehaviour
             {
                 case ControllerStep.SelectingWeapon:
                     instructionText.text = isControllerMode
-                        ? "← → CHOOSE WEAPON   A: Confirm   B: Back"
-                        : "← → CHOOSE WEAPON";
+                        ? "CHOOSE WEAPON   A: Confirm   B: Back"
+                        : "CHOOSE WEAPON";
                     break;
                 case ControllerStep.SelectingCar:
                     instructionText.text = isControllerMode
-                        ? "← → CHOOSE CAR   A: Confirm   B: Back"
-                        : "← → CHOOSE CAR";
+                        ? "CHOOSE CAR   A: Confirm   B: Back"
+                        : "CHOOSE CAR";
                     break;
                 case ControllerStep.Ready:
                     instructionText.text = isControllerMode ? "READY!   B: Undo" : "READY!";
