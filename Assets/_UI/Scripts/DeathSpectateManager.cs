@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using _Cars.Scripts;
 using TMPro;
@@ -19,22 +20,33 @@ namespace _UI.Scripts
         [SerializeField] private Button           nextPlayerButton;
 
         [Header("UI Text")]
+        [SerializeField] private TextMeshProUGUI deathMessageText;
         [SerializeField] private string respawnCountdownFormat  = "Respawning in {0}";
         [SerializeField] private string spectatingFormat        = "Spectating: {0}";
         [SerializeField] private string noPlayersToSpectateText = "No players to spectate";
 
-        private Camera            playerCamera;
-        private CinemachineBrain  cinemachineBrain;
-        private PlayerInput       playerInput;
-        private string            playerTag;
-        private bool              isDead      = false;
-        private bool              isSuppressed = false;
+        private string[] deathMessages =
+        {
+            "sent you to the dog house",
+            "eliminated you",
+            "it's time to go to the vet"
+        };
+
+        private Coroutine deathMessageRoutine;
+        private string    killerName;
+
+        private Camera           playerCamera;
+        private CinemachineBrain cinemachineBrain;
+        private PlayerInput      playerInput;
+        private string           playerTag;
+        private bool             isDead       = false;
+        private bool             isSuppressed = false;
 
         private float  respawnTimer    = 0f;
         private float  respawnDuration = 3f;
         private Action onRespawnCallback;
 
-        private List<GameObject> alivePlayersCache   = new List<GameObject>();
+        private List<GameObject> alivePlayersCache    = new List<GameObject>();
         private int              currentSpectateIndex = 0;
 
         private Transform  originalCameraParent;
@@ -60,6 +72,17 @@ namespace _UI.Scripts
         {
             isSuppressed = suppressed;
             if (suppressed) HideDeathScreen();
+        }
+
+        /// <summary>
+        /// Called by PresentationDirector when restoring normal split screen.
+        /// Updates originalViewportRect in case the player spawned during focus mode.
+        /// </summary>
+        public void RefreshOriginalViewportRect()
+        {
+            if (playerCamera == null) return;
+            originalViewportRect = playerCamera.rect;
+            ConstrainPanelToViewport();
         }
 
         // ═══════════════════════════════════════════════
@@ -205,18 +228,18 @@ namespace _UI.Scripts
         //  DEATH ENTRY POINT
         // ═══════════════════════════════════════════════
 
-        public void OnPlayerDeath(string tag, float respawnDelay, Action onRespawn)
+        public void OnPlayerDeath(string tag, float respawnDelay, Action onRespawn, string killer)
         {
             playerTag         = tag;
             respawnDuration   = respawnDelay;
             respawnTimer      = respawnDuration;
             onRespawnCallback = onRespawn;
+            killerName        = killer;
 
             // In presentation focus mode — instant respawn, no death screen
             if (isSuppressed)
             {
-                onRespawnCallback?.Invoke();
-                onRespawnCallback = null;
+                StartCoroutine(DelayedSuppressedRespawn());
                 return;
             }
 
@@ -224,6 +247,9 @@ namespace _UI.Scripts
 
             ShowDeathScreen();
             DisablePlayerControls();
+
+            if (deathMessageRoutine != null)
+                StopCoroutine(deathMessageRoutine);
 
             if (IsKeyboardPlayer())
             {
@@ -235,7 +261,30 @@ namespace _UI.Scripts
                 cinemachineBrain.enabled = false;
 
             FindAlivePlayersToSpectate();
+            deathMessageRoutine = StartCoroutine(CycleDeathMessages());
             StartSpectating();
+        }
+
+        private IEnumerator DelayedSuppressedRespawn()
+        {
+            yield return null; // wait one frame so UI doesn't flash
+            onRespawnCallback?.Invoke();
+            onRespawnCallback = null;
+        }
+
+        private IEnumerator CycleDeathMessages()
+        {
+            int index = 0;
+
+            while (isDead)
+            {
+                if (deathMessageText != null)
+                    deathMessageText.text = $"{killerName} {deathMessages[index]}";
+
+                index = (index + 1) % deathMessages.Length;
+
+                yield return new WaitForSeconds(1.5f);
+            }
         }
 
         private void ShowDeathScreen()
@@ -253,7 +302,6 @@ namespace _UI.Scripts
 
         private void DisablePlayerControls()
         {
-            GetComponent<CarController>()?.gameObject.GetComponent<CarController>()?.enabled.Equals(false);
             var carController = GetComponent<CarController>();
             if (carController != null) carController.enabled = false;
             var carShooter = GetComponent<CarShooter>();
@@ -273,6 +321,7 @@ namespace _UI.Scripts
                 if (car.IsDead()) continue;
                 alivePlayersCache.Add(car.gameObject);
             }
+            Debug.Log($"[{nameof(DeathSpectateManager)}] {playerTag} found {alivePlayersCache.Count} targets");
         }
 
         private void StartSpectating()
@@ -382,8 +431,16 @@ namespace _UI.Scripts
         {
             isDead               = false;
             spectateFollowTarget = null;
+
+            if (deathMessageRoutine != null)
+            {
+                StopCoroutine(deathMessageRoutine);
+                deathMessageRoutine = null;
+            }
+
             HideDeathScreen();
             RestoreCamera();
+
             onRespawnCallback?.Invoke();
             onRespawnCallback = null;
         }
@@ -401,10 +458,12 @@ namespace _UI.Scripts
         {
             if (isSuppressed) return; // don't touch viewports in presentation mode
             if (playerCamera == null || originalCameraParent == null) return;
+
             playerCamera.transform.SetParent(originalCameraParent);
             playerCamera.transform.localPosition = originalCameraLocalPosition;
             playerCamera.transform.localRotation = originalCameraLocalRotation;
             playerCamera.rect                    = originalViewportRect;
+
             if (cinemachineBrain != null) cinemachineBrain.enabled = true;
         }
 

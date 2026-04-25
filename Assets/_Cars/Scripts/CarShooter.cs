@@ -219,7 +219,12 @@ namespace _Cars.Scripts
             currentCharge = Mathf.Min(currentCharge + ChargeRegenRate * Time.deltaTime, MAX_CHARGE);
 
             if (currentCharge >= MAX_CHARGE && isOverheated)
+            {
                 isOverheated = false;
+
+                if (cooldownBar != null)
+                    cooldownBar.SetOverheatState(false);
+            }
         }
 
         private bool GameplayIsDisabled() => !gameplayEnabled;
@@ -250,7 +255,9 @@ namespace _Cars.Scripts
                 if (willOverheat)
                 {
                     currentCharge = 0f;
-                    isOverheated  = true;
+                    isOverheated = true;
+                    if (cooldownBar != null)
+                        cooldownBar.SetOverheatState(true);
                 }
 
                 nextAllowedFireTime = Time.time + FireRate;
