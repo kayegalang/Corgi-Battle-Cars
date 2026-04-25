@@ -16,6 +16,8 @@ namespace _Effects.Scripts
         [Header("Car Flash")]
         [Tooltip("Leave empty — CarVisualLoader assigns renderers after the car model spawns")]
         [SerializeField] private Renderer[] carRenderers;
+        [Tooltip("Optional pre-made red flash material for Shader Graph cars — avoids Shader.Find issues")]
+        [SerializeField] private Material   shaderGraphFlashMaterial;
         [SerializeField] private Color flashColor    = new Color(1f, 0.1f, 0.1f);
         [SerializeField] private float flashDuration = 0.1f;
         [SerializeField] private int   flashCount    = 2;
@@ -84,12 +86,23 @@ namespace _Effects.Scripts
                     Material sourceMat = carRenderers[i].materials[j];
 
                     // Shader Graph materials don't respond to .color override reliably
-                    // Use a plain Unlit red material for the flash instead
+                    // Use the pre-assigned flash material if available, otherwise fall back
                     if (sourceMat.shader.name.Contains("Shader Graphs"))
                     {
-                        flashMaterials[i][j] = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
-                        flashMaterials[i][j].SetColor("_BaseColor", flashColor);
-                        flashMaterials[i][j].color = flashColor;
+                        if (shaderGraphFlashMaterial != null)
+                        {
+                            // Use the pre-made red material assigned in Inspector
+                            flashMaterials[i][j] = new Material(shaderGraphFlashMaterial);
+                        }
+                        else
+                        {
+                            // Fallback — copy source and try to force red
+                            flashMaterials[i][j] = new Material(sourceMat);
+                            flashMaterials[i][j].SetColor("_BaseColor", flashColor);
+                            flashMaterials[i][j].color = flashColor;
+                            if (flashMaterials[i][j].HasProperty("HueShift"))
+                                flashMaterials[i][j].SetFloat("HueShift", 0f);
+                        }
                     }
                     else
                     {

@@ -62,38 +62,11 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/UI.bank
   Name: UI
   StudioPath: bank:/UI
-  lastModified: 639126738049585680
+  lastModified: 639126780260627119
   FileSizes:
   - Name: Desktop
     Value: 174848
   Exists: 1
---- !u!114 &-7205540235236333320
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Music/BarkCountdown/Bark Go
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Music/BarkCountdown/Bark Go
-  Guid:
-    Data1: -1381024699
-    Data2: 1172359684
-    Data3: -747056216
-    Data4: -1884548749
-  Banks:
-  - {fileID: 7557160806285700061}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
 --- !u!114 &-7174376932082987403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,60 +114,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 100
   Length: 0
---- !u!114 &-6171835383375214457
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Music/Finished
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Music/Finished
-  Guid:
-    Data1: 46604525
-    Data2: 1119354448
-    Data3: 350657202
-    Data4: -985820271
-  Banks:
-  - {fileID: -1021369601438909780}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 1008
---- !u!114 &-5684429719086854064
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Music/BarkCountdown/Bark 1
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Music/BarkCountdown/Bark 1
-  Guid:
-    Data1: 1146122849
-    Data2: 1101948036
-    Data3: -119903577
-    Data4: 133773032
-  Banks:
-  - {fileID: 7557160806285700061}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
 --- !u!114 &-5655335764293039128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,33 +140,6 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 100
-  Length: 0
---- !u!114 &-5425050532297472687
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Gameplay/Shoot
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Gameplay/Shoot
-  Guid:
-    Data1: -1157410978
-    Data2: 1083807063
-    Data3: 2044705720
-    Data4: -1961419844
-  Banks:
-  - {fileID: 2434607180861711812}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
   Length: 0
 --- !u!114 &-4947277410539130867
 MonoBehaviour:
@@ -276,33 +168,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 1008
---- !u!114 &-4906463478110476755
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Music/DogPark Theme
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Music/DogPark Theme
-  Guid:
-    Data1: 1271111369
-    Data2: 1246080548
-    Data3: 1202217636
-    Data4: -1734932419
-  Banks:
-  - {fileID: -1021369601438909780}
-  IsStream: 1
-  Is3D: 0
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 96586
 --- !u!114 &-3473385496245250586
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -465,33 +330,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
---- !u!114 &-1131409687242485956
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/UI/ClickSelect
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/UI/ClickSelect
-  Guid:
-    Data1: 1195967630
-    Data2: 1163925222
-    Data3: -487128652
-    Data4: -99941290
-  Banks:
-  - {fileID: 3087794032016579827}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
 --- !u!114 &-1119835611263209069
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -519,26 +357,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
---- !u!114 &-1021369601438909780
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Music.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: CorgiBattleCarsFMOD/Build/Desktop/Music.bank
-  Name: Music
-  StudioPath: bank:/Music
-  lastModified: 639125005662521033
-  FileSizes:
-  - Name: Desktop
-    Value: 1264768
-  Exists: 1
 --- !u!114 &-813175034469618246
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -643,7 +461,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: 6097348948757065567}
   cacheVersion: 131858
-  cacheTime: 639126738049585680
+  cacheTime: 639126780260627119
   SerializableEventsDict:
   - key: event:/Music/BarkCountdown/Bark 3
     index: 0
@@ -801,33 +619,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
---- !u!114 &1218311216364382802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Gameplay/Sniff
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Gameplay/Sniff
-  Guid:
-    Data1: -220374199
-    Data2: 1221778895
-    Data3: -577987905
-    Data4: 763620198
-  Banks:
-  - {fileID: 2434607180861711812}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
 --- !u!114 &1762183337530252554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -855,26 +646,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 100
   Length: 0
---- !u!114 &2434607180861711812
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Gameplay.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: CorgiBattleCarsFMOD/Build/Desktop/Gameplay.bank
-  Name: Gameplay
-  StudioPath: bank:/Gameplay
-  lastModified: 639124968933010048
-  FileSizes:
-  - Name: Desktop
-    Value: 145728
-  Exists: 1
 --- !u!114 &2789429111145677369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -902,53 +673,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 100
   Length: 5000
---- !u!114 &2825154357708597493
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Music/BarkCountdown/Bark 2
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Music/BarkCountdown/Bark 2
-  Guid:
-    Data1: 1671092813
-    Data2: 1312906767
-    Data3: -180489048
-    Data4: 44268773
-  Banks:
-  - {fileID: 7557160806285700061}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
---- !u!114 &2964150193165609296
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Master.strings.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: CorgiBattleCarsFMOD/Build/Desktop/Master.strings.bank
-  Name: Master.strings
-  StudioPath: bank:/Master.strings
-  lastModified: 639124968933066083
-  FileSizes:
-  - Name: Desktop
-    Value: 1504
-  Exists: 1
 --- !u!114 &3079595495083046377
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -976,26 +700,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 100
   Length: 8500
---- !u!114 &3087794032016579827
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/UI.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: CorgiBattleCarsFMOD/Build/Desktop/UI.bank
-  Name: UI
-  StudioPath: bank:/UI
-  lastModified: 639124968950801667
-  FileSizes:
-  - Name: Desktop
-    Value: 120928
-  Exists: 1
 --- !u!114 &4057302132122859392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1042,33 +746,6 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 100
-  Length: 0
---- !u!114 &5191462495859161291
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Music/BarkCountdown/Bark 3
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Music/BarkCountdown/Bark 3
-  Guid:
-    Data1: -1346768095
-    Data2: 1179543949
-    Data3: -1807967605
-    Data4: 234077998
-  Banks:
-  - {fileID: 7557160806285700061}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
   Length: 0
 --- !u!114 &5425108061801781309
 MonoBehaviour:
@@ -1171,127 +848,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 96586
---- !u!114 &7517380233602177975
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Gameplay/Squirrel
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Gameplay/Squirrel
-  Guid:
-    Data1: -960147824
-    Data2: 1282792417
-    Data3: -1877860211
-    Data4: -901914912
-  Banks:
-  - {fileID: 2434607180861711812}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
---- !u!114 &7557160806285700061
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Countdown.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: CorgiBattleCarsFMOD/Build/Desktop/Countdown.bank
-  Name: Countdown
-  StudioPath: bank:/Countdown
-  lastModified: 639124968930723991
-  FileSizes:
-  - Name: Desktop
-    Value: 18400
-  Exists: 1
---- !u!114 &7653927548659394763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Master.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: CorgiBattleCarsFMOD/Build/Desktop/Master.bank
-  Name: Master
-  StudioPath: bank:/Master
-  lastModified: 639124968933055926
-  FileSizes:
-  - Name: Desktop
-    Value: 1378
-  Exists: 1
---- !u!114 &8443968289852962077
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Gameplay/Zoomies
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Gameplay/Zoomies
-  Guid:
-    Data1: 477552065
-    Data2: 1319680790
-    Data3: 366467475
-    Data4: 581116822
-  Banks:
-  - {fileID: 2434607180861711812}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
---- !u!114 &8971229712800471646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Gameplay/Poop
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Gameplay/Poop
-  Guid:
-    Data1: -1347465645
-    Data2: 1149116605
-    Data3: -1884939362
-    Data4: 1933456710
-  Banks:
-  - {fileID: 2434607180861711812}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
 --- !u!114 &9174753310522757173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1307,7 +863,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Gameplay.bank
   Name: Gameplay
   StudioPath: bank:/Gameplay
-  lastModified: 639126737323170913
+  lastModified: 639126780260601932
   FileSizes:
   - Name: Desktop
     Value: 695584

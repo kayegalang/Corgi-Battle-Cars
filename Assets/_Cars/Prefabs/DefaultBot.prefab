@@ -107,6 +107,7 @@ MonoBehaviour:
   vignetteHitIntensity: 0.6
   vignetteFadeDuration: 0.3
   carRenderers: []
+  shaderGraphFlashMaterial: {fileID: 2100000, guid: 60533de4454674263b059392541a3b66, type: 2}
   flashColor: {r: 1, g: 0.1, b: 0.1, a: 1}
   flashDuration: 0.1
   flashCount: 2
