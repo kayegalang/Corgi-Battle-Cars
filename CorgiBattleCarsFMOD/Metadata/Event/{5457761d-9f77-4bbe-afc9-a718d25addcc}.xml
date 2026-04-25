@@ -59,11 +59,7 @@
 			<destination>{e5b61470-cc52-458e-8148-8e47ebc8adeb}</destination>
 		</relationship>
 	</object>
-	<object class="EventAutomatableProperties" id="{2b1fa95a-7ab3-490f-ad28-ff11fec4e06f}">
-		<property name="maximumDistance">
-			<value>100</value>
-		</property>
-	</object>
+	<object class="EventAutomatableProperties" id="{2b1fa95a-7ab3-490f-ad28-ff11fec4e06f}" />
 	<object class="MarkerTrack" id="{9b11149f-33ed-44ad-a437-adacd8b93b04}" />
 	<object class="Timeline" id="{7cf6ffa1-be98-4ca1-8862-e174d94310d8}">
 		<property name="isProxyEnabled">
@@ -109,10 +105,8 @@
 			<destination>{4190050f-3ae2-4afb-bfa5-e00c03866fb4}</destination>
 			<destination>{f0bf16f5-2318-4c21-9798-256b24e44bf7}</destination>
 			<destination>{54d52e08-e718-4e86-b788-3159fee88d03}</destination>
-			<destination>{0dccd1f7-4e98-43f2-8421-0e36f949566b}</destination>
 		</relationship>
 		<relationship name="playPercentages">
-			<destination>{0d71a7af-9483-4480-bb25-bd512d3f10a9}</destination>
 			<destination>{2d23e048-9139-4ee6-a329-bee9402911b0}</destination>
 			<destination>{bd18a520-52d5-4bc4-9484-efa574e31fb6}</destination>
 			<destination>{aff73765-96ee-4f6c-9d43-d000addc01da}</destination>
@@ -134,19 +128,6 @@
 	<object class="SingleSound" id="{54d52e08-e718-4e86-b788-3159fee88d03}">
 		<relationship name="audioFile">
 			<destination>{23a78c28-be78-433f-ac36-48a02856c8a4}</destination>
-		</relationship>
-	</object>
-	<object class="SingleSound" id="{0dccd1f7-4e98-43f2-8421-0e36f949566b}">
-		<relationship name="audioFile">
-			<destination>{afa2265a-f82c-4e24-af5b-7c633edfbac6}</destination>
-		</relationship>
-	</object>
-	<object class="PlayPercentage" id="{0d71a7af-9483-4480-bb25-bd512d3f10a9}">
-		<property name="percentage">
-			<value>10</value>
-		</property>
-		<relationship name="sound">
-			<destination>{0dccd1f7-4e98-43f2-8421-0e36f949566b}</destination>
 		</relationship>
 	</object>
 	<object class="PlayPercentage" id="{2d23e048-9139-4ee6-a329-bee9402911b0}">

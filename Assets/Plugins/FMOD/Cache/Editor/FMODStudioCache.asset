@@ -25,7 +25,7 @@ MonoBehaviour:
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 20
   Length: 0
 --- !u!114 &-7387008828980544383
 MonoBehaviour:
@@ -42,7 +42,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639126388006803210
+  lastModified: 639126667623063960
   FileSizes:
   - Name: Desktop
     Value: 1378
@@ -62,10 +62,10 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/UI.bank
   Name: UI
   StudioPath: bank:/UI
-  lastModified: 639126388034942757
+  lastModified: 639126667623833257
   FileSizes:
   - Name: Desktop
-    Value: 205792
+    Value: 146848
   Exists: 1
 --- !u!114 &-7205540235236333320
 MonoBehaviour:
@@ -109,7 +109,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Countdown.bank
   Name: Countdown
   StudioPath: bank:/Countdown
-  lastModified: 639126388004675720
+  lastModified: 639126667619730967
   FileSizes:
   - Name: Desktop
     Value: 18400
@@ -139,7 +139,7 @@ MonoBehaviour:
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 20
   Length: 0
 --- !u!114 &-6171835383375214457
 MonoBehaviour:
@@ -220,7 +220,7 @@ MonoBehaviour:
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 20
   Length: 0
 --- !u!114 &-5425050532297472687
 MonoBehaviour:
@@ -355,62 +355,8 @@ MonoBehaviour:
   IsOneShot: 0
   Parameters: []
   MinDistance: 1
-  MaxDistance: 100
-  Length: 0
---- !u!114 &-2155894303609537889
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/UI/ReadyUp
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/UI/ReadyUp
-  Guid:
-    Data1: 302547578
-    Data2: 1208980324
-    Data3: 513878162
-    Data4: 1343770030
-  Banks:
-  - {fileID: -7375369218848819064}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
   MaxDistance: 20
   Length: 0
---- !u!114 &-1936900553634716596
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Gameplay/Rev
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Gameplay/Rev
-  Guid:
-    Data1: -1079917117
-    Data2: 1162144006
-    Data3: -279331170
-    Data4: 684291102
-  Banks:
-  - {fileID: 9174753310522757173}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 100
-  Length: 3474
 --- !u!114 &-1662561252659881790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -429,33 +375,6 @@ MonoBehaviour:
     Data2: 1163925222
     Data3: -487128652
     Data4: -99941290
-  Banks:
-  - {fileID: -7375369218848819064}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 0
---- !u!114 &-1451079345411720841
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/UI/CharacterSelect
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/UI/CharacterSelect
-  Guid:
-    Data1: 1198954866
-    Data2: 1126361884
-    Data3: -1675328106
-    Data4: -2125110378
   Banks:
   - {fileID: -7375369218848819064}
   IsStream: 0
@@ -564,7 +483,7 @@ MonoBehaviour:
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 20
   Length: 0
 --- !u!114 &-575781733727558286
 MonoBehaviour:
@@ -634,16 +553,13 @@ MonoBehaviour:
   - {fileID: 255422613188284195}
   - {fileID: 6037716587102117831}
   - {fileID: 3079595495083046377}
-  - {fileID: -1936900553634716596}
-  - {fileID: -1451079345411720841}
-  - {fileID: -2155894303609537889}
   EditorParameters: []
   MasterBanks:
   - {fileID: -7387008828980544383}
   StringsBanks:
   - {fileID: 6097348948757065567}
   cacheVersion: 131858
-  cacheTime: 639126469578885189
+  cacheTime: 639126667623833257
   SerializableEventsDict:
   - key: event:/Music/BarkCountdown/Bark 3
     index: 0
@@ -718,7 +634,7 @@ MonoBehaviour:
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 20
   Length: 0
 --- !u!114 &299559228935420813
 MonoBehaviour:
@@ -745,7 +661,7 @@ MonoBehaviour:
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 20
   Length: 0
 --- !u!114 &540031180516602350
 MonoBehaviour:
@@ -767,7 +683,7 @@ MonoBehaviour:
     Data4: -1734932419
   Banks:
   - {fileID: 4057302132122859392}
-  IsStream: 1
+  IsStream: 0
   Is3D: 0
   IsOneShot: 0
   Parameters: []
@@ -853,7 +769,7 @@ MonoBehaviour:
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 20
   Length: 0
 --- !u!114 &2434607180861711812
 MonoBehaviour:
@@ -900,7 +816,7 @@ MonoBehaviour:
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 20
   Length: 0
 --- !u!114 &2825154357708597493
 MonoBehaviour:
@@ -974,7 +890,7 @@ MonoBehaviour:
   IsOneShot: 0
   Parameters: []
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 20
   Length: 8500
 --- !u!114 &3087794032016579827
 MonoBehaviour:
@@ -1011,10 +927,10 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639126469578885189
+  lastModified: 639126667623617875
   FileSizes:
   - Name: Desktop
-    Value: 3801536
+    Value: 1265760
   Exists: 1
 --- !u!114 &4129088188348924175
 MonoBehaviour:
@@ -1041,7 +957,7 @@ MonoBehaviour:
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 20
   Length: 0
 --- !u!114 &5191462495859161291
 MonoBehaviour:
@@ -1095,7 +1011,7 @@ MonoBehaviour:
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 20
   Length: 0
 --- !u!114 &6037716587102117831
 MonoBehaviour:
@@ -1139,10 +1055,10 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639126388006813098
+  lastModified: 639126667623079271
   FileSizes:
   - Name: Desktop
-    Value: 2010
+    Value: 1880
   Exists: 1
 --- !u!114 &7212993241539973062
 MonoBehaviour:
@@ -1307,8 +1223,8 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Gameplay.bank
   Name: Gameplay
   StudioPath: bank:/Gameplay
-  lastModified: 639126388006749667
+  lastModified: 639126667623007731
   FileSizes:
   - Name: Desktop
-    Value: 695584
+    Value: 633184
   Exists: 1
