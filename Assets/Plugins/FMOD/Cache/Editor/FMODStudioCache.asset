@@ -643,7 +643,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: 6097348948757065567}
   cacheVersion: 131858
-  cacheTime: 639126469578885189
+  cacheTime: 639126661316559348
   SerializableEventsDict:
   - key: event:/Music/BarkCountdown/Bark 3
     index: 0
@@ -901,7 +901,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 100
-  Length: 0
+  Length: 5000
 --- !u!114 &2825154357708597493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1011,7 +1011,7 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639126469578885189
+  lastModified: 639126661316559348
   FileSizes:
   - Name: Desktop
     Value: 3801536
@@ -1307,8 +1307,8 @@ MonoBehaviour:
   Path: CorgiBattleCarsFMOD/Build/Desktop/Gameplay.bank
   Name: Gameplay
   StudioPath: bank:/Gameplay
-  lastModified: 639126388006749667
+  lastModified: 639126661289085801
   FileSizes:
   - Name: Desktop
-    Value: 695584
+    Value: 662464
   Exists: 1
