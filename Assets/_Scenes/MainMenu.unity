@@ -21293,19 +21293,19 @@ MonoBehaviour:
   - slotObject: {fileID: 1157240905}
     slotImage: {fileID: 1157240909}
     waitingSprite: {fileID: 21300000, guid: 4a608c85a7ebe4a7ba6773aa63e89a54, type: 3}
-    joinedSprite: {fileID: 21300000, guid: 9415fa4e89f5846d8a5fd2c54f437881, type: 3}
+    joinedSprite: {fileID: 21300000, guid: 92ff717984b394119ac2b6e3ea770b23, type: 3}
   - slotObject: {fileID: 305936405}
     slotImage: {fileID: 305936409}
     waitingSprite: {fileID: 21300000, guid: 4a608c85a7ebe4a7ba6773aa63e89a54, type: 3}
-    joinedSprite: {fileID: 21300000, guid: 9415fa4e89f5846d8a5fd2c54f437881, type: 3}
+    joinedSprite: {fileID: 21300000, guid: 92ff717984b394119ac2b6e3ea770b23, type: 3}
   - slotObject: {fileID: 307486080}
     slotImage: {fileID: 307486084}
     waitingSprite: {fileID: 21300000, guid: 4a608c85a7ebe4a7ba6773aa63e89a54, type: 3}
-    joinedSprite: {fileID: 21300000, guid: 9415fa4e89f5846d8a5fd2c54f437881, type: 3}
+    joinedSprite: {fileID: 21300000, guid: 92ff717984b394119ac2b6e3ea770b23, type: 3}
   - slotObject: {fileID: 728921063}
     slotImage: {fileID: 728921067}
     waitingSprite: {fileID: 21300000, guid: 4a608c85a7ebe4a7ba6773aa63e89a54, type: 3}
-    joinedSprite: {fileID: 21300000, guid: 9415fa4e89f5846d8a5fd2c54f437881, type: 3}
+    joinedSprite: {fileID: 21300000, guid: 92ff717984b394119ac2b6e3ea770b23, type: 3}
   transitionDelay: 0.5
   previousPanel: {fileID: 1489527842}
   onAllPlayersJoined:
