@@ -238,10 +238,10 @@ MonoBehaviour:
   spectatingText: {fileID: 2830549229296716910}
   previousPlayerButton: {fileID: 2317303810455051642}
   nextPlayerButton: {fileID: 4540949839660149491}
-  deathMessageText: {fileID: 8990675636800003820}
   respawnCountdownFormat: Respawning in {0}
   spectatingFormat: 'Spectating: {0}'
   noPlayersToSpectateText: No players to spectate
+  deathMessageText: {fileID: 8990675636800003820}
 --- !u!114 &2842837332286627986
 MonoBehaviour:
   m_ObjectHideFlags: 0

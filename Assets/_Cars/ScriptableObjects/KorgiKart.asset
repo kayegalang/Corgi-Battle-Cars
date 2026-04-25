@@ -31,7 +31,7 @@ MonoBehaviour:
   speedStat: 50
   accelerationStat: 50
   jumpForceStat: 50
-  healthStat: 50
+  healthStat: 60
   minMaxSpeed: 25
   maxMaxSpeed: 50
   minAcceleration: 12

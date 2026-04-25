@@ -26,6 +26,8 @@ namespace _Effects.Scripts
 
         private Material[][] originalMaterials;
         private Material[][] flashMaterials;
+        private float        cachedHue          = -1f;
+        private string       cachedHueProperty  = "HueShift";
 
         private Coroutine vignetteCoroutine;
         private Coroutine flashCoroutine;
@@ -79,8 +81,25 @@ namespace _Effects.Scripts
 
                 for (int j = 0; j < flashMaterials[i].Length; j++)
                 {
-                    flashMaterials[i][j]       = new Material(carRenderers[i].materials[j]);
-                    flashMaterials[i][j].color = flashColor;
+                    Material sourceMat = carRenderers[i].materials[j];
+
+                    // Shader Graph materials don't respond to .color override reliably
+                    // Use a plain Unlit red material for the flash instead
+                    if (sourceMat.shader.name.Contains("Shader Graphs"))
+                    {
+                        flashMaterials[i][j] = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+                        flashMaterials[i][j].SetColor("_BaseColor", flashColor);
+                        flashMaterials[i][j].color = flashColor;
+                    }
+                    else
+                    {
+                        flashMaterials[i][j]       = new Material(sourceMat);
+                        flashMaterials[i][j].color = flashColor;
+                        if (flashMaterials[i][j].HasProperty("_BaseColor"))
+                            flashMaterials[i][j].SetColor("_BaseColor", flashColor);
+                        if (flashMaterials[i][j].HasProperty("HueShift"))
+                            flashMaterials[i][j].SetFloat("HueShift", 0f);
+                    }
                 }
             }
         }
@@ -98,6 +117,10 @@ namespace _Effects.Scripts
 
         public void ApplyHueShiftToOriginals(float hue, string propertyName)
         {
+            // Store for reapplication after every flash
+            cachedHue         = hue;
+            cachedHueProperty = propertyName;
+
             if (originalMaterials == null) return;
             foreach (var mats in originalMaterials)
             {
@@ -175,6 +198,18 @@ namespace _Effects.Scripts
             }
 
             SetCarMaterials(flash: false);
+
+            // Reapply hue shift after flash — material assignment can create new instances
+            if (cachedHue >= 0f && carRenderers != null)
+            {
+                foreach (var r in carRenderers)
+                {
+                    if (r == null) continue;
+                    foreach (var mat in r.materials)
+                        if (mat != null && mat.HasProperty(cachedHueProperty))
+                            mat.SetFloat(cachedHueProperty, cachedHue);
+                }
+            }
         }
 
         private void SetCarMaterials(bool flash)

@@ -5,8 +5,6 @@ using _Utilities.Scripts;
 using _PowerUps.Scripts;
 using _PowerUps.ScriptableObjects;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-
 /// <summary>
 /// Live presentation director tool for Corgi Battle Cars.
 /// Attach to any GameObject in the gameplay scene.
@@ -216,13 +214,18 @@ public class PresentationDirector : MonoBehaviour
             if (cam != null) cam.rect = NormalRects[i];
         }
 
-        // Refresh all player UI anchors so power up holder repositions correctly
+        // Wait a frame for viewports to settle before refreshing UI anchors
+        StartCoroutine(RefreshUIAfterDelay());
+    }
+
+    private System.Collections.IEnumerator RefreshUIAfterDelay()
+    {
+        yield return null; // wait one frame
+
         var uiManagers = FindObjectsByType<_UI.Scripts.PlayerUIManager>(FindObjectsSortMode.None);
         foreach (var ui in uiManagers)
             ui.RefreshAnchors();
 
-        // Fix any DeathSpectateManagers that captured wrong originalViewportRect
-        // while spawned during focus mode
         var spectateManagers = FindObjectsByType<_UI.Scripts.DeathSpectateManager>(
             FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (var s in spectateManagers)
@@ -383,5 +386,3 @@ public class PresentationDirector : MonoBehaviour
         if (overlayCanvas != null) overlayCanvas.gameObject.SetActive(false);
     }
 }
-
-#endif

@@ -20,16 +20,16 @@ namespace _UI.Scripts
         [SerializeField] private Button           nextPlayerButton;
 
         [Header("UI Text")]
-        [SerializeField] private TextMeshProUGUI deathMessageText;
         [SerializeField] private string respawnCountdownFormat  = "Respawning in {0}";
         [SerializeField] private string spectatingFormat        = "Spectating: {0}";
         [SerializeField] private string noPlayersToSpectateText = "No players to spectate";
+        [SerializeField] private TextMeshProUGUI deathMessageText;
 
         private string[] deathMessages =
         {
             "sent you to the dog house",
             "eliminated you",
-            "is taking you to the vet"
+            "it's time to go to the vet"
         };
 
         private Coroutine deathMessageRoutine;
@@ -260,8 +260,8 @@ namespace _UI.Scripts
             if (cinemachineBrain != null)
                 cinemachineBrain.enabled = false;
 
-            ShowDeathMessage();
             FindAlivePlayersToSpectate();
+            deathMessageRoutine = StartCoroutine(CycleDeathMessages());
             StartSpectating();
         }
 
@@ -272,12 +272,19 @@ namespace _UI.Scripts
             onRespawnCallback = null;
         }
 
-        private void ShowDeathMessage()
+        private IEnumerator CycleDeathMessages()
         {
-            if (deathMessageText == null) return;
+            int index = 0;
 
-            int index = UnityEngine.Random.Range(0, deathMessages.Length);
-            deathMessageText.text = $"{killerName} {deathMessages[index]}";
+            while (isDead)
+            {
+                if (deathMessageText != null)
+                    deathMessageText.text = $"{killerName} {deathMessages[index]}";
+
+                index = (index + 1) % deathMessages.Length;
+
+                yield return new WaitForSeconds(1.5f);
+            }
         }
 
         private void ShowDeathScreen()

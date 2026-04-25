@@ -20,10 +20,10 @@ namespace _UI.Scripts
         [SerializeField] private GameObject endScreen;
 
         [Header("Winner Section")]
-        [SerializeField] private TextMeshProUGUI winnerTitleText;   // "TOP DOG!"
-        [SerializeField] private TextMeshProUGUI winnerNameText;    // "P1"
-        [SerializeField] private TextMeshProUGUI winnerScoreText;   // "500 points"
-        [SerializeField] private GameObject      crownObject;       // crown image or emoji text
+        [SerializeField] private TextMeshProUGUI winnerTitleText;
+        [SerializeField] private TextMeshProUGUI winnerNameText;
+        [SerializeField] private TextMeshProUGUI winnerScoreText;
+        [SerializeField] private GameObject      crownObject;
 
         [Header("Scoreboard — assign up to 3 loser rows")]
         [SerializeField] private List<PlayerResultRow> loserRows;
@@ -45,8 +45,8 @@ namespace _UI.Scripts
         [SerializeField] private string pointsFormat = "{0} pts";
 
         [Header("Animation")]
-        [SerializeField] private float revealDelay      = 0.3f; // delay before showing winner
-        [SerializeField] private float loserRowDelay    = 0.2f; // stagger between loser rows
+        [SerializeField] private float revealDelay   = 0.3f;
+        [SerializeField] private float loserRowDelay = 0.2f;
 
         [Header("Events")]
         public UnityEvent onPlayAgain;
@@ -54,20 +54,20 @@ namespace _UI.Scripts
 
         [Header("Finished Sequence")]
         [SerializeField] private GameObject finishedTextObject;
-        [SerializeField] private Animator finishedAnimator;
-        [SerializeField] private float endBufferDuration = 2f;
+        [SerializeField] private Animator   finishedAnimator;
+        [SerializeField] private float      endBufferDuration = 2f;
 
         // ═══════════════════════════════════════════════
-        //  NESTED CLASS — one loser row in the scoreboard
+        //  NESTED CLASS
         // ═══════════════════════════════════════════════
 
         [System.Serializable]
         public class PlayerResultRow
         {
-            public GameObject        rowRoot;
-            public TextMeshProUGUI   titleText;
-            public TextMeshProUGUI   nameText;
-            public TextMeshProUGUI   scoreText;
+            public GameObject      rowRoot;
+            public TextMeshProUGUI titleText;
+            public TextMeshProUGUI nameText;
+            public TextMeshProUGUI scoreText;
         }
 
         // ═══════════════════════════════════════════════
@@ -96,7 +96,7 @@ namespace _UI.Scripts
         }
 
         // ═══════════════════════════════════════════════
-        //  DISPLAY RESULTS
+        //  END GAME SEQUENCE
         // ═══════════════════════════════════════════════
 
         private IEnumerator EndGameSequence()
@@ -104,7 +104,7 @@ namespace _UI.Scripts
             if (finishedTextObject != null)
                 finishedTextObject.SetActive(true);
 
-            // Play finished sound
+            // Play finished sound before muting SFX
             if (AudioManager.instance != null && FMODEvents.instance != null)
                 AudioManager.instance.PlayOneShot(FMODEvents.instance.FinishedSound, transform.position);
 
@@ -113,11 +113,18 @@ namespace _UI.Scripts
 
             yield return new WaitForSecondsRealtime(endBufferDuration);
 
+            // Mute all SFX — only music plays during end screen
+            AudioManager.instance?.MuteSFX(true);
+
             Time.timeScale = 0f;
 
             if (endScreen != null)
                 endScreen.SetActive(true);
         }
+
+        // ═══════════════════════════════════════════════
+        //  DISPLAY RESULTS
+        // ═══════════════════════════════════════════════
 
         public void DisplayResults(List<(string tag, int points)> sorted)
         {
@@ -133,22 +140,18 @@ namespace _UI.Scripts
 
         private IEnumerator RevealResults(List<(string tag, int points)> sorted)
         {
-            // Hide everything first
             SetWinnerVisible(false);
             HideAllLoserRows();
 
             yield return new WaitForSecondsRealtime(revealDelay);
 
-            // ── Show winner ──
             var winner = sorted[0];
             ShowWinner(winner.tag, winner.points);
             SetWinnerVisible(true);
 
-            // ── Show losers with stagger ──
             for (int i = 1; i < sorted.Count && i - 1 < loserRows.Count; i++)
             {
                 yield return new WaitForSecondsRealtime(loserRowDelay);
-
                 var loser = sorted[i];
                 ShowLoserRow(i - 1, i + 1, loser.tag, loser.points);
             }
@@ -160,14 +163,9 @@ namespace _UI.Scripts
 
         private void ShowWinner(string tag, int points)
         {
-            if (winnerTitleText != null)
-                winnerTitleText.text = rank1Title;
-
-            if (winnerNameText != null)
-                winnerNameText.text = GetDisplayName(tag);
-
-            if (winnerScoreText != null)
-                winnerScoreText.text = string.Format(pointsFormat, points);
+            if (winnerTitleText != null) winnerTitleText.text = rank1Title;
+            if (winnerNameText  != null) winnerNameText.text  = GetDisplayName(tag);
+            if (winnerScoreText != null) winnerScoreText.text = string.Format(pointsFormat, points);
         }
 
         private void SetWinnerVisible(bool visible)
@@ -236,6 +234,8 @@ namespace _UI.Scripts
 
         public void OnPlayAgainButtonClicked()
         {
+            // Unmute SFX when returning to gameplay
+            AudioManager.instance?.MuteSFX(false);
             Time.timeScale = 1f;
             onPlayAgain?.Invoke();
             GameplayManager.instance?.StartGame();
@@ -243,6 +243,8 @@ namespace _UI.Scripts
 
         public void OnMainMenuButtonClicked()
         {
+            // Unmute SFX when going to main menu (AudioManager handles muting per scene)
+            AudioManager.instance?.MuteSFX(false);
             Time.timeScale = 1f;
             onReturnToMenu?.Invoke();
             SceneManager.LoadScene(mainMenuSceneName);

@@ -102,7 +102,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 906480939, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
+  m_Sprite: {fileID: -112608069, guid: b1bde60878fd94aab8d3237995643260, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -177,7 +177,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1740267744, guid: 0c81deec3b1ac47fa97805f2ebddf625, type: 3}
+  m_Sprite: {fileID: -691694576, guid: 0c81deec3b1ac47fa97805f2ebddf625, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -578,7 +578,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1437583475, guid: 60ce8bde42b394e2bb2fb24e4df8fce4, type: 3}
+  m_Sprite: {fileID: 1568012407, guid: 60ce8bde42b394e2bb2fb24e4df8fce4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2339,7 +2339,7 @@ GameObject:
   - component: {fileID: 7314935237088454864}
   - component: {fileID: 8749150649659840449}
   m_Layer: 5
-  m_Name: MultiplayerPanel
+  m_Name: MultiplayerPanel 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2472,12 +2472,11 @@ MonoBehaviour:
   cooldown:
     image: {fileID: 6805528387207085709}
     levels:
-    - {fileID: 906480939, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
-    - {fileID: 1148839402, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
-    - {fileID: -788936399, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
-    - {fileID: 752986089, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
-    - {fileID: 284571648, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
-    - {fileID: -1676145711, guid: c498bfeef4a934768b0c388dab9f7bb8, type: 3}
+    - {fileID: -670617903, guid: b1bde60878fd94aab8d3237995643260, type: 3}
+    - {fileID: 1334464370, guid: b1bde60878fd94aab8d3237995643260, type: 3}
+    - {fileID: -1929972865, guid: b1bde60878fd94aab8d3237995643260, type: 3}
+    - {fileID: -112608069, guid: b1bde60878fd94aab8d3237995643260, type: 3}
+    - {fileID: 1013093866, guid: b1bde60878fd94aab8d3237995643260, type: 3}
   fireRate:
     image: {fileID: 8850150013324151061}
     levels:
@@ -2526,16 +2525,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 902cb837d2b414b0c8d6dee446407e31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_UI.Scripts.CharacterSelectPreview
-  previewRoot: {fileID: 0}
-  carMount: {fileID: 0}
-  previewCamera: {fileID: 0}
-  playerIndex: 0
   carTypes:
   - {fileID: 11400000, guid: 4bd8680db06e3415db36f8a57df45546, type: 2}
   - {fileID: 11400000, guid: b426bf9d8a9ccd147af9464da20c052e, type: 2}
   weaponTypes:
   - {fileID: 11400000, guid: 4435cf7b253264ab8b2e1d0a877e40d6, type: 2}
   - {fileID: 11400000, guid: 3529a2bd0ba264e97afb032e1479f5f8, type: 2}
+  playerIndex: 0
+  previewDisplay: {fileID: 0}
   spinSpeed: 45
   previewLayerMask:
     serializedVersion: 2

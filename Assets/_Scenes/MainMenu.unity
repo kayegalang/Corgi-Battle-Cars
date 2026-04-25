@@ -9126,6 +9126,8 @@ MonoBehaviour:
   masterVolume: 1
   musicVolume: 1
   sfxVolume: 1
+  muteScenes:
+  - MainMenu
 --- !u!114 &698459248
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24403,11 +24405,11 @@ MonoBehaviour:
   useCustomClickSound: 0
   customHoverSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 1195967630
+      Data2: 1163925222
+      Data3: -487128652
+      Data4: -99941290
+    Path: event:/UI/ClickSelect
   customClickSound:
     Guid:
       Data1: 0

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using FMODUnity;
 using FMOD.Studio;
@@ -14,7 +13,6 @@ namespace _Audio.scripts
         public float musicVolume = 1;
         [Range(0, 1)]
         public float sfxVolume = 1;
-        [Range(0, 1)] 
         
         private Bus masterBus;
         private Bus musicBus;
@@ -30,8 +28,8 @@ namespace _Audio.scripts
                 Destroy(this);
             
             masterBus = RuntimeManager.GetBus("bus:/");
-            musicBus = RuntimeManager.GetBus("bus:/Music");
-            sfxBus = RuntimeManager.GetBus("bus:/SFX");
+            musicBus  = RuntimeManager.GetBus("bus:/Music");
+            sfxBus    = RuntimeManager.GetBus("bus:/SFX");
         }
 
         private void Update()
@@ -47,6 +45,12 @@ namespace _Audio.scripts
             instance.set3DAttributes(RuntimeUtils.To3DAttributes(worldPos));
             instance.start();
             instance.release();
+        }
+
+        /// <summary>Mute or unmute the SFX bus — called by EndGameManager during end screen.</summary>
+        public void MuteSFX(bool mute)
+        {
+            sfxBus.setMute(mute);
         }
     }
 }

@@ -219,12 +219,7 @@ namespace _Cars.Scripts
             currentCharge = Mathf.Min(currentCharge + ChargeRegenRate * Time.deltaTime, MAX_CHARGE);
 
             if (currentCharge >= MAX_CHARGE && isOverheated)
-            {
                 isOverheated = false;
-
-                if (cooldownBar != null)
-                    cooldownBar.SetOverheatState(false);
-            }
         }
 
         private bool GameplayIsDisabled() => !gameplayEnabled;
@@ -255,9 +250,7 @@ namespace _Cars.Scripts
                 if (willOverheat)
                 {
                     currentCharge = 0f;
-                    isOverheated = true;
-                    if (cooldownBar != null)
-                        cooldownBar.SetOverheatState(true);
+                    isOverheated  = true;
                 }
 
                 nextAllowedFireTime = Time.time + FireRate;
@@ -388,6 +381,17 @@ namespace _Cars.Scripts
                 GetComponent<CameraShaker>()?.ShakeShoot();
                 GetComponent<ControllerRumbler>()?.RumbleShoot();
                 return;
+            }
+
+            // Play shoot sound — use 2D (no distance falloff) so local player hears their own shots
+            if (AudioManager.instance != null && FMODEvents.instance != null && projectileType != null)
+            {
+                var soundInstance = FMODUnity.RuntimeManager.CreateInstance(projectileType.FireSound);
+                soundInstance.set3DAttributes(FMODUnity.RuntimeUtils.To3DAttributes(firePoint));
+                soundInstance.setProperty(FMOD.Studio.EVENT_PROPERTY.MINIMUM_DISTANCE, 0f);
+                soundInstance.setProperty(FMOD.Studio.EVENT_PROPERTY.MAXIMUM_DISTANCE, 100f);
+                soundInstance.start();
+                soundInstance.release();
             }
 
             Vector3    dir        = CalculateShootDirectionFromReticle();

@@ -33,10 +33,10 @@ MonoBehaviour:
   fireRateStat: 80
   maxFireRate: 2
   minFireRate: 0.1
-  cooldownStat: 20
+  cooldownStat: 80
   maxCooldownDuration: 8
   minCooldownDuration: 1
-  recoilStat: 70
+  recoilStat: 50
   minRecoilForce: 0
   maxRecoilForce: 15
   fireForce: 30
