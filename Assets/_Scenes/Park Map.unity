@@ -939,7 +939,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 150}
+  m_AnchoredPosition: {x: 0, y: 130}
   m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &118327687
@@ -14397,8 +14397,8 @@ RectTransform:
   m_GameObject: {fileID: 1513267020}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.01, y: 1.01, z: 1.01}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1145031790}
   - {fileID: 1607780883}
@@ -15821,6 +15821,59 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1672307820}
   m_CullTransparentMesh: 1
+--- !u!1 &1691846956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1691846958}
+  - component: {fileID: 1691846959}
+  m_Layer: 0
+  m_Name: PresentationDirector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1691846958
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1691846956}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 103.7, y: -0.19238, z: 4.72047}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1691846959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1691846956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2967a86a68d794edfa351bbc0d55686c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PresentationDirector
+  squirrelPowerUp: {fileID: 11400000, guid: 275886eb43dfa492497f23c16d0c53a4, type: 2}
+  zoomiesPowerUp: {fileID: 11400000, guid: 724d7c9b00801457b9a81acb4cfe37b9, type: 2}
+  poopPowerUp: {fileID: 11400000, guid: edf3a1b9ef3904cc1a1ae83a415d9e74, type: 2}
+  squirrelPickupPrefab: {fileID: 6877758537058637260, guid: b1094290085664423bb2f115325d126d, type: 3}
+  squirrelSpawnDistance: 20
+  slowMotionScale: 0.35
+  teleportRadius: 4
+  overlayCanvas: {fileID: 0}
+  cueText: {fileID: 0}
 --- !u!1 &1691923854
 GameObject:
   m_ObjectHideFlags: 0
@@ -18425,7 +18478,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 5:00
+  m_text: 3:00
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f3ebcb0b654e64fb2bd2a5cb204730fe, type: 2}
   m_sharedMaterial: {fileID: 153796944699633917, guid: f3ebcb0b654e64fb2bd2a5cb204730fe, type: 2}
@@ -26515,10 +26568,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &2368942269909320107
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -26861,10 +26910,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &2392657507872984147
 GameObject:
   m_ObjectHideFlags: 0
@@ -26960,10 +27005,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &2443973044046149053
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -26984,10 +27025,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &2451848826477487803
 Transform:
   m_ObjectHideFlags: 0
@@ -27134,10 +27171,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &2517630319558975969
 Transform:
   m_ObjectHideFlags: 0
@@ -27171,10 +27204,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &2521842832521262150
 Transform:
   m_ObjectHideFlags: 0
@@ -27385,10 +27414,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &2582930794466898088
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -27409,10 +27434,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &2614176615706621667
 Transform:
   m_ObjectHideFlags: 0
@@ -27448,10 +27469,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &2626405737337223878
 GameObject:
   m_ObjectHideFlags: 0
@@ -27491,10 +27508,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &2636943349552164746
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -27515,10 +27528,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &2638039673342680731
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -28152,10 +28161,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &2781299559248212085
 Transform:
   m_ObjectHideFlags: 0
@@ -28191,10 +28196,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &2808674849117340596
 GameObject:
   m_ObjectHideFlags: 0
@@ -28231,10 +28232,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &2842973190551288972
 Transform:
   m_ObjectHideFlags: 0
@@ -29003,10 +29000,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &3005222691024875260
 GameObject:
   m_ObjectHideFlags: 0
@@ -29339,10 +29332,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &3088423440412023584
 Transform:
   m_ObjectHideFlags: 0
@@ -29378,10 +29367,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3118517136771371772
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -29402,10 +29387,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &3144379543648705918
 Transform:
   m_ObjectHideFlags: 0
@@ -29730,10 +29711,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3322166298606892641
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -29776,10 +29753,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3322166300176212455
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -29822,10 +29795,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &3366965133216007112
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -30087,10 +30056,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3438140583909449345
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -30111,10 +30076,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &3449806575707697114
 GameObject:
   m_ObjectHideFlags: 0
@@ -30326,10 +30287,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3482426167782533276
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -30350,10 +30307,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &3504981704382842309
 GameObject:
   m_ObjectHideFlags: 0
@@ -30546,10 +30499,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &3560298975860809994
 Transform:
   m_ObjectHideFlags: 0
@@ -30625,10 +30574,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &3580814107399155372
 GameObject:
   m_ObjectHideFlags: 0
@@ -30688,10 +30633,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &3621611845416203058
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -30752,10 +30693,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3624493609779134661
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -30776,10 +30713,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3624493609795408541
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -30800,10 +30733,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3624493610064429219
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -30824,10 +30753,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3624493610515280841
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -30848,10 +30773,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3624493610638326495
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -30872,10 +30793,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3624493610789072019
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -30896,10 +30813,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3624493610985019570
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -30920,10 +30833,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3624493611018831460
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -30944,10 +30853,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &3624724080671448532
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -31008,10 +30913,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3640230123241271820
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -31032,10 +30933,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &3653631429102047017
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -31096,10 +30993,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &3674775534787164228
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -31191,10 +31084,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &3705564696440891633
 Transform:
   m_ObjectHideFlags: 0
@@ -31485,10 +31374,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &3750450743657401740
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -31549,10 +31434,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &3764029301297204467
 GameObject:
   m_ObjectHideFlags: 0
@@ -31666,10 +31547,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &3828122759352355151
 Transform:
   m_ObjectHideFlags: 0
@@ -31703,10 +31580,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &3871161102097768989
 GameObject:
   m_ObjectHideFlags: 0
@@ -31780,10 +31653,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &3923250320878295560
 Transform:
   m_ObjectHideFlags: 0
@@ -31874,10 +31743,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &3976817287423568133
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -31938,10 +31803,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &3981016943948416995
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -32002,10 +31863,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &3994952479495938708
 GameObject:
   m_ObjectHideFlags: 0
@@ -32081,10 +31938,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4040218102061039269
 GameObject:
   m_ObjectHideFlags: 0
@@ -32116,10 +31969,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4045618970369222506
 GameObject:
   m_ObjectHideFlags: 0
@@ -32151,10 +32000,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4046237810391659083
 GameObject:
   m_ObjectHideFlags: 0
@@ -32186,10 +32031,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4083600874378642114
 GameObject:
   m_ObjectHideFlags: 0
@@ -32255,10 +32096,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4091458835053880807
 Transform:
   m_ObjectHideFlags: 0
@@ -32308,10 +32145,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4091458835163447980
 Transform:
   m_ObjectHideFlags: 0
@@ -32361,10 +32194,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4091458835568245980
 Transform:
   m_ObjectHideFlags: 0
@@ -32414,10 +32243,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4091458835730351140
 Transform:
   m_ObjectHideFlags: 0
@@ -32467,10 +32292,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4091458835755524805
 Transform:
   m_ObjectHideFlags: 0
@@ -32520,10 +32341,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4091458836040830310
 Transform:
   m_ObjectHideFlags: 0
@@ -32573,10 +32390,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4091458836284231639
 Transform:
   m_ObjectHideFlags: 0
@@ -32626,10 +32439,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4091458836305557906
 Transform:
   m_ObjectHideFlags: 0
@@ -32679,10 +32488,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4091458836629889841
 Transform:
   m_ObjectHideFlags: 0
@@ -32732,10 +32537,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4091458836667437146
 Transform:
   m_ObjectHideFlags: 0
@@ -32785,10 +32586,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4091458836748221606
 Transform:
   m_ObjectHideFlags: 0
@@ -32838,10 +32635,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &4095126011060423219
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -32862,10 +32655,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4189308226060073904
 GameObject:
   m_ObjectHideFlags: 0
@@ -32897,10 +32686,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4194136735440924038
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -32961,10 +32746,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4199129096778321921
 Transform:
   m_ObjectHideFlags: 0
@@ -32992,10 +32773,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4221953252165443663
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -33056,10 +32833,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &4236191500503117564
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -33080,10 +32853,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4249514069549807364
 Transform:
   m_ObjectHideFlags: 0
@@ -33133,10 +32902,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4249792597860267030
 Transform:
   m_ObjectHideFlags: 0
@@ -33164,10 +32929,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4314677147042439294
 GameObject:
   m_ObjectHideFlags: 0
@@ -33199,10 +32960,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4315675419472686816
 GameObject:
   m_ObjectHideFlags: 0
@@ -33257,10 +33014,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4315675419716357834
 GameObject:
   m_ObjectHideFlags: 0
@@ -33315,10 +33068,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4315675420011678044
 GameObject:
   m_ObjectHideFlags: 0
@@ -33373,10 +33122,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4315675420447850679
 GameObject:
   m_ObjectHideFlags: 0
@@ -33431,10 +33176,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4316762183346185745
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -33495,10 +33236,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4317843991536962142
 Transform:
   m_ObjectHideFlags: 0
@@ -33526,10 +33263,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4318920047881609087
 Transform:
   m_ObjectHideFlags: 0
@@ -33557,10 +33290,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &4362187827671309400
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -33581,10 +33310,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4376474067523382876
 GameObject:
   m_ObjectHideFlags: 0
@@ -33616,10 +33341,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4411838570052124850
 GameObject:
   m_ObjectHideFlags: 0
@@ -33651,10 +33372,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4413418228722305788
 GameObject:
   m_ObjectHideFlags: 0
@@ -33709,10 +33426,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4429121289618917791
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -33795,10 +33508,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4429121289662495386
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -33881,10 +33590,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4429121289970349535
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -33967,10 +33672,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4429121290155654938
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -34053,10 +33754,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4429121290270928487
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -34139,10 +33836,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4429121290397542297
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -34225,10 +33918,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4429121290558483149
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -34311,10 +34000,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4429121290725681867
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -34397,10 +34082,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &4448148496824413212
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -34421,10 +34102,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &4448148496906437325
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -34445,10 +34122,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &4448148497009025914
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -34469,10 +34142,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &4448148498153076043
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -34493,10 +34162,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &4448148498187561532
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -34517,10 +34182,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &4448148498447579639
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -34541,10 +34202,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &4448148498546745037
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -34565,10 +34222,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &4448148498549168941
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -34589,10 +34242,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4508704148691581513
 GameObject:
   m_ObjectHideFlags: 0
@@ -34624,10 +34273,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4508750346386090647
 Transform:
   m_ObjectHideFlags: 0
@@ -34655,10 +34300,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4535951861725313191
 Transform:
   m_ObjectHideFlags: 0
@@ -34686,10 +34327,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4548369192823033674
 Transform:
   m_ObjectHideFlags: 0
@@ -34717,10 +34354,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4571754412085074707
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -34781,10 +34414,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4573216410440504905
 Transform:
   m_ObjectHideFlags: 0
@@ -34812,10 +34441,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &4583766579599507278
 GameObject:
   m_ObjectHideFlags: 0
@@ -34847,10 +34472,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &4592276545919710411
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -34871,10 +34492,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4593156844582177424
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -34935,10 +34552,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4593156844591540873
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -34999,10 +34612,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4593156844738418074
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -35063,10 +34672,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4593156844869527808
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -35127,10 +34732,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4593156844934357934
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -35191,10 +34792,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4593156844963597803
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -35255,10 +34852,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4593156845296557830
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -35319,10 +34912,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4593156845482940261
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -35383,10 +34972,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4593156846536603300
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -35447,10 +35032,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4593156846538201843
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -35511,10 +35092,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &4597651963467202308
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -35575,10 +35152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &4612851121775788389
 Transform:
   m_ObjectHideFlags: 0
@@ -39994,10 +39567,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &5854912504644167310
 GameObject:
   m_ObjectHideFlags: 0
@@ -40052,10 +39621,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &5856786436300178234
 Transform:
   m_ObjectHideFlags: 0
@@ -42700,10 +42265,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &7015926704556918282
 GameObject:
   m_ObjectHideFlags: 0
@@ -42765,10 +42326,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7031625926087750659
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -42811,10 +42368,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &7035759855154894476
 Transform:
   m_ObjectHideFlags: 0
@@ -43201,10 +42754,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &7209383268138067625
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -43313,10 +42862,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &7264225640474838138
 GameObject:
   m_ObjectHideFlags: 0
@@ -43346,10 +42891,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &7264460044384232533
 GameObject:
   m_ObjectHideFlags: 0
@@ -43404,10 +42945,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &7278919445917619969
 GameObject:
   m_ObjectHideFlags: 0
@@ -43447,10 +42984,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &7300924806564485325
 Transform:
   m_ObjectHideFlags: 0
@@ -43508,10 +43041,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556696037460895
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -43554,10 +43083,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556696167257576
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -43600,10 +43125,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556696272026739
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -43646,10 +43167,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556696378345104
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -43692,10 +43209,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556696407223432
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -43738,10 +43251,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556696584296551
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -43784,10 +43293,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556696821516607
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -43830,10 +43335,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556696968433020
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -43876,10 +43377,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556697225433294
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -43922,10 +43419,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556697372813513
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -43968,10 +43461,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556697380848579
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44014,10 +43503,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556697602433634
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44060,10 +43545,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556697628415952
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44106,10 +43587,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556697799991346
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44152,10 +43629,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7338556698050280755
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44198,10 +43671,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &7341771166818870643
 Transform:
   m_ObjectHideFlags: 0
@@ -44378,10 +43847,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7415361156307520671
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44402,10 +43867,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7429885109209792762
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44426,10 +43887,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7461054755572809127
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44472,10 +43929,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7461054755624496687
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44518,10 +43971,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7461054755899501512
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44564,10 +44013,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7461054756225181483
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44610,10 +44055,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7461054756848990203
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44656,10 +44097,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7461054756960170136
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -44702,10 +44139,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &7467799447576786189
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -44774,10 +44207,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &7510793833186555895
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -46029,10 +45458,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &7705618156781718582
 GameObject:
   m_ObjectHideFlags: 0
@@ -46102,10 +45527,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7723778750826229043
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -46126,10 +45547,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7724708022368565266
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -46150,10 +45567,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &7742671161098549688
 Transform:
   m_ObjectHideFlags: 0
@@ -46184,10 +45597,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &7742671162413620405
 Transform:
   m_ObjectHideFlags: 0
@@ -46218,10 +45627,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &7764343977561374826
 GameObject:
   m_ObjectHideFlags: 0
@@ -46376,10 +45781,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &7896395902063549165
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -47321,10 +46722,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &7933592951482827383
 GameObject:
   m_ObjectHideFlags: 0
@@ -47364,10 +46761,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &7945103253075113732
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -47388,10 +46781,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &7946665344908266939
 Transform:
   m_ObjectHideFlags: 0
@@ -47754,10 +47143,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &8124636414891712959
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -47818,10 +47203,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8134560431125721804
 GameObject:
   m_ObjectHideFlags: 0
@@ -47880,10 +47261,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8177295789534406972
 GameObject:
   m_ObjectHideFlags: 0
@@ -47942,10 +47319,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8187071457156571555
 GameObject:
   m_ObjectHideFlags: 0
@@ -48041,10 +47414,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8212408442768791864
 Transform:
   m_ObjectHideFlags: 0
@@ -48136,10 +47505,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8274833435751627281
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -48160,10 +47525,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &8276972989479552368
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -48224,10 +47585,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8281260561846487818
 GameObject:
   m_ObjectHideFlags: 0
@@ -48313,10 +47670,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8303317485155229468
 GameObject:
   m_ObjectHideFlags: 0
@@ -48727,10 +48080,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8368487688168830583
 GameObject:
   m_ObjectHideFlags: 0
@@ -48800,10 +48149,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &8403105690940045268
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -48864,10 +48209,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8420007116861423783
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -48910,10 +48251,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8420007117588132825
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -48956,10 +48293,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8420007117591775135
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -49002,10 +48335,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8420007118331983752
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -49048,10 +48377,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8420033259920018721
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -49072,10 +48397,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &8437833313128997794
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -49136,10 +48457,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8465458976156374096
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -49160,10 +48477,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8469171549217188904
 GameObject:
   m_ObjectHideFlags: 0
@@ -49281,10 +48594,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &8480967820143786888
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -49345,10 +48654,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8484264429112402118
 GameObject:
   m_ObjectHideFlags: 0
@@ -49428,10 +48733,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8532810737757607976
 Transform:
   m_ObjectHideFlags: 0
@@ -49482,10 +48783,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8544839549738597237
 GameObject:
   m_ObjectHideFlags: 0
@@ -49906,10 +49203,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8596477691802772189
 Transform:
   m_ObjectHideFlags: 0
@@ -49959,10 +49252,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8596477693134555088
 Transform:
   m_ObjectHideFlags: 0
@@ -50012,10 +49301,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8611272159477779239
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -50058,10 +49343,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8611272160316908419
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -50104,10 +49385,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8611272160722850446
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -50150,10 +49427,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8611272161067035093
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -50196,10 +49469,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8614538211175687635
 GameObject:
   m_ObjectHideFlags: 0
@@ -50239,10 +49508,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8640675767861366370
 Transform:
   m_ObjectHideFlags: 0
@@ -50289,10 +49554,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8668656720579318509
 GameObject:
   m_ObjectHideFlags: 0
@@ -50347,10 +49608,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8668656720613346090
 GameObject:
   m_ObjectHideFlags: 0
@@ -50405,10 +49662,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8670414501293365413
 GameObject:
   m_ObjectHideFlags: 0
@@ -50440,10 +49693,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612326494512354
 Transform:
   m_ObjectHideFlags: 0
@@ -50493,10 +49742,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612326696709086
 Transform:
   m_ObjectHideFlags: 0
@@ -50546,10 +49791,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612326985221542
 Transform:
   m_ObjectHideFlags: 0
@@ -50599,10 +49840,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612327092506642
 Transform:
   m_ObjectHideFlags: 0
@@ -50652,10 +49889,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612327103761560
 Transform:
   m_ObjectHideFlags: 0
@@ -50705,10 +49938,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612327369130167
 Transform:
   m_ObjectHideFlags: 0
@@ -50758,10 +49987,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612327456932336
 Transform:
   m_ObjectHideFlags: 0
@@ -50811,10 +50036,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612327491718556
 Transform:
   m_ObjectHideFlags: 0
@@ -50864,10 +50085,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612327787379104
 Transform:
   m_ObjectHideFlags: 0
@@ -50917,10 +50134,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612327872140069
 Transform:
   m_ObjectHideFlags: 0
@@ -50970,10 +50183,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612328199287068
 Transform:
   m_ObjectHideFlags: 0
@@ -51023,10 +50232,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612328267311007
 Transform:
   m_ObjectHideFlags: 0
@@ -51076,10 +50281,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612328398337821
 Transform:
   m_ObjectHideFlags: 0
@@ -51129,10 +50330,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612328460880849
 Transform:
   m_ObjectHideFlags: 0
@@ -51182,10 +50379,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612328548434849
 Transform:
   m_ObjectHideFlags: 0
@@ -51235,10 +50428,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612328613909518
 Transform:
   m_ObjectHideFlags: 0
@@ -51288,10 +50477,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8678612328615048940
 Transform:
   m_ObjectHideFlags: 0
@@ -51360,10 +50545,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8701557175315220635
 GameObject:
   m_ObjectHideFlags: 0
@@ -51407,10 +50588,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8766012817103884720
 Transform:
   m_ObjectHideFlags: 0
@@ -51460,10 +50637,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8789698799031618451
 GameObject:
   m_ObjectHideFlags: 0
@@ -51495,10 +50668,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8804616018070516614
 Transform:
   m_ObjectHideFlags: 0
@@ -51526,10 +50695,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8815447055797049534
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -51550,10 +50715,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8815829428933864069
 Transform:
   m_ObjectHideFlags: 0
@@ -51581,10 +50742,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &8817318382390306783
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -51645,10 +50802,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8832599694974762575
 Transform:
   m_ObjectHideFlags: 0
@@ -51676,10 +50829,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8836063295124169893
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -51700,10 +50849,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8841557120271205250
 GameObject:
   m_ObjectHideFlags: 0
@@ -51735,10 +50880,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8847846492973378793
 Transform:
   m_ObjectHideFlags: 0
@@ -51766,10 +50907,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &8883562904828578998
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -51830,10 +50967,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &8884251555527874967
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -51894,10 +51027,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8910392966602958966
 Transform:
   m_ObjectHideFlags: 0
@@ -51925,10 +51054,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &8941907753306580480
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -51949,10 +51074,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &8980749919359046872
 GameObject:
   m_ObjectHideFlags: 0
@@ -51984,10 +51105,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &8991204044501925737
 Transform:
   m_ObjectHideFlags: 0
@@ -52015,10 +51132,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &9016613843003900562
 GameObject:
   m_ObjectHideFlags: 0
@@ -52050,10 +51163,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &9024922029621625449
 GameObject:
   m_ObjectHideFlags: 0
@@ -52085,10 +51194,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9069843795520446850
 Transform:
   m_ObjectHideFlags: 0
@@ -52138,10 +51243,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9069843795823092175
 Transform:
   m_ObjectHideFlags: 0
@@ -52191,10 +51292,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442269979741528
 Transform:
   m_ObjectHideFlags: 0
@@ -52244,10 +51341,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442270073932348
 Transform:
   m_ObjectHideFlags: 0
@@ -52297,10 +51390,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442270140607999
 Transform:
   m_ObjectHideFlags: 0
@@ -52350,10 +51439,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442270413525862
 Transform:
   m_ObjectHideFlags: 0
@@ -52403,10 +51488,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442270617162779
 Transform:
   m_ObjectHideFlags: 0
@@ -52456,10 +51537,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442270722644978
 Transform:
   m_ObjectHideFlags: 0
@@ -52509,10 +51586,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442270729116796
 Transform:
   m_ObjectHideFlags: 0
@@ -52562,10 +51635,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442271027601035
 Transform:
   m_ObjectHideFlags: 0
@@ -52615,10 +51684,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442271110825082
 Transform:
   m_ObjectHideFlags: 0
@@ -52668,10 +51733,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442271181825980
 Transform:
   m_ObjectHideFlags: 0
@@ -52721,10 +51782,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442271398655866
 Transform:
   m_ObjectHideFlags: 0
@@ -52774,10 +51831,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442271702658141
 Transform:
   m_ObjectHideFlags: 0
@@ -52827,10 +51880,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442271720477747
 Transform:
   m_ObjectHideFlags: 0
@@ -52880,10 +51929,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442271766922843
 Transform:
   m_ObjectHideFlags: 0
@@ -52933,10 +51978,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442271963097954
 Transform:
   m_ObjectHideFlags: 0
@@ -52986,10 +52027,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9074442272004674637
 Transform:
   m_ObjectHideFlags: 0
@@ -53039,10 +52076,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &9080126405780829908
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -53103,10 +52136,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9089155486800845821
 Transform:
   m_ObjectHideFlags: 0
@@ -53140,10 +52169,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9133485683565487027
 Transform:
   m_ObjectHideFlags: 0
@@ -53171,10 +52196,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9134243475185677970
 Transform:
   m_ObjectHideFlags: 0
@@ -53202,10 +52223,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9140866574870164033
 Transform:
   m_ObjectHideFlags: 0
@@ -53233,10 +52250,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &9144932707391727787
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -53257,10 +52270,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9148492165835029116
 Transform:
   m_ObjectHideFlags: 0
@@ -53288,10 +52297,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1 &9154731255154870140
 GameObject:
   m_ObjectHideFlags: 0
@@ -53323,10 +52328,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &9159155144223215946
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -53387,10 +52388,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &9163461282050976879
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -53411,10 +52408,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!4 &9180877674488802509
 Transform:
   m_ObjectHideFlags: 0
@@ -53442,10 +52435,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!23 &9209992749202654592
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -53506,10 +52495,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!33 &9210690587288469138
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -53530,10 +52515,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774fda3124cde4e0e8a62a3b0dea59c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Cars.Scripts.ProximityFader
-  fadeStartDistance: 3
-  fadeEndDistance: 1
-  minAlpha: 0
-  fadeSpeed: 8
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -53555,3 +52536,4 @@ SceneRoots:
   - {fileID: 1480799662}
   - {fileID: 115680629}
   - {fileID: 1150255072}
+  - {fileID: 1691846958}

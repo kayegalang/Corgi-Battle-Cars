@@ -39,7 +39,6 @@ namespace _Audio.scripts
         {
             try
             {
-                Debug.Log($"[MusicController] Using FMOD event path: {FMODEvents.instance.DogParkStart.Path}");
                 musicInstance = RuntimeManager.CreateInstance(FMODEvents.instance.DogParkStart);
                 musicInstance.setVolume(normalVolume);
 

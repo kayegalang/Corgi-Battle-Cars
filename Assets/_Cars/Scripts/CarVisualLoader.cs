@@ -178,7 +178,7 @@ namespace _Cars.Scripts
 
             Transform car = spawnedCar.transform;
 
-            // ── HitEffects (car flash renderers) ─────────
+            // ── HitEffects FIRST — sets up original + flash material cache ──
             HitEffects hitEffects = GetComponent<HitEffects>();
             if (hitEffects != null)
             {
@@ -186,15 +186,11 @@ namespace _Cars.Scripts
                 hitEffects.SetRenderers(renderers);
             }
 
-            // ── CarColorizer (hue shift per player) ──────
-            CarColorizer colorizer = GetComponent<CarColorizer>();
-            Debug.Log($"[CarVisualLoader] CarColorizer found: {colorizer != null}");
+            // ── CarColorizer AFTER — applies hue to both renderers AND HitEffects cache ──
+            CarColorizer colorizer = spawnedCar.GetComponent<CarColorizer>();
+            Debug.Log($"[CarVisualLoader] CarColorizer found on car: {colorizer != null}");
             if (colorizer != null)
-            {
-                Renderer[] renderers = spawnedCar.GetComponentsInChildren<Renderer>();
-                Debug.Log($"[CarVisualLoader] Passing {renderers.Length} renderers to CarColorizer");
-                colorizer.ApplyColor(renderers);
-            }
+                colorizer.ApplyColor(GetPlayerIndex(), hitEffects);
 
             // ── CarDeathEffects ──────────────────────────
             CarDeathEffects deathEffects = GetComponent<CarDeathEffects>();

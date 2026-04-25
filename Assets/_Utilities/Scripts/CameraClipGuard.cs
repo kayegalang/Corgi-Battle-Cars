@@ -4,11 +4,8 @@ namespace _Cars.Scripts
 {
     /// <summary>
     /// Fixes the gray skybox caused by the camera clipping inside meshes (benches etc.)
+    /// Also enforces a minimum Y position so the camera never clips into the ground.
     /// Add to the ShakePivot GameObject where the Camera component lives.
-    ///
-    /// When the camera detects it is overlapping geometry, it increases the near clip
-    /// plane so the mesh faces are clipped away — preventing the gray skybox entirely.
-    /// Cinemachine still controls the camera position freely.
     /// </summary>
     [RequireComponent(typeof(Camera))]
     public class CameraClipGuard : MonoBehaviour
@@ -30,8 +27,14 @@ namespace _Cars.Scripts
         [Tooltip("Layers to check — should include Ground, Default, anything physical. Exclude Players.")]
         [SerializeField] private LayerMask detectionMask;
 
-        private Camera      cam;
-        private Collider[]  overlapBuffer = new Collider[8];
+        [Header("Ground Floor")]
+        [Tooltip("Camera will never go below this world Y position — prevents ground clipping")]
+        [SerializeField] private float minimumCameraY = 0.5f;
+        [Tooltip("Enable the minimum Y floor")]
+        [SerializeField] private bool  enforceMinimumY = true;
+
+        private Camera     cam;
+        private Collider[] overlapBuffer = new Collider[8];
 
         // ═══════════════════════════════════════════════
         //  LIFECYCLE
@@ -45,7 +48,18 @@ namespace _Cars.Scripts
 
         private void LateUpdate()
         {
-            // Check if camera is overlapping any geometry
+            // ── Minimum Y floor ───────────────────────
+            if (enforceMinimumY)
+            {
+                Vector3 pos = transform.position;
+                if (pos.y < minimumCameraY)
+                {
+                    pos.y              = minimumCameraY;
+                    transform.position = pos;
+                }
+            }
+
+            // ── Near clip geometry check ──────────────
             int count = Physics.OverlapSphereNonAlloc(
                 transform.position,
                 overlapRadius,
@@ -53,9 +67,8 @@ namespace _Cars.Scripts
                 detectionMask,
                 QueryTriggerInteraction.Ignore);
 
-            bool insideGeometry = count > 0;
-
-            float targetClip = insideGeometry ? insideGeometryNearClip : normalNearClip;
+            bool  insideGeometry = count > 0;
+            float targetClip     = insideGeometry ? insideGeometryNearClip : normalNearClip;
 
             cam.nearClipPlane = Mathf.Lerp(
                 cam.nearClipPlane,
@@ -71,6 +84,14 @@ namespace _Cars.Scripts
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(transform.position, overlapRadius);
+
+            if (enforceMinimumY)
+            {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawLine(
+                    new Vector3(transform.position.x - 2f, minimumCameraY, transform.position.z),
+                    new Vector3(transform.position.x + 2f, minimumCameraY, transform.position.z));
+            }
         }
     }
 }
