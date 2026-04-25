@@ -270,7 +270,7 @@ namespace _Cars.Scripts
                 healthBarManager.gameObject.SetActive(false);
 
             GameObject killer = shooter != null ? shooter : lastAttacker;
-            string killerName = killer != null ? killer.tag : "Unknown";
+            string killerName = killer != null ? killer.tag : "The environment";
 
             if (deathSpectateManager != null)
                 deathSpectateManager.OnPlayerDeath(

@@ -29,7 +29,7 @@ namespace _UI.Scripts
         {
             "sent you to the dog house",
             "eliminated you",
-            "it's time to go to the vet"
+            "is taking you to the vet"
         };
 
         private Coroutine deathMessageRoutine;
