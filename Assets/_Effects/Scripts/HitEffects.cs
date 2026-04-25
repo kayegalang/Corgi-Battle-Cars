@@ -96,6 +96,18 @@ namespace _Effects.Scripts
             Debug.Log($"[HitEffects] Renderers rewired — {renderers.Length} renderer(s).");
         }
 
+        public void ApplyHueShiftToOriginals(float hue, string propertyName)
+        {
+            if (originalMaterials == null) return;
+            foreach (var mats in originalMaterials)
+            {
+                if (mats == null) continue;
+                foreach (var mat in mats)
+                    if (mat != null && mat.HasProperty(propertyName))
+                        mat.SetFloat(propertyName, hue);
+            }
+        }
+
         // ═══════════════════════════════════════════════
         //  PUBLIC API
         // ═══════════════════════════════════════════════

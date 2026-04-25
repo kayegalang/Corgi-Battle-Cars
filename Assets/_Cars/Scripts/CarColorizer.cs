@@ -1,3 +1,4 @@
+using _Effects.Scripts;
 using UnityEngine;
 
 namespace _Cars.Scripts
@@ -49,6 +50,22 @@ namespace _Cars.Scripts
             Renderer[] renderers = GetComponentsInChildren<Renderer>();
 
             ApplyHueShift(renderers, hue);
+            Debug.Log($"[CarColorizer] P{playerIdx + 1} → hue {hue}°");
+        }
+
+        public void ApplyColor(int playerIdx, HitEffects hitEffects)
+        {
+            if (playerIdx < 0 || playerIdx >= playerHues.Length) return;
+
+            float      hue       = playerHues[playerIdx];
+            Renderer[] renderers = GetComponentsInChildren<Renderer>();
+
+            ApplyHueShift(renderers, hue);
+
+            // Also apply to HitEffects cached original materials so flash works correctly
+            if (hitEffects != null)
+                hitEffects.ApplyHueShiftToOriginals(hue, hueShiftPropertyName);
+
             Debug.Log($"[CarColorizer] P{playerIdx + 1} → hue {hue}°");
         }
 

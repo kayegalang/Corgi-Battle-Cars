@@ -5,6 +5,8 @@ using _Utilities.Scripts;
 using _PowerUps.Scripts;
 using _PowerUps.ScriptableObjects;
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+
 /// <summary>
 /// Live presentation director tool for Corgi Battle Cars.
 /// Attach to any GameObject in the gameplay scene.
@@ -83,8 +85,12 @@ public class PresentationDirector : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3))                                GiveP1PowerUp(poopPowerUp,     "POOP TRAIL 💩");
         if (Input.GetKeyDown(KeyCode.Alpha4))                                TeleportAllNearP1();
         if (Input.GetKeyDown(KeyCode.Alpha5))                                ToggleSlowMo();
+    }
 
-        // Continuously enforce focus layout so respawns can't reset it
+    private void LateUpdate()
+    {
+        // LateUpdate runs AFTER PlayerManager and SpawnManager touch cameras
+        // so our viewport enforcement always wins
         if (isFocused) EnforceFocusLayout();
     }
 
@@ -209,6 +215,18 @@ public class PresentationDirector : MonoBehaviour
             Camera cam = GetCameraForTag(tags[i]);
             if (cam != null) cam.rect = NormalRects[i];
         }
+
+        // Refresh all player UI anchors so power up holder repositions correctly
+        var uiManagers = FindObjectsByType<_UI.Scripts.PlayerUIManager>(FindObjectsSortMode.None);
+        foreach (var ui in uiManagers)
+            ui.RefreshAnchors();
+
+        // Fix any DeathSpectateManagers that captured wrong originalViewportRect
+        // while spawned during focus mode
+        var spectateManagers = FindObjectsByType<_UI.Scripts.DeathSpectateManager>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var s in spectateManagers)
+            s.RefreshOriginalViewportRect();
     }
 
     // ═══════════════════════════════════════════════
@@ -365,3 +383,5 @@ public class PresentationDirector : MonoBehaviour
         if (overlayCanvas != null) overlayCanvas.gameObject.SetActive(false);
     }
 }
+
+#endif
